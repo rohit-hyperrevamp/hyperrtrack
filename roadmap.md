@@ -29,6 +29,10 @@
 
 ## Current request
 
+- [x] Reconcile the uploaded BFL Telangana MIS total against approved system attendance branch by branch.
+- [x] Identify the complete 2634 vs 2583.54 variance, including missing and extra branches.
+- [x] Reassign CLI3885 Medha Hospital Road from the unrelated ORG296 to BFL Rural and preserve its BFL MIS attributes.
+- [ ] Publish the shared BFL MIS template fix and verify the regenerated Telangana total on the live site.
 - [x] Diagnose the sudden global slowdown against the live database and isolate Training from the regression.
 - [x] Remove duplicate Attendance/Payroll/Invoice period-status reads and debounce realtime refresh storms.
 - [x] Move attendance photos beside their respective Day Patrol punch-in/out times and remove the separate gallery.
