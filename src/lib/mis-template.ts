@@ -218,6 +218,38 @@ export async function loadMisTemplateForCustomer(customerId: string | null | und
   return toTemplate(t, (cols ?? []) as ColumnRow[]);
 }
 
+/**
+ * Resolve one MIS format for a multi-organization export (e.g. BFL Urban +
+ * Rural in one state). When every selected organization uses the same column
+ * layout, that layout is used and each site's saved custom values are carried
+ * over by header. Returns null only when layouts genuinely differ.
+ */
+export async function loadSharedMisTemplate(
+  customerIds: string[],
+  unitIds: string[],
+): Promise<{ template: MisTemplate | null; unitValues?: Map<string, string> }> {
+  const ids = Array.from(new Set(customerIds.filter(Boolean)));
+  if (ids.length === 0) return { template: null };
+  const templates = await Promise.all(ids.map((id) => loadMisTemplateForCustomer(id)));
+  if (templates.some((t) => !t)) return { template: null };
+  const list = templates as MisTemplate[];
+  const signature = (t: MisTemplate) => `${t.rowGrain}#${t.columns.map((c) => `${c.header}|${c.source}|${c.systemKey ?? ""}`).join("~")}`;
+  const primary = list[0];
+  if (list.some((t) => signature(t) !== signature(primary))) return { template: null };
+  const unitValues = new Map<string, string>();
+  for (const t of list) {
+    const values = await loadMisUnitValues(t.id, unitIds);
+    const primaryIdByHeader = new Map(primary.columns.map((c) => [c.header, c.id]));
+    const headerById = new Map(t.columns.map((c) => [c.id, c.header]));
+    for (const [key, value] of values) {
+      const [colId, unitId] = key.split("|");
+      const target = primaryIdByHeader.get(headerById.get(colId) ?? "");
+      if (target && !unitValues.has(`${target}|${unitId}`)) unitValues.set(`${target}|${unitId}`, value);
+    }
+  }
+  return { template: primary, unitValues };
+}
+
 /** Organizations marked "MIS not applicable": no MIS sheet is offered for them. */
 export async function loadMisDisabledCustomerIds(): Promise<Set<string>> {
   const { data, error } = await supabase
