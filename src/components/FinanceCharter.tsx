@@ -26,7 +26,7 @@ import { MoneyStatusBadge } from "@/components/PeriodStatusBadge";
 import { useCurrentPermissions } from "@/lib/rbac";
 import type { CharterUnitRow } from "@/lib/charter-units";
 import { payrollPeriodForMonth, type PayrollWindow } from "@/lib/payroll-period";
-import { buildMisSheet, loadMisDisabledCustomerIds, loadMisTemplateForCustomer, loadMisUnitValues, type MisSourceRow } from "@/lib/mis-template";
+import { buildMisSheet, loadMisDisabledCustomerIds, loadSharedMisTemplate, type MisSourceRow } from "@/lib/mis-template";
 import { billingRatePerDay, misBillingLine, periodDateList, resolveBillingDivisor } from "@/lib/mis-billing";
 import { buildTallyVoucherRows, writeTallyBillingXlsx } from "@/lib/tally-billing";
 import { loadGstBillingBranches, normalizeState, resolveGstBillingBranch } from "@/lib/gst-billing";
@@ -830,10 +830,10 @@ export function FinanceCharter({
       const customerIds = Array.from(
         new Set(unitRows.map((u) => String(u.customer_id ?? "")).filter(Boolean)),
       );
-      const template = customerIds.length === 1 ? await loadMisTemplateForCustomer(customerIds[0]) : null;
-      const unitValues = template ? await loadMisUnitValues(template.id, ids) : undefined;
+      const { template, unitValues } = await loadSharedMisTemplate(customerIds, ids);
       const sourceRows: MisSourceRow[] = [];
       let serial = 1;
+      const sgCountedUnits = new Set<string>();
       for (const u of targets) {
         const lines = linesByUnit.get(u.id);
         if (!lines || lines.size === 0) continue;
@@ -916,12 +916,13 @@ export function FinanceCharter({
               grand_total: round(totalBilling + lineTax.total),
               cli_id: unitRow.code ?? "",
               vendor_name: entity,
-              district: unitRow.billing_district || unitRow.billing_city || "",
-              pin_code: unitRow.billing_pincode ?? "",
-              address: [unitRow.billing_address1, unitRow.billing_address2].filter(Boolean).join(", "),
+              district: unitRow.client_district || unitRow.client_city || unitRow.billing_district || unitRow.billing_city || "",
+              pin_code: unitRow.client_pincode || unitRow.billing_pincode || "",
+              address: unitRow.client_address || [unitRow.billing_address1, unitRow.billing_address2].filter(Boolean).join(", "),
               gst_no: unitRow.gst_number ?? "",
               invoice_month: `${String(period.start).slice(8, 10)}-${String(period.start).slice(5, 7)}-${String(period.start).slice(0, 4)} To ${String(period.end).slice(8, 10)}-${String(period.end).slice(5, 7)}-${String(period.end).slice(0, 4)}`,
-              sg_count: 1,
+              // Contracted posts at the site, counted once per site.
+              sg_count: sgCountedUnits.has(u.id) ? 0 : (sgCountedUnits.add(u.id), (finance?.rates ?? []).reduce((s, r) => s + (Number(r.quantity) || 0), 0) || 1),
               regular_rate: rate.billRate,
               increment_rate: hasIncrement ? rate.billRate : 0,
               regular_duties: hasIncrement ? 0 : round(workingDays),
