@@ -2096,17 +2096,18 @@ function MusterRollPage() {
       const { error } = await q;
       if (error) throw error;
       if (mr.lineId) {
-        // Keep the posting when this line still has attendance in other periods.
-        let rest = supabase
+        // Keep the posting while the person still has any other line or any
+        // attendance at this site — deleting a reliever (R) line must never
+        // take the person's regular line down with it.
+        const hasOtherVisibleLine = musterRows.some(
+          (r) => !r.vacant && r.candidateId === mr.candidateId && r.key !== mr.key,
+        );
+        const { count } = await supabase
           .from("attendance_entries")
           .select("id", { count: "exact", head: true })
           .eq("unit_id", unitId)
-          .eq("candidate_id", mr.candidateId)
-          .eq("shift_hours" as never, v.shift as never)
-          .eq("is_reliever" as never, v.reliever as never);
-        rest = mr.designationId ? rest.eq("designation_id", mr.designationId) : rest.is("designation_id", null);
-        const { count } = await rest;
-        if (!count) {
+          .eq("candidate_id", mr.candidateId);
+        if (!count && !hasOtherVisibleLine) {
           const { error: unlinkError } = await supabase.from("candidate_units").delete().eq("id", mr.lineId);
           if (unlinkError) throw unlinkError;
         }
