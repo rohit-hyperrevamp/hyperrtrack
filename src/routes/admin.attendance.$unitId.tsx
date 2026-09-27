@@ -603,7 +603,7 @@ function MusterRollPage() {
   // Contract effective for the viewed month: payroll window + designations
   // available on this unit. Prefer the latest contract that overlaps the
   // register period; an older still-active record must not override a renewal.
-  const { data: contractInfo } = useQuery({
+  const { data: contractInfo, isLoading: contractInfoLoading } = useQuery({
     queryKey: ["attendance-contract", unitId, year, monthIdx],
     queryFn: async () => {
       const viewedMonthStart = search.start ?? ymd(year, monthIdx, 1);
@@ -3783,6 +3783,27 @@ toast.info("Listening… say e.g. \"1 hour 30 minutes\"");
     setAddCand("");
     setAddDesig("");
   };
+
+  // Attendance requires an active contract for the viewed period. Without one
+  // there is nothing to bill or pay against, so the register stays hidden.
+  if (!contractInfoLoading && contractInfo && !contractInfo.contractId) {
+    return (
+      <div className="space-y-3 px-0 py-2 sm:space-y-4 sm:px-6 sm:py-6">
+        <div className="mobile-glass-surface rounded-xl border border-border/60 bg-card/80 p-6 text-center shadow-sm sm:rounded-2xl sm:p-10">
+          <p className="font-display text-base font-bold text-foreground sm:text-lg">No active contract</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+            Attendance can only be recorded for a site with an active contract covering this period.
+            Create or renew the contract first, then come back to fill the muster roll.
+          </p>
+          <Button asChild variant="outline" className="mt-4">
+            <Link to="/admin/attendance">
+              <ChevronLeft className="h-4 w-4" /> Back to Attendance
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3 px-0 py-2 sm:space-y-4 sm:px-6 sm:py-6">
