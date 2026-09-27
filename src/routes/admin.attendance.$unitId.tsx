@@ -1779,12 +1779,23 @@ function MusterRollPage() {
       };
       if (lines.length) {
         for (const l of lines) {
-          pushRow(
-            l.designation_id ?? emp.designation_id,
-            lineVariant(l.shift_hours, l.is_reliever),
-            true,
-            l.id,
+          const lineDesig = l.designation_id ?? emp.designation_id;
+          const shiftNum = Number(l.shift_hours) === 8 || Number(l.shift_hours) === 12 ? Number(l.shift_hours) : 0;
+          // Saved attendance is authoritative for regular vs reliever. When the
+          // posting flag disagrees with the saved rows for the same designation
+          // and duty length, show ONE line (the saved one) instead of a
+          // phantom regular + reliever pair for the same person.
+          const sameShape = savedLines.filter(
+            (e) =>
+              (e.designation_id ?? null) === (lineDesig ?? null) &&
+              (Number(e.shift_hours) === 8 || Number(e.shift_hours) === 12 ? Number(e.shift_hours) : 0) === shiftNum,
           );
+          const flagMatches = sameShape.some((e) => !!e.is_reliever === !!l.is_reliever);
+          const variant =
+            sameShape.length && !flagMatches
+              ? lineVariant(shiftNum, sameShape[0].is_reliever)
+              : lineVariant(l.shift_hours, l.is_reliever);
+          pushRow(lineDesig, variant, true, l.id);
         }
       } else if (assigned && savedLines.length === 0) {
         // A legacy employee may be assigned through candidates.unit_id without
@@ -2085,17 +2096,18 @@ function MusterRollPage() {
       const { error } = await q;
       if (error) throw error;
       if (mr.lineId) {
-        // Keep the posting when this line still has attendance in other periods.
-        let rest = supabase
+        // Keep the posting while the person still has any other line or any
+        // attendance at this site — deleting a reliever (R) line must never
+        // take the person's regular line down with it.
+        const hasOtherVisibleLine = musterRows.some(
+          (r) => !r.vacant && r.candidateId === mr.candidateId && r.key !== mr.key,
+        );
+        const { count } = await supabase
           .from("attendance_entries")
           .select("id", { count: "exact", head: true })
           .eq("unit_id", unitId)
-          .eq("candidate_id", mr.candidateId)
-          .eq("shift_hours" as never, v.shift as never)
-          .eq("is_reliever" as never, v.reliever as never);
-        rest = mr.designationId ? rest.eq("designation_id", mr.designationId) : rest.is("designation_id", null);
-        const { count } = await rest;
-        if (!count) {
+          .eq("candidate_id", mr.candidateId);
+        if (!count && !hasOtherVisibleLine) {
           const { error: unlinkError } = await supabase.from("candidate_units").delete().eq("id", mr.lineId);
           if (unlinkError) throw unlinkError;
         }
