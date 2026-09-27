@@ -29,6 +29,8 @@
 
 ## Current request
 
+- [x] Make attendance row deletion remove only the selected regular/reliever posting and preserve sibling lines for the same employee.
+
 - [x] Reconcile the uploaded BFL Telangana MIS total against approved system attendance branch by branch.
 - [x] Identify the complete 2634 vs 2583.54 variance, including missing and extra branches.
 - [x] Reassign CLI3885 Medha Hospital Road from the unrelated ORG296 to BFL Rural and preserve its BFL MIS attributes.
