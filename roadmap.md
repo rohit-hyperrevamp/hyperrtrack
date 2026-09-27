@@ -29,6 +29,8 @@
 
 ## Current request
 
+- [x] Consolidate abbreviated and grade-suffixed designations end to end, including CCT/CCTV A-B, Fireman A, pump-operator A, ARG, CAHOT/TSM, and EXC.
+
 - [x] Make attendance row deletion remove only the selected regular/reliever posting and preserve sibling lines for the same employee.
 
 - [x] Reconcile the uploaded BFL Telangana MIS total against approved system attendance branch by branch.
