@@ -2096,21 +2096,13 @@ function MusterRollPage() {
       const { error } = await q;
       if (error) throw error;
       if (mr.lineId) {
-        // Keep the posting while the person still has any other line or any
-        // attendance at this site — deleting a reliever (R) line must never
-        // take the person's regular line down with it.
-        const hasOtherVisibleLine = musterRows.some(
-          (r) => !r.vacant && r.candidateId === mr.candidateId && r.key !== mr.key,
-        );
-        const { count } = await supabase
-          .from("attendance_entries")
-          .select("id", { count: "exact", head: true })
-          .eq("unit_id", unitId)
-          .eq("candidate_id", mr.candidateId);
-        if (!count && !hasOtherVisibleLine) {
-          const { error: unlinkError } = await supabase.from("candidate_units").delete().eq("id", mr.lineId);
-          if (unlinkError) throw unlinkError;
-        }
+        // A posting belongs to this exact muster line. Removing its row by id
+        // leaves the same person's regular/reliever sibling posting untouched.
+        const { error: unlinkError } = await supabase
+          .from("candidate_units")
+          .delete()
+          .eq("id", mr.lineId);
+        if (unlinkError) throw unlinkError;
       }
       setExtraRows((prev) => {
         const next = new Set(prev);
