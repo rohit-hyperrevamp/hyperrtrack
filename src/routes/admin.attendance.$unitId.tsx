@@ -603,7 +603,7 @@ function MusterRollPage() {
   // Contract effective for the viewed month: payroll window + designations
   // available on this unit. Prefer the latest contract that overlaps the
   // register period; an older still-active record must not override a renewal.
-  const { data: contractInfo } = useQuery({
+  const { data: contractInfo, isLoading: contractInfoLoading } = useQuery({
     queryKey: ["attendance-contract", unitId, year, monthIdx],
     queryFn: async () => {
       const viewedMonthStart = search.start ?? ymd(year, monthIdx, 1);
