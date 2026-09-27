@@ -518,3 +518,4 @@
 
 - [x] Attendance location rules (role + person) under Radar; server-enforced; auto-save missing site coordinates
 - [ ] End-to-end field test by user (FO anywhere, guard at mapped site, office staff at home office)
+- [x] Restore exact paise on all active BFL contract rates per Salary Master (26,049.88; 26,150.32; etc.)
