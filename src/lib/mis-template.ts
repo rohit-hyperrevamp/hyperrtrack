@@ -373,13 +373,25 @@ const MIS_NON_ADDITIVE_KEYS = new Set([
   "sg_rate",
 ]);
 
-/** Collapse the employee lines of each site into a single annexure row. */
+/**
+ * Collapse employee lines into site billing lines.
+ *
+ * A site can carry more than one contractual designation/rate (for example a
+ * Security Guard and a Bouncer). Those are separate invoice lines and must
+ * remain separate MIS lines; grouping only by unit would silently price every
+ * duty using whichever employee row happened to be encountered first.
+ */
 function mergeRowsPerSite(sourceRows: MisSourceRow[]): MisSourceRow[] {
-  const bySite = new Map<string, MisSourceRow>();
+  const byBillingLine = new Map<string, MisSourceRow>();
   for (const src of sourceRows) {
-    const existing = bySite.get(src.unitId);
+    const designation = norm(String(src.values.designation ?? ""));
+    const billingRate = Number(src.values.billing_rate) || 0;
+    const perDayRate = Number(src.values.billing_rate_per_day) || 0;
+    const shiftRate = Number(src.values.sg_rate) || Number(src.values.regular_rate) || 0;
+    const billingLineKey = `${src.unitId}|${designation}|${billingRate}|${perDayRate}|${shiftRate}`;
+    const existing = byBillingLine.get(billingLineKey);
     if (!existing) {
-      bySite.set(src.unitId, { unitId: src.unitId, values: { ...src.values } });
+      byBillingLine.set(billingLineKey, { unitId: src.unitId, values: { ...src.values } });
       continue;
     }
     for (const [key, value] of Object.entries(src.values)) {
@@ -393,7 +405,7 @@ function mergeRowsPerSite(sourceRows: MisSourceRow[]): MisSourceRow[] {
     }
   }
   let serial = 1;
-  return Array.from(bySite.values()).map((row) => {
+  return Array.from(byBillingLine.values()).map((row) => {
     const values = { ...row.values };
     if ("sr_no" in values) values.sr_no = serial++;
     for (const key of Object.keys(values)) {
