@@ -11,10 +11,12 @@ export function useIsHrHead(): boolean {
       if (!cid) return false;
       const { data: row } = await supabase
         .from("candidates")
-        .select("role_key, designations:designation_id(name)")
+        .select("role_key, designations:designation_id(name), departments:department_id(name)")
         .eq("id", cid as string)
         .maybeSingle();
-      const name = String((row as any)?.designations?.name ?? "").toLowerCase().replace(/\s+/g, " ");
+      const name = String((row as any)?.designations?.name ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+      const dept = String((row as any)?.departments?.name ?? "").toLowerCase().trim();
+      if (name === "head" && dept === "hr") return true;
       return /\b(hr head|head (of )?hr|head - hr|head human resources?)\b/.test(name);
     },
   });
