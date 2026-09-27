@@ -32,13 +32,11 @@ insert into designation_merge values
   ('EXC', 'Executive');
 
 insert into public.designations (name, code, enabled, billable)
-select distinct m.new_name, '', true,
-  coalesce((select bool_or(d.billable) from public.designations d where btrim(d.name) in (m.old_name, m.new_name)), false)
+select distinct m.new_name, '', true, false
 from designation_merge m
 where not exists (
   select 1 from public.designations d where lower(btrim(d.name)) = lower(m.new_name)
-)
-group by m.new_name;
+);
 
 create temp table designation_ids on commit drop as
 select old_d.id old_id, new_d.id new_id
