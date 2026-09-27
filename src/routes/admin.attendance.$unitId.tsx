@@ -1779,12 +1779,23 @@ function MusterRollPage() {
       };
       if (lines.length) {
         for (const l of lines) {
-          pushRow(
-            l.designation_id ?? emp.designation_id,
-            lineVariant(l.shift_hours, l.is_reliever),
-            true,
-            l.id,
+          const lineDesig = l.designation_id ?? emp.designation_id;
+          const shiftNum = Number(l.shift_hours) === 8 || Number(l.shift_hours) === 12 ? Number(l.shift_hours) : 0;
+          // Saved attendance is authoritative for regular vs reliever. When the
+          // posting flag disagrees with the saved rows for the same designation
+          // and duty length, show ONE line (the saved one) instead of a
+          // phantom regular + reliever pair for the same person.
+          const sameShape = savedLines.filter(
+            (e) =>
+              (e.designation_id ?? null) === (lineDesig ?? null) &&
+              (Number(e.shift_hours) === 8 || Number(e.shift_hours) === 12 ? Number(e.shift_hours) : 0) === shiftNum,
           );
+          const flagMatches = sameShape.some((e) => !!e.is_reliever === !!l.is_reliever);
+          const variant =
+            sameShape.length && !flagMatches
+              ? lineVariant(shiftNum, sameShape[0].is_reliever)
+              : lineVariant(l.shift_hours, l.is_reliever);
+          pushRow(lineDesig, variant, true, l.id);
         }
       } else if (assigned && savedLines.length === 0) {
         // A legacy employee may be assigned through candidates.unit_id without
