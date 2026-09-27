@@ -50,3 +50,35 @@ export async function fetchAttendanceEntriesForPeriod(params: {
 
   return rows;
 }
+
+/** Attendance grouped per (unit, person, line, code) — `days` rows each. */
+export type AttendanceEntryTotalRow = AttendanceEntryFetchRow & { unit_id: string; days: number };
+
+/**
+ * Charter-scale read: one grouped server request per window instead of paging
+ * every raw row. Multiply per-day values by `days`; `ot_hours` is already summed.
+ */
+export async function fetchAttendanceTotalsForPeriod(params: {
+  unitIds: string[];
+  start: string;
+  end: string;
+}): Promise<AttendanceEntryTotalRow[]> {
+  const unitIds = Array.from(new Set(params.unitIds));
+  if (unitIds.length === 0) return [];
+  const { data, error } = await (supabase.rpc as any)("finance_charter_entry_totals", {
+    _unit_ids: unitIds,
+    _start: params.start,
+    _end: params.end,
+  });
+  if (error) throw error;
+  return ((data ?? []) as any[]).map((r) => ({
+    unit_id: r.unit_id as string,
+    candidate_id: r.candidate_id as string,
+    designation_id: (r.designation_id ?? null) as string | null,
+    shift_hours: r.shift_hours == null ? null : Number(r.shift_hours),
+    code: r.code as string,
+    days: Number(r.days) || 0,
+    ot_hours: Number(r.ot_hours) || 0,
+    entry_date: params.start,
+  }));
+}

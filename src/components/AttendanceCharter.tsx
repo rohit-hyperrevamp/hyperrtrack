@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { downloadCsv } from "@/lib/csv-export";
 import { cn } from "@/lib/utils";
 import { useWorkforceCoverage, type UnitCoverage } from "@/components/WorkforceCoverage";
-import { fetchAttendanceEntriesForPeriod } from "@/lib/attendance-fetch";
+import { fetchAttendanceTotalsForPeriod } from "@/lib/attendance-fetch";
 import { fetchShiftHoursMap, shiftHoursFor, DEFAULT_SHIFT_HOURS } from "@/lib/shift-hours";
 import {
   fetchPeriodStatusesForUnitPeriods,
@@ -239,7 +239,7 @@ export function AttendanceCharter({
       }
       const pages = await Promise.all(
         Array.from(groups.values()).map((group) =>
-          fetchAttendanceEntriesForPeriod({ unitIds: group.unitIds, start: group.start, end: group.end, includeUnitId: true }),
+          fetchAttendanceTotalsForPeriod({ unitIds: group.unitIds, start: group.start, end: group.end }),
         ),
       );
       return pages.flat();
@@ -282,7 +282,7 @@ export function AttendanceCharter({
       const code = codeMap.get(e.code);
       const raw = code?.day_value;
       const dayValue = raw == null || Number.isNaN(Number(raw)) ? 1 : Math.max(0, Number(raw));
-      const counted = code ? (code.counts_as_present || code.is_paid ? dayValue : 0) : 0;
+      const counted = (code ? (code.counts_as_present || code.is_paid ? dayValue : 0) : 0) * ((e as { days?: number }).days ?? 1);
       const ot = Number(e.ot_hours) || 0;
       person.presentDays += counted;
       person.otDays += ot;
