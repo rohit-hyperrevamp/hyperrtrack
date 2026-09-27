@@ -277,10 +277,27 @@ export function FinanceCharter({
         group.unitIds.push(unitId);
         groups.set(key, group);
       }
+      // One grouped server read per payroll window instead of paging every raw
+      // attendance row — same totals, a fraction of the data.
       const pages = await Promise.all(
-        Array.from(groups.values()).map((group) =>
-          fetchAttendanceEntriesForPeriod({ unitIds: group.unitIds, start: group.start, end: group.end, includeUnitId: true }),
-        ),
+        Array.from(groups.values()).map(async (group) => {
+          const { data, error } = await (supabase.rpc as any)("finance_charter_entry_totals", {
+            _unit_ids: group.unitIds,
+            _start: group.start,
+            _end: group.end,
+          });
+          if (error) throw error;
+          return ((data ?? []) as any[]).map((r) => ({
+            unit_id: r.unit_id as string,
+            candidate_id: r.candidate_id as string,
+            designation_id: (r.designation_id ?? null) as string | null,
+            shift_hours: r.shift_hours == null ? null : Number(r.shift_hours),
+            code: r.code as string,
+            days: Number(r.days) || 0,
+            ot_hours: Number(r.ot_hours) || 0,
+            entry_date: group.start,
+          }));
+        }),
       );
       return pages.flat();
     },
@@ -334,7 +351,8 @@ export function FinanceCharter({
       const code = codeMap.get(e.code);
       const raw = code?.day_value;
       const dayValue = raw == null || Number.isNaN(Number(raw)) ? 1 : Math.max(0, Number(raw));
-      const counted = code ? (code.counts_as_present || code.is_paid ? dayValue : 0) : 0;
+      const n = (e as { days?: number }).days ?? 1;
+      const counted = (code ? (code.counts_as_present || code.is_paid ? dayValue : 0) : 0) * n;
       const ot = Number(e.ot_hours) || 0;
       person.paidDays += counted;
       person.otDays += ot;
@@ -342,7 +360,7 @@ export function FinanceCharter({
       // Billing counts only what the MIS/invoice bills: present days (P, HD)
       // and paid holidays (PH) plus Extra Duty. Paid weekly offs and paid
       // leave are part of the wage but are never billed as duties.
-      const billed = (!code ? 0 : code.counts_as_present || code.code.startsWith("PH") ? dayValue : 0) + ot;
+      const billed = (!code ? 0 : code.counts_as_present || code.code.startsWith("PH") ? dayValue : 0) * n + ot;
       if (rate) {
         person.invoiceAmount += billPerDay * billed;
         person.payrollAmount += (rate.grossRate / divisor) * payable;
