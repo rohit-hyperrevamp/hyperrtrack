@@ -379,7 +379,7 @@ function DashboardPage() {
 
       const lifecycle = (lifecycleData ?? {}) as {
         attendance?: { approved?: number; submitted?: number; rejected?: number; open?: number };
-        payroll?: { processed?: number; ready?: number; open?: number };
+        payroll?: { processed?: number; ready?: number; approved?: number; open?: number };
         invoice?: { processed?: number; ready?: number; open?: number };
       };
       const sheetCounts = lifecycleData
@@ -394,8 +394,8 @@ function DashboardPage() {
         : buckets(d.sheetCounts);
       const runCounts = lifecycleData
         ? {
-            approved: 0,
             pending: lifecycle.payroll?.ready ?? 0,
+            approved: lifecycle.payroll?.approved ?? 0,
             draft: 0,
             rejected: 0,
             open: lifecycle.payroll?.open ?? 0,
@@ -1141,6 +1141,7 @@ function DashboardPage() {
               draft={0}
               rejected={0}
               open={data.runCounts.open}
+              middle={{ value: data.runCounts.approved, label: "Approved" }}
               approvedLabel="Processed"
               pendingLabel="Ready"
               openLabel="Open"
@@ -1583,9 +1584,11 @@ function StatusTile({
   approvedLabel = "Approved",
   pendingLabel = "Pending",
   openLabel = "Open",
+  middle,
   to,
   accent = "emerald",
 }: {
+  middle?: { value: number; label: string };
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   approved: number;
@@ -1599,12 +1602,13 @@ function StatusTile({
   openLabel?: string;
   to: string;
 }) {
-  const total = Math.max(approved + pending + draft + rejected + (open ?? 0), 1);
+  const total = Math.max(approved + pending + draft + rejected + (open ?? 0) + (middle?.value ?? 0), 1);
+  const cols = (open != null ? 3 : 2) + (middle ? 1 : 0);
   return (
     <Shell to={to} accent={accent}>
       <TileHeader accent={accent} label={label} />
       <div
-        className={`relative mt-auto grid min-w-0 gap-1.5 pb-2 sm:gap-3 sm:pb-3 ${open != null ? "grid-cols-3" : "grid-cols-2"}`}
+        className={`relative mt-auto grid min-w-0 gap-1.5 pb-2 sm:gap-3 sm:pb-3 ${cols === 4 ? "grid-cols-4" : cols === 3 ? "grid-cols-3" : "grid-cols-2"}`}
       >
         <div className="min-w-0">
           <div className="whitespace-nowrap font-display text-[24px] font-medium tabular-nums leading-none text-foreground sm:text-[26px]">
@@ -1622,6 +1626,16 @@ function StatusTile({
             {pendingLabel}
           </div>
         </div>
+        {middle && (
+          <div className="min-w-0">
+            <div className="whitespace-nowrap font-display text-[24px] font-medium tabular-nums leading-none text-foreground sm:text-[26px]">
+              {middle.value}
+            </div>
+            <div className="mt-0.5 truncate whitespace-nowrap text-[9px] uppercase tracking-[0.08em] text-muted-foreground sm:mt-1 sm:text-[10px] sm:tracking-[0.1em]">
+              {middle.label}
+            </div>
+          </div>
+        )}
         {open != null && (
           <div className="min-w-0">
             <div className="whitespace-nowrap font-display text-[24px] font-medium tabular-nums leading-none text-foreground sm:text-[26px]">
@@ -1636,6 +1650,9 @@ function StatusTile({
       <div className="relative mt-auto flex h-1.5 overflow-hidden rounded-full bg-card/60">
         {approved > 0 && (
           <div className={ACCENT_BAR[accent]} style={{ width: `${(approved / total) * 100}%` }} />
+        )}
+        {(middle?.value ?? 0) > 0 && (
+          <div className="bg-muted-foreground/70" style={{ width: `${((middle?.value ?? 0) / total) * 100}%` }} />
         )}
         {pending > 0 && (
           <div
