@@ -420,6 +420,7 @@ function AdminLayout() {
       { key: "vehicles", label: "Vehicles", module: "vehicles", icon: Car, to: "/admin/vehicles", children: vehiclesChildren, activePrefixes: ["/admin/vehicles"] },
       { key: "assets", label: "Assets", module: "assets", icon: Home, to: "/admin/assets", children: assetsChildren, activePrefixes: ["/admin/assets"] },
       
+      { key: "my-attendance", label: "My Attendance", icon: Clock, to: "/admin/my-attendance", activePrefixes: ["/admin/my-attendance"] },
       { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
       { key: "compliance", label: "Compliance", icon: ShieldCheck, to: "/admin/compliance", activePrefixes: ["/admin/compliance"] },
       { key: "control", label: "Control Center", module: "control_center", icon: SlidersHorizontal, to: "/admin/control-center", children: controlCenterChildren, activePrefixes: ["/admin/control-center", "/admin/customers/state-manager", "/admin/customers/branch-manager"] },
@@ -892,9 +893,7 @@ function AdminLayout() {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
         if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        if (!moreItems.some((entry) => entry.to === "/admin/my-attendance" || entry.to === "/admin/attendance")) {
-          addMoreItem({ key: "my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") });
-        }
+        addMoreItem({ key: "my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") });
         if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav
