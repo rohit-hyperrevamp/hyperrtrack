@@ -321,12 +321,12 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
     queryFn: async (): Promise<FoUnit | null> => {
       const { data } = await supabase
         .from("units" as never)
-        .select("id, name, code, address, latitude, longitude, customers(name)")
+        .select("id, name, code, client_address, latitude, longitude, customers(name)")
         .eq("id", openVisit!.unit_id)
         .maybeSingle();
-      const r = data as { id: string; name: string; code: string | null; address: string | null; latitude: number | null; longitude: number | null; customers: { name: string | null } | null } | null;
+      const r = data as { id: string; name: string; code: string | null; client_address: string | null; latitude: number | null; longitude: number | null; customers: { name: string | null } | null } | null;
       if (!r) return null;
-      return { unit_id: r.id, unit_name: r.name, unit_code: r.code, customer_name: r.customers?.name ?? null, branch_name: null, address: r.address, latitude: r.latitude, longitude: r.longitude };
+      return { unit_id: r.id, unit_name: r.name, unit_code: r.code, customer_name: r.customers?.name ?? null, branch_name: null, address: r.client_address, latitude: r.latitude, longitude: r.longitude };
     },
   });
   const openVisitUnit = useMemo(
