@@ -19,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 
 export type AttendanceStatus = "draft" | "submitted" | "approved" | "rejected" | "none";
-export type MoneyStatus = "open" | "ready" | "processed";
+export type MoneyStatus = "open" | "ready" | "approved" | "processed";
 
 export type PeriodStatus = {
   unitId: string;
@@ -99,7 +99,10 @@ export async function fetchPeriodStatuses(
       unitId,
       attendance,
       handedOff,
-      payroll: money(run?.payroll_status),
+      payroll:
+        run?.payroll_status !== "processed" && ready && run?.status === "approved"
+          ? "approved"
+          : money(run?.payroll_status),
       invoice: sheet?.tally_invoice_path || finalised.has(unitId) ? "processed" : ready ? "ready" : "open",
       runId: run?.id ?? null,
     });
@@ -141,7 +144,10 @@ export async function fetchPeriodStatusesForUnitPeriods(
       unitId: row.unit_id,
       attendance,
       handedOff: ["submitted", "approved"].includes(row.run_status ?? ""),
-      payroll: money(row.payroll_status),
+      payroll:
+        row.payroll_status !== "processed" && ready && row.run_status === "approved"
+          ? "approved"
+          : money(row.payroll_status),
       invoice: row.tally_invoice_path || row.finalised ? "processed" : money(row.invoice_status),
       runId: row.run_id,
     });
