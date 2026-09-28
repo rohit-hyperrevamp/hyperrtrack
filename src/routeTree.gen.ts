@@ -124,6 +124,7 @@ import { Route as AdminAssetsInventoryRouteImport } from './routes/admin.assets.
 import { Route as AdminAssetsExpenseManagerRouteImport } from './routes/admin.assets.expense-manager'
 import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/native/push'
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
+import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
 
@@ -728,6 +729,12 @@ const ApiPublicHooksDailyPeoplePingsRoute =
     path: '/api/public/hooks/daily-people-pings',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAlertcheckinSyncRoute =
+  ApiPublicHooksAlertcheckinSyncRouteImport.update({
+    id: '/api/public/hooks/alertcheckin-sync',
+    path: '/api/public/hooks/alertcheckin-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminFieldSenseOfficerIdRoute =
   AdminFieldSenseOfficerIdRouteImport.update({
     id: '/field-sense/officer/$id',
@@ -857,6 +864,7 @@ export interface FileRoutesByFullPath {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
@@ -972,6 +980,7 @@ export interface FileRoutesByTo {
   '/admin/payroll': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
@@ -1092,6 +1101,7 @@ export interface FileRoutesById {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
@@ -1213,6 +1223,7 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
   fileRoutesByTo: FileRoutesByTo
@@ -1328,6 +1339,7 @@ export interface FileRouteTypes {
     | '/admin/payroll'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
   id:
@@ -1447,6 +1459,7 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
   fileRoutesById: FileRoutesById
@@ -1463,6 +1476,7 @@ export interface RootRouteChildren {
   ApiPublicDataDeletionRequestRoute: typeof ApiPublicDataDeletionRequestRoute
   ApiPublicOtpHealthRoute: typeof ApiPublicOtpHealthRoute
   ApiPublicSheetOcrRoute: typeof ApiPublicSheetOcrRoute
+  ApiPublicHooksAlertcheckinSyncRoute: typeof ApiPublicHooksAlertcheckinSyncRoute
   ApiPublicHooksDailyPeoplePingsRoute: typeof ApiPublicHooksDailyPeoplePingsRoute
   ApiPublicNativePushRoute: typeof ApiPublicNativePushRoute
 }
@@ -2274,6 +2288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDailyPeoplePingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/alertcheckin-sync': {
+      id: '/api/public/hooks/alertcheckin-sync'
+      path: '/api/public/hooks/alertcheckin-sync'
+      fullPath: '/api/public/hooks/alertcheckin-sync'
+      preLoaderRoute: typeof ApiPublicHooksAlertcheckinSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/field-sense/officer/$id': {
       id: '/admin/field-sense/officer/$id'
       path: '/field-sense/officer/$id'
@@ -2589,6 +2610,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDataDeletionRequestRoute: ApiPublicDataDeletionRequestRoute,
   ApiPublicOtpHealthRoute: ApiPublicOtpHealthRoute,
   ApiPublicSheetOcrRoute: ApiPublicSheetOcrRoute,
+  ApiPublicHooksAlertcheckinSyncRoute: ApiPublicHooksAlertcheckinSyncRoute,
   ApiPublicHooksDailyPeoplePingsRoute: ApiPublicHooksDailyPeoplePingsRoute,
   ApiPublicNativePushRoute: ApiPublicNativePushRoute,
 }
