@@ -309,6 +309,15 @@ function PayrollUnitPage() {
       return Boolean(data);
     },
   });
+  const { data: canProcess = false } = useQuery({
+    queryKey: ["can-process-payroll"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("current_user_can_process_payroll" as never);
+      if (error) return false;
+      return Boolean(data);
+    },
+  });
 
   type RunStatus = "draft" | "submitted" | "approved" | "rejected";
   type RunRow = {
