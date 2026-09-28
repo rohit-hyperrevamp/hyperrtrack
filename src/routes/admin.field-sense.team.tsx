@@ -292,6 +292,19 @@ function MyTeamPage() {
           >
             Today
           </button>
+          <label className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground">
+            State
+            <select
+              value={stateFilter}
+              onChange={(e) => setStateFilter(e.target.value)}
+              className="rounded-md border border-border bg-background px-2 py-1 text-[12px] font-semibold text-foreground"
+            >
+              <option value="all">All states</option>
+              {states.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </label>
           <div className="ml-auto flex flex-wrap items-center gap-x-6 gap-y-2">
             <Counter label="Punched-In" value={`${punchedIn}/${total}`} tone="sky" />
             <Counter label="In Meeting" value={inMeeting} tone="emerald" />
@@ -421,7 +434,7 @@ function TeamRow({ row }: { row: Row }) {
           <Link {...linkProps} className="block truncate text-[13px] font-semibold text-foreground hover:underline">
             {row.full_name}
           </Link>
-          <div className="truncate font-mono text-[10px] text-muted-foreground">{row.employee_code ?? "—"}</div>
+          <div className="truncate font-mono text-[10px] text-muted-foreground">{row.employee_code ?? "—"}{row.state ? ` · ${row.state}` : ""}</div>
         </div>
       </div>
 
