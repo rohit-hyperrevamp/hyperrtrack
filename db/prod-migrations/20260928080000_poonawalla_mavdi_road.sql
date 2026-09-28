@@ -10,6 +10,31 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS _bkp_poonawalla_mavdi_20260928 AS SELECT NULL::text AS note WHERE false;
 
+-- 0. Fix set_candidate_code(): lpad(x,3,'0') truncates codes > 999 (e.g. 49460 -> '494'),
+--    colliding with legacy CAN-494 etc. Use the plain sequence value instead.
+CREATE OR REPLACE FUNCTION public.set_candidate_code()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  next_code text;
+  attempts int := 0;
+BEGIN
+  IF NEW.candidate_code IS NULL OR NEW.candidate_code = '' THEN
+    LOOP
+      next_code := 'CAN-' || nextval('public.candidate_code_seq')::text;
+      EXIT WHEN NOT EXISTS (SELECT 1 FROM public.candidates WHERE candidate_code = next_code);
+      attempts := attempts + 1;
+      IF attempts > 100 THEN
+        RAISE EXCEPTION 'Could not allocate a unique candidate_code after 100 attempts';
+      END IF;
+    END LOOP;
+    NEW.candidate_code := next_code;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
 -- 1. Client
 INSERT INTO customers (id, code, name, status, industry_type, created_at, updated_at)
 VALUES (gen_random_uuid(), 'ORG387', 'Poonawalla Fincorp Ltd', 'active', 'NBFC', now(), now());
