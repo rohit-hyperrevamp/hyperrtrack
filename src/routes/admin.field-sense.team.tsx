@@ -36,6 +36,7 @@ type Row = {
   id: string;
   full_name: string;
   employee_code: string | null;
+  state: string | null;
   punch_in: string | null;
   punch_out: string | null;
   last_lat: number | null;
@@ -93,7 +94,7 @@ function MyTeamPage() {
     refetchInterval: 15_000,
     staleTime: 15_000,
     queryFn: async (): Promise<{ rows: Row[]; total: number }> => {
-      const [foRes, punchRes, visitsRes, tracksRes, unitsRes] = await Promise.all([
+      const [foRes, punchRes, visitsRes, tracksRes, unitsRes, cuRes] = await Promise.all([
         supabase
           .from("candidates" as never)
           .select("id, full_name, employee_code")
