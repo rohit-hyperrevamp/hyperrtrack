@@ -96,12 +96,12 @@ export const Route = createFileRoute("/api/public/hooks/alertcheckin-sync")({
           const posts: any[] = [];
           for (let i = 0; i < unitIds.length; i += 100) {
             const { data } = await db.from("candidate_units")
-              .select("unit_id,candidate_id,designation_id,is_reliever,candidates!inner(full_name,role_key,non_billable)")
+              .select("unit_id,candidate_id,designation_id,is_reliever,shift_hours,candidates!inner(full_name,role_key,non_billable)")
               .in("unit_id", unitIds.slice(i, i + 100));
             posts.push(...(data ?? []));
           }
           const guards = posts.filter((p) => p.candidates.role_key !== "field_officer" && !p.candidates.non_billable);
-          const agg = new Map<string, { unit_id: string; candidate_id: string; designation_id: string | null; rel: boolean; hrs: number }>();
+          const agg = new Map<string, { unit_id: string; candidate_id: string; designation_id: string | null; rel: boolean; hrs: number; shift: number }>();
           const unmatched: any[] = [];
           for (const r of mapped) {
             const unit = siteMap.get(r[2])!;
@@ -110,7 +110,7 @@ export const Route = createFileRoute("/api/public/hooks/alertcheckin-sync")({
             const hrs = r[4] && r[5] ? Number(r[5]) || 0 : 0;
             if (!best || bs < 0.5) { unmatched.push({ sync_date: date, ac_site_name: r[2], staff_name: r[0], unit_id: unit, reason: "No matching guard posted at this site", hours: hrs }); continue; }
             const kk = `${unit}|${best.candidate_id}`;
-            const a = agg.get(kk) ?? { unit_id: unit, candidate_id: best.candidate_id, designation_id: best.designation_id, rel: !!best.is_reliever, hrs: 0 };
+            const a = agg.get(kk) ?? { unit_id: unit, candidate_id: best.candidate_id, designation_id: best.designation_id, rel: !!best.is_reliever, hrs: 0, shift: [8, 12].includes(Number(best.shift_hours)) ? Number(best.shift_hours) : 0 };
             a.hrs += hrs; agg.set(kk, a);
           }
           for (const a of agg.values()) {
@@ -119,7 +119,7 @@ export const Route = createFileRoute("/api/public/hooks/alertcheckin-sync")({
             const ed = a.rel ? Math.max(a.hrs, 8) / 8 : Math.max(0, a.hrs - 8) / 8;
             const { error } = await db.from("attendance_entries").insert({
               unit_id: a.unit_id, candidate_id: a.candidate_id, entry_date: date, code: a.rel ? "" : "P",
-              ot_hours: Math.round(ed * 10000) / 10000, designation_id: a.designation_id, shift_hours: 0, is_reliever: a.rel,
+              ot_hours: Math.round(ed * 10000) / 10000, designation_id: a.designation_id, shift_hours: a.shift, is_reliever: a.rel,
             });
             if (error) { stats.skipped++; unmatched.push({ sync_date: date, ac_site_name: "", staff_name: a.candidate_id, unit_id: a.unit_id, reason: error.message, hours: a.hrs }); }
             else stats.inserted++;
