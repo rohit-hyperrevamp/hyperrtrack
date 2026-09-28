@@ -379,7 +379,7 @@ function DashboardPage() {
 
       const lifecycle = (lifecycleData ?? {}) as {
         attendance?: { approved?: number; submitted?: number; rejected?: number; open?: number };
-        payroll?: { processed?: number; ready?: number; open?: number };
+        payroll?: { processed?: number; ready?: number; approved?: number; open?: number };
         invoice?: { processed?: number; ready?: number; open?: number };
       };
       const sheetCounts = lifecycleData
@@ -394,7 +394,6 @@ function DashboardPage() {
         : buckets(d.sheetCounts);
       const runCounts = lifecycleData
         ? {
-            approved: 0,
             pending: lifecycle.payroll?.ready ?? 0,
             approved: lifecycle.payroll?.approved ?? 0,
             draft: 0,
