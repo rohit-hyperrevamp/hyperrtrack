@@ -626,25 +626,35 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
         />
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <div className="order-2 lg:order-1">
+      <div className="space-y-3">
+        <FieldSenseTimeline
+          visits={visits}
+          units={units}
+          openVisit={openVisit}
+          openVisitUnit={openVisitUnit}
+          distanceToDest={distanceToDest}
+          totalKmToday={totalKmToday}
+          onCompleteVisit={() => setCheckOutOpen(true)}
+          canRecord={canRecord}
+        />
+
           {/* Units list */}
           <div className="rounded-2xl border border-border/60 bg-card p-3 shadow-sm">
             <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-              My sites ({units.length})
+              {canRecord ? "My sites" : "Assigned sites"} ({units.length})
             </div>
             {unitsQ.isLoading ? (
               <div className="py-4 text-center text-[11px] italic text-muted-foreground">Loading…</div>
             ) : units.length === 0 ? (
               <div className="py-4 text-center text-[11px] italic text-muted-foreground">No sites assigned to you yet.</div>
             ) : (
-              <ul className="grid gap-2 sm:grid-cols-2">
+              <ul className="grid max-h-[360px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
                 {units.map((u) => {
                   const last = lastVisitQ.data?.get(u.unit_id) ?? null;
                   const count = monthCountsQ.data?.get(u.unit_id) ?? 0;
                   const href = mapsUrl(u.latitude, u.longitude);
                   return (
-                    <li key={u.unit_id} className="rounded-xl border border-border/50 bg-background/60 p-3">
+                    <li key={u.unit_id} className="rounded-xl border border-border/50 bg-background/60 p-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <div className="truncate text-sm font-semibold text-foreground">
@@ -677,22 +687,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
               </ul>
             )}
           </div>
-        </div>
-
-        <div className="order-1 lg:order-2">
-        <FieldSenseTimeline
-          visits={visits}
-          units={units}
-          openVisit={openVisit}
-          openVisitUnit={openVisitUnit}
-          distanceToDest={distanceToDest}
-          totalKmToday={totalKmToday}
-          onCompleteVisit={() => setCheckOutOpen(true)}
-          canRecord={canRecord}
-        />
-        </div>
       </div>
-
 
       {/* Distances strip */}
       {distances.length > 0 && (
@@ -1198,6 +1193,7 @@ function FieldSenseTimeline(props: {
   } = props;
 
   const unitFor = (id: string) => units.find((u) => u.unit_id === id) ?? null;
+  const [selected, setSelected] = useState<FieldVisit | null>(null);
   const completedVisits = visits.filter((v) => v.check_out_at);
 
   return (
@@ -1216,20 +1212,22 @@ function FieldSenseTimeline(props: {
         {completedVisits.map((v) => {
           const u = unitFor(v.unit_id);
           return (
+            <button key={v.id} type="button" className="block w-full rounded-lg text-left hover:bg-muted/50" onClick={() => setSelected(v)}>
             <TimelineRow
-              key={v.id}
               color="sky"
               icon={<Flag className="h-3.5 w-3.5" />}
               title={`Visit #${v.visit_seq} · ${u?.unit_name ?? "Client"}`}
               time={`${fmtTime(v.check_in_at)} → ${fmtTime(v.check_out_at)}`}
               subtitle={u?.address ?? u?.customer_name ?? ""}
-              chip={v.customer_rating != null ? `★ ${v.customer_rating}` : undefined}
+              chip={v.customer_rating != null ? `★ ${v.customer_rating}` : "Details"}
             />
+            </button>
           );
         })}
 
         {/* Active visit */}
         {openVisit && (
+          <div role="button" tabIndex={0} className="rounded-lg hover:bg-muted/50" onClick={() => setSelected(openVisit)} onKeyDown={(e) => { if (e.key === "Enter") setSelected(openVisit); }}>
           <TimelineRow
             color="amber"
             pulsing
@@ -1252,6 +1250,7 @@ function FieldSenseTimeline(props: {
               ) : undefined
             }
           />
+          </div>
         )}
 
         {visits.length === 0 && (
@@ -1260,8 +1259,48 @@ function FieldSenseTimeline(props: {
           </div>
         )}
       </div>
-
+      <VisitDetailDialog visit={selected} unit={selected ? unitFor(selected.unit_id) : null} onClose={() => setSelected(null)} />
     </div>
+  );
+}
+
+function VisitDetailDialog({ visit, unit, onClose }: { visit: FieldVisit | null; unit: FoUnit | null; onClose: () => void }) {
+  const q = useQuery({
+    queryKey: ["visit-detail-proofs", visit?.id, visit?.client_photo_url, visit?.client_signature_url],
+    enabled: !!visit,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const [photo, sign] = await Promise.all([signedProofUrl(visit?.client_photo_url ?? null), signedProofUrl(visit?.client_signature_url ?? null)]);
+      const nameQ = unit ? null : await supabase.from("units").select("unit_name, address").eq("id", visit!.unit_id).maybeSingle();
+      return { photo, sign, fallbackName: (nameQ?.data as { unit_name?: string } | null)?.unit_name ?? null };
+    },
+  });
+  return (
+    <Dialog open={!!visit} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Visit #{visit?.visit_seq} · {unit?.unit_name ?? q.data?.fallbackName ?? "Site"}</DialogTitle>
+        </DialogHeader>
+        {visit && (
+          <div className="space-y-3 text-[13px]">
+            {unit && <div className="text-muted-foreground">{[unit.customer_name, unit.address].filter(Boolean).join(" · ")}</div>}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-lg border border-border p-2"><div className="text-[10px] uppercase text-muted-foreground">Checked in</div><div className="font-semibold">{fmtTime(visit.check_in_at)}</div></div>
+              <div className="rounded-lg border border-border p-2"><div className="text-[10px] uppercase text-muted-foreground">Checked out</div><div className="font-semibold">{visit.check_out_at ? fmtTime(visit.check_out_at) : "In meeting"}</div></div>
+            </div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Client met</div><div className="font-semibold">{visit.client_name || "—"}</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Rating</div><div className="font-semibold">{visit.customer_rating != null ? `★ ${visit.customer_rating} / 5` : "—"}</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Feedback / notes</div><div className="whitespace-pre-wrap">{visit.visit_notes || "—"}</div></div>
+            {q.isLoading ? <div className="text-[12px] italic text-muted-foreground">Loading photo…</div> : (
+              <div className="grid grid-cols-2 gap-2">
+                <div><div className="text-[10px] uppercase text-muted-foreground">Photo</div>{q.data?.photo ? <a href={q.data.photo} target="_blank" rel="noopener noreferrer"><img src={q.data.photo} alt="Visit" className="mt-1 w-full rounded-lg border border-border" /></a> : <div>—</div>}</div>
+                <div><div className="text-[10px] uppercase text-muted-foreground">Client signature</div>{q.data?.sign ? <img src={q.data.sign} alt="Signature" className="mt-1 w-full rounded-lg border border-border bg-background" /> : <div>—</div>}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
