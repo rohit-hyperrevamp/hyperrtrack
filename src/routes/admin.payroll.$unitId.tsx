@@ -1077,6 +1077,47 @@ function PayrollUnitPage() {
   // paid in this period. Once a run is processed the paid figures are frozen in
   // the v1 snapshot — a later attendance amendment is settled as an
   // arrear/recovery in the NEXT payroll, so it must NOT rewrite this slip.
+  // Bank file (NEFT upload) — available only once payroll is processed.
+  // Uses the first paid snapshot's net pay; skips no-bank / zero-salary rows.
+  const downloadBankFile = async () => {
+    const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const MONTH = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const pd = run?.payroll_processed_at ? new Date(run.payroll_processed_at) : new Date();
+    const dd = String(pd.getDate()).padStart(2, "0");
+    const payDate = `${dd}-${MON[pd.getMonth()]}-${pd.getFullYear()}`;
+    const fileDate = `${dd}${String(pd.getMonth() + 1).padStart(2, "0")}${pd.getFullYear()}`;
+    const [ey, em] = String(end).split("-").map(Number);
+    const monthLabel = `${MONTH[(em || 1) - 1]} ${ey}`;
+    const siteName = String(unit?.name || unit?.code || "").toUpperCase().trim();
+    const header = ["Debit Ac No","Beneficiary Ac No","Beneficiary Name","Amt","Pay Mod (I=FT, N=NEFT, R=RTGS)","Date (DD-MMM-YYYY)","IFSC","Payable Location","Print Location","Bene Mobile No.","Bene Email ID","Bene add1","Bene add2","Bene add3","Bene add4","Add Details 1","Add Details 2","Add Details 3","Add Details 4","Add Details 5","Remarks"];
+    const aoa: unknown[][] = [header];
+    let skipped = 0;
+    for (const r of rows) {
+      const paid = snapshots.filter((s) => s.candidate_id === r.id).sort((a, b) => a.version - b.version)[0];
+      const net = Math.round(paid ? Number(paid.net_pay) || 0 : Number(r.wages?.netPay) || 0);
+      const acc = (r.bankAccountNumber || "").trim();
+      const ifsc = (r.bankIfsc || "").trim().toUpperCase();
+      if (!acc || !ifsc || net <= 0) { skipped++; continue; }
+      aoa.push(["007405004982", acc, (r.bankAccountHolder || r.name || "").toUpperCase(), net, "N", payDate, ifsc, "", "", "", "", siteName, String(r.employeeCode ?? ""), "", "", "", "", "", "", "", `Salary ${monthLabel}`]);
+    }
+    if (aoa.length === 1) { toast.error("No employees with bank details and salary to include."); return; }
+    const XLSX = await import("xlsx-js-style");
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    for (let i = 1; i < aoa.length; i++) {
+      for (const c of [0, 1, 12]) {
+        const cell = (ws as Record<string, { t?: string; z?: string; v?: unknown }>)[XLSX.utils.encode_cell({ r: i, c })];
+        if (cell) { cell.t = "s"; cell.z = "@"; cell.v = String(cell.v ?? ""); }
+      }
+    }
+    (ws as Record<string, unknown>)["!cols"] = header.map((h, i) => ({ wch: i === 11 ? 36 : Math.max(12, Math.min(h.length + 2, 22)) }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Bank Statement${MONTH[(em || 1) - 1]} - ${ey}`.slice(0, 31));
+    const safe = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "");
+    XLSX.writeFile(wb, `RADGUSPL_RADGUSPLUPLD_${fileDate}_${unit?.code ?? ""}_${safe(siteName)}_${monthLabel.toUpperCase().replace(" ", "_")}.xlsx`);
+    void logActivity({ module: "Payroll", action: "export", description: `Bank file downloaded for ${unit?.code ?? unitId} (${aoa.length - 1} employees)` } as never);
+    toast.success(`Bank file downloaded — ${aoa.length - 1} employee(s)${skipped ? `, ${skipped} left out (no bank details or zero salary)` : ""}.`);
+  };
+
   const buildSlip = (r: (typeof rows)[number]): WageSlipData => {
     const paid = snapshots
       .filter((s) => s.candidate_id === r.id)
@@ -1892,6 +1933,11 @@ function PayrollUnitPage() {
               {lastSnapshotVersion > 1 ? ` · v${lastSnapshotVersion}` : ""}
               {run?.payroll_processed_at ? ` · ${new Date(run.payroll_processed_at).toLocaleDateString("en-IN")}` : ""}
             </span>
+          )}
+          {isProcessed && (
+            <Button size="sm" variant="outline" onClick={() => void downloadBankFile()}>
+              <Download className="mr-1.5 h-4 w-4" /> Bank File
+            </Button>
           )}
           {amendmentPending && canProcess && (
             <Button
