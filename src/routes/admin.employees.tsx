@@ -8590,7 +8590,7 @@ function CandidateWizard({
                         </Field>
                         <Field label="Personal Phone Number">
                           <Input
-                            value={form.personal_mobile}
+                            value={form.personal_mobile ?? ""}
                             inputMode="numeric"
                             placeholder="Optional"
                             className="font-mono"
