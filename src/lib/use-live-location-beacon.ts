@@ -70,11 +70,13 @@ export function useLiveLocationBeacon() {
             accuracy: geo.accuracy,
             visitId: null,
           });
+          // Only advance the anchor once a point is stored, so slow steady
+          // movement still accumulates into a trail instead of being skipped.
+          lastRef.current = { lat: geo.lat, lng: geo.lng, at: Date.now() };
         } catch {
           /* trail write is best-effort */
         }
       }
-      lastRef.current = { lat: geo.lat, lng: geo.lng, at: Date.now() };
     }
 
     void refreshPunch();
