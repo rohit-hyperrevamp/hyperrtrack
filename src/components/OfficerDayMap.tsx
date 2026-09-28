@@ -96,7 +96,16 @@ export function OfficerDayMap({ candidateId, date }: { candidateId: string; date
       path.push(...track);
       if (punch?.check_out_lat != null && punch.check_out_lng != null) path.push([Number(punch.check_out_lat), Number(punch.check_out_lng)]);
       else if (punch?.last_lat != null && punch.last_lng != null) path.push([Number(punch.last_lat), Number(punch.last_lng)]);
-      if (path.length > 1) { L.polyline(path, { color: "#0ea5e9", weight: 4, opacity: 0.8 }).addTo(g); pts.push(...path); }
+      if (path.length > 1) {
+        pts.push(...path);
+        const line = L.polyline(path, { color: "#0ea5e9", weight: 4, opacity: 0.5, dashArray: "6 6" }).addTo(g);
+        // Snap the trail onto real roads; keep the dashed straight line only if routing is unavailable.
+        snapToRoads(path).then((road) => {
+          if (!road || layerRef.current !== g) return;
+          line.setLatLngs(road);
+          line.setStyle({ opacity: 0.85, dashArray: undefined });
+        });
+      }
       const img = (u: string | null) => (u ? `<br/><img src="${u}" style="width:160px;border-radius:8px;margin-top:6px"/>` : "");
       if (punch?.check_in_lat != null && punch.check_in_lng != null)
         dot(punch.check_in_lat, punch.check_in_lng, "#16a34a", "IN", `<b>Logged in ${t(punch.check_in_at)}</b><br/>${punch.check_in_place ?? ""}${img(inUrl)}`);
@@ -132,4 +141,39 @@ export function OfficerDayMap({ candidateId, date }: { candidateId: string; date
       </div>
     </div>
   );
+}
+
+const roadCache = new Map<string, [number, number][] | null>();
+
+/** Follow roads between recorded points (OSRM, chunked). Returns null if routing fails. */
+async function snapToRoads(path: [number, number][]): Promise<[number, number][] | null> {
+  // Thin near-duplicate points so the router gets meaningful waypoints.
+  const thin: [number, number][] = [];
+  for (const p of path) {
+    const l = thin[thin.length - 1];
+    if (!l || Math.abs(l[0] - p[0]) + Math.abs(l[1] - p[1]) > 0.0003) thin.push(p);
+  }
+  if (thin.length < 2) return null;
+  const key = thin.map((p) => `${p[0].toFixed(5)},${p[1].toFixed(5)}`).join(";");
+  if (roadCache.has(key)) return roadCache.get(key)!;
+  const out: [number, number][] = [];
+  const CHUNK = 25;
+  try {
+    for (let i = 0; i < thin.length - 1; i += CHUNK - 1) {
+      const seg = thin.slice(i, i + CHUNK);
+      if (seg.length < 2) break;
+      const coords = seg.map(([lat, lng]) => `${lng},${lat}`).join(";");
+      const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
+      if (!r.ok) throw new Error("route");
+      const j = await r.json();
+      const c: [number, number][] | undefined = j?.routes?.[0]?.geometry?.coordinates;
+      if (!c?.length) throw new Error("route");
+      out.push(...c.map(([lng, lat]) => [lat, lng] as [number, number]));
+    }
+    roadCache.set(key, out);
+    return out;
+  } catch {
+    roadCache.set(key, null);
+    return null;
+  }
 }
