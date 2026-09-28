@@ -185,13 +185,18 @@ function toFoUnits(rows: ScopeRow[]): FoUnit[] {
 }
 
 async function loadFoUnits(candidateId: string): Promise<FoUnit[]> {
-  const { data, error } = await supabase.rpc("get_my_field_scope" as never);
+  // Always load the viewed officer's scope (not the viewer's) so admins on
+  // Day Patrol see the officer's assigned sites.
+  const { data, error } = await supabase.rpc("get_field_scope_for" as never, { _candidate_id: candidateId } as never);
   let rows = ((data ?? []) as unknown) as ScopeRow[];
   if (error) throw error;
   // Self-heal a cold projection row (first login after a mapping import).
   if (rows.length === 0) {
-    const fresh = await supabase.rpc("get_my_field_scope_fresh" as never);
-    rows = ((fresh.data ?? []) as unknown) as ScopeRow[];
+    const me = await supabase.rpc("current_user_candidate_id" as never);
+    if ((me.data as string | null) === candidateId) {
+      const fresh = await supabase.rpc("get_my_field_scope_fresh" as never);
+      rows = ((fresh.data ?? []) as unknown) as ScopeRow[];
+    }
   }
   const units = toFoUnits(rows);
   writeUnitsSnapshot(candidateId, units);
@@ -1212,17 +1217,19 @@ function FieldSenseTimeline(props: {
             title={`In meeting · ${openVisitUnit?.unit_name ?? "Client"}`}
             time={`${fmtTime(openVisit.check_in_at)} · now`}
             subtitle={
-              openVisitUnit?.address ??
+              [openVisitUnit?.customer_name, openVisitUnit?.address].filter(Boolean).join(" · ") ||
               (distanceToDest != null ? `${formatDistance(distanceToDest)} to destination` : "")
             }
             action={
-              <Button
-                size="sm"
-                className="mt-2 h-8 w-full rounded-lg bg-emerald-600 text-[12px] font-semibold text-white hover:bg-emerald-700"
-                onClick={onCompleteVisit}
-              >
-                Complete visit
-              </Button>
+              canRecord ? (
+                <Button
+                  size="sm"
+                  className="mt-2 h-8 w-full rounded-lg bg-emerald-600 text-[12px] font-semibold text-white hover:bg-emerald-700"
+                  onClick={onCompleteVisit}
+                >
+                  Complete visit
+                </Button>
+              ) : undefined
             }
           />
         )}
