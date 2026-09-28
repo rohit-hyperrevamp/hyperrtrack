@@ -3,10 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Fingerprint, Loader2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 import { useAuth } from "@/lib/auth";
 import { useServerFn } from "@tanstack/react-start";
 import { resendLoginOtp, sendLoginOtp, verifyLoginOtp } from "@/lib/otp.functions";
