@@ -222,6 +222,7 @@ function MyTeamPage() {
           id: f.id,
           full_name: f.full_name,
           employee_code: f.employee_code,
+          state: stateByCand.get(f.id) ?? null,
           punch_in: p?.check_in_at ?? null,
           punch_out: p?.check_out_at ?? null,
           last_lat: p?.last_lat ?? null,
@@ -240,7 +241,19 @@ function MyTeamPage() {
   });
 
 
-  const rows = dataQ.data?.rows ?? [];
+  const [stateFilter, setStateFilter] = useState<string>("all");
+  const allRows = dataQ.data?.rows ?? [];
+  const states = useMemo(
+    () => Array.from(new Set(allRows.map((r) => r.state).filter((s): s is string => !!s))).sort(),
+    [allRows],
+  );
+  // Present officers first (in meeting / in transit / ended shift), not-punched last; alphabetical within each group.
+  const rows = useMemo(() => {
+    const rank = (r: Row) => (r.punch_in ? 0 : 1);
+    return allRows
+      .filter((r) => stateFilter === "all" || r.state === stateFilter)
+      .sort((a, b) => rank(a) - rank(b) || a.full_name.localeCompare(b.full_name));
+  }, [allRows, stateFilter]);
   const total = dataQ.data?.total ?? 0;
   const isPast = selectedDate < todayIso();
   const punchedIn = rows.filter((r) => r.punch_in && !r.punch_out).length;
