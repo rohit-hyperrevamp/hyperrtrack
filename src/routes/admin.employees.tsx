@@ -980,6 +980,7 @@ type Candidate = {
   birthplace: string;
   mobile: string;
   alt_mobile: string;
+  personal_mobile: string;
   email: string;
   // Permanent address (structured)
   permanent_address1: string;
@@ -6504,6 +6505,7 @@ function emptyForm(): CandidateForm {
     birthplace: "",
     mobile: "",
     alt_mobile: "",
+    personal_mobile: "",
     email: "",
     permanent_address1: "",
     permanent_address2: "",
@@ -8583,6 +8585,17 @@ function CandidateWizard({
                             className="font-mono"
                             onChange={(e) =>
                               set("alt_mobile", e.target.value.replace(/\D/g, "").slice(0, 10))
+                            }
+                          />
+                        </Field>
+                        <Field label="Personal Phone Number">
+                          <Input
+                            value={form.personal_mobile ?? ""}
+                            inputMode="numeric"
+                            placeholder="Optional"
+                            className="font-mono"
+                            onChange={(e) =>
+                              set("personal_mobile", e.target.value.replace(/\D/g, "").slice(0, 10))
                             }
                           />
                         </Field>
