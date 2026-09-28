@@ -1114,7 +1114,7 @@ function PayrollUnitPage() {
     XLSX.utils.book_append_sheet(wb, ws, `Bank Statement${MONTH[(em || 1) - 1]} - ${ey}`.slice(0, 31));
     const safe = (s: string) => s.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "");
     XLSX.writeFile(wb, `RADGUSPL_RADGUSPLUPLD_${fileDate}_${unit?.code ?? ""}_${safe(siteName)}_${monthLabel.toUpperCase().replace(" ", "_")}.xlsx`);
-    void logActivity({ module: "Payroll", action: "export", description: `Bank file downloaded for ${unit?.code ?? unitId} (${aoa.length - 1} employees)` } as never);
+    void logActivity({ module: "Payroll", action: "export", entityType: "bank_file", entityLabel: String(unit?.code ?? unitId), details: { employees: aoa.length - 1, skipped } });
     toast.success(`Bank file downloaded — ${aoa.length - 1} employee(s)${skipped ? `, ${skipped} left out (no bank details or zero salary)` : ""}.`);
   };
 
