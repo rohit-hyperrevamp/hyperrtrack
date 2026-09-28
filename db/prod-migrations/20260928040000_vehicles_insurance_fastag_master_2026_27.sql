@@ -52,7 +52,7 @@ on conflict (vehicle_number) do update set
 delete from vehicle_insurances where vehicle_id in (select id from vehicles);
 
 insert into vehicle_insurances (vehicle_id, engine_number, chassis_number, insurance_company, policy_number, start_date, end_date, notes)
-select v.id, x.engine_no, x.chassis_no, x.company, x.policy, x.start_dt, x.end_dt, x.renewal_month
+select v.id, x.engine_no, x.chassis_no, x.company, x.policy, x.start_dt::date, x.end_dt::date, x.renewal_month
 from (values
   ('MH12WK0058','K10CNC445445','MA3JMTB1SPK984751','Bajaj Allianz','OG-25-1025-1870-00000025','2026-01-05','2027-01-04','Renewal: Jan'),
   ('MH12TD6860','G3LCMM18 2284','MALFC81AVMM186635','Go Digit','D250679452 / 11022026','2026-02-20','2027-02-19','Renewal: Feb'),
