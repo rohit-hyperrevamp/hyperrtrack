@@ -1893,7 +1893,7 @@ function PayrollUnitPage() {
               {run?.payroll_processed_at ? ` · ${new Date(run.payroll_processed_at).toLocaleDateString("en-IN")}` : ""}
             </span>
           )}
-          {amendmentPending && (
+          {amendmentPending && canProcess && (
             <Button
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700"
