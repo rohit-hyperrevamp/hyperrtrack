@@ -114,7 +114,10 @@ function MyTeamPage() {
           .select("candidate_id, lat, lng, recorded_at")
           .eq("track_date", selectedDate)
           .order("recorded_at", { ascending: true }),
-        supabase.from("units" as never).select("id, name"),
+        supabase.from("units" as never).select("id, name, client_state"),
+        supabase
+          .from("candidate_units" as never)
+          .select("candidate_id, unit_id"),
       ]);
 
       const fos = ((foRes.data ?? []) as unknown) as Array<{ id: string; full_name: string; employee_code: string | null }>;
@@ -142,6 +145,25 @@ function MyTeamPage() {
       const unitMap = new Map(
         (((unitsRes.data ?? []) as unknown) as Array<{ id: string; name: string }>).map((u) => [u.id, u.name]),
       );
+      // Officer's state = state of their assigned sites (most frequent wins).
+      const unitState = new Map(
+        (((unitsRes.data ?? []) as unknown) as Array<{ id: string; client_state: string | null }>).map((u) => [u.id, u.client_state]),
+      );
+      const stateCountByCand = new Map<string, Map<string, number>>();
+      for (const cu of (((cuRes.data ?? []) as unknown) as Array<{ candidate_id: string; unit_id: string }>)) {
+        const st = unitState.get(cu.unit_id);
+        if (!st) continue;
+        const m = stateCountByCand.get(cu.candidate_id) ?? new Map<string, number>();
+        m.set(st, (m.get(st) ?? 0) + 1);
+        stateCountByCand.set(cu.candidate_id, m);
+      }
+      const stateByCand = new Map<string, string>();
+      for (const [cid, m] of stateCountByCand) {
+        let best: string | null = null;
+        let bestN = -1;
+        for (const [st, n] of m) if (n > bestN) { best = st; bestN = n; }
+        if (best) stateByCand.set(cid, best);
+      }
 
       const punchByCand = new Map(punches.map((p) => [p.candidate_id, p]));
       const activeVisitByCand = new Map<string, string>();
