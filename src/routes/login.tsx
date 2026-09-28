@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Fingerprint, Loader2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
