@@ -312,9 +312,26 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
   const openVisit = visits.find((v) => !v.check_out_at) ?? null;
   const completedCount = visits.filter((v) => v.check_out_at).length;
   const isOnDuty = !!punchQ.data?.check_in_at && !punchQ.data?.check_out_at;
+  const inScopeVisitUnit = openVisit ? units.find((u) => u.unit_id === openVisit.unit_id) ?? null : null;
+  // Fallback: the meeting site may be outside the officer's mapped scope.
+  const visitUnitQ = useQuery({
+    queryKey: ["fo-fs-visit-unit", openVisit?.unit_id],
+    enabled: !!openVisit && !inScopeVisitUnit && !unitsQ.isLoading,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<FoUnit | null> => {
+      const { data } = await supabase
+        .from("units" as never)
+        .select("id, name, code, address, latitude, longitude, customers(name)")
+        .eq("id", openVisit!.unit_id)
+        .maybeSingle();
+      const r = data as { id: string; name: string; code: string | null; address: string | null; latitude: number | null; longitude: number | null; customers: { name: string | null } | null } | null;
+      if (!r) return null;
+      return { unit_id: r.id, unit_name: r.name, unit_code: r.code, customer_name: r.customers?.name ?? null, branch_name: null, address: r.address, latitude: r.latitude, longitude: r.longitude };
+    },
+  });
   const openVisitUnit = useMemo(
-    () => (openVisit ? units.find((u) => u.unit_id === openVisit.unit_id) ?? null : null),
-    [openVisit, units],
+    () => inScopeVisitUnit ?? visitUnitQ.data ?? null,
+    [inScopeVisitUnit, visitUnitQ.data],
   );
   const snappedPosition = useMemo(() => unitGeo(openVisitUnit) ?? pos, [openVisitUnit, pos]);
 
@@ -671,6 +688,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
           distanceToDest={distanceToDest}
           totalKmToday={totalKmToday}
           onCompleteVisit={() => setCheckOutOpen(true)}
+          canRecord={canRecord}
         />
         </div>
       </div>
@@ -1166,6 +1184,7 @@ function FieldSenseTimeline(props: {
   distanceToDest: number | null;
   totalKmToday: number;
   onCompleteVisit: () => void;
+  canRecord: boolean;
 }) {
   const {
     visits,
@@ -1175,6 +1194,7 @@ function FieldSenseTimeline(props: {
     distanceToDest,
     totalKmToday,
     onCompleteVisit,
+    canRecord,
   } = props;
 
   const unitFor = (id: string) => units.find((u) => u.unit_id === id) ?? null;
