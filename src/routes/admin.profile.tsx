@@ -35,6 +35,7 @@ import { useTheme } from "@/lib/use-theme";
 import { useNavigate } from "@tanstack/react-router";
 import { computeWages, fmtINR, type ContractResourceLike } from "@/lib/payroll-calc";
 import { PageHeader } from "@/components/PageHeader";
+import { MarkAttendanceCard } from "@/components/MarkAttendanceCard";
 import { useI18n, LANG_LABELS, type LangCode } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -958,6 +959,7 @@ function ProfilePage() {
         </div>
       </div>
 
+      <div className="shrink-0"><MarkAttendanceCard candidateId={profile.id} proximityThresholdM={300} /></div>
       <div className="shrink-0"><MyLiveStatusCard /></div>
       <LanguagePreferenceCard candidateId={profile.id} />
       <div className="hidden lg:block">{bottomActions}</div>
