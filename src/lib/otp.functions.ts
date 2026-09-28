@@ -21,11 +21,17 @@ type OtpMode = "sms" | "fixed";
 
 export const sendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
-  .handler(async (): Promise<{ mode: OtpMode }> => ({ mode: "fixed" }));
+  .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
+    const { resolveOtpMode } = await import("@/lib/otp.server");
+    return { mode: await resolveOtpMode(data.phone) };
+  });
 
 export const resendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
-  .handler(async (): Promise<{ mode: OtpMode }> => ({ mode: "fixed" }));
+  .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
+    const { resolveOtpMode } = await import("@/lib/otp.server");
+    return { mode: await resolveOtpMode(data.phone) };
+  });
 
 export const verifyLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) =>
@@ -45,12 +51,10 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
 
     const { resolveOtpMode, verifyMsg91WidgetAccessToken } = await import("@/lib/otp.server");
 
-    // Every employee can always sign in with the last four digits of their own
-    // mobile number (used for staff onboarded in bulk without SMS access).
-    if (data.otp === data.phone.slice(-4)) return { ok: true };
-
+    // Fixed-code fallback (MSG91 switched OFF): fallback code or last four digits.
+    // With MSG91 ON, only a real SMS OTP verified by MSG91 is accepted.
     if ((await resolveOtpMode(data.phone)) === "fixed") {
-      if (data.otp !== FALLBACK_OTP) throw new Error("Wrong code. Please try again.");
+      if (data.otp !== FALLBACK_OTP && data.otp !== data.phone.slice(-4)) throw new Error("Wrong code. Please try again.");
       return { ok: true };
     }
 
