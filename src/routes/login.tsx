@@ -444,28 +444,28 @@ function LoginPage() {
                 ) : (
                   <div className="space-y-5">
                     <div className={error ? "animate-shake" : ""}>
-                      <InputOTP
-                         autoComplete="one-time-code"
-                         inputMode="numeric"
+                      {/* Plain native input: the multi-box OTP widget uses a hidden
+                          overlay input that some Android keyboards (e.g. realme UI /
+                          Android 13) refuse to type into. */}
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        pattern="[0-9]*"
+                        name="otp"
+                        aria-label="One-time code"
+                        autoFocus
                         maxLength={OTP_LENGTH}
                         value={otp}
-                        onChange={(v) => {
+                        placeholder={"•".repeat(OTP_LENGTH)}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH);
                           setOtp(v);
                           setError(null);
                           if (v.length === OTP_LENGTH) handleVerify(v);
                         }}
-                        containerClassName="justify-between gap-2"
-                      >
-                        <InputOTPGroup className="flex w-full justify-between gap-2">
-                          {Array.from({ length: OTP_LENGTH }, (_, i) => i).map((i) => (
-                            <InputOTPSlot
-                              key={i}
-                              index={i}
-                              className="h-14 w-full rounded-xl border border-border bg-white text-xl font-semibold tabular-nums text-foreground first:rounded-l-xl last:rounded-r-xl data-[active=true]:border-brand data-[active=true]:ring-4 data-[active=true]:ring-brand/15"
-                            />
-                          ))}
-                        </InputOTPGroup>
-                      </InputOTP>
+                        className="h-14 w-full rounded-xl border border-border bg-background px-4 text-center text-2xl font-semibold tracking-[0.6em] tabular-nums text-foreground outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+                      />
 
                       {error ? (
                         <p className="mt-3 text-center text-sm font-medium text-destructive">
