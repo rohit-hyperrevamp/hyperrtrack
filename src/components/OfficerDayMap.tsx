@@ -90,7 +90,13 @@ export function OfficerDayMap({ candidateId, date }: { candidateId: string; date
         }).bindPopup(html).addTo(g);
       };
       const { punch, visits, track, unitName, inUrl, outUrl } = q.data;
-      if (track.length > 1) { L.polyline(track, { color: "#0ea5e9", weight: 4, opacity: 0.8 }).addTo(g); pts.push(...track); }
+      // Full day path: log-in → recorded trail → log-out (or current position).
+      const path: [number, number][] = [];
+      if (punch?.check_in_lat != null && punch.check_in_lng != null) path.push([Number(punch.check_in_lat), Number(punch.check_in_lng)]);
+      path.push(...track);
+      if (punch?.check_out_lat != null && punch.check_out_lng != null) path.push([Number(punch.check_out_lat), Number(punch.check_out_lng)]);
+      else if (punch?.last_lat != null && punch.last_lng != null) path.push([Number(punch.last_lat), Number(punch.last_lng)]);
+      if (path.length > 1) { L.polyline(path, { color: "#0ea5e9", weight: 4, opacity: 0.8 }).addTo(g); pts.push(...path); }
       const img = (u: string | null) => (u ? `<br/><img src="${u}" style="width:160px;border-radius:8px;margin-top:6px"/>` : "");
       if (punch?.check_in_lat != null && punch.check_in_lng != null)
         dot(punch.check_in_lat, punch.check_in_lng, "#16a34a", "IN", `<b>Logged in ${t(punch.check_in_at)}</b><br/>${punch.check_in_place ?? ""}${img(inUrl)}`);

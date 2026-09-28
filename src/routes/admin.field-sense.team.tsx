@@ -102,7 +102,7 @@ function MyTeamPage() {
           .order("full_name", { ascending: true }),
         supabase
           .from("self_attendance_punches" as never)
-          .select("candidate_id, check_in_at, check_out_at, last_lat, last_lng, last_seen_at, check_in_photo_path, check_out_photo_path")
+          .select("candidate_id, check_in_at, check_out_at, check_in_lat, check_in_lng, check_out_lat, check_out_lng, last_lat, last_lng, last_seen_at, check_in_photo_path, check_out_photo_path")
           .eq("punch_date", selectedDate),
         supabase
           .from("field_visits" as never)
@@ -155,6 +155,16 @@ function MyTeamPage() {
         const arr = grouped.get(t.candidate_id) ?? [];
         arr.push({ lat: Number(t.lat), lng: Number(t.lng) });
         grouped.set(t.candidate_id, arr);
+      }
+      // Same path as the officer map: log-in → trail → log-out / last seen.
+      for (const p of punches as Array<Record<string, unknown>>) {
+        const cid = p.candidate_id as string;
+        const arr = grouped.get(cid) ?? [];
+        const ci = [p.check_in_lat, p.check_in_lng].map(Number);
+        if (p.check_in_lat != null && p.check_in_lng != null) arr.unshift({ lat: ci[0], lng: ci[1] });
+        if (p.check_out_lat != null && p.check_out_lng != null) arr.push({ lat: Number(p.check_out_lat), lng: Number(p.check_out_lng) });
+        else if (p.last_lat != null && p.last_lng != null) arr.push({ lat: Number(p.last_lat), lng: Number(p.last_lng) });
+        grouped.set(cid, arr);
       }
       for (const [cid, pts] of grouped) {
         let m = 0;
