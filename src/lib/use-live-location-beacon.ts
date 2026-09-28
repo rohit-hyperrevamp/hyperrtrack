@@ -5,7 +5,7 @@ import { fetchTodayPunch, pushTelemetry, readBattery, readNetworkType, distanceM
 import { insertTrackPoint } from "@/lib/field-visits";
 
 /** How often (ms) we push the officer's position while on duty. */
-const BEACON_INTERVAL_MS = 25_000;
+const BEACON_INTERVAL_MS = 30_000; // twice a minute
 /** Minimum movement (m) before a new track point is stored. */
 const MIN_MOVE_METERS = 25;
 /** Re-check the punch state at this cadence so check-in/out is picked up without a reload. */
@@ -61,7 +61,8 @@ export function useLiveLocationBeacon() {
       }
       const prev = lastRef.current;
       const moved = prev ? distanceMeters(prev, geo) : null;
-      if (!prev || (moved != null && moved >= MIN_MOVE_METERS)) {
+      const precise = geo.accuracy == null || geo.accuracy === 0 || geo.accuracy <= 100;
+      if (precise && (!prev || (moved != null && moved >= MIN_MOVE_METERS))) {
         try {
           await insertTrackPoint({
             candidateId: candidateId!,
