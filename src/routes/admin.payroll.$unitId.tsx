@@ -1868,7 +1868,10 @@ function PayrollUnitPage() {
           {runStatus === "submitted" && !canApprove && (
             <span className="text-xs text-muted-foreground">Awaiting payroll approver</span>
           )}
-          {runStatus === "approved" && !isProcessed && (
+          {runStatus === "approved" && !isProcessed && !canProcess && (
+            <span className="text-xs text-muted-foreground">Approved · awaiting payroll processor</span>
+          )}
+          {runStatus === "approved" && !isProcessed && canProcess && (
             <>
               {holdDraft.size > 0 && (
                 <span className="text-xs font-medium text-amber-700">{holdDraft.size} on hold</span>
