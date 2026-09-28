@@ -1,3 +1,4 @@
+import { roadRoute } from "@/lib/road-route";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -73,7 +74,7 @@ type FoUnit = {
   longitude: number | null;
 };
 
-const TRACK_INTERVAL_MS = 15_000;
+const TRACK_INTERVAL_MS = 30_000;
 const NEAREST_MAX_METERS = 500;
 /** How close a field officer must be to a known site to mark a visit. */
 const SITE_GEOFENCE_METERS = 300;
@@ -333,11 +334,31 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
     () => inScopeVisitUnit ?? visitUnitQ.data ?? null,
     [inScopeVisitUnit, visitUnitQ.data],
   );
-  const snappedPosition = useMemo(() => unitGeo(openVisitUnit) ?? pos, [openVisitUnit, pos]);
+  // Only the officer themselves can record a visit (enforced in the database
+  // too). Viewers with Radar access see the same day read-only.
+  const myCandidateQ = useQuery({
+    queryKey: ["my-candidate-id"],
+    staleTime: 10 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("current_user_candidate_id" as never);
+      if (error) throw error;
+      return (data as string | null) ?? null;
+    },
+  });
+  const isSelf = !myCandidateQ.isLoading && myCandidateQ.data === candidateId;
+  const canRecord = isSelf && !isHistorical;
+  // The viewer's own device GPS must never stand in for the officer's position.
+  const officerPos = useMemo<Geo | null>(() => {
+    if (isSelf) return pos;
+    const p = punchQ.data as { last_lat?: number | null; last_lng?: number | null; check_out_at?: string | null } | null | undefined;
+    if (!p || p.check_out_at || p.last_lat == null || p.last_lng == null) return null;
+    return { lat: Number(p.last_lat), lng: Number(p.last_lng), accuracy: 0 } as Geo;
+  }, [isSelf, pos, punchQ.data]);
+  const snappedPosition = useMemo(() => unitGeo(openVisitUnit) ?? officerPos, [openVisitUnit, officerPos]);
 
   // Initial geolocation + polling for telemetry + track points (live only)
   useEffect(() => {
-    if (isHistorical) return;
+    if (isHistorical || !isSelf) return;
     let cancelled = false;
     let timer: number | null = null;
 
@@ -355,6 +376,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
             await pushTelemetry(punchQ.data.id, { geo, battery: bat, network: net });
           } catch { /* noop */ }
           try {
+            if (geo.accuracy != null && geo.accuracy > 100) throw new Error("low accuracy");
             await insertTrackPoint({
               candidateId,
               lat: geo.lat,
@@ -376,7 +398,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
       cancelled = true;
       if (timer) window.clearInterval(timer);
     };
-  }, [candidateId, isOnDuty, punchQ.data?.id, openVisit?.id, qc]);
+  }, [candidateId, isOnDuty, isSelf, punchQ.data?.id, openVisit?.id, qc]);
 
   const track = trackQ.data ?? [];
   const routeCoords = useMemo(() => {
@@ -392,8 +414,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
     }
 
     const events: RouteCoord[] = [];
-    const hasVisitWaypoints = visits.length > 0;
-    if (!hasVisitWaypoints) {
+    {
       for (const t of track) {
         events.push({
           lat: Number(t.lat),
@@ -461,8 +482,9 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
       .sort((a, b) => a.d - b.d);
   }, [snappedPosition, units]);
 
-  // Total kms today
-  const totalKmToday = useMemo(() => {
+  // Total kms today: along real roads through every recorded GPS point
+  // (falls back to point-to-point GPS distance if road routing is unavailable).
+  const straightKm = useMemo(() => {
     if (routeCoords.length < 2) return 0;
     let sum = 0;
     for (let i = 1; i < routeCoords.length; i += 1) {
@@ -473,12 +495,20 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
     }
     return sum / 1000;
   }, [routeCoords]);
+  const roadKmQ = useQuery({
+    queryKey: ["fo-road-km", routeCoords.map((c) => `${c.lat.toFixed(4)},${c.lng.toFixed(4)}`).join(";")],
+    enabled: routeCoords.length > 1,
+    staleTime: 5 * 60_000,
+    queryFn: async () => (await roadRoute(routeCoords.map((c) => [c.lat, c.lng] as [number, number])))?.meters ?? null,
+  });
+  const totalKmToday = roadKmQ.data != null ? Math.max(roadKmQ.data / 1000, straightKm) : straightKm;
 
   // Persist the daily distance to the punch row so admin
   // dashboards read the exact same number the FO sees. Skip for historical views.
   const lastPersistedKmRef = useRef<number | null>(null);
   useEffect(() => {
-    if (isHistorical) return;
+    // Only the officer's own device writes the day's distance (feeds expenses).
+    if (isHistorical || !isSelf || roadKmQ.isFetching) return;
     const punchId = punchQ.data?.id;
     if (!punchId) return;
     if (!Number.isFinite(totalKmToday)) return;
@@ -492,21 +522,8 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
         .eq("id", punchId);
     }, 800);
     return () => clearTimeout(timer);
-  }, [totalKmToday, punchQ.data?.id, isHistorical]);
+  }, [totalKmToday, punchQ.data?.id, isHistorical, isSelf, roadKmQ.isFetching]);
 
-  // Only the officer themselves can record a visit (enforced in the database
-  // too). Viewers with Radar access see the same day read-only.
-  const myCandidateQ = useQuery({
-    queryKey: ["my-candidate-id"],
-    staleTime: 10 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("current_user_candidate_id" as never);
-      if (error) throw error;
-      return (data as string | null) ?? null;
-    },
-  });
-  const isSelf = !myCandidateQ.isLoading && myCandidateQ.data === candidateId;
-  const canRecord = isSelf && !isHistorical;
 
   // Check-in / Check-out dialogs
   const [checkInOpen, setCheckInOpen] = useState(false);

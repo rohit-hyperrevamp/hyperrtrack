@@ -1,3 +1,4 @@
+import { roadRoute } from "@/lib/road-route";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -143,37 +144,6 @@ export function OfficerDayMap({ candidateId, date }: { candidateId: string; date
   );
 }
 
-const roadCache = new Map<string, [number, number][] | null>();
-
-/** Follow roads between recorded points (OSRM, chunked). Returns null if routing fails. */
-async function snapToRoads(path: [number, number][]): Promise<[number, number][] | null> {
-  // Thin near-duplicate points so the router gets meaningful waypoints.
-  const thin: [number, number][] = [];
-  for (const p of path) {
-    const l = thin[thin.length - 1];
-    if (!l || Math.abs(l[0] - p[0]) + Math.abs(l[1] - p[1]) > 0.0003) thin.push(p);
-  }
-  if (thin.length < 2) return null;
-  const key = thin.map((p) => `${p[0].toFixed(5)},${p[1].toFixed(5)}`).join(";");
-  if (roadCache.has(key)) return roadCache.get(key)!;
-  const out: [number, number][] = [];
-  const CHUNK = 25;
-  try {
-    for (let i = 0; i < thin.length - 1; i += CHUNK - 1) {
-      const seg = thin.slice(i, i + CHUNK);
-      if (seg.length < 2) break;
-      const coords = seg.map(([lat, lng]) => `${lng},${lat}`).join(";");
-      const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`);
-      if (!r.ok) throw new Error("route");
-      const j = await r.json();
-      const c: [number, number][] | undefined = j?.routes?.[0]?.geometry?.coordinates;
-      if (!c?.length) throw new Error("route");
-      out.push(...c.map(([lng, lat]) => [lat, lng] as [number, number]));
-    }
-    roadCache.set(key, out);
-    return out;
-  } catch {
-    roadCache.set(key, null);
-    return null;
-  }
+async function snapToRoads(path: [number, number][]) {
+  return (await roadRoute(path))?.coords ?? null;
 }
