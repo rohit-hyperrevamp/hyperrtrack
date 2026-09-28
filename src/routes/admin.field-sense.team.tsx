@@ -36,6 +36,7 @@ type Row = {
   id: string;
   full_name: string;
   employee_code: string | null;
+  state: string | null;
   punch_in: string | null;
   punch_out: string | null;
   last_lat: number | null;
@@ -93,7 +94,7 @@ function MyTeamPage() {
     refetchInterval: 15_000,
     staleTime: 15_000,
     queryFn: async (): Promise<{ rows: Row[]; total: number }> => {
-      const [foRes, punchRes, visitsRes, tracksRes, unitsRes] = await Promise.all([
+      const [foRes, punchRes, visitsRes, tracksRes, unitsRes, cuRes] = await Promise.all([
         supabase
           .from("candidates" as never)
           .select("id, full_name, employee_code")
@@ -113,7 +114,10 @@ function MyTeamPage() {
           .select("candidate_id, lat, lng, recorded_at")
           .eq("track_date", selectedDate)
           .order("recorded_at", { ascending: true }),
-        supabase.from("units" as never).select("id, name"),
+        supabase.from("units" as never).select("id, name, client_state"),
+        supabase
+          .from("candidate_units" as never)
+          .select("candidate_id, unit_id"),
       ]);
 
       const fos = ((foRes.data ?? []) as unknown) as Array<{ id: string; full_name: string; employee_code: string | null }>;
@@ -141,6 +145,25 @@ function MyTeamPage() {
       const unitMap = new Map(
         (((unitsRes.data ?? []) as unknown) as Array<{ id: string; name: string }>).map((u) => [u.id, u.name]),
       );
+      // Officer's state = state of their assigned sites (most frequent wins).
+      const unitState = new Map(
+        (((unitsRes.data ?? []) as unknown) as Array<{ id: string; client_state: string | null }>).map((u) => [u.id, u.client_state]),
+      );
+      const stateCountByCand = new Map<string, Map<string, number>>();
+      for (const cu of (((cuRes.data ?? []) as unknown) as Array<{ candidate_id: string; unit_id: string }>)) {
+        const st = unitState.get(cu.unit_id);
+        if (!st) continue;
+        const m = stateCountByCand.get(cu.candidate_id) ?? new Map<string, number>();
+        m.set(st, (m.get(st) ?? 0) + 1);
+        stateCountByCand.set(cu.candidate_id, m);
+      }
+      const stateByCand = new Map<string, string>();
+      for (const [cid, m] of stateCountByCand) {
+        let best: string | null = null;
+        let bestN = -1;
+        for (const [st, n] of m) if (n > bestN) { best = st; bestN = n; }
+        if (best) stateByCand.set(cid, best);
+      }
 
       const punchByCand = new Map(punches.map((p) => [p.candidate_id, p]));
       const activeVisitByCand = new Map<string, string>();
@@ -199,6 +222,7 @@ function MyTeamPage() {
           id: f.id,
           full_name: f.full_name,
           employee_code: f.employee_code,
+          state: stateByCand.get(f.id) ?? null,
           punch_in: p?.check_in_at ?? null,
           punch_out: p?.check_out_at ?? null,
           last_lat: p?.last_lat ?? null,
@@ -217,7 +241,19 @@ function MyTeamPage() {
   });
 
 
-  const rows = dataQ.data?.rows ?? [];
+  const [stateFilter, setStateFilter] = useState<string>("all");
+  const allRows = dataQ.data?.rows ?? [];
+  const states = useMemo(
+    () => Array.from(new Set(allRows.map((r) => r.state).filter((s): s is string => !!s))).sort(),
+    [allRows],
+  );
+  // Present officers first (in meeting / in transit / ended shift), not-punched last; alphabetical within each group.
+  const rows = useMemo(() => {
+    const rank = (r: Row) => (r.punch_in ? 0 : 1);
+    return allRows
+      .filter((r) => stateFilter === "all" || r.state === stateFilter)
+      .sort((a, b) => rank(a) - rank(b) || a.full_name.localeCompare(b.full_name));
+  }, [allRows, stateFilter]);
   const total = dataQ.data?.total ?? 0;
   const isPast = selectedDate < todayIso();
   const punchedIn = rows.filter((r) => r.punch_in && !r.punch_out).length;
@@ -256,6 +292,19 @@ function MyTeamPage() {
           >
             Today
           </button>
+          <label className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground">
+            State
+            <select
+              value={stateFilter}
+              onChange={(e) => setStateFilter(e.target.value)}
+              className="rounded-md border border-border bg-background px-2 py-1 text-[12px] font-semibold text-foreground"
+            >
+              <option value="all">All states</option>
+              {states.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </label>
           <div className="ml-auto flex flex-wrap items-center gap-x-6 gap-y-2">
             <Counter label="Punched-In" value={`${punchedIn}/${total}`} tone="sky" />
             <Counter label="In Meeting" value={inMeeting} tone="emerald" />
@@ -385,7 +434,7 @@ function TeamRow({ row }: { row: Row }) {
           <Link {...linkProps} className="block truncate text-[13px] font-semibold text-foreground hover:underline">
             {row.full_name}
           </Link>
-          <div className="truncate font-mono text-[10px] text-muted-foreground">{row.employee_code ?? "—"}</div>
+          <div className="truncate font-mono text-[10px] text-muted-foreground">{row.employee_code ?? "—"}{row.state ? ` · ${row.state}` : ""}</div>
         </div>
       </div>
 
