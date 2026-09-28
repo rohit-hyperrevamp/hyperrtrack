@@ -61,6 +61,11 @@ export function MoneyStatusBadge({
       tone: "border-amber-500/30 bg-amber-500/10 text-amber-600",
       icon: Clock,
     },
+    approved: {
+      text: `${label} approved`,
+      tone: "border-sky-500/30 bg-sky-500/10 text-sky-600",
+      icon: CheckCircle2,
+    },
     processed: {
       text: `${label} processed`,
       tone: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
@@ -68,11 +73,11 @@ export function MoneyStatusBadge({
     },
   };
   const cfg = map[status];
-  const visibleCfg = kind === "payroll" && status === "ready" ? map.open : cfg;
+  const visibleCfg = cfg;
   const Icon = visibleCfg.icon;
   return (
     <span className={cn(base, visibleCfg.tone, className)}>
-      <Icon className="h-3 w-3" /> {kind === "payroll" && status === "ready" ? "Payroll open" : visibleCfg.text}
+      <Icon className="h-3 w-3" /> {visibleCfg.text}
     </span>
   );
 }

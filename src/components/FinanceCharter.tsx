@@ -235,7 +235,6 @@ export function FinanceCharter({
       const status = mode === "invoice"
         ? allStatusQ.data?.get(unit.id)?.invoice ?? "open"
         : allStatusQ.data?.get(unit.id)?.payroll ?? "open";
-      if (mode === "payroll" && statusFilter === "open") return status !== "processed";
       return status === statusFilter;
     });
   }, [allStatusQ.data, mode, searchedUnits, statusFilter]);
@@ -480,14 +479,16 @@ export function FinanceCharter({
     let open = 0;
     let ready = 0;
     let processed = 0;
+    let approved = 0;
     for (const u of searchedUnits) {
       const status = allStatusQ.data?.get(u.id);
       const st = mode === "invoice" ? status?.invoice : status?.payroll;
       if (st === "processed") processed += 1;
-      else if (st === "ready" && mode === "invoice") ready += 1;
+      else if (st === "approved") approved += 1;
+      else if (st === "ready") ready += 1;
       else open += 1;
     }
-    return { total: searchedUnits.length, open, ready, processed };
+    return { total: searchedUnits.length, open, ready, approved, processed };
   }, [searchedUnits, allStatusQ.data, mode]);
 
 
@@ -497,7 +498,7 @@ export function FinanceCharter({
         return {
           Name: r.unit.name || r.unit.code,
           "Contract ID": r.contractCode,
-          Status: r.status.payroll === "processed" ? "Payroll Processed" : "Payroll Open",
+          Status: `Payroll ${r.status.payroll.charAt(0).toUpperCase()}${r.status.payroll.slice(1)}`,
         };
       }
       const base = {
@@ -1020,7 +1021,8 @@ export function FinanceCharter({
           accent="lime"
           segments={[
             { label: "Open", value: registers.open, tone: "open" },
-            ...(mode === "invoice" ? [{ label: "Ready", value: registers.ready, tone: "ready" as const }] : []),
+            { label: "Ready", value: registers.ready, tone: "ready" as const },
+            ...(mode === "payroll" ? [{ label: "Approved", value: registers.approved, tone: "ready" as const }] : []),
             { label: "Processed", value: registers.processed, tone: "done" },
           ]}
         />
@@ -1121,6 +1123,8 @@ export function FinanceCharter({
                 <>
                   <SelectItem value="all">All payroll</SelectItem>
                   <SelectItem value="open">Payroll open</SelectItem>
+                  <SelectItem value="ready">Payroll ready</SelectItem>
+                  <SelectItem value="approved">Payroll approved</SelectItem>
                   <SelectItem value="processed">Payroll processed</SelectItem>
                 </>
               )}
