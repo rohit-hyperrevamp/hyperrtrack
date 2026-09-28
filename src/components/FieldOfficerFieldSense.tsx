@@ -185,13 +185,18 @@ function toFoUnits(rows: ScopeRow[]): FoUnit[] {
 }
 
 async function loadFoUnits(candidateId: string): Promise<FoUnit[]> {
-  const { data, error } = await supabase.rpc("get_my_field_scope" as never);
+  // Always load the viewed officer's scope (not the viewer's) so admins on
+  // Day Patrol see the officer's assigned sites.
+  const { data, error } = await supabase.rpc("get_field_scope_for" as never, { _candidate_id: candidateId } as never);
   let rows = ((data ?? []) as unknown) as ScopeRow[];
   if (error) throw error;
   // Self-heal a cold projection row (first login after a mapping import).
   if (rows.length === 0) {
-    const fresh = await supabase.rpc("get_my_field_scope_fresh" as never);
-    rows = ((fresh.data ?? []) as unknown) as ScopeRow[];
+    const me = await supabase.rpc("current_user_candidate_id" as never);
+    if ((me.data as string | null) === candidateId) {
+      const fresh = await supabase.rpc("get_my_field_scope_fresh" as never);
+      rows = ((fresh.data ?? []) as unknown) as ScopeRow[];
+    }
   }
   const units = toFoUnits(rows);
   writeUnitsSnapshot(candidateId, units);
@@ -307,9 +312,26 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
   const openVisit = visits.find((v) => !v.check_out_at) ?? null;
   const completedCount = visits.filter((v) => v.check_out_at).length;
   const isOnDuty = !!punchQ.data?.check_in_at && !punchQ.data?.check_out_at;
+  const inScopeVisitUnit = openVisit ? units.find((u) => u.unit_id === openVisit.unit_id) ?? null : null;
+  // Fallback: the meeting site may be outside the officer's mapped scope.
+  const visitUnitQ = useQuery({
+    queryKey: ["fo-fs-visit-unit", openVisit?.unit_id],
+    enabled: !!openVisit && !inScopeVisitUnit && !unitsQ.isLoading,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<FoUnit | null> => {
+      const { data } = await supabase
+        .from("units" as never)
+        .select("id, name, code, client_address, latitude, longitude, customers(name)")
+        .eq("id", openVisit!.unit_id)
+        .maybeSingle();
+      const r = data as { id: string; name: string; code: string | null; client_address: string | null; latitude: number | null; longitude: number | null; customers: { name: string | null } | null } | null;
+      if (!r) return null;
+      return { unit_id: r.id, unit_name: r.name, unit_code: r.code, customer_name: r.customers?.name ?? null, branch_name: null, address: r.client_address, latitude: r.latitude, longitude: r.longitude };
+    },
+  });
   const openVisitUnit = useMemo(
-    () => (openVisit ? units.find((u) => u.unit_id === openVisit.unit_id) ?? null : null),
-    [openVisit, units],
+    () => inScopeVisitUnit ?? visitUnitQ.data ?? null,
+    [inScopeVisitUnit, visitUnitQ.data],
   );
   const snappedPosition = useMemo(() => unitGeo(openVisitUnit) ?? pos, [openVisitUnit, pos]);
 
@@ -666,6 +688,7 @@ export function FieldOfficerFieldSense({ candidateId, viewDate }: { candidateId:
           distanceToDest={distanceToDest}
           totalKmToday={totalKmToday}
           onCompleteVisit={() => setCheckOutOpen(true)}
+          canRecord={canRecord}
         />
         </div>
       </div>
@@ -1161,6 +1184,7 @@ function FieldSenseTimeline(props: {
   distanceToDest: number | null;
   totalKmToday: number;
   onCompleteVisit: () => void;
+  canRecord: boolean;
 }) {
   const {
     visits,
@@ -1170,6 +1194,7 @@ function FieldSenseTimeline(props: {
     distanceToDest,
     totalKmToday,
     onCompleteVisit,
+    canRecord,
   } = props;
 
   const unitFor = (id: string) => units.find((u) => u.unit_id === id) ?? null;
@@ -1212,17 +1237,19 @@ function FieldSenseTimeline(props: {
             title={`In meeting · ${openVisitUnit?.unit_name ?? "Client"}`}
             time={`${fmtTime(openVisit.check_in_at)} · now`}
             subtitle={
-              openVisitUnit?.address ??
+              [openVisitUnit?.customer_name, openVisitUnit?.address].filter(Boolean).join(" · ") ||
               (distanceToDest != null ? `${formatDistance(distanceToDest)} to destination` : "")
             }
             action={
-              <Button
-                size="sm"
-                className="mt-2 h-8 w-full rounded-lg bg-emerald-600 text-[12px] font-semibold text-white hover:bg-emerald-700"
-                onClick={onCompleteVisit}
-              >
-                Complete visit
-              </Button>
+              canRecord ? (
+                <Button
+                  size="sm"
+                  className="mt-2 h-8 w-full rounded-lg bg-emerald-600 text-[12px] font-semibold text-white hover:bg-emerald-700"
+                  onClick={onCompleteVisit}
+                >
+                  Complete visit
+                </Button>
+              ) : undefined
             }
           />
         )}
