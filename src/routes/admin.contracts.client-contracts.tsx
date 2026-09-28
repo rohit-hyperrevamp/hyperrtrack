@@ -2366,6 +2366,7 @@ function ClientContractsPage() {
   // Super Admin always retains full control over every existing contract.
   const canApprove = isSuperAdmin || can("contracts", "approve");
   const canEdit = isSuperAdmin || can("contracts", "edit");
+  const canCopy = canEdit || roleKey === "finance";
   const canDelete = isSuperAdmin || can("contracts", "delete");
   const isHrReadOnly = !isSuperAdmin && (roleKey === "hr" || roleKey === "hr_executive");
   const units = useMemo(
@@ -2987,7 +2988,7 @@ function ClientContractsPage() {
                       >
                         <FileSpreadsheet className="h-4 w-4" />
                       </Button>}
-                      {canEdit && (
+                      {canCopy && (
                         <Button
                           size="sm"
                           variant="ghost"
