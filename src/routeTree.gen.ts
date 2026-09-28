@@ -123,6 +123,7 @@ import { Route as AdminAssetsLoanManagerRouteImport } from './routes/admin.asset
 import { Route as AdminAssetsInventoryRouteImport } from './routes/admin.assets.inventory'
 import { Route as AdminAssetsExpenseManagerRouteImport } from './routes/admin.assets.expense-manager'
 import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/native/push'
+import { Route as ApiPublicHooksSohcmSyncRouteImport } from './routes/api/public/hooks/sohcm-sync'
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
@@ -723,6 +724,11 @@ const ApiPublicNativePushRoute = ApiPublicNativePushRouteImport.update({
   path: '/api/public/native/push',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksSohcmSyncRoute = ApiPublicHooksSohcmSyncRouteImport.update({
+  id: '/api/public/hooks/sohcm-sync',
+  path: '/api/public/hooks/sohcm-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksDailyPeoplePingsRoute =
   ApiPublicHooksDailyPeoplePingsRouteImport.update({
     id: '/api/public/hooks/daily-people-pings',
@@ -866,6 +872,7 @@ export interface FileRoutesByFullPath {
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
+  '/api/public/hooks/sohcm-sync': typeof ApiPublicHooksSohcmSyncRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
 export interface FileRoutesByTo {
@@ -982,6 +989,7 @@ export interface FileRoutesByTo {
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
+  '/api/public/hooks/sohcm-sync': typeof ApiPublicHooksSohcmSyncRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
 export interface FileRoutesById {
@@ -1103,6 +1111,7 @@ export interface FileRoutesById {
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
+  '/api/public/hooks/sohcm-sync': typeof ApiPublicHooksSohcmSyncRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
 }
 export interface FileRouteTypes {
@@ -1225,6 +1234,7 @@ export interface FileRouteTypes {
     | '/admin/field-sense/officer/$id'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
+    | '/api/public/hooks/sohcm-sync'
     | '/api/public/native/push'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1341,6 +1351,7 @@ export interface FileRouteTypes {
     | '/admin/field-sense/officer/$id'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
+    | '/api/public/hooks/sohcm-sync'
     | '/api/public/native/push'
   id:
     | '__root__'
@@ -1461,6 +1472,7 @@ export interface FileRouteTypes {
     | '/admin/field-sense/officer/$id'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
+    | '/api/public/hooks/sohcm-sync'
     | '/api/public/native/push'
   fileRoutesById: FileRoutesById
 }
@@ -1478,6 +1490,7 @@ export interface RootRouteChildren {
   ApiPublicSheetOcrRoute: typeof ApiPublicSheetOcrRoute
   ApiPublicHooksAlertcheckinSyncRoute: typeof ApiPublicHooksAlertcheckinSyncRoute
   ApiPublicHooksDailyPeoplePingsRoute: typeof ApiPublicHooksDailyPeoplePingsRoute
+  ApiPublicHooksSohcmSyncRoute: typeof ApiPublicHooksSohcmSyncRoute
   ApiPublicNativePushRoute: typeof ApiPublicNativePushRoute
 }
 
@@ -2281,6 +2294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicNativePushRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/sohcm-sync': {
+      id: '/api/public/hooks/sohcm-sync'
+      path: '/api/public/hooks/sohcm-sync'
+      fullPath: '/api/public/hooks/sohcm-sync'
+      preLoaderRoute: typeof ApiPublicHooksSohcmSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/daily-people-pings': {
       id: '/api/public/hooks/daily-people-pings'
       path: '/api/public/hooks/daily-people-pings'
@@ -2612,6 +2632,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSheetOcrRoute: ApiPublicSheetOcrRoute,
   ApiPublicHooksAlertcheckinSyncRoute: ApiPublicHooksAlertcheckinSyncRoute,
   ApiPublicHooksDailyPeoplePingsRoute: ApiPublicHooksDailyPeoplePingsRoute,
+  ApiPublicHooksSohcmSyncRoute: ApiPublicHooksSohcmSyncRoute,
   ApiPublicNativePushRoute: ApiPublicNativePushRoute,
 }
 export const routeTree = rootRouteImport
