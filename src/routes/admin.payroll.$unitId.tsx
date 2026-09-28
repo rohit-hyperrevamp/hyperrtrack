@@ -309,6 +309,15 @@ function PayrollUnitPage() {
       return Boolean(data);
     },
   });
+  const { data: canProcess = false } = useQuery({
+    queryKey: ["can-process-payroll"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("current_user_can_process_payroll" as never);
+      if (error) return false;
+      return Boolean(data);
+    },
+  });
 
   type RunStatus = "draft" | "submitted" | "approved" | "rejected";
   type RunRow = {
@@ -1859,7 +1868,10 @@ function PayrollUnitPage() {
           {runStatus === "submitted" && !canApprove && (
             <span className="text-xs text-muted-foreground">Awaiting payroll approver</span>
           )}
-          {runStatus === "approved" && !isProcessed && (
+          {runStatus === "approved" && !isProcessed && !canProcess && (
+            <span className="text-xs text-muted-foreground">Approved · awaiting payroll processor</span>
+          )}
+          {runStatus === "approved" && !isProcessed && canProcess && (
             <>
               {holdDraft.size > 0 && (
                 <span className="text-xs font-medium text-amber-700">{holdDraft.size} on hold</span>
@@ -1881,7 +1893,7 @@ function PayrollUnitPage() {
               {run?.payroll_processed_at ? ` · ${new Date(run.payroll_processed_at).toLocaleDateString("en-IN")}` : ""}
             </span>
           )}
-          {amendmentPending && (
+          {amendmentPending && canProcess && (
             <Button
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700"
