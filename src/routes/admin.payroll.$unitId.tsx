@@ -300,7 +300,15 @@ function PayrollUnitPage() {
 
   const queryClient = useQueryClient();
   const { can } = useCurrentPermissions();
-  const canApprove = can("payroll", "approve");
+  const { data: canApprove = false } = useQuery({
+    queryKey: ["can-approve-payroll"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("current_user_can_approve_payroll" as never);
+      if (error) return false;
+      return Boolean(data);
+    },
+  });
 
   type RunStatus = "draft" | "submitted" | "approved" | "rejected";
   type RunRow = {
@@ -1833,12 +1841,12 @@ function PayrollUnitPage() {
           {sheet?.status !== "approved" && (
             <span className="text-xs text-amber-700">Approve attendance first to submit payroll.</span>
           )}
-          {sheet?.status === "approved" && (runStatus === "draft" || runStatus === "rejected") && (
+          {sheet?.status === "approved" && (runStatus === "draft" || runStatus === "rejected") && !canApprove && (
             <Button size="sm" onClick={() => transitionRun.mutate({ status: "submitted" })} disabled={transitionRun.isPending}>
               <Send className="mr-1.5 h-4 w-4" /> Submit for Approval
             </Button>
           )}
-          {runStatus === "submitted" && canApprove && (
+          {sheet?.status === "approved" && runStatus !== "approved" && canApprove && (
             <>
               <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => transitionRun.mutate({ status: "approved" })} disabled={transitionRun.isPending}>
                 <CheckCircle2 className="mr-1.5 h-4 w-4" /> Approve
@@ -1849,7 +1857,7 @@ function PayrollUnitPage() {
             </>
           )}
           {runStatus === "submitted" && !canApprove && (
-            <span className="text-xs text-muted-foreground">Awaiting leadership approval</span>
+            <span className="text-xs text-muted-foreground">Awaiting payroll approver</span>
           )}
           {runStatus === "approved" && !isProcessed && (
             <>
