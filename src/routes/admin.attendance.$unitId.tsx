@@ -3202,7 +3202,7 @@ function MusterRollPage() {
           let pendingDesigName: string | null = null;
           if (designationCol >= 0) {
             const desigCell = norm(String(row[designationCol] ?? ""));
-            const match = desigCell ? fuzzyDesigMatch(desigCell) : null;
+            const match = desigCell ? fuzzyDesigMatch(desigCell, String(row[designationCol] ?? "")) : null;
             if (match) {
               pendingDesigId = match.designationId;
               pendingDesigName = match.designationName;
@@ -3245,7 +3245,7 @@ function MusterRollPage() {
         if (designationCol >= 0) {
           const desigCell = norm(String(row[designationCol] ?? ""));
           if (desigCell) {
-            const match = fuzzyDesigMatch(desigCell);
+            const match = fuzzyDesigMatch(desigCell, String(row[designationCol] ?? ""));
             if (match) {
               if (match.designationId !== mr.designationId) {
                 targetDesignationId = match.designationId;
