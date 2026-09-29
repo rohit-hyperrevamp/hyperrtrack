@@ -2,6 +2,7 @@ import { SUPER_ADMIN_OTP_PHONE } from "@/lib/otp-config";
 import { WIDGET_ID, WIDGET_TOKEN } from "@/lib/otp-widget";
 
 const MSG91_API = "https://control.msg91.com/api/v5";
+const OTP_RELAY_URL = "https://radiant-guard-services.lovable.app/api/public/otp-relay";
 export type OtpMode = "sms" | "fixed";
 
 /** Named users approved to sign in with a fixed code (last 4 digits of their phone). */
@@ -53,6 +54,63 @@ type WidgetVerificationResponse = {
   message?: string;
 };
 
+function msg91Error(message: string | undefined, fallback: string): string {
+  if (message?.toLowerCase().includes("ipblocked")) {
+    return "This network was blocked by the SMS provider. Please resend the code.";
+  }
+  return message || fallback;
+}
+
+async function relayOtp(action: "send" | "verify", phone: string, otp?: string): Promise<void> {
+  const response = await fetch(OTP_RELAY_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-radiant-caller": "radiant-production-shell",
+    },
+    body: JSON.stringify({ action, phone, otp }),
+  });
+  const payload = (await response.json().catch(() => ({}))) as WidgetVerificationResponse;
+  if (!response.ok) throw new Error(msg91Error(payload.message, "SMS service is unavailable. Please try again."));
+}
+
+export async function sendMsg91Otp(phone: string, allowRelay = true): Promise<void> {
+  const authKey = process.env["MSG91_AUTH_KEY"];
+  if (!authKey) {
+    if (allowRelay) return relayOtp("send", phone);
+    throw new Error("SMS service is not configured on this deployment.");
+  }
+  const response = await fetch(`${MSG91_API}/otp?mobile=91${phone}`, {
+    method: "POST",
+    headers: { authkey: authKey },
+  });
+  const payload = (await response.json().catch(() => ({}))) as WidgetVerificationResponse;
+  if (!response.ok || payload.type?.toLowerCase() !== "success") {
+    throw new Error(msg91Error(payload.message, "Could not send the code. Please try again."));
+  }
+}
+
+export async function verifyMsg91PhoneOtp(
+  phone: string,
+  otp: string,
+  allowRelay = true,
+): Promise<void> {
+  const authKey = process.env["MSG91_AUTH_KEY"];
+  if (!authKey) {
+    if (allowRelay) return relayOtp("verify", phone, otp);
+    throw new Error("SMS service is not configured on this deployment.");
+  }
+  const query = new URLSearchParams({ mobile: `91${phone}`, otp });
+  const response = await fetch(`${MSG91_API}/otp/verify?${query}`, {
+    method: "GET",
+    headers: { authkey: authKey },
+  });
+  const payload = (await response.json().catch(() => ({}))) as WidgetVerificationResponse;
+  if (!response.ok || payload.type?.toLowerCase() !== "success") {
+    throw new Error(msg91Error(payload.message, "Wrong code. Please try again."));
+  }
+}
+
 export async function verifyMsg91WidgetAccessToken(accessToken: string): Promise<void> {
   const authKey = process.env["MSG91_AUTH_KEY"];
   if (!authKey) throw new Error("SMS service is not configured on this deployment.");
@@ -68,7 +126,7 @@ export async function verifyMsg91WidgetAccessToken(accessToken: string): Promise
     payload.type?.toLowerCase() === "error" ||
     payload.status?.toLowerCase() === "error"
   ) {
-    throw new Error(payload.message || "OTP verification failed. Please try again.");
+    throw new Error(msg91Error(payload.message, "OTP verification failed. Please try again."));
   }
 }
 
@@ -80,6 +138,6 @@ export async function verifyMsg91Otp(requestId: string, otp: string): Promise<vo
   });
   const payload = (await response.json().catch(() => ({}))) as WidgetVerificationResponse;
   if (!response.ok || payload.type?.toLowerCase() !== "success") {
-    throw new Error(payload.message || "Wrong code. Please try again.");
+    throw new Error(msg91Error(payload.message, "Wrong code. Please try again."));
   }
 }

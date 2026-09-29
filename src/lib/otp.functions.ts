@@ -21,17 +21,21 @@ type OtpMode = "sms" | "fixed";
 export const sendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
   .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
-    const { resolveOtpMode, assertRegisteredPhone } = await import("@/lib/otp.server");
+    const { resolveOtpMode, assertRegisteredPhone, sendMsg91Otp } = await import("@/lib/otp.server");
     await assertRegisteredPhone(data.phone);
-    return { mode: await resolveOtpMode(data.phone) };
+    const mode = await resolveOtpMode(data.phone);
+    if (mode === "sms") await sendMsg91Otp(data.phone);
+    return { mode };
   });
 
 export const resendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
   .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
-    const { resolveOtpMode, assertRegisteredPhone } = await import("@/lib/otp.server");
+    const { resolveOtpMode, assertRegisteredPhone, sendMsg91Otp } = await import("@/lib/otp.server");
     await assertRegisteredPhone(data.phone);
-    return { mode: await resolveOtpMode(data.phone) };
+    const mode = await resolveOtpMode(data.phone);
+    if (mode === "sms") await sendMsg91Otp(data.phone);
+    return { mode };
   });
 
 export const verifyLoginOtp = createServerFn({ method: "POST" })
@@ -51,7 +55,7 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
       return { ok: true };
     }
 
-    const { resolveOtpMode, verifyMsg91Otp, verifyMsg91WidgetAccessToken, fixedCodeFor } = await import("@/lib/otp.server");
+    const { resolveOtpMode, verifyMsg91Otp, verifyMsg91WidgetAccessToken, verifyMsg91PhoneOtp, fixedCodeFor } = await import("@/lib/otp.server");
 
     const fixed = fixedCodeFor(data.phone);
     if (fixed) {
@@ -65,12 +69,12 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
       throw new Error("SMS sign-in is temporarily unavailable. Please contact an administrator.");
     }
 
-    if (data.requestId) {
+    if (!data.requestId && !data.accessToken) {
+      await verifyMsg91PhoneOtp(data.phone, data.otp);
+    } else if (data.requestId) {
       await verifyMsg91Otp(data.requestId, data.otp);
     } else if (data.accessToken) {
       await verifyMsg91WidgetAccessToken(data.accessToken);
-    } else {
-      throw new Error("OTP session expired. Request a new code.");
     }
     return { ok: true };
   });
