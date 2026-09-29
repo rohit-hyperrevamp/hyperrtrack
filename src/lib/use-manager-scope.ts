@@ -133,11 +133,12 @@ async function loadUnitsForOfficers(officerIds: string[]) {
   return { unitIds: [...unitIds], customerIds: [...customerIds] };
 }
 
-async function loadHrExecutiveUnits(candidateId: string) {
+async function loadHrExecutiveUnits(candidateId: string, column: "hr_executive_id" | "account_manager_id" = "hr_executive_id") {
   const { data, error } = await supabase
     .from("units")
     .select("id,is_billable,customer_id")
-    .eq("hr_executive_id" as never, candidateId as never);
+    .eq(column as never, candidateId as never)
+    .limit(5000);
   if (error) throw error;
   
   const unitIds = new Set<string>();
@@ -161,16 +162,18 @@ async function loadHrExecutiveUnits(candidateId: string) {
 export function useManagerFieldOfficerScope(): ManagerFieldOfficerScope {
   const { candidateId, isSuperAdmin, isFieldOfficer, roleKey, isLoading: roleLoading } = useCurrentUserRole();
   const enabled = !!candidateId && !isSuperAdmin && !isFieldOfficer;
-  const mustScope = roleKey === ROLE_KEYS.HR_EXECUTIVE;
+  const isAccounts = roleKey === ROLE_KEYS.ACCOUNTS;
+  // HR Executives and Accounts see only the units assigned to them.
+  const mustScope = roleKey === ROLE_KEYS.HR_EXECUTIVE || isAccounts;
 
   const q = useQuery({
-    queryKey: ["manager-fo-scope", candidateId],
+    queryKey: ["manager-fo-scope", candidateId, roleKey],
     enabled,
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const [fieldOfficerIds, hrScope] = await Promise.all([
-        loadSubtree(candidateId!),
-        mustScope ? loadHrExecutiveUnits(candidateId!) : Promise.resolve({ unitIds: [], customerIds: [] })
+        isAccounts ? Promise.resolve(new Set<string>()) : loadSubtree(candidateId!),
+        mustScope ? loadHrExecutiveUnits(candidateId!, isAccounts ? "account_manager_id" : "hr_executive_id") : Promise.resolve({ unitIds: [], customerIds: [] })
       ]);
       
       const { unitIds: foUnitIds, customerIds: foCustomerIds } = await loadUnitsForOfficers([...fieldOfficerIds]);
