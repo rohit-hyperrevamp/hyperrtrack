@@ -11,7 +11,6 @@ import {
   loadMsg91Widget,
   retryWidgetOtp,
   sendWidgetOtp,
-  verifyWidgetOtp,
 } from "@/lib/otp-widget";
 import {
   enableBiometric,
