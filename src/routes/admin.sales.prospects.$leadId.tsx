@@ -258,7 +258,7 @@ function Quotes({ lead }: { lead: CrmLead }) {
       const source = prev ? (await fetchQuoteLines(prev.id)).map((l, i) => ({ ...l, id: undefined, quote_id: data.id, sort_order: i }))
         : reqs.map((r, i) => ({ quote_id: data.id, designation_id: r.designation_id, designation_label: r.designation_label, quantity: r.quantity, shift_hours: r.shift_hours, sort_order: i }));
       if (source.length) {
-        const clean = source.map(({ id: _id, ...rest }) => rest);
+        const clean = source.map((row) => { const { id: _id, ...rest } = row as Record<string, unknown>; return rest; });
         const { error: e2 } = await crmDb.from("crm_quote_lines").insert(clean);
         if (e2) throw new Error(e2.message);
       }
