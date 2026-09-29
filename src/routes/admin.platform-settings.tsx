@@ -144,10 +144,8 @@ function PlatformSettingsPage() {
               </Label>
               <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
                 When ON, every user receives a real 4-digit OTP over SMS through
-                MSG91. When OFF, all users sign in with the fallback code{" "}
-                <span className="font-semibold text-foreground">1111</span>. The
-                super admin always signs in with a fixed code, regardless of this
-                setting.
+                MSG91. When OFF, regular user sign-in is paused. The super admin
+                keeps emergency access regardless of this setting.
               </p>
             </div>
           </div>
