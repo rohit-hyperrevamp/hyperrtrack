@@ -1,6 +1,6 @@
 // Sales & Marketing CRM data layer (prospects pipeline, activities, quotes).
-// Tables are gated by RLS (`current_user_can_crm()`): Super Admin by default,
-// plus any role granted the `sales_marketing` RBAC module.
+// Tables are gated by RLS (`current_user_can_crm()`): Super Admin only, plus any
+// role later granted the `sales_marketing` RBAC module.
 import { supabase } from "@/integrations/supabase/client";
 
 // The CRM tables are newer than the generated client types; use a loose handle.
@@ -186,3 +186,10 @@ export function leadProbability(lead: CrmLead, stages: CrmStage[]): number {
 export function quoteLineMonthly(l: Pick<CrmQuoteLine, "quantity" | "billing_rate">): number {
   return Number(l.quantity || 0) * Number(l.billing_rate || 0);
 }
+
+export const QUOTE_TONE: Record<CrmQuote["status"], string> = {
+  draft: "bg-muted text-muted-foreground",
+  sent: "bg-primary/15 text-primary",
+  signed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  rejected: "bg-destructive/15 text-destructive",
+};

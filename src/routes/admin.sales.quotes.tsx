@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { PageHeader, PageStat } from "@/components/PageHeader";
 import { DataPagination, usePagination } from "@/components/DataPagination";
 import { Input } from "@/components/ui/input";
-import { fetchLeads, fetchQuotes, inr, QK, type CrmQuote } from "@/lib/crm";
+import { fetchLeads, fetchQuotes, inr, QK, QUOTE_TONE, type CrmQuote } from "@/lib/crm";
 import { cn } from "@/lib/utils";
 
 type QStatus = CrmQuote["status"];
@@ -25,12 +25,6 @@ export const Route = createFileRoute("/admin/sales/quotes")({
   component: QuotesPage,
 });
 
-export const QUOTE_TONE: Record<QStatus, string> = {
-  draft: "bg-muted text-muted-foreground",
-  sent: "bg-primary/15 text-primary",
-  signed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  rejected: "bg-destructive/15 text-destructive",
-};
 
 function QuotesPage() {
   const search = Route.useSearch();

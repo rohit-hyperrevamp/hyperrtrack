@@ -15,11 +15,10 @@ import { useOrgUnitChain } from "@/components/OrgUnitChain";
 import { logActivity } from "@/lib/activity-log";
 import {
   ACTIVITY_TYPES, CRM_MODULE, crmDb, fetchActivities, fetchLead, fetchLostReasons, fetchQuoteLines, fetchQuotes,
-  fetchRequirements, fetchStages, inr, LEAD_SOURCES, QK, quoteLineMonthly, stageTone,
+  fetchRequirements, fetchStages, inr, LEAD_SOURCES, QK, QUOTE_TONE, quoteLineMonthly, stageTone,
   type CrmLead, type CrmQuote, type CrmQuoteLine,
 } from "@/lib/crm";
 import { cn } from "@/lib/utils";
-import { QUOTE_TONE } from "./admin.sales.quotes";
 
 export const Route = createFileRoute("/admin/sales/prospects/$leadId")({
   head: () => ({

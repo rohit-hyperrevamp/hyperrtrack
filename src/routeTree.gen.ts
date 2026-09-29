@@ -130,6 +130,7 @@ import { Route as AdminSalesProspectsIndexRouteImport } from './routes/admin.sal
 import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/native/push'
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
+import { Route as AdminSalesProspectsLeadIdRouteImport } from './routes/admin.sales.prospects.$leadId'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
 
@@ -766,6 +767,12 @@ const ApiPublicHooksAlertcheckinSyncRoute =
     path: '/api/public/hooks/alertcheckin-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminSalesProspectsLeadIdRoute =
+  AdminSalesProspectsLeadIdRouteImport.update({
+    id: '/prospects/$leadId',
+    path: '/prospects/$leadId',
+    getParentRoute: () => AdminSalesRoute,
+  } as any)
 const AdminFieldSenseOfficerIdRoute =
   AdminFieldSenseOfficerIdRouteImport.update({
     id: '/field-sense/officer/$id',
@@ -899,6 +906,7 @@ export interface FileRoutesByFullPath {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
@@ -1020,6 +1028,7 @@ export interface FileRoutesByTo {
   '/admin/payroll': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
@@ -1146,6 +1155,7 @@ export interface FileRoutesById {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
@@ -1273,6 +1283,7 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
@@ -1394,6 +1405,7 @@ export interface FileRouteTypes {
     | '/admin/payroll'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
@@ -1519,6 +1531,7 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
@@ -2392,6 +2405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAlertcheckinSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sales/prospects/$leadId': {
+      id: '/admin/sales/prospects/$leadId'
+      path: '/prospects/$leadId'
+      fullPath: '/admin/sales/prospects/$leadId'
+      preLoaderRoute: typeof AdminSalesProspectsLeadIdRouteImport
+      parentRoute: typeof AdminSalesRoute
+    }
     '/admin/field-sense/officer/$id': {
       id: '/admin/field-sense/officer/$id'
       path: '/field-sense/officer/$id'
@@ -2532,12 +2552,14 @@ const AdminPayrollRouteWithChildren = AdminPayrollRoute._addFileChildren(
 interface AdminSalesRouteChildren {
   AdminSalesDashboardRoute: typeof AdminSalesDashboardRoute
   AdminSalesQuotesRoute: typeof AdminSalesQuotesRoute
+  AdminSalesProspectsLeadIdRoute: typeof AdminSalesProspectsLeadIdRoute
   AdminSalesProspectsIndexRoute: typeof AdminSalesProspectsIndexRoute
 }
 
 const AdminSalesRouteChildren: AdminSalesRouteChildren = {
   AdminSalesDashboardRoute: AdminSalesDashboardRoute,
   AdminSalesQuotesRoute: AdminSalesQuotesRoute,
+  AdminSalesProspectsLeadIdRoute: AdminSalesProspectsLeadIdRoute,
   AdminSalesProspectsIndexRoute: AdminSalesProspectsIndexRoute,
 }
 
