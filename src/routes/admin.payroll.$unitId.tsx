@@ -1934,7 +1934,7 @@ function PayrollUnitPage() {
               {run?.payroll_processed_at ? ` · ${new Date(run.payroll_processed_at).toLocaleDateString("en-IN")}` : ""}
             </span>
           )}
-          {isProcessed && (
+          {isProcessed && canProcess && (
             <Button size="sm" variant="outline" onClick={() => void downloadBankFile()}>
               <Download className="mr-1.5 h-4 w-4" /> Bank File
             </Button>
