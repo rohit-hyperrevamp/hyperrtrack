@@ -119,11 +119,21 @@ function LoginPage() {
     if (!phoneValid || sending) return;
     setSending(true);
     setError(null);
+    const isResend = step === "otp";
     try {
-      const isResend = step === "otp";
       const result = isResend
         ? await requestOtpAgain({ data: { phone } })
         : await requestOtp({ data: { phone } });
+      setOtpMode(result.mode);
+
+      // Once the phone has passed the server-side checks, show the OTP input
+      // immediately. MSG91 may keep its callback pending while its own human
+      // verification UI closes, which previously left this page on Send OTP.
+      if (!isResend) {
+        setStep("otp");
+        setOtp("");
+      }
+
       if (result.mode === "sms") {
         const requestId =
           isResend && otpRequestId
@@ -133,10 +143,7 @@ function LoginPage() {
       } else {
         setOtpRequestId(null);
       }
-      setOtpMode(result.mode);
-      setStep("otp");
       setResendIn(30);
-      setOtp("");
       toast.success(
         result.mode === "sms"
           ? `OTP sent to +91 ••• ••• ${phone.slice(-4)}`
@@ -145,6 +152,7 @@ function LoginPage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Could not send the code. Please try again.";
+      if (!isResend) setStep("phone");
       setError(message);
       toast.error(message);
     } finally {
