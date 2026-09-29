@@ -22,6 +22,7 @@ const NON_BILLABLE_ROLE_KEYS = new Set([
   "field_officer",
   "branch_manager",
   "hr",
+  "payroll",
   "hr_executive",
   "leadership",
   "transport",
