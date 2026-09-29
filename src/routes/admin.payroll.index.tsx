@@ -17,7 +17,7 @@ import { usePayrollWindowSelection } from "@/lib/use-payroll-window-selection";
 import { useOperationalUnitScope } from "@/lib/use-manager-scope";
 import type { MoneyStatus } from "@/lib/period-status";
 
-const searchSchema = z.object({ window: z.string().optional(), month: z.coerce.number().min(0).max(11).optional(), year: z.coerce.number().min(2000).max(2100).optional() });
+const searchSchema = z.object({ window: z.string().optional(), month: z.coerce.number().min(0).max(11).optional(), year: z.coerce.number().min(2000).max(2100).optional(), status: z.enum(["open", "ready", "approved", "processed"]).optional() });
 
 export const Route = createFileRoute("/admin/payroll/")({
   validateSearch: (search) => searchSchema.parse(search),
@@ -29,7 +29,7 @@ function PayrollUnitsPage() {
   const [q, setQ] = useState("");
   const [orgFilter, setOrgFilter] = useState<string[]>([]);
   const [unitFilter, setUnitFilter] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<"all" | MoneyStatus>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | MoneyStatus>(search.status ?? "all");
 
   const { data, isLoading, error } = useQuery({
     queryKey: CHARTER_UNITS_QK,

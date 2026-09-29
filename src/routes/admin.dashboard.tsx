@@ -1213,10 +1213,10 @@ function DashboardPage() {
             />
           </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <MetricTile icon={ClipboardList} label="Payroll open" sub="Attendance not approved" value={rc?.open ?? 0} accent="rose" to="/admin/payroll" />
-            <MetricTile icon={Wallet} label="Payroll ready" sub="Awaiting your approval" value={rc?.pending ?? 0} accent="amber" to="/admin/payroll" />
-            <MetricTile icon={Sparkles} label="Payroll approved" sub="Awaiting processing" value={rc?.approved ?? 0} accent="sky" to="/admin/payroll" />
-            <MetricTile icon={Receipt} label="Payroll processed" sub="Done" value={rc?.processed ?? 0} accent="emerald" to="/admin/payroll" />
+            <MetricTile icon={ClipboardList} label="Payroll open" sub="Attendance not approved" value={rc?.open ?? 0} accent="rose" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "open" }} />
+            <MetricTile icon={Wallet} label="Payroll ready" sub="Awaiting your approval" value={rc?.pending ?? 0} accent="amber" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "ready" }} />
+            <MetricTile icon={Sparkles} label="Payroll approved" sub="Awaiting processing" value={rc?.approved ?? 0} accent="sky" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "approved" }} />
+            <MetricTile icon={Receipt} label="Payroll processed" sub="Done" value={rc?.processed ?? 0} accent="emerald" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "processed" }} />
           </div>
         </div>
       </div>
@@ -1482,15 +1482,18 @@ const ACCENT_TILE_BG: Record<Accent, string> = {
 function Shell({
   children,
   to,
+  search,
   accent = "indigo",
 }: {
   children: React.ReactNode;
   to: string;
+  search?: Record<string, unknown>;
   accent?: Accent;
 }) {
   return (
     <Link
       to={to}
+      search={search as never}
       className={`group relative flex h-[124px] min-w-0 flex-col overflow-hidden rounded-2xl border border-border/40 ${ACCENT_TILE_BG[accent]} p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:h-[172px] sm:rounded-[26px] sm:p-5`}
     >
       {children}
@@ -1543,6 +1546,7 @@ function MetricTile({
   label,
   value,
   to,
+  search,
   accent = "indigo",
   sub,
 }: {
@@ -1551,12 +1555,13 @@ function MetricTile({
   value: number;
   accent?: Accent;
   to: string;
+  search?: Record<string, unknown>;
   sub?: string;
 }) {
   const display = useCountUp(value);
   const I = icon;
   return (
-    <Shell to={to} accent={accent}>
+    <Shell to={to} search={search} accent={accent}>
       <TileHeader accent={accent} label={label} sub={sub} />
       <div className="relative mt-auto flex items-end justify-between gap-3">
         <div className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-display text-[26px] font-medium leading-none tabular-nums text-foreground sm:text-[40px]">
