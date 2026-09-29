@@ -139,7 +139,6 @@ const STATUS_OPTIONS: { value: UnifiedStatus; label: string }[] = [
   { value: "inactive", label: "Inactive" },
   { value: "expired", label: "Expired" },
   { value: "pending_approval", label: "Pending Approval" },
-  { value: "lost", label: "Lost" },
 ];
 
 const STATUS_LABEL: Record<UnifiedStatus, string> = Object.fromEntries(
