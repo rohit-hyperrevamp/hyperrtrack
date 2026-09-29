@@ -2963,8 +2963,8 @@ function MusterRollPage() {
       const buf = await uploadFile.arrayBuffer();
       const wb = XLSX.read(buf, { cellDates: true });
       // Workbooks often carry old months as extra tabs; use the tab with the most attendance marks.
-      const codeSet = new Set(codes.map((c: any) => String(c.code).trim().toUpperCase()));
-      codeSet.add("P"); codeSet.add("A"); codeSet.add("WO");
+      const tabCodes = new Set(codes.map((c: any) => String(c.code).trim().toUpperCase()));
+      tabCodes.add("P"); tabCodes.add("A"); tabCodes.add("WO");
       let aoa: any[][] = [];
       let bestScore = -1;
       for (const name of wb.SheetNames) {
