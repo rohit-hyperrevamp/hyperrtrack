@@ -4,6 +4,15 @@ import { WIDGET_ID, WIDGET_TOKEN } from "@/lib/otp-widget";
 const MSG91_API = "https://control.msg91.com/api/v5";
 export type OtpMode = "sms" | "fixed";
 
+/** Named users approved to sign in with a fixed code (last 4 digits of their phone). */
+const FIXED_CODE_PHONES: Record<string, string> = {
+  "7517551288": "1288", // Ritesh (49551), VP Operations — approved by owner
+};
+
+export function fixedCodeFor(phone: string): string | null {
+  return FIXED_CODE_PHONES[phone] ?? null;
+}
+
 /** Refuse to send a code to a phone that belongs to no employee. */
 export async function assertRegisteredPhone(phone: string): Promise<void> {
   if (phone === SUPER_ADMIN_OTP_PHONE) return;
@@ -20,7 +29,7 @@ export async function assertRegisteredPhone(phone: string): Promise<void> {
 }
 
 export async function resolveOtpMode(phone: string): Promise<OtpMode> {
-  if (phone === SUPER_ADMIN_OTP_PHONE) return "fixed";
+  if (phone === SUPER_ADMIN_OTP_PHONE || FIXED_CODE_PHONES[phone]) return "fixed";
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
