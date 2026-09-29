@@ -24,6 +24,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { OrgUnitQuickCreateDialog } from "@/components/OrgUnitChain";
 import { ContractApprovalDialog, type ApprovalMode } from "@/components/ContractApprovalDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -138,7 +139,6 @@ const STATUS_OPTIONS: { value: UnifiedStatus; label: string }[] = [
   { value: "inactive", label: "Inactive" },
   { value: "expired", label: "Expired" },
   { value: "pending_approval", label: "Pending Approval" },
-  { value: "lost", label: "Lost" },
 ];
 
 const STATUS_LABEL: Record<UnifiedStatus, string> = Object.fromEntries(
@@ -700,7 +700,7 @@ function useContracts() {
       void notifyApprovers({
         moduleKey: "contracts",
         type: "contract_pending_approval",
-        title: `Prospect ${p.prospectCode} awaiting approval`,
+        title: `Contract draft ${p.prospectCode} awaiting approval`,
         message: "A new prospect contract has been submitted and needs your sign-off.",
         link: "/admin/contracts/client-contracts",
         entityType: "client_contracts",
@@ -984,7 +984,7 @@ function useContracts() {
       void notifyApprovers({
         moduleKey: "contracts",
         type: "contract_pending_approval",
-        title: `Prospect ${prospectCode} resubmitted for approval`,
+        title: `Contract draft ${prospectCode} resubmitted for approval`,
         message: "A previously rejected prospect contract has been updated and resubmitted.",
         link: "/admin/contracts/client-contracts",
         entityType: "client_contracts",
@@ -2615,7 +2615,7 @@ function ClientContractsPage() {
         crumbs={[{ label: "Contracts" }, { label: "Client Contracts" }]}
         kpis={
           <>
-            <PageStat label="Clients + Prospects" value={isLoading ? "—" : overview.total} />
+            <PageStat label="All contracts" value={isLoading ? "—" : overview.total} />
             <PageStat
               label="Active"
               value={isLoading ? "—" : overview.active}
@@ -2655,13 +2655,6 @@ function ClientContractsPage() {
               active={statusFilter.length === 1 && statusFilter[0] === "pending_approval"}
               onClick={() => applyStatusTile("pending_approval")}
             />
-            <PageStat
-              label="Lost"
-              value={overview.lost}
-              tone="destructive"
-              active={statusFilter.length === 1 && statusFilter[0] === "lost"}
-              onClick={() => applyStatusTile("lost")}
-            />
 
 
           </>
@@ -2681,11 +2674,11 @@ function ClientContractsPage() {
       >
         <TabsList>
           <TabsTrigger value="client">
-            Clients <span className="ml-1.5 text-xs text-muted-foreground">({tabCounts.clients})</span>
+            Contracts <span className="ml-1.5 text-xs text-muted-foreground">({tabCounts.clients})</span>
           </TabsTrigger>
           {!isHrReadOnly && (
             <TabsTrigger value="prospect">
-              Prospects <span className="ml-1.5 text-xs text-muted-foreground">({tabCounts.prospects})</span>
+              Pending Approval <span className="ml-1.5 text-xs text-muted-foreground">({tabCounts.prospects})</span>
             </TabsTrigger>
           )}
         </TabsList>
@@ -2898,7 +2891,7 @@ function ClientContractsPage() {
           <table className="ios-table w-full text-sm">
             <thead className="bg-secondary/60 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               <tr>
-                <th className="px-5 py-3" data-col="code">{tab === "client" ? "Contract ID" : "Prospect ID"}</th>
+                <th className="px-5 py-3" data-col="code">{tab === "client" ? "Contract ID" : "Draft ID"}</th>
                 <th className="px-5 py-3">Organization</th>
                 <th className="px-5 py-3">Client</th>
                 {tab === "client" ? (
@@ -2917,7 +2910,7 @@ function ClientContractsPage() {
               {pg.pageRows.map((c) => (
                 <tr key={c.id} className="hover:bg-secondary/30">
                   <td className="px-5 py-3" data-col="code">
-                    <CopyableId value={tab === "client" ? c.contractCode : c.prospectCode} label={tab === "client" ? "Contract ID" : "Prospect ID"} />
+                    <CopyableId value={tab === "client" ? c.contractCode : c.prospectCode} label={tab === "client" ? "Contract ID" : "Draft ID"} />
                   </td>
                   <td className="px-5 py-3 font-medium text-foreground">
                     <span className="cell-primary">{c.orgName}</span>
@@ -3028,7 +3021,7 @@ function ClientContractsPage() {
                               data-variant="success"
                               className="h-8 w-8 rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                               onClick={() => setApprovalTarget({ contract: c, mode: "approve" })}
-                              title="Approve & sign — promote to client"
+                              title="Approve & sign contract"
                               aria-label="Approve"
                             >
                               <CheckCircle2 className="h-4 w-4" />
@@ -3057,37 +3050,12 @@ function ClientContractsPage() {
                             onClick={() =>
                               resubmitMut.mutate({ id: c.id, prospectCode: c.prospectCode })
                             }
-                            title="Resubmit this prospect for approval"
+                            title="Resubmit for approval"
                             aria-label="Resubmit"
                           >
                             <RefreshCcw className="h-4 w-4" />
                           </Button>
                         )}
-                      {tab === "prospect" && canEdit && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className={cn(
-                            "text-muted-foreground",
-                            c.prospectStage === "lost" && "text-rose-600",
-                          )}
-                          onClick={() =>
-                            updateStageMut.mutate({
-                              id: c.id,
-                              stage: c.prospectStage === "lost" ? "new" : "lost",
-                              label: c.contractCode || c.prospectCode,
-                            })
-                          }
-                          title={
-                            c.prospectStage === "lost"
-                              ? "Restore from Lost"
-                              : "Mark as Lost"
-                          }
-                          aria-label="Mark Lost"
-                        >
-                          <Flag className="h-4 w-4" />
-                        </Button>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -3117,8 +3085,8 @@ function ClientContractsPage() {
                     {items.length === 0
                       ? "No contracts yet. Create your first contract to get started."
                       : tab === "prospect"
-                        ? "No prospects match your filters."
-                        : "No clients match your filters."}
+                        ? "No contracts are waiting for approval."
+                        : "No contracts match your filters."}
                   </td>
                 </tr>
               )}
@@ -3482,6 +3450,7 @@ function ContractFormDialog({
   const [gstOption, setGstOption] = useState<GstOption>("csgst");
   const [approvalValue, setApprovalValue] = useState<ApprovalPickerValue>(null);
   const [unitPickerOpen, setUnitPickerOpen] = useState(false);
+  const [quickUnitOpen, setQuickUnitOpen] = useState(false);
   const [unitQuery, setUnitQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [stepKey, setStepKey] = useState("client");
@@ -3816,6 +3785,8 @@ function ContractFormDialog({
                     </Command>
                   </PopoverContent>
                 </Popover>
+                <button type="button" onClick={() => setQuickUnitOpen(true)} className="mt-1.5 text-xs font-medium text-primary hover:underline">+ New organization / unit</button>
+                <OrgUnitQuickCreateDialog open={quickUnitOpen} onOpenChange={setQuickUnitOpen} onDone={(r) => setUnitId(r.unitId)} />
               </Field>
               <Field label="Unit Name">
                 <Input value={selectedUnit?.name ?? ""} readOnly placeholder="Auto-filled" />
@@ -3926,7 +3897,6 @@ function ContractFormDialog({
                     <SelectContent>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="rejected">Rejected</SelectItem>
-                      <SelectItem value="lost">Lost</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>

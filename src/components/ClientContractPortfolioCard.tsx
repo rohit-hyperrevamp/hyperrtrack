@@ -142,7 +142,7 @@ export function ClientContractPortfolioCard() {
           </div>
           <h2 className="text-base font-semibold">Client Contracts</h2>
           <p className="text-xs text-muted-foreground">
-            Portfolio health across prospects and client contracts. Tap any tile to
+            Portfolio health across client contracts. Tap any tile to
             open the contract register pre-filtered.
           </p>
         </div>
@@ -155,14 +155,12 @@ export function ClientContractPortfolioCard() {
         </Link>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-        <ContractTile label="Prospects" value={counts.prospects} to={to} search={{ tab: "prospect" }} />
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
         <ContractTile label="Active" value={counts.active} tone="accent" to={to} search={{ status: "active", tab: "client" }} />
         <ContractTile label="Renewal ≤ 6m" value={counts.renewals} tone="warning" to={to} search={{ renewals: true }} />
         <ContractTile label="Inactive" value={counts.inactive} tone="warning" to={to} search={{ status: "inactive" }} />
         <ContractTile label="Expired" value={counts.expired} tone="destructive" to={to} search={{ status: "expired" }} />
         <ContractTile label="Pending approval" value={counts.pending_approval} tone="warning" to={to} search={{ status: "pending_approval", tab: "prospect" }} />
-        <ContractTile label="Lost" value={counts.lost} tone="destructive" to={to} search={{ status: "lost" }} />
       </div>
     </div>
   );

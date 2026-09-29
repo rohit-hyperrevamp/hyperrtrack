@@ -22,6 +22,7 @@ import { Route as AdminVehiclesRouteImport } from './routes/admin.vehicles'
 import { Route as AdminTrainingRouteImport } from './routes/admin.training'
 import { Route as AdminSystemLogsRouteImport } from './routes/admin.system-logs'
 import { Route as AdminServiceTypeManagerRouteImport } from './routes/admin.service-type-manager'
+import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminRolesManagerRouteImport } from './routes/admin.roles-manager'
 import { Route as AdminRbacRouteImport } from './routes/admin.rbac'
 import { Route as AdminPublicHolidayManagerRouteImport } from './routes/admin.public-holiday-manager'
@@ -91,6 +92,8 @@ import { Route as AdminVehiclesInsurancesRouteImport } from './routes/admin.vehi
 import { Route as AdminVehiclesInsightLabRouteImport } from './routes/admin.vehicles.insight-lab'
 import { Route as AdminVehiclesFastagsRouteImport } from './routes/admin.vehicles.fastags'
 import { Route as AdminVehiclesExpenseManagerRouteImport } from './routes/admin.vehicles.expense-manager'
+import { Route as AdminSalesQuotesRouteImport } from './routes/admin.sales.quotes'
+import { Route as AdminSalesDashboardRouteImport } from './routes/admin.sales.dashboard'
 import { Route as AdminPayrollUnitIdRouteImport } from './routes/admin.payroll.$unitId'
 import { Route as AdminInvoiceUnitIdRouteImport } from './routes/admin.invoice.$unitId'
 import { Route as AdminInventoryWorkflowsRouteImport } from './routes/admin.inventory.workflows'
@@ -123,9 +126,11 @@ import { Route as AdminAttendanceUnitIdRouteImport } from './routes/admin.attend
 import { Route as AdminAssetsLoanManagerRouteImport } from './routes/admin.assets.loan-manager'
 import { Route as AdminAssetsInventoryRouteImport } from './routes/admin.assets.inventory'
 import { Route as AdminAssetsExpenseManagerRouteImport } from './routes/admin.assets.expense-manager'
+import { Route as AdminSalesProspectsIndexRouteImport } from './routes/admin.sales.prospects.index'
 import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/native/push'
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
+import { Route as AdminSalesProspectsLeadIdRouteImport } from './routes/admin.sales.prospects.$leadId'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
 
@@ -192,6 +197,11 @@ const AdminSystemLogsRoute = AdminSystemLogsRouteImport.update({
 const AdminServiceTypeManagerRoute = AdminServiceTypeManagerRouteImport.update({
   id: '/service-type-manager',
   path: '/service-type-manager',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSalesRoute = AdminSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRolesManagerRoute = AdminRolesManagerRouteImport.update({
@@ -552,6 +562,16 @@ const AdminVehiclesExpenseManagerRoute =
     path: '/expense-manager',
     getParentRoute: () => AdminVehiclesRoute,
   } as any)
+const AdminSalesQuotesRoute = AdminSalesQuotesRouteImport.update({
+  id: '/quotes',
+  path: '/quotes',
+  getParentRoute: () => AdminSalesRoute,
+} as any)
+const AdminSalesDashboardRoute = AdminSalesDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminSalesRoute,
+} as any)
 const AdminPayrollUnitIdRoute = AdminPayrollUnitIdRouteImport.update({
   id: '/$unitId',
   path: '/$unitId',
@@ -724,6 +744,12 @@ const AdminAssetsExpenseManagerRoute =
     path: '/expense-manager',
     getParentRoute: () => AdminAssetsRoute,
   } as any)
+const AdminSalesProspectsIndexRoute =
+  AdminSalesProspectsIndexRouteImport.update({
+    id: '/prospects/',
+    path: '/prospects/',
+    getParentRoute: () => AdminSalesRoute,
+  } as any)
 const ApiPublicNativePushRoute = ApiPublicNativePushRouteImport.update({
   id: '/api/public/native/push',
   path: '/api/public/native/push',
@@ -740,6 +766,12 @@ const ApiPublicHooksAlertcheckinSyncRoute =
     id: '/api/public/hooks/alertcheckin-sync',
     path: '/api/public/hooks/alertcheckin-sync',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminSalesProspectsLeadIdRoute =
+  AdminSalesProspectsLeadIdRouteImport.update({
+    id: '/prospects/$leadId',
+    path: '/prospects/$leadId',
+    getParentRoute: () => AdminSalesRoute,
   } as any)
 const AdminFieldSenseOfficerIdRoute =
   AdminFieldSenseOfficerIdRouteImport.update({
@@ -815,6 +847,7 @@ export interface FileRoutesByFullPath {
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
+  '/admin/sales': typeof AdminSalesRouteWithChildren
   '/admin/service-type-manager': typeof AdminServiceTypeManagerRoute
   '/admin/system-logs': typeof AdminSystemLogsRoute
   '/admin/training': typeof AdminTrainingRoute
@@ -853,6 +886,8 @@ export interface FileRoutesByFullPath {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
+  '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
   '/admin/vehicles/fastags': typeof AdminVehiclesFastagsRoute
   '/admin/vehicles/insight-lab': typeof AdminVehiclesInsightLabRoute
@@ -871,9 +906,11 @@ export interface FileRoutesByFullPath {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -932,6 +969,7 @@ export interface FileRoutesByTo {
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
+  '/admin/sales': typeof AdminSalesRouteWithChildren
   '/admin/service-type-manager': typeof AdminServiceTypeManagerRoute
   '/admin/system-logs': typeof AdminSystemLogsRoute
   '/admin/training': typeof AdminTrainingRoute
@@ -970,6 +1008,8 @@ export interface FileRoutesByTo {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
+  '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
   '/admin/vehicles/fastags': typeof AdminVehiclesFastagsRoute
   '/admin/vehicles/insight-lab': typeof AdminVehiclesInsightLabRoute
@@ -988,9 +1028,11 @@ export interface FileRoutesByTo {
   '/admin/payroll': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/sales/prospects': typeof AdminSalesProspectsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1054,6 +1096,7 @@ export interface FileRoutesById {
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
+  '/admin/sales': typeof AdminSalesRouteWithChildren
   '/admin/service-type-manager': typeof AdminServiceTypeManagerRoute
   '/admin/system-logs': typeof AdminSystemLogsRoute
   '/admin/training': typeof AdminTrainingRoute
@@ -1092,6 +1135,8 @@ export interface FileRoutesById {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
+  '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
   '/admin/vehicles/fastags': typeof AdminVehiclesFastagsRoute
   '/admin/vehicles/insight-lab': typeof AdminVehiclesInsightLabRoute
@@ -1110,9 +1155,11 @@ export interface FileRoutesById {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1177,6 +1224,7 @@ export interface FileRouteTypes {
     | '/admin/public-holiday-manager'
     | '/admin/rbac'
     | '/admin/roles-manager'
+    | '/admin/sales'
     | '/admin/service-type-manager'
     | '/admin/system-logs'
     | '/admin/training'
@@ -1215,6 +1263,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/sales/dashboard'
+    | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
     | '/admin/vehicles/fastags'
     | '/admin/vehicles/insight-lab'
@@ -1233,9 +1283,11 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/sales/prospects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1294,6 +1346,7 @@ export interface FileRouteTypes {
     | '/admin/public-holiday-manager'
     | '/admin/rbac'
     | '/admin/roles-manager'
+    | '/admin/sales'
     | '/admin/service-type-manager'
     | '/admin/system-logs'
     | '/admin/training'
@@ -1332,6 +1385,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/sales/dashboard'
+    | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
     | '/admin/vehicles/fastags'
     | '/admin/vehicles/insight-lab'
@@ -1350,9 +1405,11 @@ export interface FileRouteTypes {
     | '/admin/payroll'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/sales/prospects'
   id:
     | '__root__'
     | '/'
@@ -1415,6 +1472,7 @@ export interface FileRouteTypes {
     | '/admin/public-holiday-manager'
     | '/admin/rbac'
     | '/admin/roles-manager'
+    | '/admin/sales'
     | '/admin/service-type-manager'
     | '/admin/system-logs'
     | '/admin/training'
@@ -1453,6 +1511,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/sales/dashboard'
+    | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
     | '/admin/vehicles/fastags'
     | '/admin/vehicles/insight-lab'
@@ -1471,9 +1531,11 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/sales/prospects/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1585,6 +1647,13 @@ declare module '@tanstack/react-router' {
       path: '/service-type-manager'
       fullPath: '/admin/service-type-manager'
       preLoaderRoute: typeof AdminServiceTypeManagerRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sales': {
+      id: '/admin/sales'
+      path: '/sales'
+      fullPath: '/admin/sales'
+      preLoaderRoute: typeof AdminSalesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/roles-manager': {
@@ -2070,6 +2139,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVehiclesExpenseManagerRouteImport
       parentRoute: typeof AdminVehiclesRoute
     }
+    '/admin/sales/quotes': {
+      id: '/admin/sales/quotes'
+      path: '/quotes'
+      fullPath: '/admin/sales/quotes'
+      preLoaderRoute: typeof AdminSalesQuotesRouteImport
+      parentRoute: typeof AdminSalesRoute
+    }
+    '/admin/sales/dashboard': {
+      id: '/admin/sales/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/sales/dashboard'
+      preLoaderRoute: typeof AdminSalesDashboardRouteImport
+      parentRoute: typeof AdminSalesRoute
+    }
     '/admin/payroll/$unitId': {
       id: '/admin/payroll/$unitId'
       path: '/$unitId'
@@ -2294,6 +2377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAssetsExpenseManagerRouteImport
       parentRoute: typeof AdminAssetsRoute
     }
+    '/admin/sales/prospects/': {
+      id: '/admin/sales/prospects/'
+      path: '/prospects'
+      fullPath: '/admin/sales/prospects/'
+      preLoaderRoute: typeof AdminSalesProspectsIndexRouteImport
+      parentRoute: typeof AdminSalesRoute
+    }
     '/api/public/native/push': {
       id: '/api/public/native/push'
       path: '/api/public/native/push'
@@ -2314,6 +2404,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/hooks/alertcheckin-sync'
       preLoaderRoute: typeof ApiPublicHooksAlertcheckinSyncRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/sales/prospects/$leadId': {
+      id: '/admin/sales/prospects/$leadId'
+      path: '/prospects/$leadId'
+      fullPath: '/admin/sales/prospects/$leadId'
+      preLoaderRoute: typeof AdminSalesProspectsLeadIdRouteImport
+      parentRoute: typeof AdminSalesRoute
     }
     '/admin/field-sense/officer/$id': {
       id: '/admin/field-sense/officer/$id'
@@ -2452,6 +2549,24 @@ const AdminPayrollRouteWithChildren = AdminPayrollRoute._addFileChildren(
   AdminPayrollRouteChildren,
 )
 
+interface AdminSalesRouteChildren {
+  AdminSalesDashboardRoute: typeof AdminSalesDashboardRoute
+  AdminSalesQuotesRoute: typeof AdminSalesQuotesRoute
+  AdminSalesProspectsLeadIdRoute: typeof AdminSalesProspectsLeadIdRoute
+  AdminSalesProspectsIndexRoute: typeof AdminSalesProspectsIndexRoute
+}
+
+const AdminSalesRouteChildren: AdminSalesRouteChildren = {
+  AdminSalesDashboardRoute: AdminSalesDashboardRoute,
+  AdminSalesQuotesRoute: AdminSalesQuotesRoute,
+  AdminSalesProspectsLeadIdRoute: AdminSalesProspectsLeadIdRoute,
+  AdminSalesProspectsIndexRoute: AdminSalesProspectsIndexRoute,
+}
+
+const AdminSalesRouteWithChildren = AdminSalesRoute._addFileChildren(
+  AdminSalesRouteChildren,
+)
+
 interface AdminVehiclesRouteChildren {
   AdminVehiclesExpenseManagerRoute: typeof AdminVehiclesExpenseManagerRoute
   AdminVehiclesFastagsRoute: typeof AdminVehiclesFastagsRoute
@@ -2530,6 +2645,7 @@ interface AdminRouteChildren {
   AdminPublicHolidayManagerRoute: typeof AdminPublicHolidayManagerRoute
   AdminRbacRoute: typeof AdminRbacRoute
   AdminRolesManagerRoute: typeof AdminRolesManagerRoute
+  AdminSalesRoute: typeof AdminSalesRouteWithChildren
   AdminServiceTypeManagerRoute: typeof AdminServiceTypeManagerRoute
   AdminSystemLogsRoute: typeof AdminSystemLogsRoute
   AdminTrainingRoute: typeof AdminTrainingRoute
@@ -2600,6 +2716,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPublicHolidayManagerRoute: AdminPublicHolidayManagerRoute,
   AdminRbacRoute: AdminRbacRoute,
   AdminRolesManagerRoute: AdminRolesManagerRoute,
+  AdminSalesRoute: AdminSalesRouteWithChildren,
   AdminServiceTypeManagerRoute: AdminServiceTypeManagerRoute,
   AdminSystemLogsRoute: AdminSystemLogsRoute,
   AdminTrainingRoute: AdminTrainingRoute,
