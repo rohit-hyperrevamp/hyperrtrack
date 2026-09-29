@@ -1482,15 +1482,18 @@ const ACCENT_TILE_BG: Record<Accent, string> = {
 function Shell({
   children,
   to,
+  search,
   accent = "indigo",
 }: {
   children: React.ReactNode;
   to: string;
+  search?: Record<string, unknown>;
   accent?: Accent;
 }) {
   return (
     <Link
       to={to}
+      search={search as never}
       className={`group relative flex h-[124px] min-w-0 flex-col overflow-hidden rounded-2xl border border-border/40 ${ACCENT_TILE_BG[accent]} p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:h-[172px] sm:rounded-[26px] sm:p-5`}
     >
       {children}
@@ -1543,6 +1546,7 @@ function MetricTile({
   label,
   value,
   to,
+  search,
   accent = "indigo",
   sub,
 }: {
@@ -1551,12 +1555,13 @@ function MetricTile({
   value: number;
   accent?: Accent;
   to: string;
+  search?: Record<string, unknown>;
   sub?: string;
 }) {
   const display = useCountUp(value);
   const I = icon;
   return (
-    <Shell to={to} accent={accent}>
+    <Shell to={to} search={search} accent={accent}>
       <TileHeader accent={accent} label={label} sub={sub} />
       <div className="relative mt-auto flex items-end justify-between gap-3">
         <div className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-display text-[26px] font-medium leading-none tabular-nums text-foreground sm:text-[40px]">
