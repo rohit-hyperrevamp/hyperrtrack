@@ -4,6 +4,21 @@ import { WIDGET_ID, WIDGET_TOKEN } from "@/lib/otp-widget";
 const MSG91_API = "https://control.msg91.com/api/v5";
 export type OtpMode = "sms" | "fixed";
 
+/** Refuse to send a code to a phone that belongs to no employee. */
+export async function assertRegisteredPhone(phone: string): Promise<void> {
+  if (phone === SUPER_ADMIN_OTP_PHONE) return;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("candidates")
+    .select("id")
+    .in("mobile", [phone, `+91${phone}`, `91${phone}`, `0${phone}`])
+    .limit(1);
+  if (error) return; // fail open on lookup errors; verification still gates sign-in
+  if (!data || data.length === 0) {
+    throw new Error("This mobile number is not registered. Please contact your administrator.");
+  }
+}
+
 export async function resolveOtpMode(phone: string): Promise<OtpMode> {
   if (phone === SUPER_ADMIN_OTP_PHONE) return "fixed";
   try {
