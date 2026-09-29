@@ -2971,7 +2971,7 @@ function MusterRollPage() {
         const m: any[][] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null });
         let score = 0;
         for (const row of m) for (const v of row ?? []) {
-          if (typeof v === "string" && codeSet.has(v.trim().toUpperCase())) score++;
+          if (typeof v === "string" && tabCodes.has(v.trim().toUpperCase())) score++;
         }
         if (score > bestScore) { bestScore = score; aoa = m; }
       }
