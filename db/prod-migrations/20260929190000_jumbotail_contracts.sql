@@ -5,7 +5,7 @@ declare
   sc client_contracts; u_id uuid; c_id uuid; r record;
   f jsonb := '{"calcType":"fixed","formulaMode":"preset","formulaVersion":1,"formulaExpression":null,"includeInOt":true}';
   d jsonb := '{"state":"N/A","calcType":"fixed","capAmount":null,"percentage":0,"formulaMode":"preset","capFlatAmount":null,"baseComponents":[],"formulaVersion":1,"fixedCalcMethod":"flat","fixedDutyDivisor":null,"deductionCalcType":"fixed_amount","formulaExpression":null,"fixedDutyComponents":[]}';
-  ab uuid := 'e23708c1-250e-4440-b76d-1c2c63a99218';
+  ab uuid := 'e23708c1-250e-4440-b76d-1c2c63a99218'; bb uuid := 'c82178db-3864-471f-b078-1510ea49a2f9';
 begin
   select * into sc from client_contracts where contract_code = 'CON16273';
   for r in select * from (values ('CON16275','CLI3047'),('CON16276','CLI3048')) v(code, unit) loop
@@ -24,7 +24,7 @@ begin
     insert into contract_resources (id, contract_id, designation_id, service_type_id, quantity, shift_hours, sort_order,
       payroll_day_base_id, billing_day_base_id, gross, benefits, components, deductions, employer_contributions)
     values
-    (gen_random_uuid(), c_id, 'aad77ba7-98d2-44cb-a0f1-b598eed740f4', sc.service_type_id, 1, 12, 1, ab, ab, 23266.38, '[]',
+    (gen_random_uuid(), c_id, 'aad77ba7-98d2-44cb-a0f1-b598eed740f4', sc.service_type_id, 1, 12, 1, ab, bb, 23266.38, '[]',
       jsonb_build_array(
         f || '{"name":"Basic","amount":13266,"allowanceId":"44e4177f-b612-44ac-9b4b-227da493a4c9"}',
         f || '{"name":"Special Allowance","amount":3614,"allowanceId":null}',
@@ -40,7 +40,7 @@ begin
         d || '{"name":"ESIC Employer Share / WC Policy","amount":200,"costComponentId":null}',
         d || '{"name":"Bonus 8.33%","amount":1406,"costComponentId":null}',
         d || '{"name":"Management Fees","amount":1200,"costComponentId":"611a7658-810f-4aa5-a052-51aaa78a68cf"}')),
-    (gen_random_uuid(), c_id, '20da0e27-c5dc-4b72-9672-a35d005f8ff2', sc.service_type_id, 1, 8, 2, ab, ab, 17816.32, '[]',
+    (gen_random_uuid(), c_id, '20da0e27-c5dc-4b72-9672-a35d005f8ff2', sc.service_type_id, 1, 8, 2, ab, bb, 17816.32, '[]',
       jsonb_build_array(
         f || '{"name":"Basic","amount":13266,"allowanceId":"44e4177f-b612-44ac-9b4b-227da493a4c9"}',
         f || '{"name":"Special Allowance","amount":3614,"allowanceId":null}',
