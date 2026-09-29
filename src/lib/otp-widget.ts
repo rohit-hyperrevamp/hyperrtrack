@@ -5,6 +5,8 @@ const WIDGET_SCRIPT_ID = "msg91-otp-provider";
 const WIDGET_SCRIPT_URL = "https://verify.msg91.com/otp-provider.js";
 
 type WidgetPayload = {
+  type?: string;
+  status?: string;
   message?: string;
   request_id?: string;
   reqId?: string;
@@ -135,7 +137,14 @@ export async function verifyWidgetOtp(otp: string, requestId: string | null): Pr
     window.verifyOtp?.(
       otp,
       (data) => {
-        const accessToken = data["access-token"] ?? data.accessToken;
+        // MSG91 currently returns the JWT in `message` after verifyOtp,
+        // while older widget builds return `access-token`/`accessToken`.
+        const accessToken =
+          data["access-token"] ??
+          data.accessToken ??
+          (data.type?.toLowerCase() === "success" || data.status?.toLowerCase() === "success"
+            ? data.message
+            : undefined);
         if (accessToken) resolve(accessToken);
         else reject(new Error("OTP verification could not be confirmed. Please try again."));
       },
