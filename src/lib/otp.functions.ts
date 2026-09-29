@@ -21,14 +21,16 @@ type OtpMode = "sms" | "fixed";
 export const sendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
   .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
-    const { resolveOtpMode } = await import("@/lib/otp.server");
+    const { resolveOtpMode, assertRegisteredPhone } = await import("@/lib/otp.server");
+    await assertRegisteredPhone(data.phone);
     return { mode: await resolveOtpMode(data.phone) };
   });
 
 export const resendLoginOtp = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ phone: z.string().regex(/^\d{10}$/) }).parse(input))
   .handler(async ({ data }): Promise<{ mode: OtpMode }> => {
-    const { resolveOtpMode } = await import("@/lib/otp.server");
+    const { resolveOtpMode, assertRegisteredPhone } = await import("@/lib/otp.server");
+    await assertRegisteredPhone(data.phone);
     return { mode: await resolveOtpMode(data.phone) };
   });
 
