@@ -72,7 +72,7 @@ function PlatformSettingsPage() {
       await writeFlag(
         OTP_KEY,
         enabled,
-        "Controls real MSG91 OTP delivery. When disabled, users sign in with 1111; the super admin uses 2503.",
+        "Controls real MSG91 OTP delivery. When disabled, regular user sign-in is paused; the super admin keeps emergency access.",
       );
       return enabled;
     },
@@ -88,7 +88,7 @@ function PlatformSettingsPage() {
       toast.success(
         enabled
           ? "Real OTPs enabled — users will receive an SMS code."
-          : "Real OTPs disabled — users will sign in with the fallback code 1111.",
+          : "Real OTPs disabled — regular user sign-in is paused.",
       );
     },
     onError: (e) =>
