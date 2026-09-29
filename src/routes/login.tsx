@@ -11,7 +11,6 @@ import {
   loadMsg91Widget,
   retryWidgetOtp,
   sendWidgetOtp,
-  verifyWidgetOtp,
 } from "@/lib/otp-widget";
 import {
   enableBiometric,
@@ -159,9 +158,13 @@ function LoginPage() {
     verifyInFlightRef.current = true;
     setVerifying(true);
     try {
-      const accessToken =
-        otpMode === "sms" ? await verifyWidgetOtp(code, otpRequestId) : undefined;
-      await checkOtp({ data: { phone, otp: code, accessToken } });
+      await checkOtp({
+        data: {
+          phone,
+          otp: code,
+          requestId: otpMode === "sms" ? otpRequestId ?? undefined : undefined,
+        },
+      });
       await login(`+91${phone}`);
       markNativeAppSessionUnlocked();
       toast.success("Signed in");
