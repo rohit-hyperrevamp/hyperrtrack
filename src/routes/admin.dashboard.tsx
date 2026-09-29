@@ -1213,10 +1213,10 @@ function DashboardPage() {
             />
           </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <MetricTile icon={ClipboardList} label="Payroll open" sub="Attendance not approved" value={rc?.open ?? 0} accent="rose" to="/admin/payroll" />
-            <MetricTile icon={Wallet} label="Payroll ready" sub="Awaiting your approval" value={rc?.pending ?? 0} accent="amber" to="/admin/payroll" />
-            <MetricTile icon={Sparkles} label="Payroll approved" sub="Awaiting processing" value={rc?.approved ?? 0} accent="sky" to="/admin/payroll" />
-            <MetricTile icon={Receipt} label="Payroll processed" sub="Done" value={rc?.processed ?? 0} accent="emerald" to="/admin/payroll" />
+            <MetricTile icon={ClipboardList} label="Payroll open" sub="Attendance not approved" value={rc?.open ?? 0} accent="rose" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "open" }} />
+            <MetricTile icon={Wallet} label="Payroll ready" sub="Awaiting your approval" value={rc?.pending ?? 0} accent="amber" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "ready" }} />
+            <MetricTile icon={Sparkles} label="Payroll approved" sub="Awaiting processing" value={rc?.approved ?? 0} accent="sky" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "approved" }} />
+            <MetricTile icon={Receipt} label="Payroll processed" sub="Done" value={rc?.processed ?? 0} accent="emerald" to="/admin/payroll" search={{ window: periodSelection.selectedKey, month, year, status: "processed" }} />
           </div>
         </div>
       </div>
