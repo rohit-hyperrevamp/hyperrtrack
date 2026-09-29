@@ -39,6 +39,7 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
       .object({
         phone: z.string().regex(/^\d{10}$/),
         otp: z.string().regex(/^\d{4}$/),
+        requestId: z.string().min(3).optional(),
         accessToken: z.string().min(10).optional(),
       })
       .parse(input),
@@ -49,7 +50,7 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
       return { ok: true };
     }
 
-    const { resolveOtpMode, verifyMsg91WidgetAccessToken } = await import("@/lib/otp.server");
+    const { resolveOtpMode, verifyMsg91Otp, verifyMsg91WidgetAccessToken } = await import("@/lib/otp.server");
 
     // Fixed-code fallback (MSG91 switched OFF): fallback code or last four digits.
     // With MSG91 ON, only a real SMS OTP verified by MSG91 is accepted.
@@ -58,7 +59,12 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
       return { ok: true };
     }
 
-    if (!data.accessToken) throw new Error("OTP verification could not be confirmed.");
-    await verifyMsg91WidgetAccessToken(data.accessToken);
+    if (data.requestId) {
+      await verifyMsg91Otp(data.requestId, data.otp);
+    } else if (data.accessToken) {
+      await verifyMsg91WidgetAccessToken(data.accessToken);
+    } else {
+      throw new Error("OTP session expired. Request a new code.");
+    }
     return { ok: true };
   });

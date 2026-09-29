@@ -1,6 +1,6 @@
 /** MSG91's configured OTP Widget uses the account's default DLT template. */
-const WIDGET_ID = "356b71685561353436363635";
-const WIDGET_TOKEN = "478181TOAfR90F2N691ae1eeP1";
+export const WIDGET_ID = "356b71685561353436363635";
+export const WIDGET_TOKEN = "478181TOAfR90F2N691ae1eeP1";
 const WIDGET_SCRIPT_ID = "msg91-otp-provider";
 const WIDGET_SCRIPT_URL = "https://verify.msg91.com/otp-provider.js";
 

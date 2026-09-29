@@ -1,4 +1,5 @@
 import { SUPER_ADMIN_OTP_PHONE } from "@/lib/otp-config";
+import { WIDGET_ID, WIDGET_TOKEN } from "@/lib/otp-widget";
 
 const MSG91_API = "https://control.msg91.com/api/v5";
 export type OtpMode = "sms" | "fixed";
@@ -44,5 +45,17 @@ export async function verifyMsg91WidgetAccessToken(accessToken: string): Promise
     payload.status?.toLowerCase() === "error"
   ) {
     throw new Error(payload.message || "OTP verification failed. Please try again.");
+  }
+}
+
+export async function verifyMsg91Otp(requestId: string, otp: string): Promise<void> {
+  const response = await fetch(`${MSG91_API}/widget/verifyOtp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ widgetId: WIDGET_ID, tokenAuth: WIDGET_TOKEN, reqId: requestId, otp }),
+  });
+  const payload = (await response.json().catch(() => ({}))) as WidgetVerificationResponse;
+  if (!response.ok || payload.type?.toLowerCase() !== "success") {
+    throw new Error(payload.message || "Wrong code. Please try again.");
   }
 }
