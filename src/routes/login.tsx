@@ -120,6 +120,7 @@ function LoginPage() {
     setSending(true);
     setError(null);
     const isResend = step === "otp";
+    let movedToOtp = false;
     try {
       const result = isResend
         ? await requestOtpAgain({ data: { phone } })
@@ -132,6 +133,7 @@ function LoginPage() {
       if (!isResend) {
         setStep("otp");
         setOtp("");
+        movedToOtp = true;
       }
 
       if (result.mode === "sms") {
@@ -152,7 +154,11 @@ function LoginPage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Could not send the code. Please try again.";
-      if (!isResend) setStep("phone");
+      // Only return to the phone step when the number itself was refused.
+      // If the SMS provider fails after that, stay on the code screen so the
+      // user can tap Resend instead of bouncing back and forth.
+      if (!isResend && !movedToOtp) setStep("phone");
+      if (movedToOtp) setResendIn(0);
       setError(message);
       toast.error(message);
     } finally {
