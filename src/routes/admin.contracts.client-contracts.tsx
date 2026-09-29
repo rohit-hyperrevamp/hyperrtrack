@@ -701,7 +701,7 @@ function useContracts() {
       void notifyApprovers({
         moduleKey: "contracts",
         type: "contract_pending_approval",
-        title: `Prospect ${p.prospectCode} awaiting approval`,
+        title: `Contract draft ${p.prospectCode} awaiting approval`,
         message: "A new prospect contract has been submitted and needs your sign-off.",
         link: "/admin/contracts/client-contracts",
         entityType: "client_contracts",
@@ -985,7 +985,7 @@ function useContracts() {
       void notifyApprovers({
         moduleKey: "contracts",
         type: "contract_pending_approval",
-        title: `Prospect ${prospectCode} resubmitted for approval`,
+        title: `Contract draft ${prospectCode} resubmitted for approval`,
         message: "A previously rejected prospect contract has been updated and resubmitted.",
         link: "/admin/contracts/client-contracts",
         entityType: "client_contracts",
