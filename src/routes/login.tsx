@@ -8,11 +8,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { resendLoginOtp, sendLoginOtp, verifyLoginOtp } from "@/lib/otp.functions";
 import { OTP_LENGTH } from "@/lib/otp-config";
 import {
-  loadMsg91Widget,
-  retryWidgetOtp,
-  sendWidgetOtp,
-} from "@/lib/otp-widget";
-import {
   enableBiometric,
   getBiometricStatus,
   signInWithBiometric,
@@ -103,10 +98,6 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    void loadMsg91Widget().catch(() => undefined);
-  }, []);
-
-  useEffect(() => {
     if (resendIn <= 0) return;
     const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
     return () => clearTimeout(t);
@@ -136,15 +127,7 @@ function LoginPage() {
         movedToOtp = true;
       }
 
-      if (result.mode === "sms") {
-        const requestId =
-          isResend && otpRequestId
-            ? (await retryWidgetOtp(otpRequestId)) ?? otpRequestId
-            : await sendWidgetOtp(phone);
-        setOtpRequestId(requestId);
-      } else {
-        setOtpRequestId(null);
-      }
+      setOtpRequestId(null);
       setResendIn(30);
       toast.success(
         result.mode === "sms"

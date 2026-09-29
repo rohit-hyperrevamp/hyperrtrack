@@ -81,6 +81,7 @@ import { Route as AdminFieldSenseIndexRouteImport } from './routes/admin.field-s
 import { Route as AdminCustomersIndexRouteImport } from './routes/admin.customers.index'
 import { Route as AdminAttendanceIndexRouteImport } from './routes/admin.attendance.index'
 import { Route as ApiPublicSheetOcrRouteImport } from './routes/api/public/sheet-ocr'
+import { Route as ApiPublicOtpRelayRouteImport } from './routes/api/public/otp-relay'
 import { Route as ApiPublicOtpHealthRouteImport } from './routes/api/public/otp-health'
 import { Route as ApiPublicDataDeletionRequestRouteImport } from './routes/api/public/data-deletion-request'
 import { Route as AdminVehiclesServiceManagerRouteImport } from './routes/admin.vehicles.service-manager'
@@ -498,6 +499,11 @@ const ApiPublicSheetOcrRoute = ApiPublicSheetOcrRouteImport.update({
   path: '/api/public/sheet-ocr',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOtpRelayRoute = ApiPublicOtpRelayRouteImport.update({
+  id: '/api/public/otp-relay',
+  path: '/api/public/otp-relay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicOtpHealthRoute = ApiPublicOtpHealthRouteImport.update({
   id: '/api/public/otp-health',
   path: '/api/public/otp-health',
@@ -856,6 +862,7 @@ export interface FileRoutesByFullPath {
   '/admin/vehicles/service-manager': typeof AdminVehiclesServiceManagerRoute
   '/api/public/data-deletion-request': typeof ApiPublicDataDeletionRequestRoute
   '/api/public/otp-health': typeof ApiPublicOtpHealthRoute
+  '/api/public/otp-relay': typeof ApiPublicOtpRelayRoute
   '/api/public/sheet-ocr': typeof ApiPublicSheetOcrRoute
   '/admin/attendance/': typeof AdminAttendanceIndexRoute
   '/admin/customers/': typeof AdminCustomersIndexRoute
@@ -972,6 +979,7 @@ export interface FileRoutesByTo {
   '/admin/vehicles/service-manager': typeof AdminVehiclesServiceManagerRoute
   '/api/public/data-deletion-request': typeof ApiPublicDataDeletionRequestRoute
   '/api/public/otp-health': typeof ApiPublicOtpHealthRoute
+  '/api/public/otp-relay': typeof ApiPublicOtpRelayRoute
   '/api/public/sheet-ocr': typeof ApiPublicSheetOcrRoute
   '/admin/attendance': typeof AdminAttendanceIndexRoute
   '/admin/customers': typeof AdminCustomersIndexRoute
@@ -1093,6 +1101,7 @@ export interface FileRoutesById {
   '/admin/vehicles/service-manager': typeof AdminVehiclesServiceManagerRoute
   '/api/public/data-deletion-request': typeof ApiPublicDataDeletionRequestRoute
   '/api/public/otp-health': typeof ApiPublicOtpHealthRoute
+  '/api/public/otp-relay': typeof ApiPublicOtpRelayRoute
   '/api/public/sheet-ocr': typeof ApiPublicSheetOcrRoute
   '/admin/attendance/': typeof AdminAttendanceIndexRoute
   '/admin/customers/': typeof AdminCustomersIndexRoute
@@ -1215,6 +1224,7 @@ export interface FileRouteTypes {
     | '/admin/vehicles/service-manager'
     | '/api/public/data-deletion-request'
     | '/api/public/otp-health'
+    | '/api/public/otp-relay'
     | '/api/public/sheet-ocr'
     | '/admin/attendance/'
     | '/admin/customers/'
@@ -1331,6 +1341,7 @@ export interface FileRouteTypes {
     | '/admin/vehicles/service-manager'
     | '/api/public/data-deletion-request'
     | '/api/public/otp-health'
+    | '/api/public/otp-relay'
     | '/api/public/sheet-ocr'
     | '/admin/attendance'
     | '/admin/customers'
@@ -1451,6 +1462,7 @@ export interface FileRouteTypes {
     | '/admin/vehicles/service-manager'
     | '/api/public/data-deletion-request'
     | '/api/public/otp-health'
+    | '/api/public/otp-relay'
     | '/api/public/sheet-ocr'
     | '/admin/attendance/'
     | '/admin/customers/'
@@ -1475,6 +1487,7 @@ export interface RootRouteChildren {
   DigilockerCallbackRoute: typeof DigilockerCallbackRoute
   ApiPublicDataDeletionRequestRoute: typeof ApiPublicDataDeletionRequestRoute
   ApiPublicOtpHealthRoute: typeof ApiPublicOtpHealthRoute
+  ApiPublicOtpRelayRoute: typeof ApiPublicOtpRelayRoute
   ApiPublicSheetOcrRoute: typeof ApiPublicSheetOcrRoute
   ApiPublicHooksAlertcheckinSyncRoute: typeof ApiPublicHooksAlertcheckinSyncRoute
   ApiPublicHooksDailyPeoplePingsRoute: typeof ApiPublicHooksDailyPeoplePingsRoute
@@ -1985,6 +1998,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/sheet-ocr'
       fullPath: '/api/public/sheet-ocr'
       preLoaderRoute: typeof ApiPublicSheetOcrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/otp-relay': {
+      id: '/api/public/otp-relay'
+      path: '/api/public/otp-relay'
+      fullPath: '/api/public/otp-relay'
+      preLoaderRoute: typeof ApiPublicOtpRelayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/otp-health': {
@@ -2609,6 +2629,7 @@ const rootRouteChildren: RootRouteChildren = {
   DigilockerCallbackRoute: DigilockerCallbackRoute,
   ApiPublicDataDeletionRequestRoute: ApiPublicDataDeletionRequestRoute,
   ApiPublicOtpHealthRoute: ApiPublicOtpHealthRoute,
+  ApiPublicOtpRelayRoute: ApiPublicOtpRelayRoute,
   ApiPublicSheetOcrRoute: ApiPublicSheetOcrRoute,
   ApiPublicHooksAlertcheckinSyncRoute: ApiPublicHooksAlertcheckinSyncRoute,
   ApiPublicHooksDailyPeoplePingsRoute: ApiPublicHooksDailyPeoplePingsRoute,
