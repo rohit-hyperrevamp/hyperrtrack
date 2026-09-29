@@ -16,6 +16,8 @@ type WidgetPayload = {
 
 type WidgetError = { message?: string };
 
+const WIDGET_CALLBACK_TIMEOUT_MS = 20_000;
+
 declare global {
   interface Window {
     initSendOTP?: (configuration: Record<string, unknown>) => void;
@@ -107,10 +109,21 @@ export async function sendWidgetOtp(phone: string): Promise<string | null> {
   if (!window.sendOtp) throw new Error("SMS service is unavailable. Please try again.");
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      callback();
+    };
+    const timeout = window.setTimeout(
+      () => finish(() => reject(new Error("SMS service did not respond. Please try again."))),
+      WIDGET_CALLBACK_TIMEOUT_MS,
+    );
     window.sendOtp?.(
       `91${phone}`,
-      (data) => resolve(data.request_id ?? data.reqId ?? data.message ?? null),
-      (error) => reject(new Error(messageOf(error, "Could not send the code. Please try again."))),
+      (data) => finish(() => resolve(data.request_id ?? data.reqId ?? null)),
+      (error) => finish(() => reject(new Error(messageOf(error, "Could not send the code. Please try again.")))),
     );
   });
 }
