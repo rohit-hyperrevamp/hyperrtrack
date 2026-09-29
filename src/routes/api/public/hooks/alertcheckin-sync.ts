@@ -103,10 +103,14 @@ export const Route = createFileRoute("/api/public/hooks/alertcheckin-sync")({
           const guards = posts.filter((p) => p.candidates.role_key !== "field_officer" && !p.candidates.non_billable);
           const agg = new Map<string, { unit_id: string; candidate_id: string; designation_id: string | null; rel: boolean; hrs: number; shift: number }>();
           const unmatched: any[] = [];
+          const { data: aliases } = await db.from("alertcheckin_staff_map").select("ac_site_name,staff_name,candidate_id");
+          const alias = new Map<string, string>((aliases ?? []).map((a: any) => [`${a.ac_site_name}|${a.staff_name}`, a.candidate_id]));
           for (const r of mapped) {
             const unit = siteMap.get(r[2])!;
             let best: any = null, bs = 0;
-            for (const g of guards) if (g.unit_id === unit) { const s = nameScore(r[0], g.candidates.full_name); if (s > bs) { bs = s; best = g; } }
+            const aliasId = alias.get(`${r[2]}|${r[0]}`);
+            if (aliasId) { best = guards.find((g) => g.unit_id === unit && g.candidate_id === aliasId) ?? null; bs = best ? 1 : 0; }
+            if (!best) for (const g of guards) if (g.unit_id === unit) { const s = nameScore(r[0], g.candidates.full_name); if (s > bs) { bs = s; best = g; } }
             const hrs = r[4] && r[5] ? Number(r[5]) || 0 : 0;
             if (!best || bs < 0.5) { unmatched.push({ sync_date: date, ac_site_name: r[2], staff_name: r[0], unit_id: unit, reason: "No matching guard posted at this site", hours: hrs }); continue; }
             const kk = `${unit}|${best.candidate_id}`;
