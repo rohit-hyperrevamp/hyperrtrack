@@ -2962,8 +2962,19 @@ function MusterRollPage() {
     try {
       const buf = await uploadFile.arrayBuffer();
       const wb = XLSX.read(buf, { cellDates: true });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const aoa: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+      // Workbooks often carry old months as extra tabs; use the tab with the most attendance marks.
+      const tabCodes = new Set(codes.map((c: any) => String(c.code).trim().toUpperCase()));
+      tabCodes.add("P"); tabCodes.add("A"); tabCodes.add("WO");
+      let aoa: any[][] = [];
+      let bestScore = -1;
+      for (const name of wb.SheetNames) {
+        const m: any[][] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null });
+        let score = 0;
+        for (const row of m) for (const v of row ?? []) {
+          if (typeof v === "string" && tabCodes.has(v.trim().toUpperCase())) score++;
+        }
+        if (score > bestScore) { bestScore = score; aoa = m; }
+      }
 
       const validDateSet = new Set(periodCells.map((c) => c.date));
       const dayToDate = new Map<number, string>();
