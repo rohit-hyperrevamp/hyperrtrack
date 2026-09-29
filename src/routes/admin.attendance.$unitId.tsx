@@ -2002,7 +2002,26 @@ function MusterRollPage() {
 
     if (capped.length === 0 && extraRows.length === 0) return 0;
 
-    const payload = [...capped, ...extraRows].map((r) => ({
+    // One row per date: a sheet can list the same person twice (duplicate
+    // names / repeated lines). Postgres rejects an upsert that touches the same
+    // row twice, which failed the whole import. Keep the mark that carries a
+    // code, and the larger Extra Duty.
+    const byDate = new Map<string, { entry_date: string; code: string; ot_hours: number }>();
+    for (const r of [...capped, ...extraRows]) {
+      const prev = byDate.get(r.entry_date);
+      if (!prev) {
+        byDate.set(r.entry_date, { ...r });
+        continue;
+      }
+      byDate.set(r.entry_date, {
+        entry_date: r.entry_date,
+        code: prev.code || r.code,
+        ot_hours: Math.max(Number(prev.ot_hours) || 0, Number(r.ot_hours) || 0),
+      });
+    }
+    capped = capped.filter((r) => byDate.has(r.entry_date)).map((r) => byDate.get(r.entry_date)!);
+    capped = Array.from(new Map(capped.map((r) => [r.entry_date, r])).values());
+    const payload = Array.from(byDate.values()).map((r) => ({
       unit_id: unitId,
       candidate_id,
       designation_id,
@@ -3350,7 +3369,8 @@ function MusterRollPage() {
         },
       }).catch(() => {});
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Excel import failed";
+      // Database errors arrive as plain objects — show their real message.
+      const message = networkErrorMessage(e, "Excel import failed");
       toast.error(message);
       await endScanProgress({ error: message }, startedAt);
     } finally {
