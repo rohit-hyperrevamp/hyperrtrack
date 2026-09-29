@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import {
-  FALLBACK_OTP,
   OTP_LENGTH,
   SUPER_ADMIN_OTP,
   SUPER_ADMIN_OTP_PHONE as SUPER_ADMIN_PHONE,
@@ -14,8 +13,8 @@ type OtpMode = "sms" | "fixed";
  * - Real OTPs use MSG91's configured Widget process, which owns the account
  *   default DLT template, SMS channel, four-digit length, retry, and expiry.
  * - The super admin always signs in with the fixed code 2503 (never SMS).
- * - When Platform Settings → "MSG91 real OTP" is toggled OFF, every other user
- *   falls back to the fixed code 1111.
+ * - When real OTP is unavailable, regular users cannot sign in. There is no
+ *   shared or phone-derived fallback code.
  */
 
 
@@ -52,11 +51,10 @@ export const verifyLoginOtp = createServerFn({ method: "POST" })
 
     const { resolveOtpMode, verifyMsg91Otp, verifyMsg91WidgetAccessToken } = await import("@/lib/otp.server");
 
-    // Fixed-code fallback (MSG91 switched OFF): fallback code or last four digits.
-    // With MSG91 ON, only a real SMS OTP verified by MSG91 is accepted.
+    // The fixed code is restricted to the super admin branch above. Regular
+    // users must always present an OTP that MSG91 verifies.
     if ((await resolveOtpMode(data.phone)) === "fixed") {
-      if (data.otp !== FALLBACK_OTP && data.otp !== data.phone.slice(-4)) throw new Error("Wrong code. Please try again.");
-      return { ok: true };
+      throw new Error("SMS sign-in is temporarily unavailable. Please contact an administrator.");
     }
 
     if (data.requestId) {
