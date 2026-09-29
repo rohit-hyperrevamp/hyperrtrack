@@ -8,6 +8,7 @@ export type OtpMode = "sms" | "fixed";
 /** Named users approved to sign in with a fixed code (last 4 digits of their phone). */
 const FIXED_CODE_PHONES: Record<string, string> = {
   "7517551288": "1288", // Ritesh (49551), VP Operations — approved by owner
+  "9175292300": "2300", // Prachi Bendge (32224) — approved by owner
 };
 
 export function fixedCodeFor(phone: string): string | null {
