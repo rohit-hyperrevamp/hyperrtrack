@@ -30,6 +30,7 @@ import {
 
 import { PageHeader } from "@/components/PageHeader";
 import { HrExecutiveDashboard } from "@/components/HrExecutiveDashboard";
+import { UnitAttendanceCoverage } from "@/components/UnitAttendanceCoverage";
 import { DashboardShell } from "@/components/LiveFeed";
 import { Button } from "@/components/ui/button";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -1262,6 +1263,21 @@ function DashboardPage() {
           />
           <InventoryOwnerDashboard />
         </DashboardShell>
+      </div>
+    );
+  }
+
+  if (roleKey === ROLE_KEYS.ACCOUNTS) {
+    return (
+      <div data-mobile-dashboard className="w-full min-w-0 px-0 py-1 sm:p-6">
+        <div className="space-y-4">
+          <PageHeader
+            title="Attendance tracker"
+            description="Your sites with an active contract — which have attendance and which have none."
+            crumbs={[{ label: "Dashboard" }]}
+          />
+          <UnitAttendanceCoverage />
+        </div>
       </div>
     );
   }
