@@ -3046,7 +3046,14 @@ function MusterRollPage() {
       for (let c = 0; c < headerRow.length; c++) {
         const h = norm(String(headerRow[c] ?? ""));
         if (!h) continue;
-        if (h.includes("designation") || h.includes("department")) {
+        if (
+          h.includes("designation") ||
+          h.includes("department") ||
+          h === "desig" ||
+          h === "desg" ||
+          h === "post" ||
+          h === "rank"
+        ) {
           designationCol = c;
           break;
         }
@@ -3063,10 +3070,30 @@ function MusterRollPage() {
         const key = sortLetters(norm(d.designationName));
         if (!contractDesigBySorted.has(key)) contractDesigBySorted.set(key, d);
       }
-      const fuzzyDesigMatch = (n: string) => {
+      // Muster abbreviations: initials ("SG" = Security Guard, "SS" = Security
+      // Supervisor) and per-word abbreviations ("CMPTR OPR" = Computer Operator).
+      const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+      const isSubseq = (short: string, long: string) => {
+        let i = 0;
+        for (const ch of long) if (ch === short[i]) i++;
+        return i === short.length && short[0] === long[0];
+      };
+      const abbrevDesigMatch = (raw: string) => {
+        const w = words(raw);
+        if (!w.length) return undefined;
+        const hits = contractDesignations.filter((d) => {
+          const dw = words(d.designationName);
+          if (w.length === 1 && w[0].length <= 4 && dw.length > 1) {
+            return dw.map((x) => x[0]).join("") === w[0];
+          }
+          return w.length === dw.length && w.every((x, i) => isSubseq(x, dw[i]));
+        });
+        return hits.length === 1 ? hits[0] : undefined;
+      };
+      const fuzzyDesigMatch = (n: string, raw?: string) => {
         const exact = contractDesigByNorm.get(n);
         if (exact) return exact;
-        return contractDesigBySorted.get(sortLetters(n));
+        return contractDesigBySorted.get(sortLetters(n)) ?? (raw ? abbrevDesigMatch(raw) : undefined);
       };
 
       const codeSet = new Map<string, string>();
