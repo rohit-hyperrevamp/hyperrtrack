@@ -82,6 +82,13 @@ export const RBAC_MODULES: ModuleDef[] = [
     ],
   },
   {
+    key: "sales_marketing",
+    label: "Sales & Marketing",
+    path: "/admin/sales/dashboard",
+    icon: Sparkles,
+    subModules: [],
+  },
+  {
     key: "employees",
     label: "Employees",
     path: "/admin/employees",

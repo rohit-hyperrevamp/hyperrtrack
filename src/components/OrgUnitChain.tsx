@@ -168,7 +168,7 @@ export function useOrgUnitChain(initial?: Partial<OrgUnitValue> & { orgName?: st
     return { customerId: cid, unitId: uid };
   }
 
-  function useGps() {
+  function captureGps() {
     if (!navigator.geolocation) return toast.error("Location isn't available on this device");
     navigator.geolocation.getCurrentPosition(
       (p) => setUnit((u) => ({ ...u, latitude: p.coords.latitude.toFixed(6), longitude: p.coords.longitude.toFixed(6) })),
@@ -238,7 +238,7 @@ export function useOrgUnitChain(initial?: Partial<OrgUnitValue> & { orgName?: st
             <F label="Latitude"><Input value={unit.latitude} onChange={(e) => setUnit({ ...unit, latitude: e.target.value })} /></F>
             <F label="Longitude"><Input value={unit.longitude} onChange={(e) => setUnit({ ...unit, longitude: e.target.value })} /></F>
             <div className="sm:col-span-2">
-              <Button type="button" size="sm" variant="outline" onClick={useGps}><MapPin className="mr-1.5 h-3.5 w-3.5" /> Use my current location</Button>
+              <Button type="button" size="sm" variant="outline" onClick={captureGps}><MapPin className="mr-1.5 h-3.5 w-3.5" /> Use my current location</Button>
               <p className="mt-1 text-xs text-muted-foreground">The location is used for attendance geofencing at this site.</p>
             </div>
           </div>

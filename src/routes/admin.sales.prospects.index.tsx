@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { downloadCsv } from "@/lib/csv-export";
 import { logActivity } from "@/lib/activity-log";
-import { useAuth } from "@/lib/auth";
 import { CRM_MODULE, crmDb, fetchLeads, fetchStages, inr, LEAD_SOURCES, QK, stageTone, type CrmLead } from "@/lib/crm";
 import { cn } from "@/lib/utils";
 
@@ -231,7 +230,6 @@ function ProspectsPage() {
 
 function CreateLeadDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: (id: string) => void }) {
   const qc = useQueryClient();
-  const { user } = useAuth();
   const [f, setF] = useState({ company_name: "", contact_name: "", contact_phone: "", contact_email: "", source: "", city: "", state: "", estimated_monthly_value: "", owner_name: "" });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   const create = useMutation({
@@ -241,7 +239,7 @@ function CreateLeadDialog({ open, onOpenChange, onCreated }: { open: boolean; on
         company_name: f.company_name.trim(), contact_name: f.contact_name.trim(), contact_phone: f.contact_phone.trim(),
         contact_email: f.contact_email.trim(), source: f.source, city: f.city.trim(), state: f.state.trim(),
         estimated_monthly_value: Number(f.estimated_monthly_value) || 0,
-        owner_name: f.owner_name.trim() || (user as { name?: string } | null)?.name || "",
+        owner_name: f.owner_name.trim(),
         owner_id: auth.user?.id ?? null, created_by: auth.user?.id ?? null,
       }).select("id,lead_code").single();
       if (error) throw new Error(error.message);
@@ -276,7 +274,7 @@ function CreateLeadDialog({ open, onOpenChange, onCreated }: { open: boolean; on
             </Select>
           </div>
           <div className="space-y-1.5"><Label>Est. value / month (₹)</Label><Input value={f.estimated_monthly_value} inputMode="decimal" onChange={set("estimated_monthly_value")} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label>Owner</Label><Input value={f.owner_name} placeholder="Defaults to you" onChange={set("owner_name")} /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label>Owner</Label><Input value={f.owner_name} placeholder="Who is handling this prospect" onChange={set("owner_name")} /></div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>

@@ -48,6 +48,7 @@ import {
   Moon,
   Sun,
   Radio,
+  TrendingUp,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import brandLogo from "@/assets/radiant-logo-v2.png";
