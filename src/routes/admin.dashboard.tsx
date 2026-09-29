@@ -251,6 +251,8 @@ function DashboardPage() {
   // snapshot, no client money. Their homepage is vehicles + assets combined.
   const showTransportDashboard = roleKey === ROLE_KEYS.TRANSPORT;
   const showHrExecutiveDashboard = roleKey === ROLE_KEYS.HR_EXECUTIVE;
+  // Payroll team: homepage is the payroll lifecycle for the selected window only.
+  const showPayrollDashboard = roleKey === ROLE_KEYS.PAYROLL;
   // Operations focus: Radar access without payroll/invoicing. Their homepage is
   // field deployment, not money.
   const opsFocus = useOperationsFocus();
@@ -440,6 +442,7 @@ function DashboardPage() {
       !permsLoading &&
       !showInventoryDashboard &&
       !showTransportDashboard &&
+      !showPayrollDashboard &&
       !opsFocus &&
       !lightMode &&
       (can("payroll") || can("invoice") || can("contracts")),
@@ -1179,6 +1182,43 @@ function DashboardPage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center p-6 text-sm text-muted-foreground">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground/70" />
+      </div>
+    );
+  }
+
+  if (showPayrollDashboard) {
+    const rc = data?.runCounts;
+    return (
+      <div data-mobile-dashboard className="w-full min-w-0 px-0 py-1 sm:p-6">
+        <div className="space-y-4">
+          <PageHeader
+            title="Payroll"
+            description="Payroll status for the selected payroll window — open, ready for your approval, approved and processed."
+            crumbs={[{ label: "Dashboard" }]}
+          />
+          <div className="scrollbar-hide flex min-w-0 max-w-full items-center gap-2 overflow-x-auto pb-0.5">
+            <PayrollWindowPeriodPicker
+              options={periodSelection.options}
+              selectedKey={periodSelection.selectedKey}
+              onWindowChange={periodSelection.selectWindow}
+            />
+            <MonthYearPicker
+              value={`${year}-${String(month + 1).padStart(2, "0")}`}
+              onChange={(ym) => {
+                const [nextYear, nextMonth] = ym.split("-").map(Number);
+                setYear(nextYear);
+                setMonth(nextMonth - 1);
+                periodSelection.setPeriod(nextYear, nextMonth - 1);
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <MetricTile icon={ClipboardList} label="Payroll open" sub="Attendance not approved" value={rc?.open ?? 0} accent="rose" to="/admin/payroll" />
+            <MetricTile icon={Wallet} label="Payroll ready" sub="Awaiting your approval" value={rc?.pending ?? 0} accent="amber" to="/admin/payroll" />
+            <MetricTile icon={Sparkles} label="Payroll approved" sub="Awaiting processing" value={rc?.approved ?? 0} accent="sky" to="/admin/payroll" />
+            <MetricTile icon={Receipt} label="Payroll processed" sub="Done" value={rc?.processed ?? 0} accent="emerald" to="/admin/payroll" />
+          </div>
+        </div>
       </div>
     );
   }

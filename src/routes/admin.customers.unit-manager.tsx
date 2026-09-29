@@ -2261,7 +2261,7 @@ function MappingsSection({
           <EmployeePicker value={form.accountManagerId ?? ""} onChange={(id) => set("accountManagerId", id)} placeholder="Select account manager" />
         </Field>
         <Field label="Payroll manager">
-          <EmployeePicker value={form.payrollManagerId ?? ""} onChange={(id) => set("payrollManagerId", id)} placeholder="Select payroll manager" roleKey="hr" />
+          <EmployeePicker value={form.payrollManagerId ?? ""} onChange={(id) => set("payrollManagerId", id)} placeholder="Select payroll manager" roleKey={["hr", "payroll"]} />
         </Field>
         <Field label="Compliance manager">
           <EmployeePicker value={form.complianceManagerId ?? ""} onChange={(id) => set("complianceManagerId", id)} placeholder="Select compliance manager" roleKey="hr" />

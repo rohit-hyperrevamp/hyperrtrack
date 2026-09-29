@@ -49,6 +49,7 @@ const QK_COVERAGE = ["admin", "workforce-coverage"] as const;
 const EXCLUDED_ROLE_KEYS = new Set([
   "field_officer",
   "hr",
+  "payroll",
   "leadership",
   "operations_manager",
   "vp_operations",
