@@ -52,27 +52,27 @@ $function$;
 drop policy if exists "accounts scope units" on public.units;
 create policy "accounts scope units" on public.units as restrictive for all to authenticated
   using (coalesce((select public.current_user_role_key()),'') <> 'accounts'
-         or id = any ((select public.current_user_unit_ids())));
+         or id in (select unnest((select public.current_user_unit_ids()))));
 
 drop policy if exists "accounts scope customers" on public.customers;
 create policy "accounts scope customers" on public.customers as restrictive for select to authenticated
   using (coalesce((select public.current_user_role_key()),'') <> 'accounts'
-         or id in (select u.customer_id from public.units u where u.id = any ((select public.current_user_unit_ids()))));
+         or id in (select u.customer_id from public.units u where u.id in (select unnest((select public.current_user_unit_ids())))));
 
 drop policy if exists "accounts scope contracts" on public.client_contracts;
 create policy "accounts scope contracts" on public.client_contracts as restrictive for all to authenticated
   using (coalesce((select public.current_user_role_key()),'') <> 'accounts'
-         or unit_id = any ((select public.current_user_unit_ids())));
+         or unit_id in (select unnest((select public.current_user_unit_ids()))));
 
 drop policy if exists "accounts scope attendance sheets" on public.attendance_sheets;
 create policy "accounts scope attendance sheets" on public.attendance_sheets as restrictive for all to authenticated
   using (coalesce((select public.current_user_role_key()),'') <> 'accounts'
-         or unit_id = any ((select public.current_user_unit_ids())));
+         or unit_id in (select unnest((select public.current_user_unit_ids()))));
 
 drop policy if exists "accounts scope attendance entries" on public.attendance_entries;
 create policy "accounts scope attendance entries" on public.attendance_entries as restrictive for all to authenticated
   using (coalesce((select public.current_user_role_key()),'') <> 'accounts'
-         or unit_id = any ((select public.current_user_unit_ids())));
+         or unit_id in (select unnest((select public.current_user_unit_ids()))));
 
 -- Rani Kumari (48874): accounts role, reports to Pandurang Patil (36017).
 update public.candidates set role_key = 'accounts'
