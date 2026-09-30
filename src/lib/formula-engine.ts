@@ -187,12 +187,53 @@ type Node =
   | { type: "bin"; op: string; left: Node; right: Node }
   | { type: "call"; name: string; args: Node[] };
 
+/**
+ * Loose variable key: slug tokens without numbers and qualifier words.
+ * "hra_40_basic_da" (master) and "hra_40_basic_da_exact" (contract row) both
+ * become "hra_basic_da"; "bonus_exgratia_8_33_basic_da_rounded" and
+ * "bonus_exgratia_8_33_basic_da_exact" both become "bonus_exgratia_basic_da".
+ */
+const LOOSE_DROP_TOKENS = new Set(["exact", "rounded", "round", "roundoff"]);
+export function looseVarKey(name: string): string {
+  return String(name ?? "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t && !/^\d+$/.test(t) && !LOOSE_DROP_TOKENS.has(t))
+    .join("_");
+}
+
+/**
+ * Resolve a formula variable that has no exact key in the context by matching
+ * its loose key against the context keys. Used when a master formula names a
+ * line slightly differently from the contract row (percent, "Exact",
+ * "Rounded"). Returns undefined when nothing — or more than one distinct
+ * value — matches, so ambiguous names never guess.
+ */
+function resolveLooseVar(name: string, ctx: FormulaContext): number | undefined {
+  const want = looseVarKey(name);
+  if (!want) return undefined;
+  let found: number | undefined;
+  for (const [key, value] of Object.entries(ctx)) {
+    if (looseVarKey(key) !== want) continue;
+    const num = Number(value) || 0;
+    if (found === undefined) found = num;
+    else if (Math.abs(found - num) > 0.001) return undefined;
+  }
+  return found;
+}
+
 function evalNode(n: Node, ctx: FormulaContext): number {
   switch (n.type) {
     case "num": return n.v;
     case "id": {
-      const v = ctx[n.name];
-      if (v === undefined) return 0;
+      let v = ctx[n.name];
+      if (v === undefined) v = ctx[n.name.toLowerCase()];
+      if (v === undefined) {
+        const loose = resolveLooseVar(n.name, ctx);
+        if (loose === undefined) return 0;
+        ctx[n.name] = loose;
+        return loose;
+      }
       return Number(v) || 0;
     }
     case "unary": {
