@@ -13,3 +13,11 @@ SET employer_contributions = (
   updated_at = now()
 WHERE cr.id IN ('04bf0623-55b6-4de0-ac82-abdd25fa635f','a2fd933a-b389-4cd9-bf2f-2bda818b08b9');
 COMMIT;
+
+-- Correction: the management fee name contains "Reliever", so set it explicitly.
+UPDATE public.contract_resources cr
+SET employer_contributions = (
+  SELECT jsonb_agg(CASE WHEN e->>'name' ~* 'management\s*fee' THEN e || jsonb_build_object('amount', 1326.50) ELSE e END ORDER BY ord)
+  FROM jsonb_array_elements(cr.employer_contributions) WITH ORDINALITY t(e, ord)),
+  updated_at = now()
+WHERE cr.id IN ('04bf0623-55b6-4de0-ac82-abdd25fa635f','a2fd933a-b389-4cd9-bf2f-2bda818b08b9');
