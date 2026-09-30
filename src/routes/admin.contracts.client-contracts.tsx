@@ -1432,6 +1432,22 @@ function addFormulaAliases(ctx: FormulaContext, amount: number, labels: Array<st
       keys.add(compact(canonical));
       for (const alias of aliases[compact(canonical)] ?? []) keys.add(alias);
     }
+    // Source-card rows often carry extra qualifiers the statutory formulas
+    // must still resolve, e.g. "HRA 40% (Basic+DA) Exact" → "hra". Strip any
+    // parenthetical base, a trailing "Exact" marker and inline percentages,
+    // then re-run the alias map so PF bases like Gross − HRA − Bonus see the
+    // real amounts instead of ₹0.
+    const stripped = raw
+      .replace(/[\(\[][^\)\]]*[\)\]]/g, " ")
+      .replace(/\bexact\b/gi, " ")
+      .replace(/\d+(?:\.\d+)?\s*%/g, " ")
+      .replace(/[\s\-_]+/g, " ")
+      .trim();
+    if (stripped && compact(stripped) !== compact(canonical)) {
+      keys.add(slugifyVar(stripped));
+      keys.add(compact(stripped));
+      for (const alias of aliases[compact(stripped)] ?? []) keys.add(alias);
+    }
   }
   for (const key of keys) {
     if (!key) continue;
