@@ -1527,6 +1527,15 @@ function syncResourceComponentMasterFields(
  * CTC lines. They sit *after* Total CTC: CTC + reliever = Billing Rate,
  * + management fee = Final Billing Rate.
  */
+/**
+ * True when a formula uses Total CTC (`ctc`, `total_ctc`, `totalctc`).
+ * `\bctc\b` alone misses `total_ctc` because `_` is a word character, which
+ * made CTC-based lines (e.g. reliever = total_ctc / 6) evaluate before the
+ * employer lines existed, so Total CTC collapsed to Gross.
+ */
+export function formulaReferencesCtc(expr: string | null | undefined): boolean {
+  return /(?:^|[^a-z0-9])(?:total_?)?ctc(?![a-z0-9])/i.test(String(expr ?? ""));
+}
 export const isRelieverLine = (x: { name?: unknown }) => /reliever/i.test(String(x?.name ?? ""));
 export const isMgmtFeeLine = (x: { name?: unknown }) =>
   /management\s*fee|\bmgmt\s*fee\b/i.test(String(x?.name ?? ""));
@@ -1542,7 +1551,7 @@ function normalizeBillingAddOns(
   const relievers = all.filter(isRelieverLine);
   const managementFees = all.filter(isMgmtFeeLine);
   const referencesCtc = (item: BenefitItem) =>
-    /\bctc\b/i.test(item.formulaExpression ?? "") ||
+    formulaReferencesCtc(item.formulaExpression) ||
     item.baseComponents.some((base) => /^(total\s+)?ctc$/i.test(base.label.trim()));
   const reliever = [...relievers].sort(
     (a, b) => Number(referencesCtc(b)) - Number(referencesCtc(a)),
@@ -4820,7 +4829,7 @@ export function ResourceFormDialog({
     );
     setEmployerContributions((prev) => {
       const refsCtc = (b: BenefitItem) =>
-        /\bctc\b/i.test(b.formulaExpression ?? "") ||
+        formulaReferencesCtc(b.formulaExpression) ||
         b.baseComponents.some((x) => {
           const l = x.label.trim().toLowerCase();
           return l === "ctc" || l === "total ctc";
@@ -4922,7 +4931,7 @@ export function ResourceFormDialog({
     setEmployerContributions((prev) => {
       const synced = prev.map(overlay);
       const referencesCtc = (b: BenefitItem) =>
-        /\bctc\b/i.test(b.formulaExpression ?? "") ||
+        formulaReferencesCtc(b.formulaExpression) ||
         b.baseComponents.some((base) => /^(total\s+)?ctc$/i.test(base.label.trim()));
       const firstPass = synced.map((b) =>
         (b.calcType === "percentage" || hasConfiguredFormula(b)) && !referencesCtc(b)
