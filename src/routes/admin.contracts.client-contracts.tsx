@@ -1432,6 +1432,22 @@ function addFormulaAliases(ctx: FormulaContext, amount: number, labels: Array<st
       keys.add(compact(canonical));
       for (const alias of aliases[compact(canonical)] ?? []) keys.add(alias);
     }
+    // Source-card rows often carry extra qualifiers the statutory formulas
+    // must still resolve, e.g. "HRA 40% (Basic+DA) Exact" → "hra". Strip any
+    // parenthetical base, a trailing "Exact" marker and inline percentages,
+    // then re-run the alias map so PF bases like Gross − HRA − Bonus see the
+    // real amounts instead of ₹0.
+    const stripped = raw
+      .replace(/[\(\[][^\)\]]*[\)\]]/g, " ")
+      .replace(/\bexact\b/gi, " ")
+      .replace(/\d+(?:\.\d+)?\s*%/g, " ")
+      .replace(/[\s\-_]+/g, " ")
+      .trim();
+    if (stripped && compact(stripped) !== compact(canonical)) {
+      keys.add(slugifyVar(stripped));
+      keys.add(compact(stripped));
+      for (const alias of aliases[compact(stripped)] ?? []) keys.add(alias);
+    }
   }
   for (const key of keys) {
     if (!key) continue;
@@ -1737,6 +1753,20 @@ export function computeBenefitAmount(
     // Direct match on the wage component's stored name (often the short name)
     let match = wageComponents.find((c) => norm(c.name) === l);
     if (!match) match = wageComponents.find((c) => compactNorm(c.name) === compactNorm(label));
+    if (!match) {
+      // Source-card rows carry qualifiers like "HRA 40% (Basic+DA) Exact" —
+      // strip parentheticals, the Exact marker and inline percentages so a
+      // base label of "HRA" still resolves to the real row.
+      const strippedKey = (s: string) =>
+        compactNorm(
+          s
+            .replace(/[\(\[][^\)\]]*[\)\]]/g, " ")
+            .replace(/\bexact\b/gi, " ")
+            .replace(/\d+(?:\.\d+)?\s*%/g, " "),
+        );
+      const want = strippedKey(label);
+      match = wageComponents.find((c) => strippedKey(c.name) === want);
+    }
     if (match) return Number(match.amount) || 0;
     // Resolve via allowance type aliases: name / displayName / shortName -> allowanceId
     const at = allowanceTypes.find(
