@@ -1417,6 +1417,16 @@ function addFormulaAliases(ctx: FormulaContext, amount: number, labels: Array<st
     washingallowance: ["washing_allowance", "wa"],
     hra: ["houserentallowance", "house_rent_allowance"],
     houserentallowance: ["house_rent_allowance", "hra"],
+    // Statutory PF bases are written as gross - hra - wa - bonus - lww, so the
+    // long printed names must also feed the short formula variables.
+    bonusexgratia: ["bonus", "exgratia", "bonus_exgratia"],
+    exgratia: ["bonus", "exgratia"],
+    bonus: ["bonus"],
+    leavewithwages: ["lww", "leave_with_wages"],
+    lww: ["leavewithwages", "leave_with_wages"],
+    paidholiday: ["ph", "paid_holiday"],
+    paidholidays: ["ph", "paid_holiday"],
+    basicda: ["basic"],
   };
   for (const label of labels) {
     const raw = String(label ?? "").trim();
