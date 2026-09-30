@@ -8,3 +8,12 @@ console.log(first.map(b=>[b.name,b.amount]));
 const base=first.filter(b=>!b.name.startsWith("Reliever"));
 const rel=computeBenefitAmount(emp[4] as any,comps as any,[],[],base as any);
 console.log("reliever",rel, "total", comps.reduce((s,c:any)=>s+c.amount,0)+base.reduce((s,b)=>s+b.amount,0)+rel);
+import { formulaReferencesCtc } from "../src/routes/admin.contracts.client-contracts";
+// replicate the editor effect exactly
+const refs=(b:any)=>formulaReferencesCtc(b.formulaExpression);
+const fp=emp.map(b=>(b.calcType==="percentage"||b.formulaExpression)&&!refs(b)?{...b,amount:computeBenefitAmount(b as any,comps as any,[],[])}:b);
+const cb=fp.filter(b=>!refs(b)&&!/management\s*fee/i.test(b.name));
+const out=fp.map(b=>(b.calcType==="percentage"||b.formulaExpression)&&refs(b)?{...b,amount:computeBenefitAmount(b as any,comps as any,[],[],cb as any)}:b);
+const monthly=comps.reduce((s,c:any)=>s+c.amount,0)+out.reduce((s,b)=>s+b.amount,0);
+console.log("EDITOR: reliever",out[4].amount,"monthly",monthly.toFixed(2),"per day @30.40",(monthly/30.4).toFixed(2));
+console.log("old regex matched total_ctc?", /\bctc\b/i.test("total_ctc / 6"), "new:", formulaReferencesCtc("total_ctc / 6"), formulaReferencesCtc("(total_ctc + total_ctc * 0.1667) * 0.07"), formulaReferencesCtc("ctc*0.1"), formulaReferencesCtc("abctc"));
