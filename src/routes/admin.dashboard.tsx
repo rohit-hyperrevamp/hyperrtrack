@@ -32,6 +32,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { HrExecutiveDashboard } from "@/components/HrExecutiveDashboard";
 import { UnitAttendanceCoverage } from "@/components/UnitAttendanceCoverage";
 import { DashboardShell } from "@/components/LiveFeed";
+import { MyUpcomingInterviewsCard } from "@/components/recruitment/RecruitmentDashboardCards";
 import { Button } from "@/components/ui/button";
 import { useCountUp } from "@/hooks/useCountUp";
 import { supabase } from "@/integrations/supabase/client";
@@ -1336,8 +1337,8 @@ function DashboardPage() {
           opsFocus ? (
             <PeopleInsightsSection hideLive roleKeys={OPS_PEOPLE_ROLE_KEYS} />
           ) : can("employees") ? (
-            <PeopleInsightsSection compact hideLive={roleKey === "hr"} />
-          ) : null
+            <><MyUpcomingInterviewsCard /><PeopleInsightsSection compact hideLive={roleKey === "hr"} /></>
+          ) : <MyUpcomingInterviewsCard />
         }
         fullWidthBelow={
           opsFocus ? (

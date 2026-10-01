@@ -37,7 +37,8 @@ export const SOURCES = ["Referral", "Job portal", "LinkedIn", "Walk-in", "Consul
 
 export type RecOpening = {
   id: string; title: string; designation_id: string | null; department_id: string | null; branch_id: string | null;
-  positions: number; salary_min: number; salary_max: number; description: string; status: string; created_at: string;
+  positions: number; salary_min: number; salary_max: number; description: string; status: string;
+  workforce_class: "blue_collar" | "white_collar"; billing_class: "billable" | "non_billable"; created_at: string;
   rec_opening_rounds?: RecRound[];
 };
 export type RecRound = { id: string; opening_id: string; round_no: number; name: string; default_interviewer_id: string | null };
@@ -54,7 +55,7 @@ export type RecCandidate = {
 };
 export type RecInterview = {
   id: string; candidate_id: string; round_no: number; round_name: string; interviewer_id: string; scheduled_at: string;
-  mode: string; location: string; status: string; feedback: string; rating: number | null; decided_at: string | null; created_at: string;
+  mode: string; location: string; status: string; feedback: string; rating: number | null; decided_at: string | null; created_by: string | null; created_at: string;
 };
 export type RecEvent = { id: string; candidate_id: string; event: string; details: string; created_at: string };
 export type RecOnboarding = {
@@ -107,10 +108,15 @@ export async function fetchCandidate(id: string) {
 }
 
 export async function fetchMyInterviews() {
-  const { data: cid } = await supabase.rpc("current_user_candidate_id");
-  if (!cid) return [] as Array<RecInterview & { rec_candidates: RecCandidate | null }>;
+  const [{ data: cid }, { data: auth }] = await Promise.all([
+    supabase.rpc("current_user_candidate_id"),
+    supabase.auth.getUser(),
+  ]);
+  const userId = auth.user?.id;
+  if (!cid && !userId) return [] as Array<RecInterview & { rec_candidates: RecCandidate | null }>;
+  const scope = [cid ? `interviewer_id.eq.${cid as string}` : "", userId ? `created_by.eq.${userId}` : ""].filter(Boolean).join(",");
   return fetchAll<RecInterview & { rec_candidates: RecCandidate | null }>(() =>
-    recDb.from("rec_interviews").select("*, rec_candidates(*)").eq("interviewer_id", cid as string).order("scheduled_at", { ascending: true }),
+    recDb.from("rec_interviews").select("*, rec_candidates(*)").or(scope).order("scheduled_at", { ascending: true }),
   );
 }
 

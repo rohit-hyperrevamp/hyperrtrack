@@ -90,6 +90,7 @@ function OpeningDialog({ opening, onClose, masters }: { opening: RecOpening | nu
     title: opening?.title ?? "", designation_id: opening?.designation_id ?? "", department_id: opening?.department_id ?? "",
     branch_id: opening?.branch_id ?? "", positions: String(opening?.positions ?? 1), salary_min: String(opening?.salary_min ?? ""),
     salary_max: String(opening?.salary_max ?? ""), description: opening?.description ?? "", status: opening?.status ?? "open",
+    workforce_class: opening?.workforce_class ?? "white_collar", billing_class: opening?.billing_class ?? "non_billable",
   });
   const initialRounds = [...(opening?.rec_opening_rounds ?? [])].sort((a, b) => a.round_no - b.round_no).map((r) => ({ name: r.name, default_interviewer_id: r.default_interviewer_id ?? "" }));
   const [rounds, setRounds] = useState<RoundDraft[]>(initialRounds.length ? initialRounds : [{ name: "HR Screening", default_interviewer_id: "" }]);
@@ -110,7 +111,7 @@ function OpeningDialog({ opening, onClose, masters }: { opening: RecOpening | nu
       const row = {
         title: f.title.trim(), designation_id: f.designation_id || null, department_id: f.department_id || null, branch_id: f.branch_id || null,
         positions: Math.max(1, Number(f.positions || 1)), salary_min: Number(f.salary_min || 0), salary_max: Number(f.salary_max || 0),
-        description: f.description, status: f.status, updated_at: new Date().toISOString(),
+        description: f.description, status: f.status, workforce_class: f.workforce_class, billing_class: f.billing_class, updated_at: new Date().toISOString(),
       };
       let id = opening?.id;
       if (id) {
@@ -155,6 +156,18 @@ function OpeningDialog({ opening, onClose, masters }: { opening: RecOpening | nu
             <Select value={f.status} onValueChange={(v) => setF({ ...f, status: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="open">Open</SelectItem><SelectItem value="on_hold">On hold</SelectItem><SelectItem value="closed">Closed</SelectItem></SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5"><Label className="text-xs">Workforce</Label>
+            <Select value={f.workforce_class} onValueChange={(v) => setF({ ...f, workforce_class: v as "blue_collar" | "white_collar" })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="blue_collar">Blue collar</SelectItem><SelectItem value="white_collar">White collar</SelectItem></SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5"><Label className="text-xs">Billing</Label>
+            <Select value={f.billing_class} onValueChange={(v) => setF({ ...f, billing_class: v as "billable" | "non_billable" })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="billable">Billable</SelectItem><SelectItem value="non_billable">Non-billable</SelectItem></SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5"><Label className="text-xs">Interview rounds</Label>

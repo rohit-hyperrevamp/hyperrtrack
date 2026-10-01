@@ -8,6 +8,7 @@ import { InterviewResultDialog } from "@/components/recruitment/InterviewResultD
 import { Button } from "@/components/ui/button";
 import { fetchMyInterviews, fmtDateTime, inr, openResume, PAGE_SIZE, QK, type RecInterview } from "@/lib/recruitment";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/hr/recruitment/interviews")({
   head: () => ({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/admin/hr/recruitment/interviews")({
 
 function MyInterviews() {
   const q = useQuery({ queryKey: QK.myInterviews, queryFn: fetchMyInterviews });
+  const userQ = useQuery({ queryKey: ["auth", "user-id"], queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null, staleTime: 300_000 });
   const [tab, setTab] = useState<"scheduled" | "done">("scheduled");
   const [page, setPage] = useState(0);
   const [result, setResult] = useState<{ i: RecInterview; name: string; d: "approved" | "rejected" } | null>(null);
@@ -54,12 +56,13 @@ function MyInterviews() {
               </div>
               <div className="flex shrink-0 flex-wrap gap-2">
                 {c?.resume_path && <Button size="sm" variant="outline" onClick={() => openResume(c.resume_path).catch((e) => toast.error(e.message))}><FileText className="mr-1 h-4 w-4" />Resume</Button>}
-                {i.status === "scheduled" && (
+                {i.status === "scheduled" && i.interviewer_id !== "" && (i.interviewer_id !== undefined) && (
                   <>
                     <Button size="sm" onClick={() => setResult({ i, name: c?.full_name ?? "Candidate", d: "approved" })}>Approve</Button>
                     <Button size="sm" variant="destructive" onClick={() => setResult({ i, name: c?.full_name ?? "Candidate", d: "rejected" })}>Reject</Button>
                   </>
                 )}
+                {i.status === "scheduled" && i.created_by === userQ.data && <span className="self-center rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">Created by you</span>}
               </div>
             </div>
           );
