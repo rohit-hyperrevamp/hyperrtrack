@@ -58,7 +58,7 @@ async function fetchExport(date: string): Promise<string> {
   const body = new URLSearchParams({ _token: token, email: process.env["ALERTCHECKIN_EMAIL"]!, password: process.env["ALERTCHECKIN_PASSWORD"]! });
   const r2 = await fetch(`${BASE}/login`, { method: "POST", body, redirect: "manual", headers: { cookie: jar.header(), "content-type": "application/x-www-form-urlencoded" } });
   jar.take(r2);
-  if (!(r2.headers.get("location") ?? "").includes("/dashboard")) throw new Error("AlertCheckin sign-in failed");
+  if (!(r2.headers.get("location") ?? "").includes("/dashboard")) throw new Error(`AlertCheckin sign-in failed (status ${r2.status}, cookies ${jar.c.size}, creds ${process.env["ALERTCHECKIN_EMAIL"] ? "set" : "missing"})`);
   const r3 = await fetch(`${BASE}/dashboard/export?date=${date}&group_id=all&client_id=all`, { headers: { cookie: jar.header() } });
   if (!r3.ok) throw new Error(`AlertCheckin export failed (${r3.status})`);
   return await r3.text();
