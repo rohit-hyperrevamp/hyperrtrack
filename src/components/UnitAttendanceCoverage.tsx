@@ -15,7 +15,7 @@ export function UnitAttendanceCoverage() {
   const today = new Date();
   const [from, setFrom] = useState(iso(new Date(today.getFullYear(), today.getMonth(), 1)));
   const [to, setTo] = useState(iso(today));
-  const [show, setShow] = useState<"none" | "with">("none");
+  const [show, setShow] = useState<"all" | "none" | "with">("all");
   const [page, setPage] = useState(0);
   const PAGE = 25;
 
@@ -65,7 +65,7 @@ export function UnitAttendanceCoverage() {
   const without = useMemo(() => rows.filter((r) => Number(r.days_marked) === 0), [rows]);
   const total = rows.length;
   const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
-  const list = (show === "none" ? without : withAtt).slice().sort((a, b) => a.unit_code.localeCompare(b.unit_code));
+  const list = (show === "none" ? without : show === "with" ? withAtt : rows).slice().sort((a, b) => Number(b.days_marked) - Number(a.days_marked) || a.unit_code.localeCompare(b.unit_code));
   const pages = Math.max(1, Math.ceil(list.length / PAGE));
 
   const Tile = ({ label, value, sub, active, onClick }: { label: string; value: number; sub: string; active?: boolean; onClick?: () => void }) => (
@@ -107,7 +107,7 @@ export function UnitAttendanceCoverage() {
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Tile label="Total units" value={total} sub="With an active contract" />
+        <Tile label="Total units" value={total} sub="With an active contract" active={show === "all"} onClick={() => { setShow("all"); setPage(0); }} />
         <Tile label="With attendance" value={withAtt.length} sub={`${pct(withAtt.length)}% of units`} active={show === "with"} onClick={() => { setShow("with"); setPage(0); }} />
         <Tile label="No attendance" value={without.length} sub={`${pct(without.length)}% of units`} active={show === "none"} onClick={() => { setShow("none"); setPage(0); }} />
       </div>
