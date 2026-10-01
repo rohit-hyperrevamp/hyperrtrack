@@ -400,6 +400,16 @@ function LoginPage() {
                       </div>
                     </label>
 
+                    {error && (
+                      <p
+                        role="alert"
+                        className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-[13px] font-medium text-destructive"
+                      >
+                        {error}
+                      </p>
+                    )}
+
+
                     <Button
                       type="submit"
                       disabled={!phoneValid || sending}
