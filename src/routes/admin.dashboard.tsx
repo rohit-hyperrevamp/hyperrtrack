@@ -159,7 +159,7 @@ function PeopleInsightsSection({
 }
 
 /** Active field officers — the operations headcount that matters. */
-function DashboardErrorState({ error }: { error: Error }) {
+function DashboardErrorState({ error }: import("@tanstack/react-router").ErrorComponentProps) {
   return (
     <div className="mx-auto max-w-md p-6 text-center">
       <h1 className="text-lg font-semibold">Dashboard could not load</h1>

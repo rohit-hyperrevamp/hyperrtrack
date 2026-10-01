@@ -44,7 +44,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error }: import("@tanstack/react-router").ErrorComponentProps) {
   console.error(error);
 
   useEffect(() => {
