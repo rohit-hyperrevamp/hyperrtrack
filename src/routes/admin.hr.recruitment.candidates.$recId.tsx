@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, Check, FileText, Send, Upload, UserCheck, X } from "lucide-react";
+import { CalendarPlus, Check, FileText, Pause, Send, Upload, UserCheck, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { EmployeePicker } from "@/components/EmployeePicker";
@@ -27,6 +27,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/candidates/$recId")(
       { name: "description", content: "Candidate profile, interview rounds, offer and onboarding." },
       { property: "og:title", content: "Recruitment Candidate — Radiant" },
       { property: "og:description", content: "Candidate profile, interview rounds, offer and onboarding." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CandidatePage,
@@ -82,15 +84,15 @@ function CandidatePage() {
         description={[opening?.title, c.mobile, c.email].filter(Boolean).join(" · ")}
         icon={UserCheck}
         actions={
-          <div className="flex flex-wrap gap-2">
-            <span className={cn("self-center rounded-full px-3 py-1 text-xs font-medium", stageTone(c.stage))}>{stageLabel(c.stage)}</span>
-            {c.stage === "new" && <Button size="sm" variant="outline" onClick={() => setStage("screening")}>Move to screening</Button>}
-            {ACTIVE_FOR_SCHEDULE.includes(c.stage) && <Button size="sm" variant="outline" onClick={() => setStage("on_hold")}>Hold</Button>}
-            {c.stage === "on_hold" && <Button size="sm" variant="outline" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}>Resume</Button>}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{stageLabel(c.stage)}</span>
+            {c.stage === "new" && <Button variant="outline" onClick={() => setStage("screening")}><UserCheck />Move to screening</Button>}
+            {ACTIVE_FOR_SCHEDULE.includes(c.stage) && <Button variant="secondary" onClick={() => setStage("on_hold")}><Pause />Hold</Button>}
+            {c.stage === "on_hold" && <Button variant="secondary" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}><UserCheck />Resume</Button>}
             {!["onboarded", "rejected", "withdrawn", "pending_onboarding"].includes(c.stage) && (
               <>
-                <Button size="sm" variant="outline" onClick={() => setCloseAs("withdrawn")}>Withdrawn</Button>
-                <Button size="sm" variant="destructive" onClick={() => setCloseAs("rejected")}>Reject</Button>
+                <Button variant="outline" onClick={() => setCloseAs("withdrawn")}><UserMinus />Withdraw</Button>
+                <Button variant="destructive" onClick={() => setCloseAs("rejected")}><X />Reject</Button>
               </>
             )}
           </div>
@@ -100,12 +102,12 @@ function CandidatePage() {
       {/* Round progress strip */}
       <section className="rounded-xl border border-border bg-card p-4">
         <div className="mb-2 text-xs text-muted-foreground">Round {Math.min(c.rounds_cleared, c.total_rounds)} of {c.total_rounds} approved</div>
-        <div className="flex items-center gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: c.total_rounds }, (_, k) => k + 1).map((n) => {
             const last = interviews.filter((i) => i.round_no === n).at(-1);
             const st = last?.status ?? (n <= c.rounds_cleared ? "approved" : "pending");
             return (
-              <div key={n} className="flex flex-1 items-center gap-2">
+              <div key={n} className={cn("flex min-w-0 items-center gap-2 rounded-xl border p-3", st === "scheduled" ? "border-accent/40 bg-accent/5" : "border-border/60 bg-muted/20")}>
                 <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-semibold",
                   st === "approved" && "border-primary bg-primary text-primary-foreground",
                   st === "rejected" && "border-destructive bg-destructive text-destructive-foreground",

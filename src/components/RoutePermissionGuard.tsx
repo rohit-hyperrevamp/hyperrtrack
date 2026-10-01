@@ -17,6 +17,7 @@ const ALWAYS_ALLOW_PREFIXES: readonly string[] = [
   "/admin/my-attendance",
   "/admin/my-inventory",
   "/admin/my-reportees",
+  "/admin/hr/recruitment/interviews",
 ];
 
 /**
@@ -59,6 +60,7 @@ function resolveRequiredModule(pathname: string): RequiredPermission | null {
 }
 
 function isAlwaysAllowed(pathname: string): boolean {
+  if (/^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname)) return true;
   return ALWAYS_ALLOW_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(p + "/"),
   );

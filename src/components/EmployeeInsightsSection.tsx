@@ -8,6 +8,8 @@ import { usePeopleInsights } from "@/lib/people-insights";
 import { PeopleInsightsCard } from "@/components/PeopleInsightsCard";
 import { useRehirePipeline, rehireHolderLabel } from "@/components/RehirePipelineCard";
 import { stepByOrder } from "@/lib/workflows";
+import { RecruitmentLeadershipPanel } from "@/components/recruitment/RecruitmentDashboardCards";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function useEmployeeCounts() {
   return useQuery({
@@ -144,18 +146,19 @@ function RehireList() {
  * clickable headcount / candidate / rehire / 60+ stats with birthdays and
  * work anniversaries always visible, and an inline rehire pipeline.
  */
-export function EmployeeInsightsSection() {
+export function EmployeeInsightsSection({ showRecruitment = false }: { showRecruitment?: boolean }) {
   const counts = useEmployeeCounts();
   const insights = usePeopleInsights();
   const rehire = useRehirePipeline();
   const [showRehire, setShowRehire] = React.useState(false);
+  const [view, setView] = React.useState("employees");
 
   return (
     <section className="w-full overflow-hidden rounded-[24px] border border-border/60 bg-card/70 p-4 backdrop-blur-2xl shadow-[0_1px_0_0_rgba(255,255,255,0.85)_inset,0_24px_60px_-30px_rgba(15,23,42,0.22)] sm:p-5">
       <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">Workforce</div>
-          <h2 className="font-display text-lg font-bold tracking-tight text-foreground">Employees</h2>
+          <h2 className="font-display text-lg font-bold tracking-tight text-foreground">People</h2>
         </div>
         <Link
           to="/admin/employees"
@@ -165,6 +168,9 @@ export function EmployeeInsightsSection() {
         </Link>
       </header>
 
+      <Tabs value={view} onValueChange={setView} className="space-y-3">
+        <TabsList><TabsTrigger value="employees">Employees</TabsTrigger>{showRecruitment && <TabsTrigger value="recruitment">Recruitment</TabsTrigger>}</TabsList>
+        <TabsContent value="employees" className="mt-0 space-y-3">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat icon={Users} label="Employees" value={counts.data?.employees ?? 0} hint="Active & enabled" loading={counts.isLoading} tone="accent" to="/admin/employees" search={{ tab: "employee" }} />
         <Stat icon={UserPlus} label="Candidates" value={counts.data?.candidates ?? 0} hint={`${counts.data?.pendingApproval ?? 0} awaiting approval`} loading={counts.isLoading} to="/admin/employees" search={{ tab: "candidate" }} />
@@ -192,6 +198,9 @@ export function EmployeeInsightsSection() {
         <PeopleInsightsCard kind="birthdays" items={insights.birthdays} isLoading={insights.isLoading} />
         <PeopleInsightsCard kind="anniversaries" items={insights.anniversaries} isLoading={insights.isLoading} />
       </div>
+        </TabsContent>
+        {showRecruitment && <TabsContent value="recruitment" className="mt-0"><RecruitmentLeadershipPanel /></TabsContent>}
+      </Tabs>
     </section>
   );
 }
