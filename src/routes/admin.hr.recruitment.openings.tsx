@@ -21,6 +21,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/openings")({
       { name: "description", content: "Staff openings with positions, salary range and interview rounds." },
       { property: "og:title", content: "Recruitment Openings — Radiant" },
       { property: "og:description", content: "Staff openings with positions, salary range and interview rounds." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: OpeningsPage,
@@ -43,7 +45,7 @@ function OpeningsPage() {
   return (
     <div className="space-y-4">
       <PageHeader eyebrow="Recruitment" title="Openings" description="Set up each post and how many interview rounds it needs." icon={Briefcase}
-        actions={<Button size="sm" onClick={() => setEdit("new")}><Plus className="mr-1 h-4 w-4" />New opening</Button>} />
+        actions={<Button onClick={() => setEdit("new")}><Plus className="h-4 w-4" />New opening</Button>} />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {oq.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
         {!oq.isLoading && openings.length === 0 && <p className="text-sm text-muted-foreground">No openings yet. Create one to start adding candidates.</p>}
