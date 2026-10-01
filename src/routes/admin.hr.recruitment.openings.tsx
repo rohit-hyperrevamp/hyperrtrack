@@ -21,6 +21,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/openings")({
       { name: "description", content: "Staff openings with positions, salary range and interview rounds." },
       { property: "og:title", content: "Recruitment Openings — Radiant" },
       { property: "og:description", content: "Staff openings with positions, salary range and interview rounds." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: OpeningsPage,
