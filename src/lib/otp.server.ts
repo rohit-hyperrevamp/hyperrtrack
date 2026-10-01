@@ -75,13 +75,31 @@ async function relayOtp(action: "send" | "verify", phone: string, otp?: string):
   if (!response.ok) throw new Error(msg91Error(payload.message, "SMS service is unavailable. Please try again."));
 }
 
+/**
+ * DLT-approved MSG91 OTP template. Indian operators hold any OTP SMS that is
+ * not tied to a registered DLT template (MSG91 report: status Pending,
+ * pause "code: 211", DLT_TE_ID null), so every send must carry it.
+ * Template IDs are not secrets; MSG91_OTP_TEMPLATE_ID overrides this value.
+ */
+const MSG91_OTP_TEMPLATE_ID = "";
+
 export async function sendMsg91Otp(phone: string, allowRelay = true): Promise<void> {
   const authKey = process.env["MSG91_AUTH_KEY"];
   if (!authKey) {
     if (allowRelay) return relayOtp("send", phone);
     throw new Error("SMS service is not configured on this deployment.");
   }
-  const response = await fetch(`${MSG91_API}/otp?mobile=91${phone}`, {
+  const templateId = process.env["MSG91_OTP_TEMPLATE_ID"] || MSG91_OTP_TEMPLATE_ID;
+  if (!templateId) {
+    console.error("[otp] MSG91 OTP template ID is missing; SMS would be held by the operator.");
+    throw new Error("SMS sign-in is being configured. Please contact your administrator.");
+  }
+  const query = new URLSearchParams({
+    mobile: `91${phone}`,
+    template_id: templateId,
+    otp_length: "4",
+  });
+  const response = await fetch(`${MSG91_API}/otp?${query}`, {
     method: "POST",
     headers: { authkey: authKey },
   });
