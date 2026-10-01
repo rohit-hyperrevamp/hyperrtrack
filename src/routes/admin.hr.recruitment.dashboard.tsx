@@ -16,6 +16,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/dashboard")({
       { name: "description", content: "Open candidates, pipeline, closures, losses and closure rate for staff hiring." },
       { property: "og:title", content: "Recruitment Dashboard — Radiant" },
       { property: "og:description", content: "Open candidates, pipeline, closures, losses and closure rate for staff hiring." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RecruitmentDashboard,
@@ -80,13 +82,13 @@ function RecruitmentDashboard() {
         icon={UserPlus}
         actions={<Link to="/admin/hr/recruitment/candidates" className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">Candidates</Link>}
         kpis={
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <>
             <PageStat label="Open candidates" value={s.open} icon={Users} onClick={() => go("open")} />
             <PageStat label="In pipeline" value={s.pipeline} icon={CalendarClock} onClick={() => go("pipeline")} />
             <PageStat label="Closures this month" value={s.closures} icon={CheckCircle2} tone="success" onClick={() => go("onboarded")} />
             <PageStat label="Lost this month" value={s.lost} icon={XCircle} tone="destructive" onClick={() => go("lost")} />
             <PageStat label="Closure %" value={`${s.pct}%`} icon={Percent} tone="accent" sub="Onboarded ÷ (onboarded + lost)" />
-          </div>
+          </>
         }
       />
 
