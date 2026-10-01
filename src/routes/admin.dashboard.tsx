@@ -1198,6 +1198,7 @@ function DashboardPage() {
             description="Payroll status for the selected payroll window — open, ready for your approval, approved and processed."
             crumbs={[{ label: "Dashboard" }]}
           />
+          <MyUpcomingInterviewsCard />
           <div className="scrollbar-hide flex min-w-0 max-w-full items-center gap-2 overflow-x-auto pb-0.5">
             <PayrollWindowPeriodPicker
               options={periodSelection.options}
@@ -1233,6 +1234,7 @@ function DashboardPage() {
           description="Your assigned clients, payroll schedules, dividing factors and salary-slip requirements."
           crumbs={[{ label: "Dashboard" }]}
         />
+        <MyUpcomingInterviewsCard />
         <HrExecutiveDashboard />
       </div>
     );
@@ -1247,6 +1249,7 @@ function DashboardPage() {
             description="Vehicles and assets in one view — fleet strength, running spend, compliance renewals, asset value and loans."
             crumbs={[{ label: "Dashboard" }]}
           />
+          <MyUpcomingInterviewsCard />
           <TransportFleetAssetsTiles />
         </DashboardShell>
       </div>
@@ -1262,6 +1265,7 @@ function DashboardPage() {
             description="Live inventory overview with stock value, quantities, procurement, transfers, and issuances."
             crumbs={[{ label: "Dashboard" }]}
           />
+          <MyUpcomingInterviewsCard />
           <InventoryOwnerDashboard />
         </DashboardShell>
       </div>
@@ -1277,6 +1281,7 @@ function DashboardPage() {
             description="Your sites with an active contract — which have attendance and which have none."
             crumbs={[{ label: "Dashboard" }]}
           />
+          <MyUpcomingInterviewsCard />
           <UnitAttendanceCoverage />
         </div>
       </div>
@@ -1292,6 +1297,7 @@ function DashboardPage() {
             description="Live field officers, site-visit progress, and field officer deployment."
             crumbs={[{ label: "Dashboard" }]}
           />
+          <MyUpcomingInterviewsCard />
           <OperationsRadarSummary expanded />
           <LiveFieldOfficersCard />
           <div className="grid gap-4 xl:grid-cols-2">
