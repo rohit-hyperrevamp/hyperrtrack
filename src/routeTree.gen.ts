@@ -137,6 +137,7 @@ import { Route as AdminHrRecruitmentDashboardRouteImport } from './routes/admin.
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
 import { Route as AdminHrRecruitmentCandidatesIndexRouteImport } from './routes/admin.hr.recruitment.candidates.index'
+import { Route as AdminHrRecruitmentCandidatesRecIdRouteImport } from './routes/admin.hr.recruitment.candidates.$recId'
 
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
@@ -812,6 +813,12 @@ const AdminHrRecruitmentCandidatesIndexRoute =
     path: '/candidates/',
     getParentRoute: () => AdminHrRecruitmentRoute,
   } as any)
+const AdminHrRecruitmentCandidatesRecIdRoute =
+  AdminHrRecruitmentCandidatesRecIdRouteImport.update({
+    id: '/candidates/$recId',
+    path: '/candidates/$recId',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -941,6 +948,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
   '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
   '/admin/hr/recruitment/candidates/': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -1067,6 +1075,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
   '/admin/sales/prospects': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
   '/admin/hr/recruitment/candidates': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRoutesById {
@@ -1198,6 +1207,7 @@ export interface FileRoutesById {
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
   '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
   '/admin/hr/recruitment/candidates/': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRouteTypes {
@@ -1330,6 +1340,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
     | '/admin/sales/prospects/'
+    | '/admin/hr/recruitment/candidates/$recId'
     | '/admin/hr/recruitment/candidates/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1456,6 +1467,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
     | '/admin/sales/prospects'
+    | '/admin/hr/recruitment/candidates/$recId'
     | '/admin/hr/recruitment/candidates'
   id:
     | '__root__'
@@ -1586,6 +1598,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
     | '/admin/sales/prospects/'
+    | '/admin/hr/recruitment/candidates/$recId'
     | '/admin/hr/recruitment/candidates/'
   fileRoutesById: FileRoutesById
 }
@@ -2505,6 +2518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHrRecruitmentCandidatesIndexRouteImport
       parentRoute: typeof AdminHrRecruitmentRoute
     }
+    '/admin/hr/recruitment/candidates/$recId': {
+      id: '/admin/hr/recruitment/candidates/$recId'
+      path: '/candidates/$recId'
+      fullPath: '/admin/hr/recruitment/candidates/$recId'
+      preLoaderRoute: typeof AdminHrRecruitmentCandidatesRecIdRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
   }
 }
 
@@ -2673,12 +2693,15 @@ const AdminVehiclesRouteWithChildren = AdminVehiclesRoute._addFileChildren(
 interface AdminHrRecruitmentRouteChildren {
   AdminHrRecruitmentDashboardRoute: typeof AdminHrRecruitmentDashboardRoute
   AdminHrRecruitmentOpeningsRoute: typeof AdminHrRecruitmentOpeningsRoute
+  AdminHrRecruitmentCandidatesRecIdRoute: typeof AdminHrRecruitmentCandidatesRecIdRoute
   AdminHrRecruitmentCandidatesIndexRoute: typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 
 const AdminHrRecruitmentRouteChildren: AdminHrRecruitmentRouteChildren = {
   AdminHrRecruitmentDashboardRoute: AdminHrRecruitmentDashboardRoute,
   AdminHrRecruitmentOpeningsRoute: AdminHrRecruitmentOpeningsRoute,
+  AdminHrRecruitmentCandidatesRecIdRoute:
+    AdminHrRecruitmentCandidatesRecIdRoute,
   AdminHrRecruitmentCandidatesIndexRoute:
     AdminHrRecruitmentCandidatesIndexRoute,
 }
