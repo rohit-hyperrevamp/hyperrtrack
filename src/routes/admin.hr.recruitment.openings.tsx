@@ -70,6 +70,10 @@ function OpeningsPage() {
                 <div className="rounded-lg bg-muted/50 p-2"><div className="text-base font-semibold capitalize">{o.status.replace("_", " ")}</div>Status</div>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">Salary {inr(o.salary_min)} – {inr(o.salary_max)} / month</div>
+              <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-medium">
+                <span className="rounded-full bg-secondary px-2 py-1 capitalize">{o.workforce_class.replace("_", " ")}</span>
+                <span className="rounded-full bg-secondary px-2 py-1 capitalize">{o.billing_class.replace("_", " ")}</span>
+              </div>
               <ol className="mt-2 space-y-1 text-xs">
                 {rounds.map((r) => <li key={r.id}>Round {r.round_no}: <span className="font-medium">{r.name}</span>{r.default_interviewer_id ? ` · ${namesQ.data?.get(r.default_interviewer_id) ?? ""}` : ""}</li>)}
               </ol>

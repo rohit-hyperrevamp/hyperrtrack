@@ -76,7 +76,7 @@ export function RecruitmentLeadershipPanel() {
       </div>
       <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
         <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3 text-sm font-semibold"><UsersRound className="h-4 w-4 text-accent" />Upcoming interviews · 7 days</div>
-        {!query.isLoading && !data?.upcoming.length ? <p className="p-4 text-sm text-muted-foreground">No interviews scheduled.</p> : (
+        {query.error ? <p className="p-4 text-sm text-destructive">Recruitment summary is not available for this role.</p> : !query.isLoading && !data?.upcoming.length ? <p className="p-4 text-sm text-muted-foreground">No interviews scheduled.</p> : (
           <div className="divide-y divide-border/60">
             {(data?.upcoming ?? []).slice(0, 8).map((item) => (
               <Link key={item.id} to="/admin/hr/recruitment/candidates/$recId" params={{ recId: item.candidate_id }} className="flex flex-col gap-1 px-4 py-3 transition hover:bg-accent/5 sm:flex-row sm:items-center sm:justify-between">

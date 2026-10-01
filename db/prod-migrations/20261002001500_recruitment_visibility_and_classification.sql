@@ -6,14 +6,25 @@ alter table public.rec_openings
   add column if not exists billing_class text not null default 'non_billable'
     check (billing_class in ('billable', 'non_billable'));
 
+create or replace function public.current_user_created_recruitment_candidate(_candidate_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.rec_candidates c
+    where c.id = _candidate_id and c.created_by = auth.uid()
+  ) or exists (
+    select 1 from public.rec_interviews i
+    where i.candidate_id = _candidate_id and i.created_by = auth.uid()
+  );
+$$;
+
+revoke all on function public.current_user_created_recruitment_candidate(uuid) from public, anon;
+grant execute on function public.current_user_created_recruitment_candidate(uuid) to authenticated;
+
 create policy rec_interviews_creator_read on public.rec_interviews for select to authenticated
   using (created_by = auth.uid());
 
 create policy rec_candidates_creator_read on public.rec_candidates for select to authenticated
-  using (created_by = auth.uid() or exists (
-    select 1 from public.rec_interviews i
-    where i.candidate_id = rec_candidates.id and i.created_by = auth.uid()
-  ));
+  using ((select public.current_user_created_recruitment_candidate(id)));
 
 create or replace function public.recruitment_leadership_summary()
 returns jsonb

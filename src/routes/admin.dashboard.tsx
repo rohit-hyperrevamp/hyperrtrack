@@ -1353,7 +1353,7 @@ function DashboardPage() {
             <>
               {!isLoading && data && (
                 <>
-                  {can("employees") && <EmployeeInsightsSection />}
+                  {can("employees") && <EmployeeInsightsSection showRecruitment={can("recruitment") || roleKey === ROLE_KEYS.LEADERSHIP} />}
                   {can("contracts") && <ClientContractPortfolioCard />}
                   {(can("payroll") || can("invoice")) && pnlQuery.isLoading && (
                     <div className="mb-4 rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">

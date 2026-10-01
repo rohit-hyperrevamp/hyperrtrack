@@ -146,7 +146,7 @@ function RehireList() {
  * clickable headcount / candidate / rehire / 60+ stats with birthdays and
  * work anniversaries always visible, and an inline rehire pipeline.
  */
-export function EmployeeInsightsSection() {
+export function EmployeeInsightsSection({ showRecruitment = false }: { showRecruitment?: boolean }) {
   const counts = useEmployeeCounts();
   const insights = usePeopleInsights();
   const rehire = useRehirePipeline();
@@ -169,7 +169,7 @@ export function EmployeeInsightsSection() {
       </header>
 
       <Tabs value={view} onValueChange={setView} className="space-y-3">
-        <TabsList><TabsTrigger value="employees">Employees</TabsTrigger><TabsTrigger value="recruitment">Recruitment</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="employees">Employees</TabsTrigger>{showRecruitment && <TabsTrigger value="recruitment">Recruitment</TabsTrigger>}</TabsList>
         <TabsContent value="employees" className="mt-0 space-y-3">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat icon={Users} label="Employees" value={counts.data?.employees ?? 0} hint="Active & enabled" loading={counts.isLoading} tone="accent" to="/admin/employees" search={{ tab: "employee" }} />
@@ -199,7 +199,7 @@ export function EmployeeInsightsSection() {
         <PeopleInsightsCard kind="anniversaries" items={insights.anniversaries} isLoading={insights.isLoading} />
       </div>
         </TabsContent>
-        <TabsContent value="recruitment" className="mt-0"><RecruitmentLeadershipPanel /></TabsContent>
+        {showRecruitment && <TabsContent value="recruitment" className="mt-0"><RecruitmentLeadershipPanel /></TabsContent>}
       </Tabs>
     </section>
   );
