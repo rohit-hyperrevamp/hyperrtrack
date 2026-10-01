@@ -7,7 +7,7 @@ do $$ declare src client_contracts; nid uuid := gen_random_uuid(); begin
     'start_date','2026-05-01','original_start_date','2026-05-01','end_date','2027-04-30','expiry_date','2027-04-30',
     'status','active','approval_status','approved','approved_at',now(),'signed_pdf_url','','signed_at',null,
     'renewal_count',0,'created_at',now(),'updated_at',now()));
-  insert into contract_resources select (jsonb_populate_record(null::contract_resources, to_jsonb(r) || jsonb_build_object(
-    'id',gen_random_uuid(),'contract_id',nid,'created_at',now(),'updated_at',now()))).*
-  from contract_resources r where r.contract_id=src.id;
+  insert into contract_resources
+  select (jsonb_populate_record(r, jsonb_build_object('id',gen_random_uuid(),'contract_id',nid,'created_at',now(),'updated_at',now()))).*
+  from contract_resources r where r.contract_id = src.id;
 end $$;
