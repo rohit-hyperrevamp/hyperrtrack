@@ -5,7 +5,7 @@ import { CalendarClock, CheckCircle2, Percent, UserPlus, Users, XCircle } from "
 import { PageHeader, PageStat } from "@/components/PageHeader";
 import {
   employeeNames, fetchAllInterviews, fetchCandidates, fetchMasters, fetchOpenings, fmtDateTime,
-  LOST, monthStartIso, PIPELINE, QK, STAGES, stageTone,
+  LOST, monthStartIso, PIPELINE, QK, STAGES,
 } from "@/lib/recruitment";
 import { cn } from "@/lib/utils";
 
@@ -178,4 +178,3 @@ function Breakdown({ title, data }: { title: string; data: Map<string, number> }
   );
 }
 
-export { stageTone };
