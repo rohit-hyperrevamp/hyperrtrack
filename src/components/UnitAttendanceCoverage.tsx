@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FieldOfficerOrgChart } from "@/components/FieldOfficerOrgChart";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +51,15 @@ export function UnitAttendanceCoverage() {
     }
     return opts;
   }, [winQ.data]);
+  const touched = useRef(false);
+  useEffect(() => {
+    if (touched.current || !periodOptions.length) return;
+    touched.current = true;
+    const o = periodOptions[0];
+    const cap = iso(today);
+    setFrom(o.start);
+    setTo(o.end > cap ? cap : o.end);
+  }, [periodOptions]); // eslint-disable-line react-hooks/exhaustive-deps
   const selectedPeriod = periodOptions.find((o) => o.start === from && (o.end === to || (to === iso(today) && o.end >= to)))?.key ?? "";
   const withAtt = useMemo(() => rows.filter((r) => Number(r.days_marked) > 0), [rows]);
   const without = useMemo(() => rows.filter((r) => Number(r.days_marked) === 0), [rows]);
@@ -91,9 +101,9 @@ export function UnitAttendanceCoverage() {
             <option value="">Custom dates</option>
             {periodOptions.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
           </select>
-          <Input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(0); }} className="h-8 w-36" />
+          <Input type="date" value={from} max={to} onChange={(e) => { touched.current = true; setFrom(e.target.value); setPage(0); }} className="h-8 w-36" />
           <span className="text-muted-foreground">to</span>
-          <Input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(0); }} className="h-8 w-36" />
+          <Input type="date" value={to} min={from} onChange={(e) => { touched.current = true; setTo(e.target.value); setPage(0); }} className="h-8 w-36" />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -102,6 +112,7 @@ export function UnitAttendanceCoverage() {
         <Tile label="No attendance" value={without.length} sub={`${pct(without.length)}% of units`} active={show === "none"} onClick={() => { setShow("none"); setPage(0); }} />
       </div>
       {q.error ? <p className="text-sm text-destructive">Could not load coverage.</p> : null}
+      <FieldOfficerOrgChart units={rows} />
       <div className="overflow-hidden rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground">
