@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight, Shield, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Unit = { unit_id: string; unit_code: string; unit_name: string };
-type Post = { unit_id: string; candidate_id: string; is_reliever: boolean | null; candidates: { full_name: string | null; employee_code: string | null; role_key: string | null; status: string | null } | null };
+type ChartRow = { kind: "fo" | "guards"; unit_id: string; candidate_id: string | null; full_name: string | null; employee_code: string | null; status: string | null; guards: number | null };
 
 const FO_PAGE = 10;
 
@@ -20,14 +20,14 @@ export function FieldOfficerOrgChart({ units }: { units: Unit[] }) {
     enabled: ids.length > 0,
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      const out: Post[] = [];
-      for (let i = 0; i < ids.length; i += 100) {
-        const { data, error } = await supabase
-          .from("candidate_units")
-          .select("unit_id,candidate_id,is_reliever,candidates!inner(full_name,employee_code,role_key,status)")
-          .in("unit_id", ids.slice(i, i + 100));
+      const out: ChartRow[] = [];
+      for (let i = 0; i < ids.length; i += 200) {
+        const { data, error } = await (supabase.rpc as unknown as (
+          fn: string,
+          args: Record<string, unknown>,
+        ) => Promise<{ data: ChartRow[] | null; error: Error | null }>)("fo_org_chart", { _unit_ids: ids.slice(i, i + 200) });
         if (error) throw error;
-        out.push(...((data ?? []) as unknown as Post[]));
+        out.push(...(data ?? []));
       }
       return out;
     },
@@ -37,15 +37,13 @@ export function FieldOfficerOrgChart({ units }: { units: Unit[] }) {
     const unitById = new Map(units.map((u) => [u.unit_id, u]));
     const guardsByUnit = new Map<string, number>();
     const fos = new Map<string, { id: string; name: string; code: string; inactive: boolean; units: Set<string> }>();
-    for (const p of q.data ?? []) {
-      const c = p.candidates;
-      if (!c) continue;
-      if (c.role_key === "field_officer") {
-        const f = fos.get(p.candidate_id) ?? { id: p.candidate_id, name: c.full_name ?? "", code: c.employee_code ?? "", inactive: !["active", "approved"].includes(c.status ?? ""), units: new Set<string>() };
-        f.units.add(p.unit_id);
-        fos.set(p.candidate_id, f);
-      } else if (["active", "approved"].includes(c.status ?? "") && !p.is_reliever) {
-        guardsByUnit.set(p.unit_id, (guardsByUnit.get(p.unit_id) ?? 0) + 1);
+    for (const r of q.data ?? []) {
+      if (r.kind === "guards") {
+        guardsByUnit.set(r.unit_id, (guardsByUnit.get(r.unit_id) ?? 0) + Number(r.guards ?? 0));
+      } else if (r.candidate_id) {
+        const f = fos.get(r.candidate_id) ?? { id: r.candidate_id, name: r.full_name ?? "", code: r.employee_code ?? "", inactive: !["active", "approved"].includes(r.status ?? ""), units: new Set<string>() };
+        f.units.add(r.unit_id);
+        fos.set(r.candidate_id, f);
       }
     }
     const covered = new Set<string>();
