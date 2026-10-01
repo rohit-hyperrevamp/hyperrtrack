@@ -27,6 +27,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/candidates/$recId")(
       { name: "description", content: "Candidate profile, interview rounds, offer and onboarding." },
       { property: "og:title", content: "Recruitment Candidate — Radiant" },
       { property: "og:description", content: "Candidate profile, interview rounds, offer and onboarding." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CandidatePage,

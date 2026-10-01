@@ -17,6 +17,8 @@ export const Route = createFileRoute("/admin/hr/recruitment/interviews")({
       { name: "description", content: "Interviews assigned to you, with approve or reject decisions." },
       { property: "og:title", content: "My Interviews — Radiant" },
       { property: "og:description", content: "Interviews assigned to you, with approve or reject decisions." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: MyInterviews,
@@ -56,7 +58,7 @@ function MyInterviews() {
               </div>
               <div className="flex shrink-0 flex-wrap gap-2">
                 {c?.resume_path && <Button size="sm" variant="outline" onClick={() => openResume(c.resume_path).catch((e) => toast.error(e.message))}><FileText className="mr-1 h-4 w-4" />Resume</Button>}
-                {i.status === "scheduled" && i.interviewer_id !== "" && (i.interviewer_id !== undefined) && (
+                {i.status === "scheduled" && (
                   <>
                     <Button size="sm" onClick={() => setResult({ i, name: c?.full_name ?? "Candidate", d: "approved" })}>Approve</Button>
                     <Button size="sm" variant="destructive" onClick={() => setResult({ i, name: c?.full_name ?? "Candidate", d: "rejected" })}>Reject</Button>
