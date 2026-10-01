@@ -526,7 +526,7 @@
 - [ ] Vinod Kumar (44111, FO for 84 Poonawalla sites) is inactive — confirm with user.
 
 ## Recruitment RBAC and interview access
-- [ ] Put every new recruitment surface behind RBAC.
-- [ ] Grant Recruitment access to HR and recruiter Sanskriti (employee 43930).
-- [ ] Ensure assigned interviewers can open candidate details and see interviews on their dashboard.
-- [ ] Verify recruiter-created and assigned interview flows end to end in production.
+- [x] Put every new recruitment surface behind RBAC.
+- [x] Grant Recruitment access to HR and recruiter Sanskriti (employee 43930).
+- [x] Ensure assigned interviewers can open candidate details and see interviews on their dashboard.
+- [ ] Verify recruiter-created and assigned interview flows end to end in production — blocked until the updated app is published; database policies and live records are verified.
