@@ -24,10 +24,10 @@ export const STAGES: { key: RecStage; label: string; tone: string }[] = [
   { key: "round_3", label: "Round 3", tone: "bg-accent/25 text-accent" },
   { key: "hr_approved", label: "HR Approved", tone: "bg-primary/15 text-primary" },
   { key: "pending_onboarding", label: "Pending Onboarding", tone: "bg-primary/20 text-primary" },
-  { key: "onboarded", label: "Onboarded", tone: "bg-success/15 text-success" },
+  { key: "onboarded", label: "Onboarded", tone: "bg-primary/25 text-primary" },
   { key: "rejected", label: "Rejected", tone: "bg-destructive/15 text-destructive" },
   { key: "withdrawn", label: "Withdrawn", tone: "bg-destructive/10 text-destructive" },
-  { key: "on_hold", label: "On Hold", tone: "bg-warning/15 text-warning" },
+  { key: "on_hold", label: "On Hold", tone: "bg-secondary text-secondary-foreground" },
 ];
 export const PIPELINE: RecStage[] = ["new", "screening", "round_1", "round_2", "round_3", "hr_approved", "pending_onboarding"];
 export const LOST: RecStage[] = ["rejected", "withdrawn"];
