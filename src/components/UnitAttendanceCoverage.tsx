@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FieldOfficerOrgChart } from "@/components/FieldOfficerOrgChart";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import { buildPayrollWindowOptions, fetchPayrollWindowsByUnit, formatPayrollPeriod, payrollAnchorForDate, payrollPeriodForMonth, shiftPayrollAnchor } from "@/lib/payroll-period";
 
 type Row = { unit_id: string; unit_code: string; unit_name: string; days_marked: number; staff_marked: number };
 
@@ -30,6 +32,35 @@ export function UnitAttendanceCoverage() {
   });
 
   const rows = q.data ?? [];
+  const unitIds = useMemo(() => rows.map((r) => r.unit_id), [rows]);
+  const winQ = useQuery({
+    queryKey: ["unit-attendance-coverage-windows", unitIds.length, unitIds[0] ?? ""],
+    enabled: unitIds.length > 0,
+    staleTime: 10 * 60_000,
+    queryFn: async () => buildPayrollWindowOptions(unitIds, await fetchPayrollWindowsByUnit(unitIds)),
+  });
+  const periodOptions = useMemo(() => {
+    const opts: { key: string; label: string; start: string; end: string }[] = [];
+    for (const w of winQ.data ?? []) {
+      const anchor = payrollAnchorForDate(w);
+      for (let i = 0; i < 6; i++) {
+        const a = shiftPayrollAnchor(anchor.year, anchor.monthIdx, -i);
+        const p = payrollPeriodForMonth(a.year, a.monthIdx, w);
+        opts.push({ key: `${w.key}|${p.start}`, label: `Payroll ${w.label}: ${formatPayrollPeriod(p)}${(winQ.data?.length ?? 0) > 1 ? ` (${w.unitCount} units)` : ""}`, start: p.start, end: p.end });
+      }
+    }
+    return opts;
+  }, [winQ.data]);
+  const touched = useRef(false);
+  useEffect(() => {
+    if (touched.current || !periodOptions.length) return;
+    touched.current = true;
+    const o = periodOptions[0];
+    const cap = iso(today);
+    setFrom(o.start);
+    setTo(o.end > cap ? cap : o.end);
+  }, [periodOptions]); // eslint-disable-line react-hooks/exhaustive-deps
+  const selectedPeriod = periodOptions.find((o) => o.start === from && (o.end === to || (to === iso(today) && o.end >= to)))?.key ?? "";
   const withAtt = useMemo(() => rows.filter((r) => Number(r.days_marked) > 0), [rows]);
   const without = useMemo(() => rows.filter((r) => Number(r.days_marked) === 0), [rows]);
   const total = rows.length;
@@ -53,10 +84,26 @@ export function UnitAttendanceCoverage() {
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 className="text-base font-semibold text-foreground">Attendance coverage</h2>
-        <div className="flex items-center gap-2 text-xs">
-          <Input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(0); }} className="h-8 w-36" />
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <select
+            aria-label="Payroll period"
+            value={selectedPeriod}
+            onChange={(e) => {
+              const o = periodOptions.find((x) => x.key === e.target.value);
+              if (!o) return;
+              const cap = iso(today);
+              setFrom(o.start);
+              setTo(o.end > cap ? cap : o.end);
+              setPage(0);
+            }}
+            className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground"
+          >
+            <option value="">Custom dates</option>
+            {periodOptions.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+          </select>
+          <Input type="date" value={from} max={to} onChange={(e) => { touched.current = true; setFrom(e.target.value); setPage(0); }} className="h-8 w-36" />
           <span className="text-muted-foreground">to</span>
-          <Input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(0); }} className="h-8 w-36" />
+          <Input type="date" value={to} min={from} onChange={(e) => { touched.current = true; setTo(e.target.value); setPage(0); }} className="h-8 w-36" />
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -65,6 +112,7 @@ export function UnitAttendanceCoverage() {
         <Tile label="No attendance" value={without.length} sub={`${pct(without.length)}% of units`} active={show === "none"} onClick={() => { setShow("none"); setPage(0); }} />
       </div>
       {q.error ? <p className="text-sm text-destructive">Could not load coverage.</p> : null}
+      <FieldOfficerOrgChart units={rows} />
       <div className="overflow-hidden rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground">
