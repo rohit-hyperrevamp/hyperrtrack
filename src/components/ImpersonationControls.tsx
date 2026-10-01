@@ -20,7 +20,7 @@ export function ImpersonationBanner() {
   if (!st) return null;
   const t = st.target;
   return (
-    <div className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-destructive px-3 py-2 text-center text-xs font-medium text-destructive-foreground safe-top sm:text-sm">
+    <div className="fixed inset-x-0 top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-destructive px-3 py-2 text-center text-xs font-medium text-destructive-foreground safe-top sm:text-sm">
       <Eye className="h-4 w-4 shrink-0" />
       <span className="min-w-0">
         Viewing as <b>{t.fullName || t.phone}</b>
