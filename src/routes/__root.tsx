@@ -48,7 +48,7 @@ function ErrorComponent({ error }: import("@tanstack/react-router").ErrorCompone
   console.error(error);
 
   useEffect(() => {
-    const message = `${error.name}: ${error.message}`.toLowerCase();
+    const message = `${(error as Error).name}: ${(error as Error).message}`.toLowerCase();
     const isStaleBuildError =
       message.includes("chunkloaderror") ||
       message.includes("dynamically imported module") ||
