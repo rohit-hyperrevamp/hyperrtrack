@@ -377,8 +377,11 @@ export function useAuth() {
       userRole: current?.role ?? "",
     });
     manualSignOut = true;
+    const impersonating = !!window.localStorage.getItem("radiant.impersonator");
     window.localStorage.removeItem(STORAGE_KEY);
-    void supabase.auth.signOut();
+    window.localStorage.removeItem("radiant.impersonator");
+    // While viewing as someone, only end this device's session — never the employee's own.
+    void supabase.auth.signOut(impersonating ? { scope: "local" } : undefined);
     emit();
   }, []);
 

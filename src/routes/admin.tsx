@@ -55,6 +55,7 @@ import brandLogo from "@/assets/radiant-logo-v2.png";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ImpersonationBanner, ViewAsUserButton } from "@/components/ImpersonationControls";
 import { AppleNativeSetupCard } from "@/components/AppleNativeSetupCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -587,6 +588,7 @@ function AdminLayout() {
       (isFieldOfficer || isGuard) && "bg-white dark:bg-neutral-950",
     )}>
       <AppleNativeSetupCard autoStart nativeOnly className="hidden" />
+      <ImpersonationBanner />
       {/* Soft tinted canvas — clean glass backdrop, no grid */}
       {!isFieldOfficer && !isGuard && <div className="pointer-events-none fixed inset-0 z-0 app-canvas" />}
 
@@ -761,6 +763,7 @@ function AdminLayout() {
               collapsed && "mt-1.5 justify-center border-0 bg-transparent p-0",
             )}
           >
+            {isSuperAdmin && !collapsed && <ViewAsUserButton className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/70 hover:bg-white/[0.08] hover:text-white" />}
             <NotificationBell triggerClassName="relative inline-flex h-11 w-11 shrink-0 aspect-square items-center justify-center rounded-full text-white/70 outline-none transition-colors focus-visible:outline-none hover:bg-white/[0.08] hover:text-white" />
             {!collapsed && (
               <span className="flex-1 truncate text-[12px] font-semibold text-white">
@@ -797,6 +800,7 @@ function AdminLayout() {
           <div className="truncate text-[14px] font-semibold leading-tight text-foreground">Radiant</div>
         </Link>
         <div className="flex shrink-0 items-center">
+          {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link
             to="/admin/profile"

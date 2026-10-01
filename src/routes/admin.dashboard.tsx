@@ -159,12 +159,12 @@ function PeopleInsightsSection({
 }
 
 /** Active field officers — the operations headcount that matters. */
-function DashboardErrorState({ error }: { error: Error }) {
+function DashboardErrorState({ error }: import("@tanstack/react-router").ErrorComponentProps) {
   return (
     <div className="mx-auto max-w-md p-6 text-center">
       <h1 className="text-lg font-semibold">Dashboard could not load</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        {error?.message || "Something went wrong while loading your data."}
+        {(error as Error | undefined)?.message || "Something went wrong while loading your data."}
       </p>
       <Button onClick={() => window.location.reload()} className="mt-5 w-full">
         Try again
