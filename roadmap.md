@@ -29,6 +29,8 @@
 
 ## Current request
 
+- [x] Restore Recruitment dashboard summary tiles to the established full-size dashboard layout.
+
 - [x] Consolidate abbreviated and grade-suffixed designations end to end, including CCT/CCTV A-B, Fireman A, pump-operator A, ARG, CAHOT/TSM, and EXC.
 
 - [x] Make attendance row deletion remove only the selected regular/reliever posting and preserve sibling lines for the same employee.
