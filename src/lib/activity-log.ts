@@ -45,6 +45,7 @@ const MODULE_LINKS: Record<string, string> = {
   "Attendance": "/admin/attendance",
   "Attendance Code Manager": "/admin/attendance-code-manager",
   "Payroll": "/admin/payroll",
+  "Recruitment": "/admin/hr/recruitment/dashboard",
   // Additions / deductions
   "Additions": "/admin/additions",
   "Addition Type Manager": "/admin/addition-type-manager",

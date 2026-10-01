@@ -26,6 +26,8 @@ const ALWAYS_ALLOW_PREFIXES: readonly string[] = [
 const EXTRA_PATH_TO_MODULE: Record<string, string> = {
   "/admin/notifications": "notification_center",
   "/admin/rbac": "rbac",
+  "/admin/hr/recruitment/candidates": "recruitment",
+  "/admin/hr/recruitment/openings": "recruitment",
 };
 
 type RequiredPermission = { module: string; sub?: string };

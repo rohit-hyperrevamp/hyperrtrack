@@ -133,6 +133,8 @@ import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
 import { Route as AdminSalesProspectsLeadIdRouteImport } from './routes/admin.sales.prospects.$leadId'
 import { Route as AdminHrRecruitmentOpeningsRouteImport } from './routes/admin.hr.recruitment.openings'
+import { Route as AdminHrRecruitmentOnboardingRouteImport } from './routes/admin.hr.recruitment.onboarding'
+import { Route as AdminHrRecruitmentInterviewsRouteImport } from './routes/admin.hr.recruitment.interviews'
 import { Route as AdminHrRecruitmentDashboardRouteImport } from './routes/admin.hr.recruitment.dashboard'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
@@ -789,6 +791,18 @@ const AdminHrRecruitmentOpeningsRoute =
     path: '/openings',
     getParentRoute: () => AdminHrRecruitmentRoute,
   } as any)
+const AdminHrRecruitmentOnboardingRoute =
+  AdminHrRecruitmentOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
+const AdminHrRecruitmentInterviewsRoute =
+  AdminHrRecruitmentInterviewsRouteImport.update({
+    id: '/interviews',
+    path: '/interviews',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
 const AdminHrRecruitmentDashboardRoute =
   AdminHrRecruitmentDashboardRouteImport.update({
     id: '/dashboard',
@@ -942,6 +956,8 @@ export interface FileRoutesByFullPath {
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
@@ -1069,6 +1085,8 @@ export interface FileRoutesByTo {
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
@@ -1201,6 +1219,8 @@ export interface FileRoutesById {
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
   '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
@@ -1334,6 +1354,8 @@ export interface FileRouteTypes {
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
     | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
@@ -1461,6 +1483,8 @@ export interface FileRouteTypes {
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
     | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
@@ -1592,6 +1616,8 @@ export interface FileRouteTypes {
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
     | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
@@ -2490,6 +2516,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminHrRecruitmentOpeningsRouteImport
       parentRoute: typeof AdminHrRecruitmentRoute
     }
+    '/admin/hr/recruitment/onboarding': {
+      id: '/admin/hr/recruitment/onboarding'
+      path: '/onboarding'
+      fullPath: '/admin/hr/recruitment/onboarding'
+      preLoaderRoute: typeof AdminHrRecruitmentOnboardingRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
+    '/admin/hr/recruitment/interviews': {
+      id: '/admin/hr/recruitment/interviews'
+      path: '/interviews'
+      fullPath: '/admin/hr/recruitment/interviews'
+      preLoaderRoute: typeof AdminHrRecruitmentInterviewsRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
     '/admin/hr/recruitment/dashboard': {
       id: '/admin/hr/recruitment/dashboard'
       path: '/dashboard'
@@ -2692,6 +2732,8 @@ const AdminVehiclesRouteWithChildren = AdminVehiclesRoute._addFileChildren(
 
 interface AdminHrRecruitmentRouteChildren {
   AdminHrRecruitmentDashboardRoute: typeof AdminHrRecruitmentDashboardRoute
+  AdminHrRecruitmentInterviewsRoute: typeof AdminHrRecruitmentInterviewsRoute
+  AdminHrRecruitmentOnboardingRoute: typeof AdminHrRecruitmentOnboardingRoute
   AdminHrRecruitmentOpeningsRoute: typeof AdminHrRecruitmentOpeningsRoute
   AdminHrRecruitmentCandidatesRecIdRoute: typeof AdminHrRecruitmentCandidatesRecIdRoute
   AdminHrRecruitmentCandidatesIndexRoute: typeof AdminHrRecruitmentCandidatesIndexRoute
@@ -2699,6 +2741,8 @@ interface AdminHrRecruitmentRouteChildren {
 
 const AdminHrRecruitmentRouteChildren: AdminHrRecruitmentRouteChildren = {
   AdminHrRecruitmentDashboardRoute: AdminHrRecruitmentDashboardRoute,
+  AdminHrRecruitmentInterviewsRoute: AdminHrRecruitmentInterviewsRoute,
+  AdminHrRecruitmentOnboardingRoute: AdminHrRecruitmentOnboardingRoute,
   AdminHrRecruitmentOpeningsRoute: AdminHrRecruitmentOpeningsRoute,
   AdminHrRecruitmentCandidatesRecIdRoute:
     AdminHrRecruitmentCandidatesRecIdRoute,
