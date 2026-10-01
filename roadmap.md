@@ -519,3 +519,6 @@
 - [x] Attendance location rules (role + person) under Radar; server-enforced; auto-save missing site coordinates
 - [ ] End-to-end field test by user (FO anywhere, guard at mapped site, office staff at home office)
 - [x] Restore exact paise on all active BFL contract rates per Salary Master (26,049.88; 26,150.32; etc.)
+- [x] Rani dashboard: payroll-period dropdown on attendance coverage; field officer → units → guards chart; PFL_SHEET2 FO mapping (migration 20261001041000); AlertCheckin Sep 28–30 backfilled from sandbox.
+- [ ] AlertCheckin nightly sync sign-in fails on the live server (works from sandbox) — detailed error now logged; diagnose after next run.
+- [ ] Vinod Kumar (44111, FO for 84 Poonawalla sites) is inactive — confirm with user.
