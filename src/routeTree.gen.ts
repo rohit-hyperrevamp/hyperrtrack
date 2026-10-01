@@ -111,6 +111,7 @@ import { Route as AdminInventoryDemandsRouteImport } from './routes/admin.invent
 import { Route as AdminInventoryDashboardRouteImport } from './routes/admin.inventory.dashboard'
 import { Route as AdminInventoryCollectionsRouteImport } from './routes/admin.inventory.collections'
 import { Route as AdminInventoryCapsRouteImport } from './routes/admin.inventory.caps'
+import { Route as AdminHrRecruitmentRouteImport } from './routes/admin.hr.recruitment'
 import { Route as AdminFieldSenseTeamRouteImport } from './routes/admin.field-sense.team'
 import { Route as AdminFieldSenseReportsRouteImport } from './routes/admin.field-sense.reports'
 import { Route as AdminFieldSenseExpensesRouteImport } from './routes/admin.field-sense.expenses'
@@ -127,12 +128,19 @@ import { Route as AdminAssetsLoanManagerRouteImport } from './routes/admin.asset
 import { Route as AdminAssetsInventoryRouteImport } from './routes/admin.assets.inventory'
 import { Route as AdminAssetsExpenseManagerRouteImport } from './routes/admin.assets.expense-manager'
 import { Route as AdminSalesProspectsIndexRouteImport } from './routes/admin.sales.prospects.index'
+import { Route as AdminHrRecruitmentIndexRouteImport } from './routes/admin.hr.recruitment.index'
 import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/native/push'
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
 import { Route as AdminSalesProspectsLeadIdRouteImport } from './routes/admin.sales.prospects.$leadId'
+import { Route as AdminHrRecruitmentOpeningsRouteImport } from './routes/admin.hr.recruitment.openings'
+import { Route as AdminHrRecruitmentOnboardingRouteImport } from './routes/admin.hr.recruitment.onboarding'
+import { Route as AdminHrRecruitmentInterviewsRouteImport } from './routes/admin.hr.recruitment.interviews'
+import { Route as AdminHrRecruitmentDashboardRouteImport } from './routes/admin.hr.recruitment.dashboard'
 import { Route as AdminFieldSenseOfficerIdRouteImport } from './routes/admin.field-sense.officer.$id'
 import { Route as AdminCandidatesIdDetailsRouteImport } from './routes/admin.candidates.$id.details'
+import { Route as AdminHrRecruitmentCandidatesIndexRouteImport } from './routes/admin.hr.recruitment.candidates.index'
+import { Route as AdminHrRecruitmentCandidatesRecIdRouteImport } from './routes/admin.hr.recruitment.candidates.$recId'
 
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
@@ -662,6 +670,11 @@ const AdminInventoryCapsRoute = AdminInventoryCapsRouteImport.update({
   path: '/caps',
   getParentRoute: () => AdminInventoryRoute,
 } as any)
+const AdminHrRecruitmentRoute = AdminHrRecruitmentRouteImport.update({
+  id: '/hr/recruitment',
+  path: '/hr/recruitment',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFieldSenseTeamRoute = AdminFieldSenseTeamRouteImport.update({
   id: '/field-sense/team',
   path: '/field-sense/team',
@@ -750,6 +763,11 @@ const AdminSalesProspectsIndexRoute =
     path: '/prospects/',
     getParentRoute: () => AdminSalesRoute,
   } as any)
+const AdminHrRecruitmentIndexRoute = AdminHrRecruitmentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminHrRecruitmentRoute,
+} as any)
 const ApiPublicNativePushRoute = ApiPublicNativePushRouteImport.update({
   id: '/api/public/native/push',
   path: '/api/public/native/push',
@@ -773,6 +791,30 @@ const AdminSalesProspectsLeadIdRoute =
     path: '/prospects/$leadId',
     getParentRoute: () => AdminSalesRoute,
   } as any)
+const AdminHrRecruitmentOpeningsRoute =
+  AdminHrRecruitmentOpeningsRouteImport.update({
+    id: '/openings',
+    path: '/openings',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
+const AdminHrRecruitmentOnboardingRoute =
+  AdminHrRecruitmentOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
+const AdminHrRecruitmentInterviewsRoute =
+  AdminHrRecruitmentInterviewsRouteImport.update({
+    id: '/interviews',
+    path: '/interviews',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
+const AdminHrRecruitmentDashboardRoute =
+  AdminHrRecruitmentDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
 const AdminFieldSenseOfficerIdRoute =
   AdminFieldSenseOfficerIdRouteImport.update({
     id: '/field-sense/officer/$id',
@@ -784,6 +826,18 @@ const AdminCandidatesIdDetailsRoute =
     id: '/candidates/$id/details',
     path: '/candidates/$id/details',
     getParentRoute: () => AdminRoute,
+  } as any)
+const AdminHrRecruitmentCandidatesIndexRoute =
+  AdminHrRecruitmentCandidatesIndexRouteImport.update({
+    id: '/candidates/',
+    path: '/candidates/',
+    getParentRoute: () => AdminHrRecruitmentRoute,
+  } as any)
+const AdminHrRecruitmentCandidatesRecIdRoute =
+  AdminHrRecruitmentCandidatesRecIdRouteImport.update({
+    id: '/candidates/$recId',
+    path: '/candidates/$recId',
+    getParentRoute: () => AdminHrRecruitmentRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -869,6 +923,7 @@ export interface FileRoutesByFullPath {
   '/admin/field-sense/expenses': typeof AdminFieldSenseExpensesRoute
   '/admin/field-sense/reports': typeof AdminFieldSenseReportsRoute
   '/admin/field-sense/team': typeof AdminFieldSenseTeamRoute
+  '/admin/hr/recruitment': typeof AdminHrRecruitmentRouteWithChildren
   '/admin/inventory/caps': typeof AdminInventoryCapsRoute
   '/admin/inventory/collections': typeof AdminInventoryCollectionsRoute
   '/admin/inventory/dashboard': typeof AdminInventoryDashboardRoute
@@ -906,11 +961,18 @@ export interface FileRoutesByFullPath {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
+  '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/hr/recruitment/': typeof AdminHrRecruitmentIndexRoute
   '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
+  '/admin/hr/recruitment/candidates/': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1028,11 +1090,18 @@ export interface FileRoutesByTo {
   '/admin/payroll': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
+  '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/hr/recruitment': typeof AdminHrRecruitmentIndexRoute
   '/admin/sales/prospects': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
+  '/admin/hr/recruitment/candidates': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1118,6 +1187,7 @@ export interface FileRoutesById {
   '/admin/field-sense/expenses': typeof AdminFieldSenseExpensesRoute
   '/admin/field-sense/reports': typeof AdminFieldSenseReportsRoute
   '/admin/field-sense/team': typeof AdminFieldSenseTeamRoute
+  '/admin/hr/recruitment': typeof AdminHrRecruitmentRouteWithChildren
   '/admin/inventory/caps': typeof AdminInventoryCapsRoute
   '/admin/inventory/collections': typeof AdminInventoryCollectionsRoute
   '/admin/inventory/dashboard': typeof AdminInventoryDashboardRoute
@@ -1155,11 +1225,18 @@ export interface FileRoutesById {
   '/admin/payroll/': typeof AdminPayrollIndexRoute
   '/admin/candidates/$id/details': typeof AdminCandidatesIdDetailsRoute
   '/admin/field-sense/officer/$id': typeof AdminFieldSenseOfficerIdRoute
+  '/admin/hr/recruitment/dashboard': typeof AdminHrRecruitmentDashboardRoute
+  '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
+  '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
+  '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
   '/api/public/native/push': typeof ApiPublicNativePushRoute
+  '/admin/hr/recruitment/': typeof AdminHrRecruitmentIndexRoute
   '/admin/sales/prospects/': typeof AdminSalesProspectsIndexRoute
+  '/admin/hr/recruitment/candidates/$recId': typeof AdminHrRecruitmentCandidatesRecIdRoute
+  '/admin/hr/recruitment/candidates/': typeof AdminHrRecruitmentCandidatesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1246,6 +1323,7 @@ export interface FileRouteTypes {
     | '/admin/field-sense/expenses'
     | '/admin/field-sense/reports'
     | '/admin/field-sense/team'
+    | '/admin/hr/recruitment'
     | '/admin/inventory/caps'
     | '/admin/inventory/collections'
     | '/admin/inventory/dashboard'
@@ -1283,11 +1361,18 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
+    | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/hr/recruitment/'
     | '/admin/sales/prospects/'
+    | '/admin/hr/recruitment/candidates/$recId'
+    | '/admin/hr/recruitment/candidates/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1405,11 +1490,18 @@ export interface FileRouteTypes {
     | '/admin/payroll'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
+    | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/hr/recruitment'
     | '/admin/sales/prospects'
+    | '/admin/hr/recruitment/candidates/$recId'
+    | '/admin/hr/recruitment/candidates'
   id:
     | '__root__'
     | '/'
@@ -1494,6 +1586,7 @@ export interface FileRouteTypes {
     | '/admin/field-sense/expenses'
     | '/admin/field-sense/reports'
     | '/admin/field-sense/team'
+    | '/admin/hr/recruitment'
     | '/admin/inventory/caps'
     | '/admin/inventory/collections'
     | '/admin/inventory/dashboard'
@@ -1531,11 +1624,18 @@ export interface FileRouteTypes {
     | '/admin/payroll/'
     | '/admin/candidates/$id/details'
     | '/admin/field-sense/officer/$id'
+    | '/admin/hr/recruitment/dashboard'
+    | '/admin/hr/recruitment/interviews'
+    | '/admin/hr/recruitment/onboarding'
+    | '/admin/hr/recruitment/openings'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
     | '/api/public/native/push'
+    | '/admin/hr/recruitment/'
     | '/admin/sales/prospects/'
+    | '/admin/hr/recruitment/candidates/$recId'
+    | '/admin/hr/recruitment/candidates/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2272,6 +2372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventoryCapsRouteImport
       parentRoute: typeof AdminInventoryRoute
     }
+    '/admin/hr/recruitment': {
+      id: '/admin/hr/recruitment'
+      path: '/hr/recruitment'
+      fullPath: '/admin/hr/recruitment'
+      preLoaderRoute: typeof AdminHrRecruitmentRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/field-sense/team': {
       id: '/admin/field-sense/team'
       path: '/field-sense/team'
@@ -2384,6 +2491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesProspectsIndexRouteImport
       parentRoute: typeof AdminSalesRoute
     }
+    '/admin/hr/recruitment/': {
+      id: '/admin/hr/recruitment/'
+      path: '/'
+      fullPath: '/admin/hr/recruitment/'
+      preLoaderRoute: typeof AdminHrRecruitmentIndexRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
     '/api/public/native/push': {
       id: '/api/public/native/push'
       path: '/api/public/native/push'
@@ -2412,6 +2526,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesProspectsLeadIdRouteImport
       parentRoute: typeof AdminSalesRoute
     }
+    '/admin/hr/recruitment/openings': {
+      id: '/admin/hr/recruitment/openings'
+      path: '/openings'
+      fullPath: '/admin/hr/recruitment/openings'
+      preLoaderRoute: typeof AdminHrRecruitmentOpeningsRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
+    '/admin/hr/recruitment/onboarding': {
+      id: '/admin/hr/recruitment/onboarding'
+      path: '/onboarding'
+      fullPath: '/admin/hr/recruitment/onboarding'
+      preLoaderRoute: typeof AdminHrRecruitmentOnboardingRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
+    '/admin/hr/recruitment/interviews': {
+      id: '/admin/hr/recruitment/interviews'
+      path: '/interviews'
+      fullPath: '/admin/hr/recruitment/interviews'
+      preLoaderRoute: typeof AdminHrRecruitmentInterviewsRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
+    '/admin/hr/recruitment/dashboard': {
+      id: '/admin/hr/recruitment/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/hr/recruitment/dashboard'
+      preLoaderRoute: typeof AdminHrRecruitmentDashboardRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
     '/admin/field-sense/officer/$id': {
       id: '/admin/field-sense/officer/$id'
       path: '/field-sense/officer/$id'
@@ -2425,6 +2567,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/candidates/$id/details'
       preLoaderRoute: typeof AdminCandidatesIdDetailsRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/admin/hr/recruitment/candidates/': {
+      id: '/admin/hr/recruitment/candidates/'
+      path: '/candidates'
+      fullPath: '/admin/hr/recruitment/candidates/'
+      preLoaderRoute: typeof AdminHrRecruitmentCandidatesIndexRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
+    }
+    '/admin/hr/recruitment/candidates/$recId': {
+      id: '/admin/hr/recruitment/candidates/$recId'
+      path: '/candidates/$recId'
+      fullPath: '/admin/hr/recruitment/candidates/$recId'
+      preLoaderRoute: typeof AdminHrRecruitmentCandidatesRecIdRouteImport
+      parentRoute: typeof AdminHrRecruitmentRoute
     }
   }
 }
@@ -2591,6 +2747,31 @@ const AdminVehiclesRouteWithChildren = AdminVehiclesRoute._addFileChildren(
   AdminVehiclesRouteChildren,
 )
 
+interface AdminHrRecruitmentRouteChildren {
+  AdminHrRecruitmentDashboardRoute: typeof AdminHrRecruitmentDashboardRoute
+  AdminHrRecruitmentInterviewsRoute: typeof AdminHrRecruitmentInterviewsRoute
+  AdminHrRecruitmentOnboardingRoute: typeof AdminHrRecruitmentOnboardingRoute
+  AdminHrRecruitmentOpeningsRoute: typeof AdminHrRecruitmentOpeningsRoute
+  AdminHrRecruitmentIndexRoute: typeof AdminHrRecruitmentIndexRoute
+  AdminHrRecruitmentCandidatesRecIdRoute: typeof AdminHrRecruitmentCandidatesRecIdRoute
+  AdminHrRecruitmentCandidatesIndexRoute: typeof AdminHrRecruitmentCandidatesIndexRoute
+}
+
+const AdminHrRecruitmentRouteChildren: AdminHrRecruitmentRouteChildren = {
+  AdminHrRecruitmentDashboardRoute: AdminHrRecruitmentDashboardRoute,
+  AdminHrRecruitmentInterviewsRoute: AdminHrRecruitmentInterviewsRoute,
+  AdminHrRecruitmentOnboardingRoute: AdminHrRecruitmentOnboardingRoute,
+  AdminHrRecruitmentOpeningsRoute: AdminHrRecruitmentOpeningsRoute,
+  AdminHrRecruitmentIndexRoute: AdminHrRecruitmentIndexRoute,
+  AdminHrRecruitmentCandidatesRecIdRoute:
+    AdminHrRecruitmentCandidatesRecIdRoute,
+  AdminHrRecruitmentCandidatesIndexRoute:
+    AdminHrRecruitmentCandidatesIndexRoute,
+}
+
+const AdminHrRecruitmentRouteWithChildren =
+  AdminHrRecruitmentRoute._addFileChildren(AdminHrRecruitmentRouteChildren)
+
 interface AdminRouteChildren {
   AdminAdditionTypeManagerRoute: typeof AdminAdditionTypeManagerRoute
   AdminAdditionsRoute: typeof AdminAdditionsRoute
@@ -2657,6 +2838,7 @@ interface AdminRouteChildren {
   AdminFieldSenseExpensesRoute: typeof AdminFieldSenseExpensesRoute
   AdminFieldSenseReportsRoute: typeof AdminFieldSenseReportsRoute
   AdminFieldSenseTeamRoute: typeof AdminFieldSenseTeamRoute
+  AdminHrRecruitmentRoute: typeof AdminHrRecruitmentRouteWithChildren
   AdminFieldSenseIndexRoute: typeof AdminFieldSenseIndexRoute
   AdminCandidatesIdDetailsRoute: typeof AdminCandidatesIdDetailsRoute
   AdminFieldSenseOfficerIdRoute: typeof AdminFieldSenseOfficerIdRoute
@@ -2728,6 +2910,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFieldSenseExpensesRoute: AdminFieldSenseExpensesRoute,
   AdminFieldSenseReportsRoute: AdminFieldSenseReportsRoute,
   AdminFieldSenseTeamRoute: AdminFieldSenseTeamRoute,
+  AdminHrRecruitmentRoute: AdminHrRecruitmentRouteWithChildren,
   AdminFieldSenseIndexRoute: AdminFieldSenseIndexRoute,
   AdminCandidatesIdDetailsRoute: AdminCandidatesIdDetailsRoute,
   AdminFieldSenseOfficerIdRoute: AdminFieldSenseOfficerIdRoute,

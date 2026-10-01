@@ -123,6 +123,14 @@ const salesChildren: LeafItem[] = [
   { to: "/admin/sales/quotes", label: "Quotes", icon: FileText },
 ];
 
+const recruitmentChildren: LeafItem[] = [
+  { to: "/admin/hr/recruitment/dashboard", label: "Recruitment Dashboard", icon: LayoutDashboard },
+  { to: "/admin/hr/recruitment/candidates", label: "Candidates", icon: Users },
+  { to: "/admin/hr/recruitment/openings", label: "Openings", icon: FileText },
+  { to: "/admin/hr/recruitment/interviews", label: "My Interviews", icon: Clock },
+  { to: "/admin/hr/recruitment/onboarding", label: "Onboarding Requests", icon: UserPlus },
+];
+
 
 const vehiclesChildren: LeafItem[] = [
   { to: "/admin/vehicles/inventory", label: "Vehicle Inventory", icon: Car, sub: "vehicle_inventory" },
@@ -420,6 +428,7 @@ function AdminLayout() {
       { key: "unit-manager", label: "Clients", module: "organizations", sub: "unit_manager", icon: Warehouse, to: "/admin/customers/unit-manager", activePrefixes: ["/admin/customers/unit-manager"] },
       { key: "contracts", label: "Contracts", module: "contracts", icon: Files, to: "/admin/contracts/client-contracts", activePrefixes: ["/admin/contracts"] },
       { key: "sales", label: "Sales & Marketing", module: "sales_marketing", icon: TrendingUp, children: salesChildren, activePrefixes: ["/admin/sales"] },
+      { key: "recruitment", label: "Recruitment", module: "recruitment", icon: UserPlus, children: recruitmentChildren, activePrefixes: ["/admin/hr/recruitment"] },
       { key: "employees", label: isFieldOfficer ? "Candidates" : "Employees", module: "employees", icon: UserPlus, to: "/admin/employees", activePrefixes: ["/admin/employees"] },
 
       { key: "attendance", label: "Attendance", module: "attendance", icon: ClipboardList, to: "/admin/attendance", activePrefixes: ["/admin/attendance"] },
@@ -537,6 +546,8 @@ function AdminLayout() {
         }
         // Sales & Marketing CRM: Super Admin only until a role is granted sales_marketing.
         if (g.key === "sales") return isSuperAdmin || can("sales_marketing");
+        // Recruitment: Super Admin only until a role is granted the recruitment module.
+        if (g.key === "recruitment") return isSuperAdmin || can("recruitment");
         if (g.key === "inventory" && isFieldOfficer) return true;
         if (!g.module) return true;
         if (!can(g.module)) return false;
@@ -627,7 +638,7 @@ function AdminLayout() {
             const sections: Array<{ label: string; keys: string[] }> = [
               { label: "Menu", keys: ["dashboard", "my-inventory", "my-attendance"] },
               { label: "Operations", keys: ["org-manager", "unit-manager", "contracts", "inventory", "vehicles", "assets"] },
-              { label: "HR", keys: ["employees", "attendance", "payroll"] },
+              { label: "HR", keys: ["employees", "recruitment", "attendance", "payroll"] },
               { label: "Sales & Marketing", keys: ["sales"] },
               { label: "Finance", keys: ["invoice"] },
               { label: "Surveillance", keys: ["field-sense"] },
