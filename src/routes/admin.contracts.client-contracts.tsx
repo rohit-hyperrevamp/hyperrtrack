@@ -604,16 +604,15 @@ function useContracts() {
               .range(from, to)
               .abortSignal(controller.signal),
           ),
-          // Paged: the server caps each response at 1,000 rows, and more than
-          // 1,000 sites now have contracts — unpaged, the newest sites lost names.
-          fetchAllPages<Record<string, unknown>>((from, to) =>
-            (supabase.rpc("contract_register_directory" as never) as any)
-              .order("unit_id", { ascending: true })
-              .range(from, to)
-              .abortSignal(controller.signal),
-          ),
+          // The directory comes back as ONE jsonb array, so the server's
+          // 1,000-row cap never truncates it (more than 1,000 sites have contracts).
+          (supabase.rpc("contract_register_directory" as never) as any)
+            .abortSignal(controller.signal),
         ]);
-        const directoryRows = directoryResult;
+        if (directoryResult.error) throw directoryResult.error;
+        const directoryRows = (Array.isArray(directoryResult.data)
+          ? directoryResult.data
+          : []) as Record<string, unknown>[];
         const unitsById = new Map(directoryRows.map((row) => [String(row.unit_id), row]));
         return contractRows.map((row) => {
           const unit = unitsById.get(String(row.unit_id ?? ""));
