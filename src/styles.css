@@ -2048,7 +2048,7 @@ nav[data-bottom-nav] {
   [data-rail-shell][data-rail-collapsed] .rail-topbar { margin-left: 72px; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 12px; white-space: nowrap; transition: background .2s, color .2s; }
   [data-rail-shell] .rail-topbar-tab:hover { background: var(--palette-soft); color: var(--brand-blue); }
-  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--card); }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-icon { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border-radius: 50%; background: var(--muted); color: var(--rail-ink); }
   [data-rail-shell] .rail-topbar-icon:hover { background: var(--palette-soft); }
   [data-rail-shell] .rail-topbar-profile { display: flex; max-width: 175px; align-items: center; gap: 8px; margin-left: 7px; color: var(--rail-ink); }
@@ -2752,7 +2752,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   [data-rail-shell] .rail-topbar { order: -1; position: sticky; top: calc(48px + env(safe-area-inset-top)); z-index: 19; align-items: center; padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); border-bottom: 1px solid var(--rail-line); background: color-mix(in oklab, var(--card) 88%, transparent); backdrop-filter: blur(18px) saturate(1.4); }
   [data-rail-shell] .rail-topbar:has(.rail-topbar-slot:empty) { display: none; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 13px; white-space: nowrap; flex: none; }
-  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--card); }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-slot input[type="date"] { font-size: 14px; }
   [data-rail-shell] [data-rail-workspace] .page-header p { display: none; }
 }

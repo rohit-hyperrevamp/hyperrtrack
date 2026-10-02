@@ -154,7 +154,7 @@ function LiveBoard() {
                        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-foreground sm:text-base">{e.rail_trains?.number ?? "Train"} <span className="font-normal text-muted-foreground">{e.rail_trains?.name}</span></span><span className="block truncate text-xs text-muted-foreground">{e.rail_service_types?.name ?? e.rail_service_types?.code ?? "Cleaning"}</span></span>
                        <span className="hidden shrink-0 text-sm tabular-nums text-foreground sm:block">{time(e.planned_start)} – {time(e.planned_end)}</span>
                         <span className="rail-live-row-status shrink-0 rounded-md px-2 py-1 text-xs font-semibold capitalize sm:min-w-24 sm:text-center">{e.status.replace("_", " ")}</span>
-                       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                       <ChevronRight className="h-4 w-4 shrink-0 text-brand" />
                      </Button>;
                    })}
                 </div>
