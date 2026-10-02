@@ -435,9 +435,11 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
 }) {
   const isNew = row === "new";
   const [form, setForm] = useState<Record<string, unknown>>({});
+  const [formStep, setFormStep] = useState(0);
   const [loadedFor, setLoadedFor] = useState<unknown>(null);
   if (row !== loadedFor) {
     setLoadedFor(row);
+    setFormStep(0);
     setForm(row && row !== "new" ? { ...row } : Object.fromEntries(def.fields.filter((f) => f.type === "bool").map((f) => [f.key, true])));
   }
 
@@ -493,13 +495,14 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
           <SheetTitle>{isNew ? `Add ${def.label.toLowerCase()}` : `Edit ${def.label.toLowerCase()}`}</SheetTitle>
           <SheetDescription>{def.versioned && !isNew ? "Saving creates a new dated version; the old one is kept." : def.description}</SheetDescription>
         </SheetHeader>
-        <Tabs defaultValue="details" className="mt-4">
+         <Tabs defaultValue="details" className="mt-4">
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             {!isNew && <TabsTrigger value="history"><History className="mr-1 h-4 w-4" />History</TabsTrigger>}
           </TabsList>
           <TabsContent value="details" className="space-y-3 pt-2">
-            {def.fields.map((f) => (
+             {def.fields.length > 5 && <div className="text-xs font-medium text-muted-foreground">{formStep === 0 ? "01 · Main details" : "02 · More details"} <span className="ml-2 text-brand">{formStep + 1} / 2</span></div>}
+             {(def.fields.length > 5 ? def.fields.slice(formStep === 0 ? 0 : Math.ceil(def.fields.length / 2), formStep === 0 ? Math.ceil(def.fields.length / 2) : undefined) : def.fields).map((f) => (
               <FieldInput key={f.key} f={f} value={form[f.key]} refs={refs} onChange={(v) => setForm((s) => ({ ...s, [f.key]: v }))} />
             ))}
           </TabsContent>
@@ -514,8 +517,8 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
           </TabsContent>
         </Tabs>
         <SheetFooter className="mt-6">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button>
+           <Button variant="outline" onClick={formStep === 1 ? () => setFormStep(0) : onClose}>{formStep === 1 ? "Back" : "Cancel"}</Button>
+           {def.fields.length > 5 && formStep === 0 ? <Button onClick={() => setFormStep(1)}>Continue</Button> : <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button>}
         </SheetFooter>
       </SheetContent>
     </Sheet>

@@ -24,6 +24,7 @@ const blank = { mobile: "", name: "", role: "cleaner", scope: "depot", scope_loc
 function PeoplePage() {
   const qc = useQueryClient();
   const [form, setForm] = useState<typeof blank | null>(null);
+  const [formStep, setFormStep] = useState(0);
   const [q, setQ] = useState("");
   const { data } = useQuery({
     queryKey: ["rail-people"],
@@ -77,16 +78,16 @@ function PeoplePage() {
   return (
     <div className="space-y-5">
       <PageHeader title="People & Logins" description="Everyone signs in with their mobile number. Railway checkers get their own read-mostly login." actions={
-        <Button onClick={() => setForm({ ...blank })}><UserPlus className="mr-2 h-4 w-4" />Add person</Button>} />
+         <Button onClick={() => { setFormStep(0); setForm({ ...blank }); }}><UserPlus className="mr-2 h-4 w-4" />Add person</Button>} />
       <Tabs defaultValue="people">
         <TabsList><TabsTrigger value="people">People</TabsTrigger><TabsTrigger value="scores">Scorecards</TabsTrigger></TabsList>
         <TabsContent value="people" className="space-y-3">
           <div className="flex gap-2"><Input placeholder="Search name, mobile or role" value={q} onChange={(e) => setQ(e.target.value)} /><Button variant="outline" onClick={() => downloadCsv(`rail-people-${today()}`, list.map((p) => ({ name: p.full_name, mobile: p.mobile, role: roleName(p.role_key), area: locName(p.scope_location_id), skill: p.skill, daily_wage: p.daily_wage, enabled: p.enabled })))}>Export</Button></div>
-          {!list.length ? <Empty title="No people yet" hint="Add supervisors, cleaners and railway checkers so they can sign in." action={<Button onClick={() => setForm({ ...blank })}>Add person</Button>} /> :
+           {!list.length ? <Empty title="No people yet" hint="Add supervisors, cleaners and railway checkers so they can sign in." action={<Button onClick={() => { setFormStep(0); setForm({ ...blank }); }}>Add person</Button>} /> :
             <div className="divide-y rounded-2xl border bg-card">{list.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-3 p-3 text-sm">
                 <div><div className="font-medium">{p.full_name} {!p.enabled && <span className="text-xs text-muted-foreground">(disabled)</span>}</div><div className="text-xs text-muted-foreground">{p.mobile} · {roleName(p.role_key)} · {p.scope_type === "all" ? "All places" : locName(p.scope_location_id)} · {p.skill.replace("_", "-")}{p.daily_wage ? ` · ₹${p.daily_wage}/day` : ""}</div></div>
-                <div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setForm({ mobile: p.mobile, name: p.full_name, role: p.role_key, scope: p.scope_type, scope_location: p.scope_location_id ?? "", home: p.home_location_id ?? "", skill: p.skill, wage: p.daily_wage ? String(p.daily_wage) : "" })}>Edit</Button>
+                 <div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => { setFormStep(0); setForm({ mobile: p.mobile, name: p.full_name, role: p.role_key, scope: p.scope_type, scope_location: p.scope_location_id ?? "", home: p.home_location_id ?? "", skill: p.skill, wage: p.daily_wage ? String(p.daily_wage) : "" }); }}>Edit</Button>
                   <Button size="sm" variant="ghost" onClick={() => toggle(p)}>{p.enabled ? "Disable" : "Enable"}</Button></div>
               </div>))}</div>}
         </TabsContent>
@@ -100,11 +101,15 @@ function PeoplePage() {
 
       <Sheet open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <SheetContent className="overflow-y-auto">
-          <SheetHeader><SheetTitle>{form?.name ? `Edit ${form.name}` : "Add person"}</SheetTitle></SheetHeader>
+           <SheetHeader><SheetTitle>{form?.name ? `Edit ${form.name}` : "Add person"}</SheetTitle></SheetHeader>
           {form && (
             <div className="mt-4 space-y-3">
+               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground"><span className={formStep === 0 ? "text-brand" : ""}>01 · Identity</span><span>→</span><span className={formStep === 1 ? "text-brand" : ""}>02 · Access & work</span></div>
+               {formStep === 0 ? <>
               <div><Label>Mobile (10 digits)</Label><Input inputMode="numeric" maxLength={10} value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, "") })} /></div>
               <div><Label>Full name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+               <Button className="w-full" disabled={form.mobile.length !== 10 || !form.name.trim()} onClick={() => setFormStep(1)}>Continue</Button>
+               </> : <>
               <div><Label>Role</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>{data?.roles.filter((r) => r.key !== "super_admin").map((r) => <option key={r.key} value={r.key}>{r.name}</option>)}</select></div>
               <div><Label>Can see</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value })}>{[["all", "All places"], ["zone", "One zone"], ["division", "One division"], ["depot", "One depot"], ["line", "One pit line"], ["own", "Only own work"]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
               {form.scope !== "all" && form.scope !== "own" && <div><Label>Which place</Label><select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.scope_location} onChange={(e) => setForm({ ...form, scope_location: e.target.value })}><option value="">Choose…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name} ({l.type.replace("_", " ")})</option>)}</select></div>}
@@ -114,7 +119,8 @@ function PeoplePage() {
                 <div><Label>Daily wage (₹)</Label><Input type="number" value={form.wage} onChange={(e) => setForm({ ...form, wage: e.target.value })} /></div>
               </div>
               <p className="text-xs text-muted-foreground">Sign-in: mobile number, then the last four digits as the code (test mode).</p>
-              <Button className="w-full" onClick={save} disabled={form.mobile.length !== 10 || !form.name}>Save</Button>
+               <div className="flex gap-2"><Button variant="outline" onClick={() => setFormStep(0)}>Back</Button><Button className="flex-1" onClick={save} disabled={form.mobile.length !== 10 || !form.name}>Save</Button></div>
+               </>}
             </div>
           )}
         </SheetContent>
