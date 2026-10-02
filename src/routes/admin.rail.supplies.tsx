@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { db, Empty, Kpi, num, railHead, rows, StatusPill, today } from "@/lib/rail-ui";
-import { expiryState, OrdersView, StockView, StoresView, SuppliersView, TransfersView, useStockFlow } from "@/components/RailStockFlow";
+import { expiryState, OrdersView, StockView, StoresView, SuppliersView, TransfersView, useStockFlow, scopeSupplyLocs } from "@/components/RailStockFlow";
 
 export const Route = createFileRoute("/admin/rail/supplies")({
   head: () => railHead("Supplies & Equipment", "Chemical stock with days of cover, kit issue, consumption variance, purchases, equipment custody, maintenance and PPE."),
@@ -50,7 +50,7 @@ function SuppliesPage() {
         rows<{ id: string; loa_number: string }>(db.from("rail_contracts").select("id,loa_number")),
       ]);
       const contractItems = await rows<{ contract_id: string; item_id: string }>(db.from("rail_contract_items").select("contract_id,item_id").is("deleted_at", null)).catch(() => []);
-      return { items, batches, locs, kit, cons, prs, assets, custody, maint, ppe, people, contracts, contractItems };
+      return { items, batches, locs: await scopeSupplyLocs(locs), kit, cons, prs, assets, custody, maint, ppe, people, contracts, contractItems };
     },
   });
   const [loc, setLoc] = useState<string>("");

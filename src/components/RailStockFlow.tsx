@@ -52,9 +52,18 @@ export function useStockFlow() {
       ]);
       // Requests need a second person to approve (database rule), so the UI must know who is signed in.
       const me = (await supabase.auth.getUser()).data.user?.id ?? null;
-      return { items, locs, batches, prs, trfs, vendors, me };
+      const allLocs = locs;
+      return { items, locs: await scopeSupplyLocs(locs), allLocs, batches, prs, trfs, vendors, me };
     },
   });
+}
+
+/** Keep only stores the signed-in user may see in Supplies (database rail_can, depot/contract scope aware). */
+export async function scopeSupplyLocs<T extends { id: string }>(locs: T[]): Promise<T[]> {
+  const checks = await Promise.all(
+    locs.map((l) => (supabase.rpc as never as (f: string, a: object) => Promise<{ data: boolean | null }>)("rail_can", { _module: "rail_supplies", _action: "view", _location: l.id }).then((r) => !!r.data).catch(() => false)),
+  );
+  return locs.filter((_, i) => checks[i]);
 }
 
 /** Filter bar shared by stock views: search, category, status. */
@@ -77,7 +86,7 @@ export function StockView({ locId }: { locId: string }) {
   const { data } = useStockFlow();
   const [q, setQ] = useState(""); const [cat, setCat] = useState(""); const [status, setStatus] = useState("");
   const [open, setOpen] = useState<string | null>(null);
-  const locName = (id: string) => data?.locs.find((l) => l.id === id)?.name ?? "—";
+  const locName = (id: string) => data?.allLocs.find((l) => l.id === id)?.name ?? "—";
   const list = useMemo(() => (data?.items ?? []).map((i) => {
     const bs = data!.batches.filter((b) => b.item_id === i.id && (!locId || b.location_id === locId));
     const usable = bs.filter((b) => expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
@@ -181,7 +190,7 @@ export function OrdersView({ locId }: { locId: string }) {
   const [po, setPo] = useState<Record<string, { vendor_id: string; unit_price: string; expected_on: string }>>({});
   const [grn, setGrn] = useState<Record<string, { qty: string; batch: string; expiry: string }>>({});
   const item = (id: string) => data?.items.find((i) => i.id === id);
-  const loc = (id: string) => data?.locs.find((l) => l.id === id)?.name ?? "—";
+  const loc = (id: string) => data?.allLocs.find((l) => l.id === id)?.name ?? "—";
   const vendor = (id: string | null) => data?.vendors.find((v) => v.id === id)?.name;
   const target = f.loc || locId;
   const list = (data?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && (status === "all" || (status === "open" ? ["requested", "approved", "ordered"].includes(p.status) : p.status === status)));
@@ -239,7 +248,7 @@ export function TransfersView({ locId }: { locId: string }) {
   const inv = () => { void qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }); void qc.invalidateQueries({ queryKey: ["rail-sup"] }); };
   const [f, setF] = useState({ item_id: "", from: "", to: "", qty: "", note: "" });
   const item = (id: string) => data?.items.find((i) => i.id === id);
-  const loc = (id: string) => data?.locs.find((l) => l.id === id)?.name ?? "—";
+  const loc = (id: string) => data?.allLocs.find((l) => l.id === id)?.name ?? "—";
   const to = f.to || locId;
   const avail = f.item_id && f.from ? (data?.batches ?? []).filter((b) => b.item_id === f.item_id && b.location_id === f.from && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0) : null;
   const step = async (t: Trf, action: string, label: string) => {
@@ -253,7 +262,7 @@ export function TransfersView({ locId }: { locId: string }) {
     <div className="space-y-3">
       <div className={formRow}>
         <select className={sel} value={f.item_id} onChange={(e) => setF({ ...f, item_id: e.target.value })} aria-label="Item"><option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
-        <select className={sel} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} aria-label="From store"><option value="">From store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
+        <select className={sel} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} aria-label="From store"><option value="">From store…</option>{data?.allLocs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <select className={sel} value={to} onChange={(e) => setF({ ...f, to: e.target.value })} aria-label="To store"><option value="">To store…</option>{data?.locs.filter((l) => l.id !== f.from).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <Input type="number" min={1} placeholder={avail !== null ? `Max ${num(avail, 1)}` : "Qty"} value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
         <Button disabled={!f.item_id || !f.from || !to || f.from === to || !(Number(f.qty) > 0)} onClick={async () => (await act(db.from("rail_stock_transfers").insert({ item_id: f.item_id, from_location_id: f.from, to_location_id: to, qty: Number(f.qty), note: f.note || null }), "Transfer requested", "transfer_request")) && (setF({ item_id: "", from: "", to: "", qty: "", note: "" }), inv())}>Request transfer</Button>
