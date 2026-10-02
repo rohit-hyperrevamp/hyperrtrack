@@ -72,10 +72,15 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "center", className, children, ...props }, ref) => (
+>(({ side = "center", className, children, ...props }, ref) => {
+  const dirty = React.useContext(SheetDirtyContext);
+  return (
   <SheetPortal>
     <SheetOverlay />
-    <SheetPrimitive.Content data-slot="sheet-content" ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+    <SheetPrimitive.Content data-slot="sheet-content" ref={ref} className={cn(sheetVariants({ side }), className)}
+      onInputCapture={(e) => { const t = e.target as HTMLElement; if (t.tagName === "INPUT" || t.tagName === "TEXTAREA") dirty?.mark(); }}
+      onSubmitCapture={() => dirty?.reset()}
+      {...props}>
        <SheetPrimitive.Close className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-muted text-muted-foreground transition hover:bg-brand hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
@@ -83,7 +88,8 @@ const SheetContent = React.forwardRef<
       {children}
     </SheetPrimitive.Content>
   </SheetPortal>
-));
+  );
+});
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
