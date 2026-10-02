@@ -47,7 +47,7 @@ function WelcomePage() {
       <div className="relative z-10 w-full max-w-xl text-center">
         <div className="p-8 sm:p-12">
           <div className="flex justify-center">
-            <BrandMark className="justify-center" />
+            <BrandMark className="justify-center [&>span]:text-2xl" />
           </div>
 
           <Loader2 className="mx-auto mt-8 h-6 w-6 animate-spin text-brand" aria-label="Loading workspace" />

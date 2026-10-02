@@ -240,10 +240,6 @@ function LoginPage() {
           from { opacity: 0; transform: translateX(48px); }
           to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes login-brand-in {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
         @keyframes login-loader-bar {
           from { width: 0%; }
           to { width: 100%; }

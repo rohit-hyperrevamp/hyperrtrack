@@ -85,7 +85,7 @@ function CommandPage() {
                 <div className="relative mb-4 h-56 rounded-lg bg-muted/40">
                   {lat.map((d) => (
                     <div key={d.id} className="absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${10 + ((d.longitude! - minLng) / Math.max(0.01, maxLng - minLng)) * 80}%`, top: `${90 - ((d.latitude! - minLat) / Math.max(0.01, maxLat - minLat)) * 80}%` }}>
-                      <div className={cn("mx-auto h-4 w-4 rounded-full ring-4", d.state === "green" ? "bg-emerald-500 ring-emerald-500/20" : d.state === "amber" ? "bg-amber-500 ring-amber-500/20" : d.state === "red" ? "bg-destructive ring-destructive/20" : "bg-muted-foreground ring-muted")} />
+                      <div className={cn("mx-auto h-4 w-4 rounded-full ring-4", d.state === "green" ? "bg-success ring-success/20" : d.state === "amber" ? "bg-warning ring-warning/20" : d.state === "red" ? "bg-destructive ring-destructive/20" : "bg-muted-foreground ring-muted")} />
                       <div className="mt-1 whitespace-nowrap text-xs">{d.code}</div>
                     </div>
                   ))}

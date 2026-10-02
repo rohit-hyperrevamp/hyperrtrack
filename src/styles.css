@@ -187,8 +187,8 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.235 0.014 168);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.86 0.06 178);
-  --primary-foreground: oklch(0.18 0.02 168);
+  --primary: var(--brand-blue);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.29 0.014 168);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.29 0.014 168);
@@ -197,7 +197,7 @@
   --success: oklch(0.76 0.12 155);
   --warning: oklch(0.82 0.13 80);
   --accent-foreground: oklch(1 0 0);
-  --accent-secondary: oklch(0.66 0.08 190);
+  --accent-secondary: var(--brand-blue);
   --destructive: oklch(0.7 0.18 22);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(1 0 0 / 16%);
@@ -210,8 +210,8 @@
   --chart-5: oklch(0.75 0.05 240);
   --sidebar: oklch(0.22 0.014 168);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.86 0.06 178);
-  --sidebar-primary-foreground: oklch(0.18 0.02 168);
+  --sidebar-primary: var(--brand-blue);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.3 0.014 168);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 14%);
@@ -1037,6 +1037,7 @@
      padding-block: 0.25rem;
      backdrop-filter: none;
    }
+   [data-rail-workspace] .page-header { margin-bottom: 0; }
    [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"], [data-slot="tabs-list"], [data-slot="tabs-trigger"]) {
      border-radius: 8px;
    }
