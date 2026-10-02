@@ -73,7 +73,7 @@ export function RailOrgSetup() {
         {!stores.data?.length ? <Empty title="No stores yet" hint="Add your main godown first." /> :
           <ul className="divide-y rounded-xl border">{stores.data.map((s) => (
             <li key={s.id} className="flex items-center gap-3 p-3 text-sm">
-              <div className="min-w-0 flex-1"><div className="flex items-center gap-2 font-medium">{s.name}{s.id === mainId && <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Main store</span>}</div><div className="text-xs capitalize text-muted-foreground">{s.type} · {s.code}</div></div>
+              <div className="min-w-0 flex-1"><div className="flex items-center gap-2 font-medium">{s.name}{s.id === mainId && <span className="shrink-0 whitespace-nowrap rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Main store</span>}</div><div className="text-xs capitalize text-muted-foreground">{s.type} · {s.code}</div></div>
               {s.id !== mainId && <Button size="sm" variant="ghost" onClick={async () => { if (await saveStoreSetting(mainRow, "main_store_id", s.id)) { toast.success(`${s.name} is now the main store`); refresh(); } }}>Make main</Button>}
             </li>))}</ul>}
       </Section>
