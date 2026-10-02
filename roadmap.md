@@ -1,5 +1,6 @@
 # HyperTrack roadmap
 
+- [ ] Rebuild phone dock and header as circular controls; optimize mobile Photo Check, tables, form spacing, and restore Configuration Hub label
 - [x] Separate dock brand and account controls; replace text-like HT badge with a recognizable symbol and make search a centered slide-down panel without an overlay (live rail visual verification awaits publication)
 - [x] Align colored dashboard tiles to white text/icons, refresh bright status colors, notifications, dialogs and dark dock; simplify global rail navigation labels (authenticated visual comparison still pending)
 - [x] Surface existing activity logs for super admins and confirm sign-in/out and rail edits are captured in code and migrations; production verification blocked by placeholder database connection

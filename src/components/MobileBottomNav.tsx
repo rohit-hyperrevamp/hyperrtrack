@@ -97,11 +97,11 @@ export function MobileBottomNav({
                     className={cn(
                       "grid min-h-14 min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-[background-color,transform] duration-200 active:scale-[0.98]",
                       item.active
-                        ? "bg-dock-foreground text-dock"
-                        : "bg-dock-foreground/[0.07] text-dock-foreground/75 active:bg-dock-foreground/[0.13]",
+                        ? "bg-brand/10 text-foreground"
+                        : "bg-muted/50 text-foreground active:bg-muted",
                     )}
                   >
-                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-dock-foreground/10 text-dock-foreground") }>
+                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-muted text-foreground") }>
                        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
                     <span className="truncate text-[11px] font-medium">{item.label}</span>
