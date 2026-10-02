@@ -4,7 +4,7 @@
  * vivid accent surface, quiet label, oversized numeral, solid accent icon chip.
  *
  * Named accents remain for compatibility; their surfaces use the HyperTrack
- * blue and monochrome palette.
+ * blue-led operational palette with purposeful good, caution and danger accents.
  */
 export type Accent =
   | "rose"
@@ -29,26 +29,26 @@ export const ACCENTS: Accent[] = [
 
 /** Tile surfaces — noticeably richer than plain pastels, still corporate. */
 export const ACCENT_TILE_BG: Record<Accent, string> = {
-  rose: "bg-secondary dark:bg-secondary",
-  cyan: "bg-brand/10 dark:bg-brand/20",
-  lime: "bg-secondary dark:bg-secondary",
-  violet: "bg-brand/8 dark:bg-brand/15",
-  amber: "bg-secondary dark:bg-secondary",
-  emerald: "bg-brand/10 dark:bg-brand/20",
-  sky: "bg-brand/12 dark:bg-brand/25",
-  indigo: "bg-brand/8 dark:bg-brand/15",
+  rose: "bg-danger-soft dark:bg-danger/15 border-danger/10",
+  cyan: "bg-brand/10 dark:bg-brand/20 border-brand/10",
+  lime: "bg-good-soft dark:bg-good/15 border-good/10",
+  violet: "bg-card border-border/70",
+  amber: "bg-caution-soft dark:bg-caution/15 border-caution/10",
+  emerald: "bg-good-soft dark:bg-good/15 border-good/10",
+  sky: "bg-brand/10 dark:bg-brand/20 border-brand/10",
+  indigo: "bg-card border-border/70",
 };
 
 /** Icon chips — solid accent discs with white glyphs for real contrast. */
 export const ACCENT_CHIP: Record<Accent, string> = {
-  rose: "bg-foreground text-background ring-foreground/20",
+  rose: "bg-danger text-primary-foreground ring-danger/25",
   cyan: "bg-brand text-primary-foreground ring-brand/25",
-  lime: "bg-foreground text-background ring-foreground/20",
-  violet: "bg-brand text-primary-foreground ring-brand/25",
-  amber: "bg-foreground text-background ring-foreground/20",
-  emerald: "bg-brand text-primary-foreground ring-brand/25",
+  lime: "bg-good text-primary-foreground ring-good/25",
+  violet: "bg-foreground text-background ring-foreground/20",
+  amber: "bg-caution text-background ring-caution/25",
+  emerald: "bg-good text-primary-foreground ring-good/25",
   sky: "bg-brand text-primary-foreground ring-brand/25",
-  indigo: "bg-brand text-primary-foreground ring-brand/25",
+  indigo: "bg-foreground text-background ring-foreground/20",
 };
 
 /** Stable accent derived from a tile label, so colours stay consistent per page. */
