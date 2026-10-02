@@ -95,11 +95,11 @@ function QualityPage() {
       <PageHeader title="Quality" description="Inspections, penalties, complaints and alerts in one place." />
       <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-quality-depot" className="text-sm font-medium">Depot</label><select id="rail-quality-depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} />
+        <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} tone="brand" />
         <Kpi label="Fines" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
         <Kpi label="Open complaints" value={totals.open} hint={`${totals.breached} past time limit`} tone={totals.breached ? "bad" : "default"} />
         <Kpi label="Open alerts" value={data?.alerts.filter((a) => a.status === "open").length ?? 0} tone="warn" />
-        <Kpi label="Deep clean due" value={due.length} />
+        <Kpi label="Deep clean due" value={due.length} tone={due.length ? "warn" : "good"} />
       </div>
 
       <Tabs defaultValue="penalties">

@@ -37,7 +37,7 @@ function BillingPage() {
         rows<{ id: string; full_name: string; role_key: string; skill: string; daily_wage: number | null; home_location_id: string | null }>(db.from("rail_people").select("id,full_name,role_key,skill,daily_wage,home_location_id").eq("enabled", true)),
         rows<{ area_class: string; skill: string; basic_per_day: number; vda_per_day: number; total_per_day: number; effective_from: string; effective_to: string | null }>(db.from("rail_wage_rules").select("area_class,skill,basic_per_day,vda_per_day,total_per_day,effective_from,effective_to").order("effective_from", { ascending: false })),
         rows<{ person_id: string; hours: number | null; work_date: string }>(db.from("rail_attendance").select("person_id,hours,work_date").gte("work_date", m0)),
-        rows<{ id: string; amount: number; location_id: string | null }>(db.from("rail_penalties").select("id,amount,location_id").eq("status", "proposed").gte("penalty_date", m0).lt("penalty_date", new Date(Number(month.slice(0,4)), Number(month.slice(5,7)), 1).toISOString().slice(0,10))),
+        rows<{ id: string; amount: number; contract_id: string; location_id: string | null }>(db.from("rail_penalties").select("id,amount,contract_id,location_id").eq("status", "proposed").gte("penalty_date", m0).lt("penalty_date", new Date(Number(month.slice(0,4)), Number(month.slice(5,7)), 1).toISOString().slice(0,10))),
       ]);
       return { contracts, bills, docs, people, wages, att, proposed };
     },
@@ -67,7 +67,7 @@ function BillingPage() {
   const inv = () => { qc.invalidateQueries({ queryKey: ["rail-bill"] }); qc.invalidateQueries({ queryKey: ["rail-bill-lines"] }); };
 
   async function generate() {
-    if (data?.proposed.length) return toast.error("Review proposed fines in Quality before generating this month's bill.");
+    if (data?.proposed.some((p) => p.contract_id === cId)) return toast.error("Review proposed fines in Quality before generating this contract's bill.");
     const id = await rpc<string>("rail_generate_bill", { _contract: cId, _month: m0 }, "Bill generated");
     if (id) { void logActivity({ module: "Rail Billing", action: "generate_bill", entityType: "rail_bills", entityId: id, entityLabel: month }); setOpen(id); inv(); }
   }
@@ -108,15 +108,15 @@ function BillingPage() {
         <div className="flex flex-wrap gap-2">
           <select className="h-10 rounded-md border bg-background px-3 text-sm" value={cId} onChange={(e) => setContract(e.target.value)} aria-label="Contract">{data?.contracts.map((c) => <option key={c.id} value={c.id}>{c.loa_number}</option>)}</select>
           <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />
-          <Button onClick={generate} disabled={!cId || !!data?.proposed.length}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
+          <Button onClick={generate} disabled={!cId || !!data?.proposed.some((p) => p.contract_id === cId)}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
         </div>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Kpi label="Bills" value={bills.length} />
+        <Kpi label="Bills" value={bills.length} tone="brand" />
         <Kpi label="Compliance pack" value={`${DOCS.filter(([t]) => docs.some((d) => d.doc_type === t && d.status !== "rejected")).length}/4`} tone={docs.length >= 4 ? "good" : "warn"} />
         <Kpi label="Below minimum wage" value={below.length} tone={below.length ? "bad" : "good"} />
-        <Kpi label="Net this month" value={inr(bills.find((b) => b.bill_month === m0 && b.status !== "cancelled")?.net_total)} />
+        <Kpi label="Net this month" value={inr(bills.find((b) => b.bill_month === m0 && b.status !== "cancelled")?.net_total)} tone="good" />
       </div>
-      {!!data?.proposed.length && <p role="alert" className="text-sm text-destructive">{data.proposed.length} proposed fine(s) need review in Quality before billing. Confirmed fines reduce the railway bill, never worker pay.</p>}
+      {!!data?.proposed.filter((p) => p.contract_id === cId).length && <p role="alert" className="text-sm text-destructive">{data?.proposed.filter((p) => p.contract_id === cId).length} proposed fine(s) need review in Quality before billing. Confirmed fines reduce the railway bill, never worker pay.</p>}
 
       <Tabs defaultValue="bills">
         <TabsList><TabsTrigger value="bills">Bills</TabsTrigger><TabsTrigger value="compliance">Compliance pack</TabsTrigger><TabsTrigger value="wages">Wage compliance</TabsTrigger></TabsList>
