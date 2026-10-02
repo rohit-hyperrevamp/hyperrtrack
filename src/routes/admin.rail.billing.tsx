@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { db, Empty, inr, Kpi, monthStart, railHead, rows, rpc, StatusPill } from "@/lib/rail-ui";
-import { buildAnnexure } from "./admin.rail.checker";
+import { buildAnnexure } from "@/lib/rail-annexure";
 
 export const Route = createFileRoute("/admin/rail/billing")({
   head: () => railHead("Railway Billing", "Monthly railway bills from approved coaches, penalties and GST, with compliance gate, checker e-sign and wage checks."),

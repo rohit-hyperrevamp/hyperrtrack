@@ -11659,6 +11659,13 @@ export type Database = {
           scope_type: string
         }[]
       }
+      rail_people_users: {
+        Args: never
+        Returns: {
+          mobile: string
+          user_id: string
+        }[]
+      }
       rail_place_rake: {
         Args: { _event: string; _reason?: string; _removed?: string[] }
         Returns: undefined
