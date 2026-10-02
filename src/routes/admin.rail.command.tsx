@@ -67,7 +67,7 @@ function CommandPage() {
 
   const maximum = Math.max(1, ...trend.map((d) => d.total));
   const hasTrend = trend.some((d) => d.total > 0);
-  const statusTone = (state: string) => state === "green" ? "bg-brand" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-muted-foreground";
+  const statusTone = (state: string) => state === "green" ? "bg-brand" : state === "amber" || state === "red" ? "bg-danger" : "bg-muted-foreground";
 
   return (
     <div className="rail-command space-y-5 sm:space-y-6">
