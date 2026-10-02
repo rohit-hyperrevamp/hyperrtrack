@@ -1,6 +1,6 @@
 # HyperTrack roadmap
 
-- [ ] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
+- [x] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
 - [x] HyperTrack identity, rail-only navigation and Industrial Precision shared styling
 - [x] Direct rail dock destinations, HT circular compact identity, and legacy dashboard redirect for rail accounts
 - [ ] Verify the new dock and dashboard on the live site after publication (blocked until the updated site is published)
