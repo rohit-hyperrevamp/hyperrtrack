@@ -63,7 +63,7 @@ export function InterviewReviewSheet({
 
   return (
     <Sheet open onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="right" className="w-full overflow-y-auto p-0 sm:max-w-3xl">
+      <SheetContent side="center" className="w-full overflow-y-auto p-0 sm:max-w-3xl">
         <SheetHeader className="border-b border-border/60 px-6 py-5 text-left">
           <div className="flex flex-wrap items-center gap-2">
             <SheetTitle className="text-xl">{c?.full_name ?? "Candidate"}</SheetTitle>
