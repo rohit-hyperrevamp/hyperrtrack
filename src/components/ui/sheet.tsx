@@ -35,6 +35,7 @@ const sheetVariants = cva(
   {
     variants: {
       side: {
+        center: "left-1/2 top-1/2 w-[calc(100vw-1.5rem)] max-w-xl max-h-[calc(100dvh-1.5rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 pt-6 shadow-2xl data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out sm:p-7",
         top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
           "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
@@ -44,7 +45,7 @@ const sheetVariants = cva(
       },
     },
     defaultVariants: {
-      side: "right",
+      side: "center",
     },
   },
 );
@@ -57,11 +58,11 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+>(({ side = "center", className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content data-slot="sheet-content" ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
-       <SheetPrimitive.Close className="absolute right-2.5 top-[max(0.625rem,env(safe-area-inset-top))] grid h-10 w-10 place-items-center rounded-full border border-border bg-card opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring disabled:pointer-events-none sm:right-4 sm:top-4">
+       <SheetPrimitive.Close className="absolute right-2.5 top-2.5 z-10 grid h-10 w-10 place-items-center rounded-full bg-foreground text-background ring-offset-background transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ring disabled:pointer-events-none sm:right-4 sm:top-4">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>

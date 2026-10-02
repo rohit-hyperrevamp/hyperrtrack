@@ -631,7 +631,7 @@ function AdminLayout() {
         </div>
         <div id={RAIL_TOPBAR_SLOT_ID} className="rail-topbar-slot scrollbar-hide flex min-w-0 flex-1 items-center gap-2 overflow-x-auto" />
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
-          <button type="button" aria-label="Search (Ctrl+K)" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-tab gap-2"><Search className="h-4 w-4" />Search<kbd className="text-[10px] opacity-60">⌘K</kbd></button>
+           <Button type="button" variant="ghost" size="icon" title="Search (Ctrl+K)" aria-label="Search" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-icon"><Search className="h-4 w-4" /></Button>
           <NotificationBell triggerClassName="rail-topbar-icon" />
         </div>
       </div>}
@@ -649,6 +649,7 @@ function AdminLayout() {
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
+           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="h-10 w-10 rounded-full"><Search className="h-5 w-5" /></Button>}
           {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link
@@ -759,10 +760,10 @@ function SidebarGroup({
   const collapsedItem = "h-11 w-11 mx-auto justify-center rounded-full p-0";
   const collapsedIcon =
     "grid h-11 w-11 place-items-center rounded-full transition-all duration-200";
-  const collapsedIconActive =
-      "bg-brand text-primary-foreground shadow-sm";
+   const collapsedIconActive =
+       "bg-brand text-primary-foreground shadow-sm";
    const collapsedIconIdle =
-      "bg-dock-foreground/10 text-dock-foreground/75 hover:bg-dock-foreground/20 hover:text-dock-foreground";
+       "bg-muted text-foreground hover:bg-muted-foreground/25";
 
   if (!group.children || group.children.length === 0) {
     const link = (

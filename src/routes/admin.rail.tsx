@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { db, rows } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail")({
@@ -41,16 +42,21 @@ function RailLayout() {
   return (
     <>
       <Outlet />
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Jump to a page, train, coach or person…" value={q} onValueChange={setQ} />
-        <CommandList>
+       <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQ(""); }}>
+         <DialogContent aria-describedby={undefined} className="rail-search-dialog !left-1/2 !top-[max(5.5rem,env(safe-area-inset-top))] !bottom-auto !w-[calc(100vw-1.5rem)] !max-w-xl !-translate-x-1/2 !translate-y-0 overflow-hidden rounded-lg border border-border/60 bg-card/95 p-2 shadow-2xl backdrop-blur-xl sm:!top-24">
+           <DialogTitle className="sr-only">Search HyperTrack</DialogTitle>
+           <Command className="rounded-lg bg-transparent">
+             <CommandInput autoFocus placeholder="Search pages, trains, coaches, people…" value={q} onValueChange={setQ} className="!h-14 !text-base" />
+             <CommandList className="mt-1 max-h-[min(55dvh,25rem)]">
           <CommandEmpty>No matches.</CommandEmpty>
           <CommandGroup heading="Pages">{PAGES.filter(([, l]) => !q || l.toLowerCase().includes(q.toLowerCase())).map(([to, l]) => <CommandItem key={to} value={l} onSelect={() => go(to)}>{l}</CommandItem>)}</CommandGroup>
           {!!data?.trains.length && <CommandGroup heading="Trains">{data.trains.map((t) => <CommandItem key={t.id} value={`train ${t.number} ${t.name}`} onSelect={() => go("/admin/rail/live")}>{t.number} {t.name}</CommandItem>)}</CommandGroup>}
           {!!data?.coaches.length && <CommandGroup heading="Coaches">{data.coaches.map((c) => <CommandItem key={c.id} value={`coach ${c.coach_number}`} onSelect={() => go("/admin/rail/settings")}>Coach {c.coach_number}</CommandItem>)}</CommandGroup>}
           {!!data?.people.length && <CommandGroup heading="People">{data.people.map((p) => <CommandItem key={p.id} value={`person ${p.full_name} ${p.mobile}`} onSelect={() => go("/admin/rail/people")}>{p.full_name} · {p.mobile}</CommandItem>)}</CommandGroup>}
-        </CommandList>
-      </CommandDialog>
+             </CommandList>
+           </Command>
+         </DialogContent>
+       </Dialog>
     </>
   );
 }

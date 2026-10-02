@@ -1,5 +1,7 @@
 # HyperTrack roadmap
 
+- [x] Refine login input and left-side copy, replace train film with 1080p footage, align collapsed dock and Command Centre cards, add focused drop-down search, and center rail/recruitment entry panels with mobile-fit spacing
+- [ ] Extend staged entry to every complex form beyond People and multi-field Configuration Hub masters; verify authenticated visual flows on the live site after publication
 - [x] Rename Rail Settings to Configuration Hub; redesign its master catalog and add role creation, permission editing, page-aware navigation, circular icons and glass editors (production verification blocked by unavailable production database connection)
 - [x] Redesign splash with percentage loader and login with rail film, frosted white phone/OTP steps, and staggered welcome-to-workspace transition
 - [x] Remove repeated notification, account and theme controls; replace the top-right red unread badge with a blue dot; make collapsed dock icons neutral until selected, selected icons blue with white symbols, and dock icons circular; simplify My Profile and keep its content full-width

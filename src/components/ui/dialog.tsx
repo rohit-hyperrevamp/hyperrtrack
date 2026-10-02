@@ -220,7 +220,7 @@ const DialogContent = React.forwardRef<
           ref={handleRef}
           data-pristine={pristine ? "true" : "false"}
           className={cn(
-             "dialog-content-centered fixed inset-x-0 bottom-0 z-[110] grid grid-cols-[minmax(0,1fr)] h-auto max-h-[92dvh] w-full max-w-none overflow-y-auto overscroll-contain gap-3 rounded-t-lg border-x-0 border-b-0 border-t border-border/60 bg-card/95 backdrop-blur-xl text-card-foreground p-3 pt-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl data-[state=open]:animate-slide-in-from-bottom data-[state=closed]:animate-slide-out-to-bottom sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:w-[calc(100vw-1.5rem)] sm:max-w-lg sm:max-h-[calc(100dvh-1.5rem)] sm:gap-4 sm:rounded-lg sm:border sm:p-6 sm:shadow-lg sm:data-[state=open]:animate-dialog-in sm:data-[state=closed]:animate-dialog-out",
+             "dialog-content-centered fixed left-1/2 top-1/2 z-[110] grid grid-cols-[minmax(0,1fr)] h-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto overscroll-contain gap-3 rounded-lg border border-border/60 bg-card/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-card-foreground shadow-2xl backdrop-blur-xl data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out sm:gap-4 sm:p-6",
             responsive && "dialog-responsive",
             className,
           )}

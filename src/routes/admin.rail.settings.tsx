@@ -135,6 +135,7 @@ function RolesAccess() {
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<Set<string> | null>(null);
   const [roleForm, setRoleForm] = useState<{ name: string; description: string; is_external: boolean; hide_costs: boolean } | null>(null);
+  const [roleStep, setRoleStep] = useState(0);
   const { data: roles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["rail-access-roles"],
     queryFn: async () => {
@@ -223,7 +224,7 @@ function RolesAccess() {
 
   return <div className="grid min-w-0 gap-5 xl:grid-cols-[270px_minmax(0,1fr)]">
     <aside className="min-w-0 space-y-3">
-      <div className="flex items-center justify-between gap-2"><h2 className="text-base font-semibold">Roles</h2><Button size="icon" aria-label="Add role" title="Add role" className="rounded-full active:scale-95" onClick={() => setRoleForm({ name: "", description: "", is_external: false, hide_costs: false })}><Plus /></Button></div>
+       <div className="flex items-center justify-between gap-2"><h2 className="text-base font-semibold">Roles</h2><Button size="icon" aria-label="Add role" title="Add role" className="rounded-full active:scale-95" onClick={() => { setRoleStep(0); setRoleForm({ name: "", description: "", is_external: false, hide_costs: false }); }}><Plus /></Button></div>
       <div className="space-y-2">{rolesLoading ? <p className="text-sm text-muted-foreground">Loading roles…</p> : roles.map((role) =>
         <Button key={role.id} variant="outline" onClick={() => { setSelected(role.key); setDraft(null); }} className={cn("group h-auto min-h-16 w-full justify-start gap-3 rounded-lg p-3 text-left active:scale-[0.98]", selected === role.key && "border-brand bg-brand/5")}>
           <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", selected === role.key ? "bg-brand text-primary-foreground" : "bg-muted text-foreground")}><UsersRound className="h-4 w-4" /></span>
@@ -246,7 +247,7 @@ function RolesAccess() {
         </div>
       </>}
     </section>
-    <Sheet open={roleForm !== null} onOpenChange={(open) => !open && setRoleForm(null)}><SheetContent className="w-full sm:max-w-md"><SheetHeader><SheetTitle>Create role</SheetTitle><SheetDescription>Choose who can access each area after creating the role.</SheetDescription></SheetHeader>{roleForm && <div className="mt-6 space-y-4"><div className="space-y-1.5"><Label htmlFor="rail-role-name">Role name</Label><Input id="rail-role-name" autoFocus value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} /></div><div className="space-y-1.5"><Label htmlFor="rail-role-description">Description</Label><Input id="rail-role-description" value={roleForm.description} onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })} /></div><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-external">External team</Label><Switch id="rail-external" checked={roleForm.is_external} onCheckedChange={(checked) => setRoleForm({ ...roleForm, is_external: checked })} /></div><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-hide-costs">Hide costs</Label><Switch id="rail-hide-costs" checked={roleForm.hide_costs} onCheckedChange={(checked) => setRoleForm({ ...roleForm, hide_costs: checked })} /></div><Button className="w-full active:scale-[0.98]" disabled={createRole.isPending || !roleForm.name.trim()} onClick={() => createRole.mutate(roleForm)}>Create role</Button></div>}</SheetContent></Sheet>
+     <Sheet open={roleForm !== null} onOpenChange={(open) => !open && setRoleForm(null)}><SheetContent className="w-full sm:max-w-md"><SheetHeader><SheetTitle>Create role</SheetTitle><SheetDescription>Set the role up, then choose its page permissions.</SheetDescription></SheetHeader>{roleForm && <div className="mt-6 space-y-4"><div className="text-xs font-medium text-muted-foreground"><span className={roleStep === 0 ? "text-brand" : ""}>01 · Identity</span><span className="mx-2">→</span><span className={roleStep === 1 ? "text-brand" : ""}>02 · Visibility</span></div>{roleStep === 0 ? <><div className="space-y-1.5"><Label htmlFor="rail-role-name">Role name</Label><Input id="rail-role-name" autoFocus value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} /></div><div className="space-y-1.5"><Label htmlFor="rail-role-description">Description</Label><Input id="rail-role-description" value={roleForm.description} onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })} /></div><Button className="w-full" disabled={!roleForm.name.trim()} onClick={() => setRoleStep(1)}>Continue</Button></> : <><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-external">External team</Label><Switch id="rail-external" checked={roleForm.is_external} onCheckedChange={(checked) => setRoleForm({ ...roleForm, is_external: checked })} /></div><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-hide-costs">Hide costs</Label><Switch id="rail-hide-costs" checked={roleForm.hide_costs} onCheckedChange={(checked) => setRoleForm({ ...roleForm, hide_costs: checked })} /></div><div className="flex gap-2"><Button variant="outline" onClick={() => setRoleStep(0)}>Back</Button><Button className="flex-1 active:scale-[0.98]" disabled={createRole.isPending} onClick={() => createRole.mutate(roleForm)}>Create role</Button></div></>}</div>}</SheetContent></Sheet>
   </div>;
 }
 
@@ -435,9 +436,11 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
 }) {
   const isNew = row === "new";
   const [form, setForm] = useState<Record<string, unknown>>({});
+  const [formStep, setFormStep] = useState(0);
   const [loadedFor, setLoadedFor] = useState<unknown>(null);
   if (row !== loadedFor) {
     setLoadedFor(row);
+    setFormStep(0);
     setForm(row && row !== "new" ? { ...row } : Object.fromEntries(def.fields.filter((f) => f.type === "bool").map((f) => [f.key, true])));
   }
 
@@ -493,13 +496,14 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
           <SheetTitle>{isNew ? `Add ${def.label.toLowerCase()}` : `Edit ${def.label.toLowerCase()}`}</SheetTitle>
           <SheetDescription>{def.versioned && !isNew ? "Saving creates a new dated version; the old one is kept." : def.description}</SheetDescription>
         </SheetHeader>
-        <Tabs defaultValue="details" className="mt-4">
+         <Tabs defaultValue="details" className="mt-4">
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             {!isNew && <TabsTrigger value="history"><History className="mr-1 h-4 w-4" />History</TabsTrigger>}
           </TabsList>
           <TabsContent value="details" className="space-y-3 pt-2">
-            {def.fields.map((f) => (
+             {def.fields.length > 5 && <div className="text-xs font-medium text-muted-foreground">{formStep === 0 ? "01 · Main details" : "02 · More details"} <span className="ml-2 text-brand">{formStep + 1} / 2</span></div>}
+             {(def.fields.length > 5 ? def.fields.slice(formStep === 0 ? 0 : Math.ceil(def.fields.length / 2), formStep === 0 ? Math.ceil(def.fields.length / 2) : undefined) : def.fields).map((f) => (
               <FieldInput key={f.key} f={f} value={form[f.key]} refs={refs} onChange={(v) => setForm((s) => ({ ...s, [f.key]: v }))} />
             ))}
           </TabsContent>
@@ -514,8 +518,8 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
           </TabsContent>
         </Tabs>
         <SheetFooter className="mt-6">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button>
+           <Button variant="outline" onClick={formStep === 1 ? () => setFormStep(0) : onClose}>{formStep === 1 ? "Back" : "Cancel"}</Button>
+           {def.fields.length > 5 && formStep === 0 ? <Button onClick={() => setFormStep(1)}>Continue</Button> : <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</Button>}
         </SheetFooter>
       </SheetContent>
     </Sheet>

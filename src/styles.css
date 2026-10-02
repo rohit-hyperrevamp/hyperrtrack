@@ -718,10 +718,10 @@
   .animate-slide-out-up { animation: slide-out-up 720ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 
   /* Sign-in scene: the rail film remains behind an opaque, legible form surface. */
-  .login-film { filter: saturate(.82); }
-  .login-film-scrim { background: linear-gradient(90deg, color-mix(in oklab, var(--foreground) 48%, transparent), color-mix(in oklab, var(--foreground) 10%, transparent) 65%, color-mix(in oklab, var(--foreground) 22%, transparent)); }
+  .login-film { filter: saturate(.95) contrast(1.04); }
+  .login-film-scrim { background: linear-gradient(90deg, color-mix(in oklab, var(--foreground) 61%, transparent), color-mix(in oklab, var(--foreground) 16%, transparent) 64%, color-mix(in oklab, var(--foreground) 24%, transparent)); }
   .login-panel { background: color-mix(in oklab, var(--card) 94%, transparent); backdrop-filter: blur(28px) saturate(1.15); box-shadow: 0 22px 80px color-mix(in oklab, var(--foreground) 18%, transparent); }
-  .login-input { transition: border-color .2s ease, box-shadow .2s ease; }
+  .login-input { box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent); transition: border-color .2s ease, box-shadow .2s ease; }
   .login-step { animation: login-stair-up .55s cubic-bezier(.22, 1, .36, 1) both; }
   .login-step > *:nth-child(2) { animation: login-stair-up .55s .08s cubic-bezier(.22, 1, .36, 1) both; }
   .login-step > *:nth-child(3) { animation: login-stair-up .55s .15s cubic-bezier(.22, 1, .36, 1) both; }
@@ -1947,23 +1947,18 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .page-header h1 { font-weight: 600; letter-spacing: 0; }
 [data-rail-shell] [data-rail-workspace] .page-header p { display: block; font-size: 11px; }
 [data-rail-shell] [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"]) { border-radius: 999px; }
-[data-rail-shell] [data-rail-workspace] .rail-kpi { border-radius: 18px; padding: 20px; border-color: var(--rail-line); background: var(--card); }
+  [data-rail-shell] [data-rail-workspace] .rail-kpi { border-radius: 16px; padding: 20px; border-color: var(--rail-line); background: var(--card); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi-value { font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 600; overflow-wrap: anywhere; }
 [data-rail-shell] .rail-command-insights > section,
 [data-rail-shell] .rail-command > section { border-radius: 19px; background: var(--card); padding: 23px; border-color: var(--rail-line); }
 [data-rail-shell] .rail-command-insights > section:first-child { min-height: 280px; }
-[data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi {
-  background: var(--brand-blue); border-color: var(--brand-blue);
-}
-[data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi {
-  background: var(--rail-ink); border-color: var(--rail-ink);
-}
-[data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--palette-good-soft); border-color: var(--palette-good-soft-strong); }
-[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: var(--palette-caution-soft); border-color: var(--palette-caution-soft-strong); }
-[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--palette-danger-soft); border-color: var(--palette-danger-soft-strong); }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi :where(.rail-kpi-value, .text-muted-foreground) { color: var(--card); }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi .text-muted-foreground { opacity: .78; }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { box-shadow: 0 0 0 2px var(--card); }
+[data-rail-shell] .rail-command-kpis .rail-kpi { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--rail-line); box-shadow: 0 5px 18px color-mix(in oklab, var(--rail-ink) 4%, transparent); }
+[data-rail-shell] .rail-command-kpis .rail-kpi::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--brand-blue); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(5)) .rail-kpi { background: color-mix(in oklab, var(--brand-blue) 6%, var(--card)); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(4), :nth-child(7)) .rail-kpi { background: color-mix(in oklab, var(--rail-ink) 4%, var(--card)); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(5)) .rail-kpi::before { background: var(--brand-blue); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(4), :nth-child(7)) .rail-kpi::before { background: var(--rail-ink); }
+[data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); }
 @media (min-width: 768px) {
   [data-rail-shell] .rail-command-kpis > :first-child { grid-column: span 2; }
   [data-rail-shell] .rail-command-kpis > :first-child .rail-kpi { min-height: 170px; }
@@ -1995,6 +1990,10 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--card); border-radius: 999px; }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--muted); color: var(--rail-ink); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a:hover { background: color-mix(in oklab, var(--rail-ink) 16%, var(--card)); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--card); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand svg { color: var(--card); stroke: var(--card); }
   [data-rail-shell] [data-hyper-dock] nav a > span:first-child { border-radius: 50%; }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 10px; }
   [data-rail-shell] [data-hyper-dock] .hypertrack-wordmark { font-size: 20px; font-weight: 750; }
@@ -2687,6 +2686,15 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   min-width: 0;
   max-width: 100%;
 }
+
+/* Search opens beneath the top controls instead of taking over the middle. */
+@keyframes search-drop { from { opacity: 0; transform: translate(-50%, -14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes search-lift { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -10px); } }
+.rail-search-dialog[data-state="open"] { animation: search-drop .28s cubic-bezier(.22, 1, .36, 1) both; }
+.rail-search-dialog[data-state="closed"] { animation: search-lift .2s ease both; }
+.rail-search-dialog { transform: translate(-50%, 0); }
+.rail-attention-item { min-height: 66px; }
+@media (prefers-reduced-motion: reduce) { .rail-search-dialog[data-state] { animation-duration: .01ms; } }
 
 /* Mobile contextual bar: a sticky, thumb-friendly strip under the app header,
    shown only when the current page provides controls. */

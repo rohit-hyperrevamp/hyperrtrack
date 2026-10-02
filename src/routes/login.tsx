@@ -14,7 +14,7 @@ import {
 } from "@/lib/biometric";
 import { markNativeAppSessionUnlocked } from "@/lib/native-app-lock";
 import { BrandMark } from "@/components/BrandMark";
-import railVideo from "@/assets/hypertrack-rail-login.mp4.asset.json";
+import railVideo from "@/assets/hypertrack-rail-login-hd.mp4.asset.json";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -274,7 +274,13 @@ function LoginPage() {
           <BrandMark variant="inverse" className="[&>span]:text-xl" />
         </header>
 
-        <div className="login-layout flex flex-1 items-center justify-end px-4 pb-4 sm:px-8 sm:pb-8 lg:px-14">
+        <div className="login-layout flex flex-1 items-center justify-between gap-10 px-4 pb-4 sm:px-8 sm:pb-8 lg:px-14">
+          <div className="login-story hidden max-w-[560px] self-end pb-12 text-primary-foreground lg:block xl:pb-20">
+            <div className="mb-7 h-1 w-10 rounded-full bg-brand" />
+            <p className="text-xs font-semibold uppercase text-primary-foreground/75">HyperTrack · Rail operations</p>
+            <h2 className="mt-5 font-heading text-5xl font-semibold leading-[1.08] xl:text-6xl">Every arrival.<br />Every coach.<br />Under control.</h2>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/80">One clear view of cleaning, quality and readiness across your network.</p>
+          </div>
           <section className="login-panel relative flex w-full max-w-[480px] flex-col justify-center overflow-hidden rounded-lg border border-border/70 bg-card px-7 py-9 shadow-xl sm:px-12 sm:py-12 lg:min-h-[590px]" aria-label="Sign in">
             {step === "welcome" ? (
               <div className="login-welcome flex flex-1 flex-col items-start justify-center" role="status">
@@ -305,11 +311,11 @@ function LoginPage() {
                   {step === "phone" ? (
                     <form onSubmit={sendOtp} className="space-y-5">
                       <label htmlFor="mobile-number" className="block text-sm font-medium text-foreground">Mobile number</label>
-                      <div className="login-input flex h-14 w-full items-center rounded-lg border border-border bg-background focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10">
-                        <span className="border-r border-border px-4 text-base font-medium text-foreground">+91</span>
-                        <input id="mobile-number" name="tel-national" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="Enter your number" value={phone}
+                      <div className="login-input flex h-14 w-full items-center overflow-hidden rounded-lg border border-border bg-card focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15">
+                        <span className="shrink-0 pl-4 pr-2 text-base font-medium text-muted-foreground">+91</span>
+                        <input id="mobile-number" name="tel-national" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit mobile number" value={phone}
                           onChange={(e) => setPhone(normalizeIndianMobile(e.target.value))}
-                          className="h-full min-w-0 flex-1 bg-transparent px-4 text-base text-foreground outline-none placeholder:text-muted-foreground/60" />
+                          className="h-full min-w-0 flex-1 border-0 bg-transparent px-2 pr-4 text-base tabular-nums text-foreground outline-none placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0" />
                       </div>
                       {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
                       <Button type="submit" disabled={!phoneValid || sending} className="h-13 w-full rounded-lg bg-brand text-base font-semibold text-brand-foreground hover:bg-brand/90">
