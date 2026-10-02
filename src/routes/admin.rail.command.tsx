@@ -98,7 +98,7 @@ function CommandPage() {
         <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Depot operations">
           <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Depot operations</h2><span className="text-xs text-muted-foreground">{depots.length} sites</span></div>
           {!depots.length ? <div className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">No depots set up</div> : <div className="mt-3 max-h-72 divide-y divide-border/70 overflow-y-auto">{depots.map((d) => <Link key={d.id} to="/admin/rail/live" className="group flex items-center gap-3 py-2.5 text-sm hover:text-brand">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand/10 text-brand"><MapPin className="h-4 w-4" /></span>
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><MapPin className="h-4 w-4" /></span>
             <span className="min-w-0 flex-1"><span className="block truncate font-medium">{d.name}</span><span className="text-xs text-muted-foreground">{d.code}{d.late ? ` · ${d.late} late` : ""}</span></span>
             <span className="shrink-0 text-right"><span className="block font-semibold tabular-nums">{d.released}/{d.total}</span><span className="flex items-center justify-end gap-1 text-[11px] text-muted-foreground"><i className={cn("h-1.5 w-1.5 rounded-full", statusTone(d.state))} />Released</span></span>
           </Link>)}</div>}
@@ -110,7 +110,7 @@ function CommandPage() {
         {!feed.length ? <div className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"><TrainFront className="h-4 w-4 text-good" />All clear</div> : <div className="mt-2 grid gap-x-6 divide-y divide-border/70 lg:grid-cols-2 lg:divide-y-0">{feed.slice(0, 8).map((f) => {
           const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
           return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="group flex min-w-0 items-center gap-3 border-b border-border/70 py-2.5 text-sm hover:text-brand">
-            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full", f.kind === "Penalty" ? "bg-danger-soft text-danger" : f.kind.startsWith("Complaint") ? "bg-caution-soft text-caution" : "bg-brand/10 text-brand")}><Icon className="h-4 w-4" /></span>
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><Icon className="h-4 w-4" /></span>
             <span className="min-w-0 flex-1"><span className="block truncate font-medium">{f.text}</span><span className="text-xs text-muted-foreground">{f.kind} · {new Date(f.at).toLocaleDateString("en-IN")}</span></span>
             <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
           </Link>;

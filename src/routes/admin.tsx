@@ -757,7 +757,7 @@ function SidebarGroup({
 }) {
   const [open, setOpen] = useState(groupActive);
   const Icon = group.icon;
-  const railIconTone = group.to ? railDockIconTone[group.to] : undefined;
+  const railIconTone = (group.to && railDockIconTone[group.to]) || RAIL_ICON;
   const t = useT();
 
   useEffect(() => {
