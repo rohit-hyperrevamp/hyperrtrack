@@ -1967,7 +1967,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .rail-kpi :is(.rail-kpi-label,.rail-kpi-hint) { color: var(--muted-foreground); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi .rail-kpi-value { color: var(--foreground); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi .rail-kpi-icon { background: var(--tile-tone); color: var(--primary-foreground); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--rail-yellow-deep); color: var(--rail-ink); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--rail-yellow-deep); color: var(--primary-foreground); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }

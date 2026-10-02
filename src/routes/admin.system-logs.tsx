@@ -181,7 +181,7 @@ function SystemLogsPage() {
         description="Sign-ins, sign-outs and recorded changes across the workspace."
       />
 
-      <RailTopbarSlot><div className="flex min-w-max items-end gap-2 [&>div]:w-auto [&>div]:shrink-0 [&_label]:sr-only [&_[data-slot=select-trigger]]:w-36 [&_input]:w-36">
+      <RailTopbarSlot><div className="flex min-w-max items-center gap-2 [&>div]:w-auto [&>div]:shrink-0 [&_label]:sr-only [&_[data-slot=select-trigger]]:w-36 [&_input]:w-36">
         <div className="lg:col-span-3">
           <Label className="mb-1.5 block text-xs">Date range</Label>
           <Select value={preset} onValueChange={(v) => setPreset(v as RangePreset)}>

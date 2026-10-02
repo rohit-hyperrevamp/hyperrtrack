@@ -73,7 +73,7 @@ function RailSettingsPage() {
 
   return (
     <div className="rail-config space-y-6">
-      <RailTopbarSlot><Input aria-label="Find a collection" placeholder="Find a collection" value={catalogQuery} onChange={(e) => setCatalogQuery(e.target.value)} className="w-56" /></RailTopbarSlot>
+      {section === "catalog" && <RailTopbarSlot><Input aria-label="Find a collection" placeholder="Find a collection" value={catalogQuery} onChange={(e) => setCatalogQuery(e.target.value)} className="w-56" /></RailTopbarSlot>}
       <PageHeader title="Configuration Hub" />
       <div className="rail-config-tabs flex flex-wrap items-center gap-2 border-b border-border pb-3">
         <Button variant="ghost" aria-pressed={section === "catalog"} className={cn("rounded-md", section === "catalog" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
