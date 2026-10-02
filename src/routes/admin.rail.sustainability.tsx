@@ -57,6 +57,11 @@ function SustainPage() {
     },
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
+  // Meters are cumulative dials (like an electricity meter): usage = this reading − previous reading.
+  const prevReading = data ? data.readings.find((r) => r.meter_id === reading.meter_id) : undefined;
+  const prevVal = prevReading ? Number(prevReading.reading) : null;
+  const newVal = reading.value === "" ? null : Number(reading.value);
+  const usedSince = prevVal !== null && newVal !== null ? newVal - prevVal : null;
 
   const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-40 shrink-0" aria-label="Month" /><Button className="h-10 shrink-0" onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></RailTopbarSlot>;
   if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
