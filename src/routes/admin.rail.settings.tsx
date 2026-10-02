@@ -187,7 +187,7 @@ function RolesAccess() {
       }
       await logActivity({ module: "Configuration Hub", action: "update", entityType: "rail_permissions", entityLabel: selected, details: { granted: additions, revoked: removals.map((p) => `${p.module_key}:${p.action}`) } });
     },
-    onSuccess: () => { toast.success("Permissions saved"); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-permissions", selected] }); },
+    onSuccess: () => { toast.success("Permissions saved"); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-permissions", selected] }); qc.invalidateQueries({ queryKey: ["rail-page-access"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
   const removeRole = useMutation({
