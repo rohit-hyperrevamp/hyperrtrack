@@ -1988,6 +1988,8 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="brand"] .rail-kpi-icon,
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon,
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--rail-ink) 12%, transparent); color: var(--rail-ink); }
+[data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi[data-tone="warn"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint,.rail-kpi-icon) { color: var(--rail-ink); }
+[data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--rail-ink) 12%, transparent); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
