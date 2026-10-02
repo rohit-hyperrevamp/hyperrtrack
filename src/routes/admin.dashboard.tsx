@@ -202,7 +202,12 @@ function DashboardEntry() {
   }, [isLoading, showRail, railHome, navigate]);
 
   if (isLoading || showRail) return null;
-  return <DashboardPage />;
+  return (
+    <div className="mx-auto max-w-xl py-16 text-center">
+      <h1 className="font-heading text-2xl font-semibold text-foreground">HyperTrack access not set up</h1>
+      <p className="mt-3 text-muted-foreground">Ask your administrator to assign you a rail operations role to see your dashboard.</p>
+    </div>
+  );
 }
 
 const MONTH_NAMES = [

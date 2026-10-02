@@ -71,25 +71,7 @@ function Index() {
       navigate({ to: "/admin/rail/command", replace: true });
       return;
     }
-    if (isFieldOfficer) {
-      navigate({ to: "/admin/field-dashboard", replace: true });
-      return;
-    }
-    if (!isAdminConsole) {
-      navigate({ to: "/admin/employee-dashboard", replace: true });
-      return;
-    }
-    if (can("dashboard") || can("organizations") || can("employees")) {
-      navigate({ to: "/admin/dashboard", replace: true });
-      return;
-    }
-    for (const m of ORDER) {
-      if (can(m)) {
-        navigate({ to: PATH_FOR[m], replace: true });
-        return;
-      }
-    }
-    navigate({ to: "/admin/employee-dashboard", replace: true });
+    navigate({ to: "/admin/dashboard", replace: true });
   }, [user, isReady, isLoading, isSuperAdmin, isAdminConsole, isFieldOfficer, roleKey, can, navigate]);
 
   return <div className="min-h-screen bg-background" />;

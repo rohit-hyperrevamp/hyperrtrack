@@ -13,7 +13,7 @@ import {
   signInWithBiometric,
 } from "@/lib/biometric";
 import { markNativeAppSessionUnlocked } from "@/lib/native-app-lock";
-import logo from "@/assets/hypertrack-logo-b.png";
+import { BrandMark } from "@/components/BrandMark";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -260,7 +260,7 @@ function LoginPage() {
         >
           <div className="relative flex flex-col items-center gap-6 [animation:login-splash-fade_0.7s_ease-out_both]">
             <div className="rounded-md bg-card px-4 py-2">
-              <img src={logo} alt="HyperTrack" className="h-12 w-44 object-contain" width={1152} height={576} />
+              <BrandMark />
             </div>
             <div className="h-[3px] w-44 overflow-hidden rounded-full bg-primary-foreground/20">
               <div className="h-full rounded-full bg-brand [animation:login-loader-bar_1.6s_ease-in-out_forwards]" />
@@ -278,13 +278,7 @@ function LoginPage() {
             style={{ animation: splashDone ? "login-brand-in 0.7s ease-out both" : "none", opacity: splashDone ? undefined : 0 }}
           >
             <div className="inline-flex items-center self-start rounded-md bg-card px-2 py-1">
-              <img
-                src={logo}
-                alt="HyperTrack"
-                className="h-12 w-44 object-contain"
-                width={1152}
-                height={576}
-              />
+              <BrandMark />
             </div>
             <div className="flex flex-1 items-center">
               <div className="w-full max-w-xl">
@@ -311,13 +305,7 @@ function LoginPage() {
           >
             <div className="mx-auto w-full max-w-[380px]">
               <div className="flex flex-col items-center text-center">
-                <img
-                  src={logo}
-                  alt="HyperTrack"
-                  className="mb-4 h-12 w-44 object-contain lg:hidden"
-                  width={1152}
-                  height={576}
-                />
+                <BrandMark className="mb-4 lg:hidden" />
                 <h2 className="font-display text-[24px] font-semibold leading-[1.1] tracking-tight text-foreground sm:text-[28px]">
                   {step === "phone" ? "Operator sign-in" : "Verify your number"}
                 </h2>
