@@ -257,7 +257,7 @@ function AssignOpeningDialog({ candidate, openings, onClose }: { candidate: RecC
   const [openingId, setOpeningId] = useState(candidate.opening_id ?? "none");
   const [busy, setBusy] = useState(false);
   async function save() {
-    if (candidate.rounds_cleared > 0) return toast.error("An interview round has already been approved. Contact HR before changing the post.");
+    if (candidate.stage !== "new" && candidate.stage !== "screening") return toast.error("The candidate is already in the interview process. Contact HR before changing the post.");
     setBusy(true);
     const selected = openings.find((o) => o.id === openingId);
     const { error } = await recDb.from("rec_candidates").update({ opening_id: selected?.id ?? null, total_rounds: Math.max(1, Math.min(3, selected?.rec_opening_rounds?.length || 1)) }).eq("id", candidate.id);
