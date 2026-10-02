@@ -58,7 +58,7 @@ const db = supabase as unknown as { from: (t: string) => any };
 function RailSettingsPage() {
   const [active, setActive] = useState<MasterDef | null>(null);
   const groups = useMemo(() => {
-    const m = new Map<string, MasterDef[]>();
+    const m = new Map<MasterDef["group"], MasterDef[]>();
     for (const d of RAIL_MASTERS) m.set(d.group, [...(m.get(d.group) ?? []), d]);
     return [...m.entries()];
   }, []);

@@ -19,4 +19,4 @@
 - [x] End-to-end test script (37/37 passing)
 - [ ] Real contract rates, penalties and 1 Oct 2026 wage rates (waiting on user)
 - [ ] Real SMS OTP (waiting on SMS provider key; test mode uses last 4 digits)
-- [ ] Not done yet: depot map, coach-order editor, multilingual offline install, undo toasts
+- [ ] Not done yet: coach-order editor, multilingual offline install, undo toasts
