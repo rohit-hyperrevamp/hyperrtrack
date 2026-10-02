@@ -63,10 +63,10 @@ export function railHead(title: string, description: string) {
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const body = (
     <div className={cn(
-      "flex h-full min-h-28 flex-col rounded-lg border border-border/70 bg-card p-4 transition-[border-color,box-shadow] sm:p-5",
-      to && "cursor-pointer hover:border-accent/40 hover:shadow-sm",
+      "flex h-full min-h-28 flex-col rounded-lg border border-border/70 bg-card p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
+      to && "cursor-pointer hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
     )}>
-      <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">{label}{tone !== "default" && <span aria-hidden="true" className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone === "good" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-destructive")} />}</div>
+      <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">{label}{tone !== "default" && <span aria-hidden="true" className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone === "good" ? "bg-brand" : tone === "warn" ? "bg-foreground/60" : "bg-foreground")} />}</div>
       <div className="mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground">{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
