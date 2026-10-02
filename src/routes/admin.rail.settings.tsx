@@ -9,6 +9,7 @@ import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { RAIL_MASTERS, type MasterDef, type MasterField } from "@/lib/rail-masters";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,13 +73,14 @@ function RailSettingsPage() {
 
   return (
     <div className="rail-config space-y-6">
+      <RailTopbarSlot><Input aria-label="Find a collection" placeholder="Find a collection" value={catalogQuery} onChange={(e) => setCatalogQuery(e.target.value)} className="w-56" /></RailTopbarSlot>
       <PageHeader title="Configuration Hub" />
       <div className="rail-config-tabs flex flex-wrap items-center gap-2 border-b border-border pb-3">
         <Button variant="ghost" aria-pressed={section === "catalog"} className={cn("rounded-md", section === "catalog" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
         {isSuperAdmin && <Button variant="ghost" aria-pressed={section === "roles"} className={cn("rounded-md", section === "roles" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
         {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
       </div>
-      {section === "roles" && isSuperAdmin ? <RolesAccess /> : <><div className="relative max-w-sm"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Find a collection" placeholder="Find a collection" value={catalogQuery} onChange={(e) => setCatalogQuery(e.target.value)} className="pl-9" /></div>{groups.map(([group, entries]) => {
+      {section === "roles" && isSuperAdmin ? <RolesAccess /> : <>{groups.map(([group, entries]) => {
         const defs = entries.filter((d) => `${d.label} ${d.description}`.toLowerCase().includes(catalogQuery.toLowerCase()));
         return defs.length ? (
         <section key={group} className="space-y-3" aria-label={group}>
@@ -368,20 +370,15 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
 
   return (
     <div className="space-y-4">
+      <RailTopbarSlot>
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${def.label}`} className="w-48" aria-label="Search" />
+        <Button variant="outline" onClick={() => downloadCsv(def.table, filtered.map((r) => Object.fromEntries(def.fields.map((f) => [f.label, display(f, r[f.key], refs)]))))}><Download className="mr-1 h-4 w-4" />Export</Button>
+        <Button variant="outline" onClick={() => fileRef.current?.click()}><Upload className="mr-1 h-4 w-4" />Import</Button>
+        <Button onClick={() => setEditing("new")}><Plus className="mr-1 h-4 w-4" />Add</Button>
+      </RailTopbarSlot>
        <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />Configuration Hub</Button>
       <PageHeader title={def.label} description={def.description} />
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-[220px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="pl-9" aria-label="Search" />
-        </div>
-        <Button variant="outline" onClick={() => downloadCsv(def.table, filtered.map((r) => Object.fromEntries(def.fields.map((f) => [f.label, display(f, r[f.key], refs)]))))}>
-          <Download className="mr-1 h-4 w-4" />Export
-        </Button>
-        <Button variant="outline" onClick={() => fileRef.current?.click()}><Upload className="mr-1 h-4 w-4" />Import</Button>
-        <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
-        <Button onClick={() => setEditing("new")}><Plus className="mr-1 h-4 w-4" />Add</Button>
-      </div>
+      <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
 
       {importRows && (
        <div className="space-y-2 rounded-lg border border-border bg-card p-4">
