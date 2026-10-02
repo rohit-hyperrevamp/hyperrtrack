@@ -1992,8 +1992,8 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a { color: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] nav a:hover { background: var(--muted); }
-  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--rail-ink); color: var(--card); border-radius: 999px; }
-  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--rail-ink); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--card); border-radius: 999px; }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
   [data-rail-shell] [data-hyper-dock] nav a > span:first-child { border-radius: 50%; }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 10px; }
