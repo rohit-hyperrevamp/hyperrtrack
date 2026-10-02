@@ -7,10 +7,11 @@ import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logActivity } from "@/lib/activity-log";
 import { db, Empty, railHead, rows, rpc, StatusPill, today, useRailRoles, hasRole } from "@/lib/rail-ui";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/live")({
   head: () => railHead("Live Board", "Today's cleaning jobs by pit line: place rakes, track coaches and tasks, approve and release."),
@@ -173,6 +174,8 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const { data: roles } = useRailRoles();
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
 
   const { data } = useQuery({
     queryKey: ["rail-event", id],
@@ -184,7 +187,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
       return { ev, coaches, tasks };
     },
   });
-  useEffect(() => { setRemoved(new Set()); setSelected(null); }, [id]);
+  useEffect(() => { setRemoved(new Set()); setSelected(null); setRejecting(false); setRejectionReason(""); }, [id]);
   const refresh = () => { qc.invalidateQueries({ queryKey: ["rail-event", id] }); qc.invalidateQueries({ queryKey: ["rail-events", date] }); };
   const ev = data?.ev;
   const canInspect = hasRole(roles, "project_head", "depot_manager", "shift_supervisor", "railway_checker");
@@ -192,7 +195,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
 
   async function place() {
     const r = await rpc("rail_place_rake", { _event: id, _removed: [...removed], _reason: "Not in rake on arrival" }, "Rake placed");
-    if (r !== null) { void logActivity({ module: "Rail Live Board", action: "place_rake", entityType: "rail_events", entityId: id!, details: { removed: removed.size } }); refresh(); }
+    if (r !== null) { void logActivity({ module: "Rail Live Board", action: "place_rake", entityType: "rail_events", entityId: id ?? undefined, details: { removed: removed.size } }); refresh(); }
   }
   async function setMethod(m: string) {
     const { error } = await db.from("rail_events").update({ wash_method: m }).eq("id", id);
@@ -203,78 +206,82 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     if (r !== null) refresh();
   }
   async function review(coachId: string, pass: boolean) {
-    const remarks = pass ? null : window.prompt("Reason for rejection?") ?? "Not clean";
+    const remarks = pass ? null : rejectionReason.trim();
+    if (!pass && !remarks) { toast.error("Enter a reason for rework"); return; }
     const r = await rpc("rail_review_coach", { _coach: coachId, _pass: pass, _remarks: remarks }, pass ? "Coach approved" : "Coach sent back for rework");
-    if (r !== null) { void logActivity({ module: "Rail Live Board", action: pass ? "approve_coach" : "reject_coach", entityType: "rail_event_coaches", entityId: coachId }); refresh(); }
+    if (r !== null) { setRejecting(false); setRejectionReason(""); void logActivity({ module: "Rail Live Board", action: pass ? "approve_coach" : "reject_coach", entityType: "rail_event_coaches", entityId: coachId }); refresh(); }
   }
   async function release() {
     const r = await rpc("rail_release_event", { _event: id }, "Rake released");
-    if (r !== null) { void logActivity({ module: "Rail Live Board", action: "release", entityType: "rail_events", entityId: id! }); refresh(); }
+    if (r !== null) { void logActivity({ module: "Rail Live Board", action: "release", entityType: "rail_events", entityId: id ?? undefined }); refresh(); }
   }
 
   const coachTasks = (cid: string) => data?.tasks.filter((t) => t.event_coach_id === cid) ?? [];
 
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+      <SheetContent className="rail-event-dialog w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto sm:max-w-2xl">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2"><TrainFront className="h-5 w-5" />{ev?.rail_trains?.number} {ev?.rail_trains?.name}</SheetTitle>
+          <SheetTitle className="flex items-center gap-2"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><TrainFront className="h-4 w-4" /></span><span className="truncate">{ev?.rail_trains?.number} {ev?.rail_trains?.name}</span></SheetTitle>
         </SheetHeader>
         {ev && data && (
-          <div className="mt-4 space-y-5">
-            <div className="flex flex-wrap items-center gap-2 text-sm">
+          <div className="mt-5 space-y-6">
+            <div className="flex flex-wrap items-center gap-2 text-sm leading-relaxed">
               <StatusPill s={ev.status} />
               <span className="text-muted-foreground">{ev.rail_service_types?.name} · {ev.rail_locations?.name}</span>
               <span className="text-muted-foreground">{new Date(ev.planned_start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}–{new Date(ev.planned_end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
             </div>
-            <div className="flex flex-wrap gap-2 text-sm items-center">
-              <span className="text-muted-foreground">Wash:</span>
-              {["manual", "acwp", "none"].map((m) => (
-                <Button key={m} size="sm" variant={ev.wash_method === m ? "default" : "outline"} onClick={() => setMethod(m)}>{m === "acwp" ? "Auto wash plant" : m}</Button>
-              ))}
-            </div>
-
-            <div>
-              <div className="mb-2 text-sm font-medium">Coaches {ev.status === "planned" && <span className="text-muted-foreground font-normal">— tap a coach that is missing from the rake, then Place rake</span>}</div>
-              <div className="flex gap-1 overflow-x-auto pb-2">
-                {data.coaches.map((c) => (
-                  <button key={c.id}
-                    onClick={() => ev.status === "planned" ? setRemoved((s) => { const n = new Set(s); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; }) : setSelected(c.id)}
-                    className={cn("min-w-[64px] rounded-md border px-2 py-2 text-xs text-center focus:outline-none focus:ring-2 focus:ring-ring",
-                      removed.has(c.id) && "opacity-40 line-through",
-                      selected === c.id && "ring-2 ring-primary",
-                       c.status === "approved" ? "bg-brand/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}> 
-                    <div className="font-semibold">{c.position}. {c.rail_coach_types?.code}</div>
-                    <div className="opacity-70">{c.rail_coaches?.coach_number ?? "—"}</div>
-                  </button>
+            <div className="space-y-2">
+              <div className="text-sm font-semibold">Wash method</div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Wash method">
+                {["manual", "acwp", "none"].map((m) => (
+                  <Button key={m} size="sm" aria-pressed={ev.wash_method === m} variant={ev.wash_method === m ? "default" : "outline"} onClick={() => setMethod(m)}>{m === "acwp" ? "Auto wash plant" : m === "none" ? "No wash" : "Manual"}</Button>
                 ))}
               </div>
-              {ev.status === "planned" && <Button onClick={place}>Place rake{removed.size ? ` (${removed.size} removed)` : ""}</Button>}
+            </div>
+
+            <div className="space-y-3">
+              <div><h3 className="text-sm font-semibold">Coaches <span className="font-normal text-muted-foreground">· {data.coaches.length}</span></h3><p className="text-xs text-muted-foreground">{ev.status === "planned" ? "Select coaches missing from the rake before placing it." : "Select a coach to see its tasks and review."}</p></div>
+              <div className="rail-coach-grid grid max-h-52 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
+                {data.coaches.map((c) => (
+                  <Button key={c.id} type="button" variant="outline"
+                    aria-pressed={ev.status === "planned" ? removed.has(c.id) : selected === c.id}
+                    onClick={() => { if (ev.status === "planned") { setRemoved((s) => { const n = new Set(s); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; }); } else { setSelected(c.id); setRejecting(false); setRejectionReason(""); } }}
+                    data-status={removed.has(c.id) ? "removed" : c.status}
+                    className="rail-coach-option h-auto min-h-16 w-full flex-col items-start justify-center gap-0.5 rounded-lg border px-3 py-2 text-left text-xs">
+                    <span className="w-full truncate font-semibold">{c.position}. {c.rail_coach_types?.code} · {c.rail_coaches?.coach_number ?? "—"}</span>
+                    <span className="text-xs font-normal capitalize opacity-75">{removed.has(c.id) ? "Missing" : c.status.replace(/_/g, " ")}</span>
+                  </Button>
+                ))}
+              </div>
+              {ev.status === "planned" && <Button onClick={place} className="w-full sm:w-auto">Place rake{removed.size ? ` · ${removed.size} missing` : ""}</Button>}
             </div>
 
             {selected && (() => {
-              const c = data.coaches.find((x) => x.id === selected)!;
+              const c = data.coaches.find((x) => x.id === selected);
+              if (!c) return null;
               return (
-                <div className="rounded-xl border p-3 space-y-3">
+                <div className="space-y-4 border-t border-border pt-5">
                   <div className="flex items-center justify-between">
                     <div className="font-medium">Coach {c.position} · {c.rail_coach_types?.code} {c.rail_coaches?.coach_number}</div>
-                    <div className="flex items-center gap-2"><StatusPill s={c.status} />{c.rework_count > 0 && <span className="text-xs text-destructive">Rework ×{c.rework_count}</span>}</div>
+                    <div className="flex shrink-0 items-center gap-2"><StatusPill s={c.status} />{c.rework_count > 0 && <span className="text-xs text-destructive">Rework ×{c.rework_count}</span>}</div>
                   </div>
-                  <ul className="divide-y">
+                  <ul className="divide-y divide-border border-y border-border">
                     {coachTasks(c.id).map((t) => (
-                      <li key={t.id} className="flex items-center justify-between py-2 text-sm">
-                        <span>{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced from offline)</span>}</span>
+                      <li key={t.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                        <span className="min-w-0">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}</span>
                          {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
                           <Button size="sm" variant="outline" onClick={() => complete(t)}>Mark done</Button>}
                       </li>
                     ))}
                   </ul>
                   {canInspect && c.status === "done" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button size="sm" onClick={() => review(c.id, true)}><CheckCircle2 className="mr-1 h-4 w-4" />Approve</Button>
-                      <Button size="sm" variant="outline" onClick={() => review(c.id, false)}><XCircle className="mr-1 h-4 w-4" />Reject</Button>
+                      <Button size="sm" variant="outline" onClick={() => setRejecting((v) => !v)}><XCircle className="mr-1 h-4 w-4" />Request rework</Button>
                     </div>
                   )}
+                  {canInspect && c.status === "done" && rejecting && <div className="space-y-2"><Label htmlFor="rail-rework-reason">Reason for rework</Label><Textarea id="rail-rework-reason" value={rejectionReason} onChange={(e) => setRejectionReason(e.target.value)} placeholder="What needs another clean?" /><Button size="sm" disabled={!rejectionReason.trim()} onClick={() => review(c.id, false)}>Send for rework</Button></div>}
                 </div>
               );
             })()}

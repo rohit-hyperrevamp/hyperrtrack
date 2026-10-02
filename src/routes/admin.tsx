@@ -532,19 +532,21 @@ function AdminLayout() {
         {!collapsed && railWorkspace && visibleGroups.some((g) => g.to === "/admin/rail/command") && <RailDockPulse />}
 
         {/* Footer: user + collapse */}
-        <div className="border-t border-white/10 p-3">
+        <div className={cn("p-3", collapsed ? "space-y-2" : "space-y-1")}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                aria-label="Account menu"
                  className={cn(
-                   "flex w-full items-center gap-2.5 rounded-lg border border-dock-foreground/10 bg-dock-foreground/[0.06] p-2 text-sm font-semibold text-dock-foreground transition hover:bg-dock-foreground/10",
-                  collapsed && "mx-auto h-11 w-11 justify-center rounded-full border-0 bg-transparent p-0 hover:bg-white/10",
+                   "flex h-12 w-full items-center justify-start gap-2.5 rounded-lg border-0 bg-transparent p-2 text-sm font-semibold text-dock-foreground hover:bg-muted",
+                  collapsed && "mx-auto h-11 w-11 justify-center rounded-full p-0",
                 )}
               >
                 <span className={cn(
-                  "relative grid shrink-0 place-items-center overflow-hidden bg-white text-black text-[11px] font-bold",
-                   collapsed ? "h-11 w-11 rounded-full ring-1 ring-dock-foreground/15" : "h-9 w-9 rounded-full",
+                  "relative grid shrink-0 place-items-center overflow-hidden bg-brand text-primary-foreground text-[11px] font-bold",
+                   collapsed ? "h-11 w-11 rounded-full" : "h-9 w-9 rounded-full",
                 )}>
                   {me.photoUrl ? (
                     <img src={me.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -559,7 +561,7 @@ function AdminLayout() {
                         {me.fullName || (user?.phone ? maskPhone(user.phone) : "Account")}
                       </span>
                       {me.designation && (
-                        <span className="block truncate text-[11px] font-medium capitalize text-white/50">
+                        <span className="block truncate text-[11px] font-medium capitalize text-muted-foreground">
                           {me.designation}
                         </span>
                       )}
@@ -567,7 +569,7 @@ function AdminLayout() {
                     <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                   </>
                 )}
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="right" sideOffset={10} className="w-60 rounded-2xl">
               <DropdownMenuLabel>
@@ -604,22 +606,24 @@ function AdminLayout() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {isSuperAdmin && <div className={cn("mt-2 flex items-center gap-2 px-1 text-xs text-dock-foreground/75", collapsed && "justify-center")}>
-            <ViewAsUserButton className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dock-foreground/10 text-dock-foreground hover:bg-brand hover:text-primary-foreground" />
+          {isSuperAdmin && <div className={cn("flex items-center gap-2 px-2 text-xs font-medium text-dock-foreground", collapsed && "justify-center px-0")}>
+            <ViewAsUserButton className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted text-foreground hover:bg-brand hover:text-primary-foreground" />
             {!collapsed && <span>View as user</span>}
           </div>}
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => setCollapsed((v) => !v)}
             className={cn(
-               "mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-dock-foreground/50 hover:bg-dock-foreground/10 hover:text-dock-foreground",
-              collapsed && "mx-auto mt-1.5 h-11 w-11 rounded-full p-0",
+               "flex h-10 w-full items-center justify-start gap-2.5 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
+              collapsed && "mx-auto h-11 w-11 justify-center rounded-full p-0",
             )}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronsRight className="h-[18px] w-[18px]" /> : <><ChevronsLeft className="h-4 w-4" /> Collapse</>}
-          </button>
+          </Button>
 
         </div>
       </aside>
@@ -853,7 +857,7 @@ function SidebarGroup({
         </button>
       )}
       {open && (
-        <div className="mt-0.5 ml-[22px] space-y-0.5 border-l border-white/10 pl-3">
+        <div className="mt-0.5 ml-[22px] space-y-0.5 border-l border-border pl-3">
           {group.children.map((c) => {
             const a = isActive(c.to);
             return (
@@ -864,8 +868,8 @@ function SidebarGroup({
                 className={cn(
                   "relative flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium transition-colors",
                   a
-                    ? "bg-white text-black font-semibold"
-                    : "text-white/55 hover:bg-white/[0.06] hover:text-white",
+                    ? "bg-brand text-primary-foreground font-semibold"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                <span className={cn("grid h-6 w-6 shrink-0 place-items-center rounded-md", a ? "bg-brand text-primary-foreground" : "bg-brand/20 text-brand")}><c.icon className="h-3.5 w-3.5" /></span>
@@ -1032,8 +1036,8 @@ function CollapsedGroupPopover({
           className={cn(
             "mx-auto grid h-11 w-11 place-items-center rounded-full transition-all duration-200",
             groupActive
-              ? "bg-white text-black shadow-[0_10px_28px_-10px_rgba(0,0,0,0.65)]"
-              : "text-white/55 hover:bg-white/[0.08] hover:text-white",
+              ? "bg-brand text-primary-foreground shadow-sm"
+              : "bg-muted text-foreground hover:bg-brand/10 hover:text-brand",
           )}
         >
           <Icon className="h-[18px] w-[18px]" />

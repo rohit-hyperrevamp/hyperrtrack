@@ -100,16 +100,16 @@ export function Empty({ title, hint, action }: { title: string; hint?: string; a
 export function StatusPill({ s }: { s: string }) {
   const tone: Record<string, string> = {
     planned: "bg-muted text-muted-foreground", placed: "bg-accent/10 text-accent",
-    in_progress: "bg-warning/10 text-warning", pending: "bg-muted text-muted-foreground",
+    in_progress: "bg-brand/10 text-brand", pending: "bg-muted text-muted-foreground",
     done: "bg-accent/10 text-accent", completed: "bg-accent/10 text-accent",
     approved: "bg-brand/10 text-brand", released: "bg-brand text-primary-foreground",
     rejected: "bg-destructive/15 text-destructive", removed: "bg-muted text-muted-foreground line-through",
     draft: "bg-muted text-muted-foreground", submitted: "bg-accent/10 text-accent",
     checker_verified: "bg-accent/10 text-accent", certified: "bg-brand/10 text-brand",
     paid: "bg-brand text-primary-foreground", cancelled: "bg-muted text-muted-foreground line-through",
-    open: "bg-warning/10 text-warning", proposed: "bg-warning/10 text-warning",
+    open: "bg-destructive/10 text-destructive", proposed: "bg-destructive/10 text-destructive",
     confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-brand/10 text-brand",
-    requested: "bg-warning/10 text-warning", received: "bg-brand/10 text-brand",
+    requested: "bg-brand/10 text-brand", received: "bg-brand/10 text-brand",
   };
   return <span className={cn("inline-flex min-h-6 max-w-full items-center justify-center rounded-md px-2 py-0.5 text-center text-xs font-medium capitalize leading-4", tone[s] ?? "bg-muted text-muted-foreground")}>{s.replace(/_/g, " ")}</span>;
 }
