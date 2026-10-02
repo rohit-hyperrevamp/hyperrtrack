@@ -640,12 +640,14 @@ function AdminLayout() {
         </div>
       </aside>
 
-      {railWorkspace && <div className="rail-topbar hidden lg:flex">
-        <nav aria-label="Quick rail navigation" className="rail-topbar-tabs flex items-center gap-1">
-          {[railChildren[0], railChildren[1], railChildren[4], railChildren[7]].filter((item) => visibleGroups.some((group) => group.to === item.to)).map((item) => <Link key={item.to} to={item.to} className={cn("rail-topbar-tab", pathname === item.to && "is-active")}>{item.label === "Command Centre" ? "Dashboard" : item.label === "Railway Billing" ? "Billing" : item.label}</Link>)}
-        </nav>
-        <div className="flex items-center gap-2">
-          {visibleGroups.some((group) => group.to === "/admin/rail/settings") && <Link to="/admin/rail/settings" aria-label="Rail settings" className="rail-topbar-icon"><SlidersHorizontal className="h-4 w-4" /></Link>}
+      {/* Contextual top bar: page title + controls the current page portals in (date, filters, actions). */}
+      {railWorkspace && <div className="rail-topbar flex">
+        <div className="rail-topbar-title hidden min-w-0 shrink-0 lg:block">
+          <div className="truncate text-sm font-semibold">{railChildren.find((c) => pathname === c.to || pathname.startsWith(c.to + "/"))?.label ?? (pathname.split("/").filter(Boolean).pop() ?? "").replace(/[-_]/g, " ").replace(/^./, (s) => s.toUpperCase())}</div>
+        </div>
+        <div id={RAIL_TOPBAR_SLOT_ID} className="rail-topbar-slot scrollbar-hide flex min-w-0 flex-1 items-center gap-2 overflow-x-auto" />
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          <button type="button" aria-label="Search (Ctrl+K)" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-tab gap-2"><Search className="h-4 w-4" />Search<kbd className="text-[10px] opacity-60">⌘K</kbd></button>
           <NotificationBell triggerClassName="rail-topbar-icon" />
           <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
         </div>

@@ -1974,7 +1974,7 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white { color: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white\/50 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] > div:last-child button { background: var(--muted); border-color: var(--rail-line); }
-  [data-rail-shell] .rail-topbar { position: relative; z-index: 10; height: 72px; margin-left: 244px; padding: 0 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rail-line); background: var(--card); }
+  [data-rail-shell] .rail-topbar { position: relative; z-index: 10; height: 72px; gap: 16px; margin-left: 244px; padding: 0 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rail-line); background: var(--card); }
   [data-rail-shell][data-rail-collapsed] .rail-topbar { margin-left: 72px; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 12px; white-space: nowrap; transition: background .2s, color .2s; }
   [data-rail-shell] .rail-topbar-tab:hover { background: var(--palette-soft); color: var(--brand-blue); }
@@ -2653,4 +2653,16 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 [data-slot="sheet-content"] > * {
   min-width: 0;
   max-width: 100%;
+}
+
+/* Mobile contextual bar: a sticky, thumb-friendly strip under the app header,
+   shown only when the current page provides controls. */
+@media (max-width: 1023px) {
+  [data-rail-shell] [data-app-header] { order: -2; }
+  [data-rail-shell] .rail-topbar { order: -1; position: sticky; top: calc(48px + env(safe-area-inset-top)); z-index: 19; align-items: center; padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); border-bottom: 1px solid var(--rail-line); background: color-mix(in oklab, var(--card) 88%, transparent); backdrop-filter: blur(18px) saturate(1.4); }
+  [data-rail-shell] .rail-topbar:has(.rail-topbar-slot:empty) { display: none; }
+  [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 13px; white-space: nowrap; flex: none; }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--card); }
+  [data-rail-shell] .rail-topbar-slot input[type="date"] { font-size: 14px; }
+  [data-rail-shell] [data-rail-workspace] .page-header p { display: none; }
 }
