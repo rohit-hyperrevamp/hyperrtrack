@@ -40,3 +40,5 @@
 - [ ] Real contract rates, penalties and 1 Oct 2026 wage rates (waiting on user)
 - [ ] Real SMS OTP (waiting on SMS provider key; test mode uses last 4 digits)
 - [ ] Not done yet: coach-order editor, multilingual offline install, undo toasts
+- [x] Overview side panel on every rail page (place filter, required vs present staff, page-specific figures), simpler Resources page, My Pay, Profit view, and People & Pay links in the sidebar
+- [ ] Link each depot to a site and each rail worker to an employee record so rail attendance flows into the formal payroll register (waiting on real mapping and salary data)
