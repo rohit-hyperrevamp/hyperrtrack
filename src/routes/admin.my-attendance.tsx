@@ -282,8 +282,10 @@ function MyAttendancePage() {
       const punchCode = punchAttendanceCode(rec?.punch, d.date, todayIso, myShiftHours);
       if (rec?.punch?.check_in_at && !rec.punch.check_out_at && !punchCode) continue;
       const code = punchCode ? codeMap.get(punchCode) : rec?.entry?.code ? codeMap.get(rec.entry.code) : undefined;
-      if (code?.is_leave) leave += attendanceDayValue(code);
-      else if (code?.counts_as_present || code?.is_paid) present += attendanceDayValue(code);
+      // Days with no punch and no saved entry are "not marked", never absent.
+      if (!code) continue;
+      if (code.is_leave) leave += attendanceDayValue(code);
+      else if (code.counts_as_present || code.is_paid) present += attendanceDayValue(code);
       else absent += 1;
     }
     return { present, absent, leave };
@@ -367,7 +369,7 @@ function MyAttendancePage() {
             ? { label: `${code.label || code.code}`, tone: code.is_leave ? "sky" : code.counts_as_present ? "emerald" : code.is_paid ? "amber" : "rose" }
             : d.isFuture
             ? { label: "—", tone: "muted" }
-            : { label: "Absent", tone: "rose" };
+            : { label: "Not marked", tone: "muted" };
 
           const inUrl = mapsUrl(p?.check_in_lat, p?.check_in_lng);
           const outUrl = mapsUrl(p?.check_out_lat, p?.check_out_lng);
