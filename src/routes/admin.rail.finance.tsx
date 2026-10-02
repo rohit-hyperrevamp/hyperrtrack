@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { db, Empty, inr, Kpi, monthStart, num, railHead, rows } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/finance")({
-  head: () => railHead("Profit view", "Billed value against wage cost and penalties, by depot and month."),
+  head: () => railHead("Finance & Payroll", "Profit by depot, role pay structures, payslip estimates and links to payroll and invoices."),
   component: Finance,
 });
 
@@ -35,7 +35,7 @@ function Finance() {
   const manDays = data.depots.reduce((s, d) => s + Number(d.man_days), 0);
   return (
     <div className="space-y-5">
-      <PageHeader title="Profit view" description="Billed (before GST) minus wages. Penalties are already taken off the bill." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
+      <PageHeader title="Finance & Payroll" description="Billed (before GST) minus wages. Penalties are already taken off the bill." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Billed" value={inr(billed)} to="/admin/rail/billing" />
         <Kpi label="Wage cost" value={inr(wages)} />
