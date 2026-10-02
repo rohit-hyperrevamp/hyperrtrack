@@ -4,6 +4,7 @@ import { ShieldAlert } from "lucide-react";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RBAC_MODULES } from "@/lib/rbac-modules";
 import { useCurrentUserRole } from "@/lib/use-current-user-role";
+import { RAIL_PAGE_MODULES, useRailPageAccess } from "@/lib/rail-page-access";
 
 /**
  * Any authenticated employee may reach these — they are role-agnostic
@@ -71,10 +72,14 @@ export function RoutePermissionGuard({ children }: { children: React.ReactNode }
   const pathname = location.pathname;
   const { can, canSub, isSuperAdmin, isLoading, roleKey } = useCurrentPermissions();
   const role = useCurrentUserRole();
+  const isRailPage = pathname.startsWith("/admin/rail/");
+  const { data: railAccess, isLoading: railAccessLoading } = useRailPageAccess(isRailPage && !isSuperAdmin && !!roleKey?.startsWith("rail_"));
+  const railSection = pathname.split("/")[3];
+  const railModule = railSection ? RAIL_PAGE_MODULES[railSection] : undefined;
 
   const decision = useMemo(() => {
     if (isAlwaysAllowed(pathname)) return { allow: true as const };
-    if (pathname.startsWith("/admin/rail/") && roleKey?.startsWith("rail_")) return { allow: true as const };
+    if (isRailPage && roleKey?.startsWith("rail_") && railModule) return { allow: railAccess?.[railModule] === true, module: railModule };
     if (role.isFieldOfficer && (
       pathname === "/admin/inventory" ||
       pathname === "/admin/inventory/" ||
@@ -90,9 +95,9 @@ export function RoutePermissionGuard({ children }: { children: React.ReactNode }
       allow: required.sub ? canSub(required.module, required.sub) : can(required.module),
       module: required.module,
     };
-  }, [pathname, isSuperAdmin, can, canSub, role.isFieldOfficer, roleKey]);
+  }, [pathname, isSuperAdmin, can, canSub, role.isFieldOfficer, roleKey, railAccess, isRailPage, railModule]);
 
-  if (isLoading || role.isLoading) {
+  if (isLoading || role.isLoading || (isRailPage && roleKey?.startsWith("rail_") && railAccessLoading)) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground/70" />
@@ -103,7 +108,7 @@ export function RoutePermissionGuard({ children }: { children: React.ReactNode }
   if (!decision.allow) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-1 ring-amber-200">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-foreground ring-1 ring-border">
           <ShieldAlert className="h-7 w-7" />
         </div>
         <div className="space-y-1">
