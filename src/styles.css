@@ -365,8 +365,8 @@
   --sidebar-accent-foreground: oklch(0.22 0.025 250);
   --sidebar-border: oklch(0.925 0.005 250);
   --sidebar-ring: var(--brand-blue);
-  --dock: oklch(0.095 0 0);
-  --dock-foreground: oklch(0.98 0 0);
+  --dock: oklch(1 0 0);
+  --dock-foreground: var(--palette-neutral-ink);
 
   /* Theme-aware surfaces used by .glass, .tile, admin shell, etc. */
   --surface: 255 255 255;                 /* rgb triplet for translucent backgrounds */
@@ -469,8 +469,8 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 14%);
   --sidebar-ring: var(--brand-blue);
-  --dock: oklch(0.095 0 0);
-  --dock-foreground: oklch(0.98 0 0);
+  --dock: oklch(1 0 0);
+  --dock-foreground: var(--palette-neutral-ink);
 
   /* Dark theme surfaces — deep ink, lifted for readability */
   --surface: 39 39 39;
@@ -1961,25 +1961,25 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); font-size: clamp(1.65rem, 2.5vw, 2.4rem); }
 [data-rail-shell] .rail-command-kpis > :nth-child(1) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--palette-neutral-ink); border-color: var(--palette-neutral-ink); }
-[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--palette-caution-deep); border-color: var(--palette-caution-deep); }
+[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--palette-danger-main); border-color: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi-icon { background: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi-icon { background: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
-[data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi-icon { background: var(--palette-caution-deep); }
+[data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi-icon { background: var(--palette-good-main); }
 [data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi-icon { background: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon { background: var(--brand-blue); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-caution-deep); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-live-summary[data-status="placed"] { --live-color: var(--brand-blue); }
-[data-rail-shell] .rail-live-summary[data-status="in_progress"] { --live-color: var(--palette-caution-deep); }
+[data-rail-shell] .rail-live-summary[data-status="in_progress"] { --live-color: var(--palette-danger-main); }
 [data-rail-shell] .rail-live-summary[data-status="completed"] { --live-color: var(--palette-neutral-ink); }
 [data-rail-shell] .rail-live-summary[data-status="approved"] { --live-color: var(--brand-blue); }
 [data-rail-shell] .rail-live-summary[data-status="released"] { --live-color: var(--palette-neutral-ink); }
@@ -1990,7 +1990,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-row { --live-color: var(--palette-neutral-deep); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }
 [data-rail-shell] .rail-live-row[data-status="placed"], [data-rail-shell] .rail-live-row[data-status="approved"] { --live-color: var(--brand-blue); }
 [data-rail-shell] .rail-live-row[data-status="released"] { --live-color: var(--palette-neutral-ink); }
-[data-rail-shell] .rail-live-row[data-status="in_progress"] { --live-color: var(--palette-caution-deep); }
+[data-rail-shell] .rail-live-row[data-status="in_progress"] { --live-color: var(--palette-danger-main); }
 [data-rail-shell] .rail-live-row[data-status="completed"] { --live-color: var(--palette-neutral-ink); }
 [data-rail-shell] .rail-live-row:hover { background: color-mix(in oklab, var(--live-color) 5%, var(--card)); }
 [data-rail-shell] .rail-live-row-icon { background: var(--live-color); color: var(--primary-foreground); }
@@ -2016,18 +2016,18 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child > span { white-space: nowrap; }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] { width: 72px; }
   [data-rail-shell] [data-hyper-dock] .rail-dock-intro { color: var(--dock-foreground); }
-  [data-rail-shell] [data-hyper-dock] .rail-dock-intro .text-muted-foreground { color: var(--palette-neutral-light); }
-  [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--palette-neutral-light); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-intro .text-muted-foreground { color: var(--muted-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a { color: var(--dock-foreground); }
-  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand):hover { background: var(--palette-neutral-deep); }
-  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand) > span:first-child { background: var(--palette-neutral-deep); color: var(--dock-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand):hover { background: var(--muted); }
+  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand) > span:first-child { background: var(--muted); color: var(--dock-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--primary-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand > span:first-child { background: var(--primary-foreground); color: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand svg { color: var(--brand-blue); stroke: var(--brand-blue); }
-  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--card); border-radius: 999px; }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--primary-foreground); border-radius: 10px; }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
-  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--palette-neutral-deep); color: var(--dock-foreground); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--muted); color: var(--dock-foreground); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a:hover { background: color-mix(in oklab, var(--rail-ink) 16%, var(--card)); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--card); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand svg { color: var(--card); stroke: var(--card); }
@@ -2038,11 +2038,11 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] .rail-dock-photo { isolation: isolate; }
   [data-rail-shell] [data-hyper-dock] .rail-dock-photo:hover img { transform: scale(1.04); }
   [data-rail-shell] [data-hyper-dock] .rail-dock-photo img { transition: transform .35s ease; }
-  [data-rail-shell] [data-hyper-dock] > div:last-child { border-color: var(--rail-line); }
+  [data-rail-shell] [data-hyper-dock] > div:last-child { border: 0; }
   [data-rail-shell] [data-hyper-dock] > div:last-child button,
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white { color: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white\/50 { color: var(--muted-foreground); }
-  [data-rail-shell] [data-hyper-dock] > div:last-child button { background: var(--muted); border-color: var(--rail-line); }
+  [data-rail-shell] [data-hyper-dock] > div:last-child button { border-color: transparent; }
   [data-rail-shell] .rail-topbar { position: relative; z-index: 10; height: 72px; gap: 16px; margin-left: 244px; padding: 0 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rail-line); background: var(--card); }
   [data-rail-shell][data-rail-collapsed] .rail-topbar { margin-left: 72px; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 12px; white-space: nowrap; transition: background .2s, color .2s; }
@@ -2727,9 +2727,18 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 /* Search opens beneath the top controls instead of taking over the middle. */
 @keyframes search-drop { from { opacity: 0; transform: translate(-50%, -14px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes search-lift { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -10px); } }
-.rail-search-dialog[data-state="open"] { animation: search-drop .28s cubic-bezier(.22, 1, .36, 1) both; }
-.rail-search-dialog[data-state="closed"] { animation: search-lift .2s ease both; }
-.rail-search-dialog { transform: translate(-50%, 0); }
+.rail-search-dialog { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; max-width: min(36rem, calc(100vw - 1.5rem)); }
+.rail-search-dialog[data-state="open"] { animation: rail-search-center-in .24s ease both; }
+.rail-search-dialog[data-state="closed"] { animation: rail-search-center-out .18s ease both; }
+@keyframes rail-search-center-in { from { opacity: 0; transform: translate(-50%, -47%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+@keyframes rail-search-center-out { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, -47%); } }
+.rail-event-dialog .rail-coach-option { border-color: var(--border); background: var(--card); color: var(--foreground); }
+.rail-event-dialog .rail-coach-option[data-status="approved"] { border-color: var(--brand-blue); }
+.rail-event-dialog .rail-coach-option[data-status="rejected"], .rail-event-dialog .rail-coach-option[data-status="removed"] { border-color: var(--destructive); }
+.rail-event-dialog .rail-coach-option[aria-pressed="true"] { background: var(--brand-blue); border-color: var(--brand-blue); color: var(--primary-foreground); }
+.rail-event-dialog .rail-coach-option[data-status="removed"][aria-pressed="true"] { background: var(--destructive); border-color: var(--destructive); }
+[data-rail-shell] [data-slot="sheet-content"][data-state], [data-rail-shell] [data-slot="dialog-content"][data-state] { border-radius: 16px; }
+[data-rail-shell] [data-slot="sheet-content"] :where(input,textarea,select,[data-slot="select-trigger"]) { border-radius: 10px; }
 .rail-attention-item { min-height: 66px; }
 @media (prefers-reduced-motion: reduce) { .rail-search-dialog[data-state] { animation-duration: .01ms; } }
 
