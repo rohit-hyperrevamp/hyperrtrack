@@ -106,13 +106,6 @@ function CandidatePage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{c.stage === "pending_onboarding" ? "Awaiting approval" : c.stage === "onboarded" ? "Onboarded" : closed ? stageLabel(c.stage) : "In progress"}</span>
-            {false && current && (
-              <>
-                <Button onClick={() => setResult({ i: current, d: "approved" })}><Check />Approve round {current.round_no}</Button>
-                <Button variant="destructive" onClick={() => setResult({ i: current, d: "rejected" })}><X />Reject</Button>
-                <Button variant="outline" onClick={() => setResched(current)}><CalendarClock />Reschedule</Button>
-              </>
-            )}
             {isRecruiter && ["new", "screening", "on_hold", "hr_approved", "round_1", "round_2", "round_3"].includes(c.stage) && <Button onClick={() => setOfferOpen(true)}><UserCheck />Submit for approval</Button>}
             {isRecruiter && !closed && (
               <DropdownMenu>
@@ -188,7 +181,7 @@ function CandidatePage() {
                   {i.status === "scheduled" && (isRecruiter || i.interviewer_id === meQ.data) && (
                     <div className="flex shrink-0 gap-2">
                       <Button size="sm" variant="outline" onClick={() => setResched(i)}><CalendarClock className="mr-1 h-4 w-4" />Reschedule</Button>
-                      {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(c.id, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
+                      {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(recId, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
                     </div>
                   )}
                 </li>
@@ -231,9 +224,6 @@ function CandidatePage() {
         </ul>
       </section>
 
-      {false && schedule && <ScheduleDialog candidate={c} roundNo={nextRound} roundName={rounds.find((r) => r.round_no === nextRound)?.name ?? `Round ${nextRound}`} defaultInterviewer={rounds.find((r) => r.round_no === nextRound)?.default_interviewer_id ?? ""} onClose={() => setSchedule(false)} />}
-      {false && result && <InterviewResultDialog interview={result.i} candidateName={c.full_name} decision={result.d} onClose={() => setResult(null)} />}
-      {false && resched && <RescheduleDialog interview={resched} candidate={c} onClose={() => setResched(null)} />}
       {closeAs && <CloseDialog candidate={c} as={closeAs} onClose={() => setCloseAs(null)} />}
       {offerOpen && <OfferDialog candidate={c} openingDefaults={{ designation_id: opening?.designation_id ?? "", department_id: opening?.department_id ?? "", branch_id: opening?.branch_id ?? "" }} masters={mq.data} onClose={() => setOfferOpen(false)} />}
       {assignOpening && <AssignOpeningDialog candidate={c} openings={oq.data ?? []} onClose={() => setAssignOpening(false)} />}
