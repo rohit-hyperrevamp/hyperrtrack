@@ -120,10 +120,10 @@ function LiveBoard() {
     <div className="space-y-5">
       <RailTopbarSlot>
         <RailDateStepper value={date} onChange={setDate} />
+        <select aria-label="Depot" className="h-10 min-w-40 max-w-48 rounded-lg border border-border bg-card px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setStatusFilter(null); }}><option value="">All depots</option>{depots.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         {canPlan && <Button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</Button>}
       </RailTopbarSlot>
        <PageHeader title="Operations" description={selectedDepot ? `${selectedDepot.name} · cleaning jobs` : "Every cleaning job for the day, by pit line."} />
-       <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-live-depot" className="text-sm font-medium">Depot</label><select id="rail-live-depot" className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setStatusFilter(null); }}><option value="">All depots</option>{depots.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
 
        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 2xl:grid-cols-6" aria-label="Filter cleaning jobs by status">
          {statuses.map(({ key, label, icon: Icon }) => (
