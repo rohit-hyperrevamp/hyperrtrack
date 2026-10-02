@@ -9,6 +9,7 @@ import { capturePhoto } from "@/lib/native-camera";
 import { checkCoachCleanliness, getPhotoCheckCoaches } from "@/lib/rail-ai-clean.functions";
 import { logActivity } from "@/lib/activity-log";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
@@ -107,14 +108,15 @@ function AiCheckPage() {
 
   return (
     <div className="rail-photo-check mx-auto w-full space-y-5">
+      <RailTopbarSlot>
+        {assignments?.manager && <select aria-label="Location" className="h-10 min-w-36 rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setTrain(""); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All locations</option>{depots.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>}
+        {assignments?.manager && <select aria-label="Train" className="h-10 min-w-36 rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={train} onChange={(e) => { setTrain(e.target.value); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All trains</option>{trains.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>}
+        <select aria-label="Coach" className="h-10 min-w-44 rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={selectedCoach?.id ?? ""} onChange={(e) => { setCoachId(e.target.value); setPhoto(null); setResult(null); }}><option value="">Choose a coach</option>{trainCoaches.map((c) => <option key={c.id} value={c.id}>{c.train_number} · Coach {c.position}{c.coach_number ? ` (${c.coach_number})` : ""}{c.coach_type ? ` · ${c.coach_type}` : ""}</option>)}</select>
+      </RailTopbarSlot>
       <PageHeader title="Photo Check" description="Take a photo after cleaning. The AI scores it out of 10. Your supervisor still gives the final approval." />
 
       <div className="space-y-3 rounded-xl border border-border bg-card p-4">
-        {loadingCoaches ? <p className="text-sm text-muted-foreground">Loading today's coaches…</p> : coachError ? <p role="alert" className="text-sm text-destructive">Could not load coach assignments. Please try again.</p> : !coaches.length ? <p className="text-sm text-muted-foreground">No coaches available for your assignment today.</p> : <div className="grid gap-3 sm:grid-cols-3">
-          {assignments?.manager && <div className="space-y-1"><Label htmlFor="photo-depot">Location</Label><select id="photo-depot" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setTrain(""); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All locations</option>{depots.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>}
-          {assignments?.manager && <div className="space-y-1"><Label htmlFor="photo-train">Train</Label><select id="photo-train" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={train} onChange={(e) => { setTrain(e.target.value); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All trains</option>{trains.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>}
-          <div className="space-y-1"><Label htmlFor="photo-coach">Coach</Label><select id="photo-coach" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={selectedCoach?.id ?? ""} onChange={(e) => { setCoachId(e.target.value); setPhoto(null); setResult(null); }}><option value="">Choose a coach</option>{trainCoaches.map((c) => <option key={c.id} value={c.id}>{c.train_number} · Coach {c.position}{c.coach_number ? ` (${c.coach_number})` : ""}{c.coach_type ? ` · ${c.coach_type}` : ""}</option>)}</select></div>
-        </div>}
+        {loadingCoaches ? <p className="text-sm text-muted-foreground">Loading today's coaches…</p> : coachError ? <p role="alert" className="text-sm text-destructive">Could not load coach assignments. Please try again.</p> : !coaches.length ? <p className="text-sm text-muted-foreground">No coaches available for your assignment today.</p> : null}
         <div className="space-y-1">
           <Label>Area</Label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

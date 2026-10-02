@@ -85,9 +85,9 @@ function CandidatesPage() {
         title="Candidates"
         description={`${rows.length} candidate${rows.length === 1 ? "" : "s"}`}
         icon={Users}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
+        actions={undefined}
+      />
+      <div className="hidden">{/* Actions render in the shared top bar. */}</div>
               code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
               stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
               current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
