@@ -296,12 +296,12 @@
   --palette-caution-soft-strong: oklch(0.91 0.09 88);
   --palette-caution-light: oklch(0.82 0.13 88);
   --palette-caution-medium: oklch(0.73 0.15 88);
-  --palette-caution-main: oklch(0.65 0.145 82);
-  --palette-caution-strong: oklch(0.57 0.135 75);
-  --palette-caution-deep: oklch(0.49 0.12 70);
-  --palette-caution-darker: oklch(0.4 0.1 70);
-  --palette-caution-darkest: oklch(0.33 0.08 70);
-  --palette-caution-ink: oklch(0.24 0.05 70);
+  --palette-caution-main: oklch(0.83 0.17 96);
+  --palette-caution-strong: oklch(0.78 0.18 96);
+  --palette-caution-deep: oklch(0.72 0.17 96);
+  --palette-caution-darker: oklch(0.56 0.14 96);
+  --palette-caution-darkest: oklch(0.4 0.1 96);
+  --palette-caution-ink: oklch(0.27 0.06 96);
   --palette-danger-softest: oklch(0.99 0.008 24);
   --palette-danger-soft: oklch(0.965 0.025 24);
   --palette-danger-soft-strong: oklch(0.92 0.055 24);
@@ -343,7 +343,7 @@
   /* vivid blue accent — echoes the HyperTrack logo inside the app */
   --accent: var(--brand-blue);
   --success: var(--palette-good-main);
-  --warning: var(--palette-caution-deep);
+  --warning: var(--palette-caution-darker);
   --accent-foreground: oklch(0.99 0 0);
   --accent-secondary: var(--brand-blue);
   --destructive: var(--palette-danger-main);
@@ -1947,7 +1947,10 @@ nav[data-bottom-nav] {
 }
 [data-rail-shell] [data-rail-workspace] .page-header h1 { font-weight: 600; letter-spacing: 0; }
 [data-rail-shell] [data-rail-workspace] .page-header p { display: block; font-size: 11px; }
-[data-rail-shell] [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"]) { border-radius: 999px; }
+[data-rail-shell] [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"]) { border-radius: 10px; }
+[data-rail-shell] [data-rail-workspace] :where([data-slot="button"][aria-label="Add role"], [data-slot="button"][aria-label="Edit"], [data-slot="button"][aria-label="Remove"]) { border-radius: 50%; }
+[data-rail-shell] .rail-config-tabs [data-slot="button"] { border-radius: 10px; }
+[data-rail-shell] .rail-config-card[data-slot="button"] { border-radius: 16px; }
   [data-rail-shell] [data-rail-workspace] .rail-kpi { border-radius: 16px; padding: 20px; border-color: var(--rail-line); background: var(--card); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi-value { font-size: clamp(1.5rem, 2vw, 2rem); font-weight: 600; overflow-wrap: anywhere; }
 [data-rail-shell] .rail-command-insights > section,
@@ -1991,7 +1994,9 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-row[data-status="completed"] { --live-color: var(--palette-neutral-ink); }
 [data-rail-shell] .rail-live-row:hover { background: color-mix(in oklab, var(--live-color) 5%, var(--card)); }
 [data-rail-shell] .rail-live-row-icon { background: var(--live-color); color: var(--primary-foreground); }
-[data-rail-shell] .rail-live-row-status { color: var(--live-color); }
+[data-rail-shell] .rail-live-row-status { color: var(--live-color); background: color-mix(in oklab, var(--live-color) 11%, var(--card)); }
+[data-rail-shell] .rail-live-row[data-slot="button"] { border-radius: 0 !important; }
+[data-rail-shell] .rail-live-summary[data-slot="button"] { border-radius: 16px; }
 [data-rail-shell] .rail-chart-bar > div {
   background-image: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in oklab, var(--card) 20%, transparent) 3px 6px);
 }
@@ -2002,7 +2007,7 @@ nav[data-bottom-nav] {
     position: fixed; inset: 0 auto 0 0;
     height: 100dvh; width: 244px;
     border: 0; border-right: 1px solid var(--rail-line); border-radius: 0;
-    background: var(--card) !important; color: var(--rail-ink);
+    background: var(--dock) !important; color: var(--dock-foreground);
     box-shadow: none; z-index: 30;
   }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link { border: 0; background: transparent; border-radius: 0; }
@@ -2010,15 +2015,19 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child { min-width: 0; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child > span { white-space: nowrap; }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] { width: 72px; }
-  [data-rail-shell] [data-hyper-dock] .rail-dock-intro { color: var(--rail-ink); }
-  [data-rail-shell] [data-hyper-dock] .rail-dock-intro .text-muted-foreground { color: var(--muted-foreground); }
-  [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--muted-foreground); }
-  [data-rail-shell] [data-hyper-dock] nav a { color: var(--rail-ink); }
-  [data-rail-shell] [data-hyper-dock] nav a:hover { background: var(--muted); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-intro { color: var(--dock-foreground); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-intro .text-muted-foreground { color: var(--palette-neutral-light); }
+  [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--palette-neutral-light); }
+  [data-rail-shell] [data-hyper-dock] nav a { color: var(--dock-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand):hover { background: var(--palette-neutral-deep); }
+  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand) > span:first-child { background: var(--palette-neutral-deep); color: var(--dock-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-brand > span:first-child { background: var(--primary-foreground); color: var(--brand-blue); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-brand svg { color: var(--brand-blue); stroke: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--card); border-radius: 999px; }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
-  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--muted); color: var(--rail-ink); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--palette-neutral-deep); color: var(--dock-foreground); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a:hover { background: color-mix(in oklab, var(--rail-ink) 16%, var(--card)); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--card); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand svg { color: var(--card); stroke: var(--card); }
