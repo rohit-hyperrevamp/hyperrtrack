@@ -8,6 +8,7 @@ import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 import { RailBriefing } from "@/components/RailBriefing";
 import { RailResourceGauges } from "@/components/RailResourceGauges";
+import { RailAnimatedNumber } from "@/components/RailAnimatedValue";
 import { useCurrentPermissions } from "@/lib/rbac";
 
 export const Route = createFileRoute("/admin/rail/command")({
@@ -90,14 +91,14 @@ function ManagementCommand({ leader }: { leader: boolean }) {
       <PageHeader title="Overview" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
       <RailBriefing date={date} />
       <div className="rail-command-kpis grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
-        <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
-        <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${num(k?.released)} released`} to="/admin/rail/live" tone="good" />
-        <Kpi label="Open alerts" value={num(k?.open_alerts)} to="/admin/rail/quality" tone={k?.open_alerts ? "bad" : "default"} />
-        <Kpi label="First-pass approval" value={pct(k?.first_pass ?? 0, k?.reviewed ?? 0)} to="/admin/rail/quality" tone="good" />
-        <Kpi label="Staff present / norm" value={`${num(k?.staff_present)} / ${num(k?.staff_norm)}`} to="/admin/rail/people" tone={k?.staff_norm && (k?.staff_present ?? 0) < k.staff_norm ? "warn" : "default"} />
-        <Kpi label="Penalties this month" value={inr(k?.penalties_mtd)} to="/admin/rail/quality" tone={k?.penalties_mtd ? "bad" : "default"} />
-        <Kpi label="Bill this month" value={inr(k?.bill_mtd)} to="/admin/rail/billing" />
+        <Kpi label="Jobs today" value={<RailAnimatedNumber value={num(k?.events_today)} />} to="/admin/rail/live" />
+        <Kpi label="Coaches cleaned" value={<RailAnimatedNumber value={num(k?.coaches_cleaned)} />} to="/admin/rail/live" tone="good" />
+        <Kpi label="On-time release" value={<RailAnimatedNumber value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} />} hint={`${num(k?.released)} released`} to="/admin/rail/live" tone="good" />
+        <Kpi label="Open alerts" value={<RailAnimatedNumber value={num(k?.open_alerts)} />} to="/admin/rail/quality" tone={k?.open_alerts ? "bad" : "default"} />
+        <Kpi label="First-pass approval" value={<RailAnimatedNumber value={pct(k?.first_pass ?? 0, k?.reviewed ?? 0)} />} to="/admin/rail/quality" tone="good" />
+        <Kpi label="Staff present / norm" value={<RailAnimatedNumber value={`${num(k?.staff_present)} / ${num(k?.staff_norm)}`} />} to="/admin/rail/people" tone={k?.staff_norm && (k?.staff_present ?? 0) < k.staff_norm ? "warn" : "default"} />
+        <Kpi label="Penalties this month" value={<RailAnimatedNumber value={inr(k?.penalties_mtd)} />} to="/admin/rail/quality" tone={k?.penalties_mtd ? "bad" : "default"} />
+        <Kpi label="Bill this month" value={<RailAnimatedNumber value={inr(k?.bill_mtd)} />} to="/admin/rail/billing" />
       </div>
 
       {leader && <RailResourceGauges />}
@@ -107,7 +108,7 @@ function ManagementCommand({ leader }: { leader: boolean }) {
           {hasTrend ? <>
             <div className="mt-6 grid h-44 grid-cols-7 items-end gap-2 border-b border-border/70 pb-1 sm:gap-4">
               {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.cleaned} cleaned of ${d.total} planned jobs (${d.total ? Math.round(d.cleaned / d.total * 100) : 0}%)`} aria-label={`${d.date}: ${d.cleaned} of ${d.total} planned jobs cleaned`}>
-                <div className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-muted" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
+                <div key={`${d.date}-${d.total}-${d.cleaned}`} className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-muted" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
                   <div className="absolute inset-x-0 bottom-0" data-performance={d.tone} style={{ height: `${d.total ? d.cleaned / d.total * 100 : 0}%` }} />
                 </div>
               </div>)}

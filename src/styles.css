@@ -1997,9 +1997,14 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-chart-bar > [data-performance="on-track"] { background-color: var(--palette-good-main); }
 [data-rail-shell] .rail-chart-bar > [data-performance="in-between"] { background-color: var(--brand-blue); }
 [data-rail-shell] .rail-chart-bar > [data-performance="behind"] { background-color: var(--palette-danger-main); }
+@keyframes rail-chart-rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+[data-rail-shell] .rail-command .rail-chart-bar { transform-origin: bottom; animation: rail-chart-rise 850ms cubic-bezier(.2,.7,.2,1) both; }
 [data-rail-shell] .rail-striped-bar,
 [data-rail-shell] .rail-chart-bar > [data-performance] {
   background-image: repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in oklab, var(--primary-foreground) 19%, transparent) 7px 10px);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-rail-shell] .rail-command .rail-chart-bar { animation: none; }
 }
 [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
 
