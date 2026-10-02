@@ -153,27 +153,6 @@ function SuppliesPage() {
                 return <tr key={a.id} className="border-b last:border-0"><td className="p-3 font-mono text-xs">{a.qr_tag}</td><td>{a.name}</td><td><StatusPill s={a.status} /></td><td>{person(a.custodian_person_id)}</td><td className={overdue ? "text-destructive font-medium" : ""}>{c?.due_back_at ? new Date(c.due_back_at).toLocaleString() : "—"}</td></tr>; })}</tbody></table></div>}
         </TabsContent>
 
-        <TabsContent value="custody" data-merged="scan" className="space-y-3">
-          <div className="mx-auto max-w-md space-y-3 rounded-2xl border bg-card p-4">
-            <div className="flex items-center gap-2 font-medium"><QrCode className="h-5 w-5" />Store keeper scan</div>
-            <Input autoFocus placeholder="Scan or type QR tag" value={scan.tag} onChange={(e) => setScan({ ...scan, tag: e.target.value.trim() })} className="h-12 text-lg" />
-            {(() => {
-              const a = data?.assets.find((x) => x.qr_tag.toLowerCase() === scan.tag.toLowerCase());
-              if (!scan.tag) return null;
-              if (!a) return <div className="text-sm text-muted-foreground">No item with this tag.</div>;
-              const c = data!.custody.find((x) => x.asset_id === a.id);
-              return c ? (
-                <div className="space-y-2"><div className="text-sm">{a.name} is with <b>{person(c.person_id)}</b>. Check in with condition:</div>
-                  <div className="grid grid-cols-3 gap-2">{(["ok", "damaged", "missing"] as const).map((cond) => <Button key={cond} variant={cond === "ok" ? "default" : "outline"} onClick={async () => (await act(db.from("rail_asset_custody").update({ checked_in_at: new Date().toISOString(), in_condition: cond }).eq("id", c.id), `Checked in (${cond})`, { action: "check_in", table: "rail_asset_custody" })) && (setScan({ tag: "", person: "", due: "" }), inv())}>{cond}</Button>)}</div></div>
-              ) : (
-                <div className="space-y-2"><div className="text-sm">{a.name} is in store. Check out to:</div>
-                  <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={scan.person} onChange={(e) => setScan({ ...scan, person: e.target.value })} aria-label="Person"><option value="">Choose person…</option>{data?.people.map((p) => <option key={p.id} value={p.id}>{p.full_name}</option>)}</select>
-                  <Input type="datetime-local" value={scan.due} onChange={(e) => setScan({ ...scan, due: e.target.value })} aria-label="Due back" />
-                  <Button className="w-full" disabled={!scan.person} onClick={async () => (await act(db.from("rail_asset_custody").insert({ asset_id: a.id, person_id: scan.person, due_back_at: scan.due ? new Date(scan.due).toISOString() : new Date(Date.now() + 12 * 3600e3).toISOString() }), "Checked out", { action: "check_out", table: "rail_asset_custody" })) && (setScan({ tag: "", person: "", due: "" }), inv())}>Check out</Button></div>
-              );
-            })()}
-          </div>
-        </TabsContent>
 
         <TabsContent value="custody" data-merged="maintenance" className="space-y-3">
           <div className="text-sm font-medium">Preventive schedule</div>

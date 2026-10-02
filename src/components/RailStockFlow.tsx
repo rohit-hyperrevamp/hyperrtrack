@@ -130,15 +130,9 @@ export async function saveStoreSetting(existing: Kv | undefined, key: string, te
 export function StoresView({ onPick, onTransfer }: { onPick: (id: string) => void; onTransfer?: () => void }) {
   const { data } = useStockFlow();
   const settings = useStoreSettings();
-  const qc = useQueryClient();
   const [q, setQ] = useState("");
-  const [adding, setAdding] = useState(false);
-  const [nf, setNf] = useState({ name: "", code: "", type: "store" });
-  const [orgEdit, setOrgEdit] = useState<string | null>(null);
-  const orgRow = settings.data?.find((s) => s.key === "org_name");
   const mainRow = settings.data?.find((s) => s.key === "main_store_id");
   const mainId = mainRow?.text_value ?? "";
-  const refresh = () => { void qc.invalidateQueries({ queryKey: ["rail-store-settings"] }); void qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }); void qc.invalidateQueries({ queryKey: ["rail-sup"] }); };
 
   const stores = (data?.locs ?? []).filter((l) => !q || l.name.toLowerCase().includes(q.toLowerCase())).map((l) => {
     const low = (data?.items ?? []).filter((i) => data!.batches.filter((b) => b.item_id === i.id && b.location_id === l.id && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0) < Number(i.default_reorder_level)).length;
