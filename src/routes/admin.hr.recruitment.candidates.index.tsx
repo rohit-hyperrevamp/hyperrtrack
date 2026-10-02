@@ -78,7 +78,7 @@ function CandidatesPage() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
-              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
+              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
               stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
               current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
             })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
@@ -119,7 +119,7 @@ function CandidatesPage() {
                   <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }} className="font-medium hover:text-accent">{c.full_name}</Link>
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
                 </td>
-                <td className="p-3 capitalize">{c.offer?.role_key?.replaceAll("_", " ") ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—")}</td>
+                <td className="p-3 capitalize">{c.offer?.operational_role_key?.replaceAll("_", " ") ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—")}</td>
                 <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{["new", "screening", "on_hold"].includes(c.stage) ? "To review" : ["round_1", "round_2", "round_3", "hr_approved"].includes(c.stage) ? "Offer pending" : stageLabel(c.stage)}</span></td>
                 <td className="p-3">{c.current_location || "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
@@ -168,7 +168,7 @@ function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open:
       const { data, error } = await recDb.from("rec_candidates").insert({
         full_name: `${checked.data.first_name} ${checked.data.last_name}`, mobile: checked.data.mobile, email: checked.data.email,
         current_location: checked.data.current_location, total_rounds: 1,
-        offer: { role_key: checked.data.role_key, designation_id: checked.data.designation_id },
+        offer: { operational_role_key: checked.data.role_key, designation_id: checked.data.designation_id },
       }).select("id,code").single();
       if (error) throw error;
       if (file) await uploadResume(data.id, file);

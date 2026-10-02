@@ -90,7 +90,7 @@ function CandidatePage() {
   }
 
   async function approveForOnboarding() {
-    if (!c?.offer?.role_key || !c.offer.designation_id) return toast.error("Assign a position and designation before sending this candidate to HR.");
+    if (!c?.offer?.operational_role_key || !c.offer.designation_id) return toast.error("Assign a position and designation before sending this candidate to HR.");
     if (!(await confirmAction({ title: "Send candidate to HR?", description: "Review their details and offer next. Missing documents can be completed later.", confirmText: "Continue" }))) return;
     await setStage("hr_approved");
   }
@@ -100,7 +100,7 @@ function CandidatePage() {
       <PageHeader
         eyebrow={`Recruitment · ${c.code}`}
         title={c.full_name}
-        description={[c.offer?.role_key?.replaceAll("_", " ") ?? opening?.title, c.mobile, c.email].filter(Boolean).join(" · ")}
+        description={[c.offer?.operational_role_key?.replaceAll("_", " ") ?? opening?.title, c.mobile, c.email].filter(Boolean).join(" · ")}
         icon={UserCheck}
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -131,14 +131,14 @@ function CandidatePage() {
 
       <section className="border-b border-border pb-4">
         <h2 className="text-sm font-semibold">Candidate overview</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{c.full_name} · {c.mobile} · {c.offer?.role_key?.replaceAll("_", " ") ?? "Position pending"} · {c.current_location || "Location pending"}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{c.full_name} · {c.mobile} · {c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"} · {c.current_location || "Location pending"}</p>
         <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Next: review details, agree an offer and send to HR for onboarding. Documents may be added later."}</p>
       </section>
 
       <section className="border-b border-border pb-4" aria-label="Onboarding checklist">
         <h2 className="text-sm font-semibold">Onboarding checklist</h2>
         <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
-          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', !!(docsQ.data?.aadhaar_image_url && docsQ.data?.aadhaar_number)], ['PAN card and number', !!(docsQ.data?.pan_image_url && docsQ.data?.pan_number)], ['Photograph', !!docsQ.data?.photo_url]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : 'Needs review'}</span></li>)}
+          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.operational_role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', !!(docsQ.data?.aadhaar_image_url && docsQ.data?.aadhaar_number)], ['PAN card and number', !!(docsQ.data?.pan_image_url && docsQ.data?.pan_number)], ['Photograph', !!docsQ.data?.photo_url]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : 'Needs review'}</span></li>)}
         </ul>
         {c.stage === "onboarded" && c.employee_candidate_id && <Link to="/admin/candidates/$id/details" params={{ id: c.employee_candidate_id }} className="mt-3 inline-block text-sm font-medium text-brand underline">Complete identity documents in employee record</Link>}
       </section>
@@ -146,7 +146,7 @@ function CandidatePage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-1">
           <h2 className="font-display text-sm font-semibold">Details</h2>
-          <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Position</span><span className="truncate font-medium">{c.offer?.role_key?.replaceAll("_", " ") ?? "Not assigned"}</span></div>
+          <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Position</span><span className="truncate font-medium">{c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Not assigned"}</span></div>
           <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Item k="Location" v={c.current_location} />
             <Item k="Experience" v={`${c.experience_years} yrs`} />
