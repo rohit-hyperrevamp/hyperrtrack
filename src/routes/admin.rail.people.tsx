@@ -60,7 +60,7 @@ function PeoplePage() {
   const list = (data?.people ?? []).filter((p) => !q || `${p.full_name} ${p.mobile} ${p.role_key}`.toLowerCase().includes(q.toLowerCase()));
 
   // Scorecards (last 30 days) — needs the person's sign-in id
-  const uidOf = (mobile: string) => data?.auth.find((a) => a.mobile === mobile)?.user_id;
+  const uidOf = (mobile: string) => data?.auth.find((a: { mobile: string; user_id: string }) => a.mobile === mobile)?.user_id;
   const score = (p: P) => {
     const uid = uidOf(p.mobile);
     const t = uid ? data!.tasks.filter((x) => x.completed_by === uid) : [];
