@@ -12031,12 +12031,10 @@ export type Database = {
           user_id: string
         }[]
       }
-      rail_transfer_step:
-        | { Args: { _action: string; _id: string }; Returns: string }
-        | {
-            Args: { _action: string; _id: string; _reason?: string }
-            Returns: string
-          }
+      rail_transfer_step: {
+        Args: { _action: string; _id: string; _reason?: string }
+        Returns: string
+      }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }
       rec_reschedule_interview: {
         Args: {
