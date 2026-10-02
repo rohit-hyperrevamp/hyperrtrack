@@ -16,9 +16,11 @@ export const RAIL_PAGE_MODULES: Record<string, string> = {
   "ai-check": "rail_ops",
 };
 
+export const RAIL_PAGE_ORDER = ["command", "live", "me", "checker", "quality", "supplies", "sustainability", "billing", "people", "settings", "ai-check"];
+
 export function railHomeForAccess(access?: Record<string, boolean>, roleKey?: string | null) {
   const preferred = roleKey === "rail_cleaner" ? "me" : roleKey === "rail_railway_checker" ? "checker" : "command";
-  const sections = [preferred, "command", "live", "me", "checker", "quality", "supplies", "sustainability", "billing", "people", "settings", "ai-check"];
+  const sections = [preferred, ...RAIL_PAGE_ORDER];
   const first = sections.find((section) => access?.[RAIL_PAGE_MODULES[section]] === true);
   return first ? `/admin/rail/${first}` : "/admin/profile";
 }
