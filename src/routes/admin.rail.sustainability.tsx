@@ -147,12 +147,24 @@ function SustainPage() {
           <div className="divide-y rounded-lg border bg-card">{league.map((l, i) => <div key={l.d.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {l.d.name}</div><div className="text-xs text-muted-foreground">{l.coaches} coaches · {num(l.saved)} L saved · {num(l.co2PerCoach, 2)} kg CO₂e/coach</div></div><div className="tabular-nums">{num(l.freshPerCoach)} L/coach</div></div>)}</div>
         </TabsContent>
         <TabsContent value="meters" className="space-y-3">
+          <p className="text-xs text-muted-foreground">Meters are dials that keep counting up (like an electricity meter). Type the number you see on the dial — the system works out what was used since the last reading.</p>
           <div className="grid gap-2 rounded-lg border bg-card p-3 md:grid-cols-[2fr_1fr_auto]">
             <select className="h-10 rounded-md border bg-background px-3 text-sm" value={reading.meter_id} onChange={(e) => setReading({ ...reading, meter_id: e.target.value })} aria-label="Meter"><option value="">Choose meter…</option>{data.meters.map((m) => <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>)}</select>
-            <Input type="number" placeholder="Reading" value={reading.value} onChange={(e) => setReading({ ...reading, value: e.target.value })} />
+            <Input type="number" placeholder="Dial reading" value={reading.value} onChange={(e) => setReading({ ...reading, value: e.target.value })} />
             <Button onClick={addReading} disabled={!reading.meter_id || !reading.value}>Save reading</Button>
           </div>
-          {!data.readings.length ? <Empty title="No readings yet" /> : <div className="divide-y rounded-lg border bg-card">{data.readings.map((r) => <div key={r.id} className="flex justify-between p-3 text-sm"><span>{data.meters.find((m) => m.id === r.meter_id)?.name}</span><span className="tabular-nums">{num(r.reading, 1)} · {new Date(r.read_at).toLocaleString()}</span></div>)}</div>}
+          {reading.meter_id && (usedSince === null ? (
+            <div className="rounded-lg border bg-card p-3 text-sm text-muted-foreground">First reading for this meter — it sets the starting point. Usage counts from the next reading.</div>
+          ) : usedSince < 0 ? (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">This is lower than the last reading ({num(prevVal!, 1)} on {new Date(prevReading!.read_at).toLocaleDateString()}). Dials only go up — check for a missing digit.</div>
+          ) : (
+            <div className="rounded-lg border border-brand/30 bg-brand/5 p-3 text-sm">This reading means <b>{num(usedSince, 1)}</b> {data.meters.find((m) => m.id === reading.meter_id)?.unit} used since {new Date(prevReading!.read_at).toLocaleDateString()} ({num(prevVal!, 1)} → {num(newVal!, 1)}).</div>
+          ))}
+          {!data.readings.length ? <Empty title="No readings yet" /> : <div className="divide-y rounded-lg border bg-card">{data.readings.map((r) => {
+            const next = data.readings.find((x) => x.meter_id === r.meter_id && x.read_at < r.read_at);
+            const used = next ? Number(r.reading) - Number(next.reading) : null;
+            return <div key={r.id} className="flex justify-between p-3 text-sm"><span>{data.meters.find((m) => m.id === r.meter_id)?.name}</span><span className="tabular-nums">{num(r.reading, 1)} · {used !== null ? `${num(used, 1)} used · ` : ""}{new Date(r.read_at).toLocaleString()}</span></div>;
+          })}</div>}
         </TabsContent>
         <TabsContent value="acwp" className="space-y-3">
           <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-card p-6 text-sm"><Upload className="h-4 w-4" />Upload ACWP MIS report (CSV)<input type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && importAcwp(e.target.files[0])} /></label>
