@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, CheckCircle2, ChevronLeft, ChevronRight, Send, TrainFront, XCircle } from "lucide-react";
+import { CalendarPlus, CheckCircle2, Send, TrainFront, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logActivity } from "@/lib/activity-log";
@@ -81,14 +81,11 @@ function LiveBoard() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Live Board" description="Every cleaning job for the day, by pit line. Use ← → to change day, P to plan." actions={
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" aria-label="Previous day" onClick={() => setDate(shiftDate(date, -1))}><ChevronLeft className="h-4 w-4" /></Button>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-40" aria-label="Date" />
-          <Button variant="outline" size="icon" aria-label="Next day" onClick={() => setDate(shiftDate(date, 1))}><ChevronRight className="h-4 w-4" /></Button>
-          {canPlan && <Button onClick={plan} disabled={planning}><CalendarPlus className="mr-2 h-4 w-4" />Plan day</Button>}
-        </div>
-      } />
+      <RailTopbarSlot>
+        <RailDateStepper value={date} onChange={setDate} />
+        {canPlan && <button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</button>}
+      </RailTopbarSlot>
+      <PageHeader title="Live Board" description="Every cleaning job for the day, by pit line." />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
         {["planned", "placed", "in_progress", "completed", "approved", "released"].map((s) => (
