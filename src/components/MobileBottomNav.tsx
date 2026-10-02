@@ -98,7 +98,7 @@ export function MobileBottomNav({
                         : "bg-dock-foreground/[0.07] text-dock-foreground/75 active:bg-dock-foreground/[0.13]",
                     )}
                   >
-                     <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", item.active ? "bg-dock/10" : "bg-dock-foreground/[0.08]") }>
+                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", item.active ? "bg-brand text-primary-foreground" : "bg-brand/20 text-brand") }>
                        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
                     <span className="truncate text-[11px] font-medium">{item.label}</span>

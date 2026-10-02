@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Download, History, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Bell, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, TrainFront, Trash2, Upload, Wallet, Warehouse, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity-log";
@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/settings")({
   head: () => ({
@@ -31,6 +32,26 @@ export const Route = createFileRoute("/admin/rail/settings")({
 });
 
 type Row = Record<string, unknown> & { id: string };
+const groupIcons: Record<MasterDef["group"], LucideIcon> = {
+  "Places & trains": TrainFront,
+  Cleaning: ClipboardCheck,
+  Contracts: FileText,
+  "Supplies & resources": Warehouse,
+  "Billing & wages": Wallet,
+  System: Settings2,
+};
+const masterIcons: Record<string, LucideIcon> = {
+  rail_locations: MapPin, rail_trains: TrainFront, rail_coaches: TrainFront,
+  rail_alert_rules: Bell, rail_checklist_items: ClipboardCheck,
+};
+const groupTones: Record<MasterDef["group"], string> = {
+  "Places & trains": "bg-brand text-primary-foreground",
+  Cleaning: "bg-good text-primary-foreground",
+  Contracts: "bg-foreground text-background",
+  "Supplies & resources": "bg-caution text-background",
+  "Billing & wages": "bg-brand text-primary-foreground",
+  System: "bg-foreground text-background",
+};
 // Dynamic table access: the registry decides which rail_ table is used.
 const db = supabase as unknown as { from: (t: string) => any };
 
@@ -45,12 +66,16 @@ function RailSettingsPage() {
   if (active) return <MasterTable def={active} onBack={() => setActive(null)} />;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Rail Settings" description="Depots, trains, coaches, contracts and rates." />
+    <div className="space-y-7">
+      <PageHeader title="Rail Settings" />
       {groups.map(([group, defs]) => (
-        <section key={group} className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{group}</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section key={group} className="space-y-3" aria-label={group}>
+          <div className="flex items-center gap-2.5 border-b border-border/70 pb-3">
+            {(() => { const Icon = groupIcons[group]; return <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", groupTones[group])}><Icon className="h-4 w-4" /></span>; })()}
+            <h2 className="font-heading text-base font-semibold text-foreground">{group}</h2>
+            <span className="ml-auto text-xs tabular-nums text-muted-foreground">{defs.length}</span>
+          </div>
+          <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
             {defs.map((d) => (
               <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />
             ))}
@@ -62,6 +87,7 @@ function RailSettingsPage() {
 }
 
 function MasterCard({ def, onOpen }: { def: MasterDef; onOpen: () => void }) {
+  const Icon = masterIcons[def.table] ?? groupIcons[def.group];
   const { data: count } = useQuery({
     queryKey: ["rail-count", def.table],
     queryFn: async () => {
@@ -71,17 +97,21 @@ function MasterCard({ def, onOpen }: { def: MasterDef; onOpen: () => void }) {
     },
   });
   return (
-    <button
+    <Button
       type="button"
+       variant="outline"
       onClick={onOpen}
-      className="rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+       className="group h-auto min-h-24 w-full items-start justify-start rounded-lg border-border/70 bg-card p-4 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-card hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="font-semibold">{def.label}</span>
-        <span className="font-mono text-sm tabular-nums text-muted-foreground">{count ?? "–"}</span>
-      </div>
-      <p className="mt-1 text-sm text-muted-foreground">{def.description}</p>
-    </button>
+      <span className="flex w-full min-w-0 items-start gap-3">
+        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-lg", groupTones[def.group])}><Icon className="h-5 w-5" strokeWidth={1.9} /></span>
+        <span className="min-w-0 flex-1 pt-0.5">
+          <span className="block truncate text-sm font-semibold text-foreground">{def.label}</span>
+          <span className="mt-1 block truncate text-xs font-normal text-muted-foreground">{def.description}</span>
+        </span>
+        <span className="flex shrink-0 items-center gap-1 text-xs font-semibold tabular-nums text-muted-foreground"><span>{count ?? "–"}</span><ArrowUpRight className="h-3.5 w-3.5 text-brand transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span>
+      </span>
+    </Button>
   );
 }
 
