@@ -16,7 +16,10 @@ type PR = { id: string; item_id: string; qty: number; status: string; reason: st
 type Trf = { id: string; item_id: string; from_location_id: string; to_location_id: string; qty: number; status: string; note: string | null; created_at: string };
 type Vendor = { id: string; name: string; phone: string | null; email: string | null; gstin: string | null; lead_days: number };
 
-const sel = "h-10 rounded-md border bg-background px-3 text-sm";
+const sel = "h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm";
+// One responsive form row for every Supplies form: fields wrap instead of squeezing to unreadable widths.
+const formRow = "grid gap-2 rounded-2xl border bg-card p-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]";
+const subRow = "grid gap-2 rounded-xl bg-muted/50 p-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]";
 const DAY = 864e5;
 export function expiryState(d: string | null): "expired" | "soon" | "ok" | "none" {
   if (!d) return "none";
@@ -182,7 +185,7 @@ export function OrdersView({ locId }: { locId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1.5fr_1fr_2fr_auto]">
+      <div className={formRow}>
         <select className={sel} value={f.item_id} onChange={(e) => setF({ ...f, item_id: e.target.value })} aria-label="Item"><option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
         <select className={sel} value={target} onChange={(e) => setF({ ...f, loc: e.target.value })} aria-label="For store"><option value="">For store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <Input type="number" min={1} placeholder="Qty" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
@@ -208,13 +211,13 @@ export function OrdersView({ locId }: { locId: string }) {
               {p.status === "requested" && <div className="flex justify-end gap-2">
                 <Button size="sm" variant="ghost" onClick={async () => (await confirmAction({ title: "Reject this request?", confirmText: "Reject" })) && (await act(db.from("rail_purchase_requests").update({ status: "rejected" }).eq("id", p.id), "Rejected", "reject_request")) && inv()}>Reject</Button>
                 <Button size="sm" onClick={async () => (await confirmAction({ title: "Approve this request?", description: `${i?.name} × ${p.qty} for ${loc(p.location_id)}`, confirmText: "Approve" })) && (await act(db.from("rail_purchase_requests").update({ status: "approved" }).eq("id", p.id), "Approved", "approve_request")) && inv()}>Approve</Button></div>}
-              {p.status === "approved" && <div className="grid gap-2 rounded-xl bg-muted/50 p-2 md:grid-cols-[2fr_1fr_1fr_auto]">
+              {p.status === "approved" && <div className={subRow}>
                 <select className={sel} value={pf.vendor_id} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, vendor_id: e.target.value } })} aria-label="Supplier"><option value="">Choose supplier…</option>{data?.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select>
                 <Input type="number" placeholder="Price / unit ₹" value={pf.unit_price} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, unit_price: e.target.value } })} />
                 <Input type="date" aria-label="Expected on" value={pf.expected_on} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, expected_on: e.target.value } })} />
                 <Button size="sm" className="h-10" disabled={!pf.vendor_id} onClick={async () => (await confirmAction({ title: `Place order with ${vendor(pf.vendor_id)}?`, description: "A purchase order number is created.", confirmText: "Place order" })) && (await act(db.from("rail_purchase_requests").update({ status: "ordered", vendor_id: pf.vendor_id, unit_price: pf.unit_price ? Number(pf.unit_price) : null, expected_on: pf.expected_on || null }).eq("id", p.id), "Order placed", "purchase_order")) && inv()}>Place order</Button>
               </div>}
-              {(p.status === "ordered" || p.status === "approved") && <div className="grid gap-2 rounded-xl bg-muted/50 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+              {(p.status === "ordered" || p.status === "approved") && <div className={subRow}>
                 <Input type="number" placeholder="Qty received" value={gf.qty} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, qty: e.target.value } })} />
                 <Input placeholder="Batch no. (optional)" value={gf.batch} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, batch: e.target.value } })} />
                 <Input type="date" aria-label="Expiry date" value={gf.expiry} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, expiry: e.target.value } })} />
@@ -244,7 +247,7 @@ export function TransfersView({ locId }: { locId: string }) {
   const list = (data?.trfs ?? []).filter((t) => !locId || t.from_location_id === locId || t.to_location_id === locId);
   return (
     <div className="space-y-3">
-      <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1.5fr_1.5fr_1fr_auto]">
+      <div className={formRow}>
         <select className={sel} value={f.item_id} onChange={(e) => setF({ ...f, item_id: e.target.value })} aria-label="Item"><option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
         <select className={sel} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} aria-label="From store"><option value="">From store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <select className={sel} value={to} onChange={(e) => setF({ ...f, to: e.target.value })} aria-label="To store"><option value="">To store…</option>{data?.locs.filter((l) => l.id !== f.from).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
@@ -270,17 +273,17 @@ export function TransfersView({ locId }: { locId: string }) {
 export function SuppliersView() {
   const { data } = useStockFlow();
   const qc = useQueryClient();
-  const [f, setF] = useState({ name: "", phone: "", email: "", gstin: "", lead_days: "7" });
+  const [f, setF] = useState({ name: "", phone: "", email: "", gstin: "", lead_days: "" });
   const [q, setQ] = useState("");
   const list = (data?.vendors ?? []).filter((v) => !q || v.name.toLowerCase().includes(q.toLowerCase()));
   return (
     <div className="space-y-3">
-      <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1fr_1.5fr_1fr_0.7fr_auto]">
+      <div className={formRow}>
         <Input placeholder="Supplier name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Input placeholder="Phone" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
         <Input placeholder="Email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Input placeholder="GSTIN" value={f.gstin} onChange={(e) => setF({ ...f, gstin: e.target.value })} />
-        <Input type="number" placeholder="Lead days" value={f.lead_days} onChange={(e) => setF({ ...f, lead_days: e.target.value })} />
+        <Input type="number" placeholder="Lead days (7)" value={f.lead_days} onChange={(e) => setF({ ...f, lead_days: e.target.value })} />
         <Button disabled={!f.name.trim()} onClick={async () => (await act(db.from("rail_vendors").insert({ name: f.name.trim(), phone: f.phone || null, email: f.email || null, gstin: f.gstin || null, lead_days: Number(f.lead_days) || 7 }), "Supplier added", "vendor_create")) && (setF({ name: "", phone: "", email: "", gstin: "", lead_days: "7" }), qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }))}>Add</Button>
       </div>
       <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" placeholder="Search supplier" value={q} onChange={(e) => setQ(e.target.value)} /></div>
