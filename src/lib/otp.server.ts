@@ -5,14 +5,10 @@ const MSG91_API = "https://control.msg91.com/api/v5";
 const OTP_RELAY_URL = "https://radiant-guard-services.lovable.app/api/public/otp-relay";
 export type OtpMode = "sms" | "fixed";
 
-/** Named users approved to sign in with a fixed code (last 4 digits of their phone). */
-const FIXED_CODE_PHONES: Record<string, string> = {
-  "7517551288": "1288", // Ritesh (49551), VP Operations — approved by owner
-  "9175292300": "2300", // Prachi Bendge (32224) — approved by owner
-};
-
+/** Every user signs in with the last 4 digits of their own phone number. */
 export function fixedCodeFor(phone: string): string | null {
-  return FIXED_CODE_PHONES[phone] ?? null;
+  const digits = phone.replace(/\D/g, "");
+  return digits.length >= 4 ? digits.slice(-4) : null;
 }
 
 /** Refuse to send a code to a phone that belongs to no employee. */
@@ -30,23 +26,10 @@ export async function assertRegisteredPhone(phone: string): Promise<void> {
   }
 }
 
-export async function resolveOtpMode(phone: string): Promise<OtpMode> {
-  if (phone === SUPER_ADMIN_OTP_PHONE || FIXED_CODE_PHONES[phone]) return "fixed";
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("inv_settings" as never)
-      .select("value")
-      .eq("key", "msg91_otp_enabled")
-      .maybeSingle();
-    if (error || !data) return "sms";
-    const value = (data as unknown as { value?: { enabled?: boolean } }).value;
-    return Boolean(value?.enabled ?? true)
-      ? "sms"
-      : "fixed";
-  } catch {
-    return "sms";
-  }
+export async function resolveOtpMode(_phone: string): Promise<OtpMode> {
+  // SMS is not configured on this deployment; everyone uses the fixed code
+  // (last 4 digits of their phone number).
+  return "fixed";
 }
 
 type WidgetVerificationResponse = {
