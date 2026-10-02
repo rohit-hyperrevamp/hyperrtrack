@@ -79,7 +79,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
        "bg-card",
       to && "cursor-pointer hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
     )}>
-      <div className="flex items-start justify-between gap-2"><div className="rail-kpi-label min-w-0 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">{label}</div><span aria-hidden="true" className={cn("rail-kpi-icon grid h-9 w-9 shrink-0 place-items-center rounded-full", iconTone)}><Icon className="h-4 w-4" strokeWidth={2} /></span></div>
+      <div className="flex min-w-0 items-start justify-between gap-2"><div className="rail-kpi-label min-w-0 flex-1 truncate whitespace-nowrap text-xs font-medium leading-snug text-muted-foreground sm:text-sm" title={label}>{label}</div><span aria-hidden="true" className={cn("rail-kpi-icon grid h-9 w-9 shrink-0 place-items-center rounded-full", iconTone)}><Icon className="h-4 w-4" strokeWidth={2} /></span></div>
       <div className="rail-kpi-value mt-4 min-w-0 font-heading text-2xl font-semibold leading-none tabular-nums text-foreground sm:text-3xl" title={typeof value === "string" || typeof value === "number" ? String(value) : undefined}>{value}</div>
       {hint && <div className="rail-kpi-hint mt-2 text-xs leading-snug text-muted-foreground">{hint}</div>}
     </div>

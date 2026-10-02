@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, CheckCircle2, Percent, UserPlus, Users, XCircle, ArrowRight, Briefcase } from "lucide-react";
+import { CalendarClock, UserPlus, Users, ArrowRight, Briefcase } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Kpi } from "@/lib/rail-ui";
