@@ -48,8 +48,8 @@ function RailAttendance() {
     <PageHeader title="Attendance" description="Rail shifts and check-ins" />
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <Kpi label="Required today" value={date === today() ? data?.required ?? "—" : "—"} />
-      <Kpi label="On duty" value={on} tone="good" />
-      <Kpi label="Checked out" value={left} />
+      <Kpi label="On duty" value={isLoading ? "—" : on} tone="good" />
+      <Kpi label="Checked out" value={isLoading ? "—" : left} />
       <Kpi label="Shortfall today" value={date === today() ? Math.max(0, (data?.required ?? 0) - on) : "—"} tone={date === today() && data && data.required > on ? "bad" : "default"} />
     </div>
     <div className="flex items-center justify-between gap-3 border-b border-border pb-3"><h2 className="font-heading text-base font-semibold">{date === today() ? "Today's shifts" : date}</h2><Button asChild size="sm" variant="outline"><Link to="/admin/attendance/employee"><Search className="mr-2 h-4 w-4" />Employee lookup</Link></Button></div>

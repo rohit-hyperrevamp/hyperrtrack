@@ -14,9 +14,10 @@ export const listRailEvidence = createServerFn({ method: "GET" })
     const allowed = new Map<string, boolean>();
     const scoped = [];
     for (const task of tasks ?? []) {
-      const key = task.location_id ?? "";
+      if (!task.location_id) continue;
+      const key = task.location_id;
       if (!allowed.has(key)) {
-        const { data: canViewPlace, error: permissionError } = await context.supabase.rpc("rail_can", { _module: "rail_quality", _action: "view", _location: task.location_id ?? undefined });
+        const { data: canViewPlace, error: permissionError } = await context.supabase.rpc("rail_can", { _module: "rail_quality", _action: "view", _location: task.location_id });
         if (permissionError) throw permissionError;
         allowed.set(key, canViewPlace === true);
       }
@@ -38,8 +39,8 @@ export const getRailEvidencePhoto = createServerFn({ method: "GET" })
       .select("id,location_id,photo_path,status,deleted_at")
       .eq("id", data.taskId).maybeSingle();
     if (error) throw error;
-    if (!task || task.deleted_at || !task.photo_path) throw new Error("Photo not available");
-    const { data: allowed, error: permissionError } = await context.supabase.rpc("rail_can", { _module: "rail_quality", _action: "view", _location: task.location_id ?? undefined });
+    if (!task || task.deleted_at || !task.photo_path || !task.location_id) throw new Error("Photo not available");
+    const { data: allowed, error: permissionError } = await context.supabase.rpc("rail_can", { _module: "rail_quality", _action: "view", _location: task.location_id });
     if (permissionError || !allowed) throw new Error("You do not have access to this photo");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error: signError } = await supabaseAdmin.storage.from("rail-task-photos").createSignedUrl(task.photo_path, 300);
