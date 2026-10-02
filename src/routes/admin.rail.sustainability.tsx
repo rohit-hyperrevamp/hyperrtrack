@@ -79,9 +79,11 @@ function SustainPage() {
 
   async function addReading() {
     const m = data!.meters.find((x) => x.id === reading.meter_id);
+    if (usedSince !== null && usedSince < 0) return toast.error(`Reading is lower than the last one (${num(prevVal!, 1)}). Dials only go up — check the number or a digit may be missing.`);
     const { error } = await db.from("rail_meter_readings").insert({ meter_id: reading.meter_id, reading: Number(reading.value), location_id: m?.location_id });
     if (error) return toast.error(error.message);
-    toast.success("Reading saved"); setReading({ meter_id: "", value: "" });
+    toast.success(usedSince !== null ? `Reading saved · ${num(usedSince, 1)} ${m?.unit ?? ""} used since last reading` : "Reading saved");
+    setReading({ meter_id: "", value: "" });
     void logActivity({ module: "Rail Sustainability", action: "meter_reading", entityType: "rail_meter_readings", details: { meter: m?.code } });
     qc.invalidateQueries({ queryKey: ["rail-sus"] });
   }
