@@ -49,9 +49,11 @@ import {
   Sun,
   Radio,
   TrendingUp,
+  Search,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { RailDockPulse } from "@/components/RailDockPulse";
+import { RAIL_TOPBAR_SLOT_ID } from "@/components/RailTopbar";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
