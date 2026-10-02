@@ -3882,20 +3882,26 @@ export type Database = {
       inv_items: {
         Row: {
           category_id: string | null
+          co2e_kg_per_unit: number | null
           created_at: string
           default_reorder_level: number
           description: string
+          dilution_ratio: string | null
           enabled: boolean
+          hazard_class: string | null
           hsn_code: string
           id: string
           image_url: string
+          is_concentrate: boolean
           is_serialized: boolean
           is_sized: boolean
           item_code: string
           last_purchase_at: string | null
           last_purchase_price: number | null
           last_purchase_vendor_id: string | null
+          msds_path: string | null
           name: string
+          rail_category: string | null
           size_chart_id: string | null
           standard_cost: number
           standard_issue_price: number
@@ -3904,20 +3910,26 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          co2e_kg_per_unit?: number | null
           created_at?: string
           default_reorder_level?: number
           description?: string
+          dilution_ratio?: string | null
           enabled?: boolean
+          hazard_class?: string | null
           hsn_code?: string
           id?: string
           image_url?: string
+          is_concentrate?: boolean
           is_serialized?: boolean
           is_sized?: boolean
           item_code: string
           last_purchase_at?: string | null
           last_purchase_price?: number | null
           last_purchase_vendor_id?: string | null
+          msds_path?: string | null
           name: string
+          rail_category?: string | null
           size_chart_id?: string | null
           standard_cost?: number
           standard_issue_price?: number
@@ -3926,20 +3938,26 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          co2e_kg_per_unit?: number | null
           created_at?: string
           default_reorder_level?: number
           description?: string
+          dilution_ratio?: string | null
           enabled?: boolean
+          hazard_class?: string | null
           hsn_code?: string
           id?: string
           image_url?: string
+          is_concentrate?: boolean
           is_serialized?: boolean
           is_sized?: boolean
           item_code?: string
           last_purchase_at?: string | null
           last_purchase_price?: number | null
           last_purchase_vendor_id?: string | null
+          msds_path?: string | null
           name?: string
+          rail_category?: string | null
           size_chart_id?: string | null
           standard_cost?: number
           standard_issue_price?: number
@@ -5923,6 +5941,65 @@ export type Database = {
         }
         Relationships: []
       }
+      rail_acwp_runs: {
+        Row: {
+          coaches: number
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          fresh_litres: number | null
+          id: string
+          kwh: number | null
+          location_id: string | null
+          recycled_litres: number | null
+          run_date: string
+          run_minutes: number | null
+          source_file: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coaches: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          fresh_litres?: number | null
+          id?: string
+          kwh?: number | null
+          location_id?: string | null
+          recycled_litres?: number | null
+          run_date: string
+          run_minutes?: number | null
+          source_file?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coaches?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          fresh_litres?: number | null
+          id?: string
+          kwh?: number | null
+          location_id?: string | null
+          recycled_litres?: number | null
+          run_date?: string
+          run_minutes?: number | null
+          source_file?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_acwp_runs_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_ai_photo_scores: {
         Row: {
           area: string | null
@@ -6064,6 +6141,345 @@ export type Database = {
         }
         Relationships: []
       }
+      rail_alerts: {
+        Row: {
+          ack_at: string | null
+          ack_by: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          link: string | null
+          location_id: string | null
+          message: string
+          rule_code: string
+          severity: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ack_at?: string | null
+          ack_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          link?: string | null
+          location_id?: string | null
+          message: string
+          rule_code: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ack_at?: string | null
+          ack_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          link?: string | null
+          location_id?: string | null
+          message?: string
+          rule_code?: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_asset_custody: {
+        Row: {
+          asset_id: string
+          checked_in_at: string | null
+          checked_out_at: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          due_back_at: string | null
+          id: string
+          in_condition: string | null
+          location_id: string | null
+          out_condition: string
+          person_id: string
+          photo_path: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          asset_id: string
+          checked_in_at?: string | null
+          checked_out_at?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          due_back_at?: string | null
+          id?: string
+          in_condition?: string | null
+          location_id?: string | null
+          out_condition?: string
+          person_id: string
+          photo_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          asset_id?: string
+          checked_in_at?: string | null
+          checked_out_at?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          due_back_at?: string | null
+          id?: string
+          in_condition?: string | null
+          location_id?: string | null
+          out_condition?: string
+          person_id?: string
+          photo_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_asset_custody_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "rail_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_asset_custody_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_asset_maintenance: {
+        Row: {
+          asset_id: string
+          closed_at: string | null
+          cost: number | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          downtime_hours: number | null
+          due_on: string | null
+          id: string
+          kind: string
+          location_id: string | null
+          opened_at: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          asset_id: string
+          closed_at?: string | null
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          downtime_hours?: number | null
+          due_on?: string | null
+          id?: string
+          kind?: string
+          location_id?: string | null
+          opened_at?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          asset_id?: string
+          closed_at?: string | null
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          downtime_hours?: number | null
+          due_on?: string | null
+          id?: string
+          kind?: string
+          location_id?: string | null
+          opened_at?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_asset_maintenance_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "rail_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_assets: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          custodian_person_id: string | null
+          deleted_at: string | null
+          id: string
+          last_pm_on: string | null
+          location_id: string | null
+          name: string
+          pm_every_days: number | null
+          pm_every_hours: number | null
+          purchase_date: string | null
+          qr_tag: string
+          run_hours: number
+          serial_no: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          value: number | null
+          warranty_until: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          custodian_person_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          last_pm_on?: string | null
+          location_id?: string | null
+          name: string
+          pm_every_days?: number | null
+          pm_every_hours?: number | null
+          purchase_date?: string | null
+          qr_tag: string
+          run_hours?: number
+          serial_no?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+          warranty_until?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          custodian_person_id?: string | null
+          deleted_at?: string | null
+          id?: string
+          last_pm_on?: string | null
+          location_id?: string | null
+          name?: string
+          pm_every_days?: number | null
+          pm_every_hours?: number | null
+          purchase_date?: string | null
+          qr_tag?: string
+          run_hours?: number
+          serial_no?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+          warranty_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_assets_custodian_person_id_fkey"
+            columns: ["custodian_person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_assets_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_attendance: {
+        Row: {
+          check_in: string | null
+          check_out: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          hours: number | null
+          id: string
+          location_id: string | null
+          person_id: string
+          shift_id: string | null
+          updated_at: string
+          updated_by: string | null
+          work_date: string
+        }
+        Insert: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          hours?: number | null
+          id?: string
+          location_id?: string | null
+          person_id: string
+          shift_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_date: string
+        }
+        Update: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          hours?: number | null
+          id?: string
+          location_id?: string | null
+          person_id?: string
+          shift_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_attendance_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_attendance_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_attendance_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "rail_shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_audit_trail: {
         Row: {
           action: string
@@ -6096,6 +6512,213 @@ export type Database = {
           table_name?: string
         }
         Relationships: []
+      }
+      rail_bill_lines: {
+        Row: {
+          amount: number
+          bill_id: string
+          billing_unit: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string
+          dup_key: string | null
+          event_coach_id: string | null
+          event_id: string | null
+          id: string
+          qty: number
+          rate: number
+          rate_line_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount: number
+          bill_id: string
+          billing_unit: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description: string
+          dup_key?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          qty: number
+          rate: number
+          rate_line_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          billing_unit?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string
+          dup_key?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          qty?: number
+          rate?: number
+          rate_line_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_bill_lines_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "rail_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_bill_signoffs: {
+        Row: {
+          bill_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          file_sha256: string | null
+          id: string
+          signed_at: string
+          signer: string | null
+          signer_mobile: string | null
+          stage: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bill_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_sha256?: string | null
+          id?: string
+          signed_at?: string
+          signer?: string | null
+          signer_mobile?: string | null
+          stage: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bill_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_sha256?: string | null
+          id?: string
+          signed_at?: string
+          signer?: string | null
+          signer_mobile?: string | null
+          stage?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_bill_signoffs_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "rail_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_bills: {
+        Row: {
+          annexure_sha256: string | null
+          bill_month: string
+          bill_no: string | null
+          certified_at: string | null
+          certified_by: string | null
+          checker_signed_at: string | null
+          checker_signed_by: string | null
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          credit_total: number
+          deleted_at: string | null
+          gross: number
+          gst_amount: number
+          gst_percent: number
+          id: string
+          net_total: number
+          paid_at: string | null
+          paid_ref: string | null
+          penalty_total: number
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          annexure_sha256?: string | null
+          bill_month: string
+          bill_no?: string | null
+          certified_at?: string | null
+          certified_by?: string | null
+          checker_signed_at?: string | null
+          checker_signed_by?: string | null
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          credit_total?: number
+          deleted_at?: string | null
+          gross?: number
+          gst_amount?: number
+          gst_percent?: number
+          id?: string
+          net_total?: number
+          paid_at?: string | null
+          paid_ref?: string | null
+          penalty_total?: number
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          annexure_sha256?: string | null
+          bill_month?: string
+          bill_no?: string | null
+          certified_at?: string | null
+          certified_by?: string | null
+          checker_signed_at?: string | null
+          checker_signed_by?: string | null
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          credit_total?: number
+          deleted_at?: string | null
+          gross?: number
+          gst_amount?: number
+          gst_percent?: number
+          id?: string
+          net_total?: number
+          paid_at?: string | null
+          paid_ref?: string | null
+          penalty_total?: number
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_bills_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rail_checklist_items: {
         Row: {
@@ -6383,6 +7006,242 @@ export type Database = {
           },
         ]
       }
+      rail_complaints: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          coach_number: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          id: string
+          location_id: string | null
+          ref_no: string | null
+          resolved_at: string | null
+          sla_due: string | null
+          source: string
+          status: string
+          train_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          coach_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          ref_no?: string | null
+          resolved_at?: string | null
+          sla_due?: string | null
+          source?: string
+          status?: string
+          train_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          coach_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          ref_no?: string | null
+          resolved_at?: string | null
+          sla_due?: string | null
+          source?: string
+          status?: string
+          train_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_complaints_train_id_fkey"
+            columns: ["train_id"]
+            isOneToOne: false
+            referencedRelation: "rail_trains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_compliance_docs: {
+        Row: {
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          doc_type: string
+          file_path: string | null
+          id: string
+          month: string
+          reference: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          doc_type: string
+          file_path?: string | null
+          id?: string
+          month: string
+          reference?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          doc_type?: string
+          file_path?: string | null
+          id?: string
+          month?: string
+          reference?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_compliance_docs_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_consumption_norms: {
+        Row: {
+          coach_type_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          item_id: string
+          qty_per_coach: number
+          service_type_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          item_id: string
+          qty_per_coach: number
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          item_id?: string
+          qty_per_coach?: number
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_consumption_norms_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_consumption_norms_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_consumption_norms_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_contract_items: {
+        Row: {
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          item_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          item_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          item_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_contract_items_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_contract_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_contract_sites: {
         Row: {
           contract_id: string
@@ -6493,6 +7352,50 @@ export type Database = {
           },
         ]
       }
+      rail_credit_notes: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          reason: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount: number
+          bill_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          reason: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          reason?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_credit_notes_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "rail_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_custom_fields: {
         Row: {
           created_at: string
@@ -6592,6 +7495,390 @@ export type Database = {
           },
         ]
       }
+      rail_emission_factors: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          factor: number
+          id: string
+          resource: string
+          source_note: string | null
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          factor: number
+          id?: string
+          resource: string
+          source_note?: string | null
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          factor?: number
+          id?: string
+          resource?: string
+          source_note?: string | null
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_esg_reports: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          file_hash: string | null
+          id: string
+          month: string
+          signed_at: string | null
+          signed_by: string | null
+          summary: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_hash?: string | null
+          id?: string
+          month: string
+          signed_at?: string | null
+          signed_by?: string | null
+          summary?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_hash?: string | null
+          id?: string
+          month?: string
+          signed_at?: string | null
+          signed_by?: string | null
+          summary?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_esg_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_event_coaches: {
+        Row: {
+          ai_score: number | null
+          approved_at: string | null
+          approved_by: string | null
+          coach_id: string | null
+          coach_type_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_id: string
+          first_pass: boolean | null
+          id: string
+          location_id: string | null
+          position: number
+          rate_fraction: number
+          removed_reason: string | null
+          rework_count: number
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ai_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          coach_id?: string | null
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_id: string
+          first_pass?: boolean | null
+          id?: string
+          location_id?: string | null
+          position: number
+          rate_fraction?: number
+          removed_reason?: string | null
+          rework_count?: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ai_score?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          coach_id?: string | null
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_id?: string
+          first_pass?: boolean | null
+          id?: string
+          location_id?: string | null
+          position?: number
+          rate_fraction?: number
+          removed_reason?: string | null
+          rework_count?: number
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_event_coaches_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coaches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_event_coaches_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_event_coaches_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "rail_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_event_tasks: {
+        Row: {
+          ai_score: number | null
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          completed_offline: boolean
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_coach_id: string
+          event_id: string | null
+          id: string
+          location_id: string | null
+          offline_id: string | null
+          photo_path: string | null
+          standard_minutes: number
+          started_at: string | null
+          status: string
+          task_name: string
+          task_template_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ai_score?: number | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          completed_offline?: boolean
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id: string
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          offline_id?: string | null
+          photo_path?: string | null
+          standard_minutes?: number
+          started_at?: string | null
+          status?: string
+          task_name: string
+          task_template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ai_score?: number | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          completed_offline?: boolean
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          offline_id?: string | null
+          photo_path?: string | null
+          standard_minutes?: number
+          started_at?: string | null
+          status?: string
+          task_name?: string
+          task_template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_event_tasks_event_coach_id_fkey"
+            columns: ["event_coach_id"]
+            isOneToOne: false
+            referencedRelation: "rail_event_coaches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_event_tasks_task_template_id_fkey"
+            columns: ["task_template_id"]
+            isOneToOne: false
+            referencedRelation: "rail_task_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_events: {
+        Row: {
+          actual_end: string | null
+          actual_start: string | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_date: string
+          id: string
+          location_id: string
+          notes: string | null
+          placed_at: string | null
+          planned_end: string | null
+          planned_start: string | null
+          released_at: string | null
+          service_type_id: string
+          shift_id: string | null
+          status: string
+          supervisor_id: string | null
+          train_id: string
+          updated_at: string
+          updated_by: string | null
+          wash_method: string
+        }
+        Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_date: string
+          id?: string
+          location_id: string
+          notes?: string | null
+          placed_at?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          released_at?: string | null
+          service_type_id: string
+          shift_id?: string | null
+          status?: string
+          supervisor_id?: string | null
+          train_id: string
+          updated_at?: string
+          updated_by?: string | null
+          wash_method?: string
+        }
+        Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_date?: string
+          id?: string
+          location_id?: string
+          notes?: string | null
+          placed_at?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          released_at?: string | null
+          service_type_id?: string
+          shift_id?: string | null
+          status?: string
+          supervisor_id?: string | null
+          train_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          wash_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_events_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_events_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_events_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_service_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_events_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "rail_shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_events_train_id_fkey"
+            columns: ["train_id"]
+            isOneToOne: false
+            referencedRelation: "rail_trains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_feature_flags: {
         Row: {
           created_at: string
@@ -6627,6 +7914,284 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      rail_inspections: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_coach_id: string | null
+          event_id: string | null
+          id: string
+          inspector_id: string | null
+          inspector_role: string | null
+          location_id: string | null
+          reason_code: string | null
+          remarks: string | null
+          result: string
+          score: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          inspector_id?: string | null
+          inspector_role?: string | null
+          location_id?: string | null
+          reason_code?: string | null
+          remarks?: string | null
+          result: string
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          inspector_id?: string | null
+          inspector_role?: string | null
+          location_id?: string | null
+          reason_code?: string | null
+          remarks?: string | null
+          result?: string
+          score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_inspections_event_coach_id_fkey"
+            columns: ["event_coach_id"]
+            isOneToOne: false
+            referencedRelation: "rail_event_coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_item_batches: {
+        Row: {
+          batch_no: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          expiry_date: string | null
+          id: string
+          item_id: string
+          location_id: string | null
+          qty_on_hand: number
+          unit_cost: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_no: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          item_id: string
+          location_id?: string | null
+          qty_on_hand?: number
+          unit_cost?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_no?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          item_id?: string
+          location_id?: string | null
+          qty_on_hand?: number
+          unit_cost?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_item_batches_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_item_batches_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_job_consumption: {
+        Row: {
+          cleaner_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_coach_id: string
+          event_id: string | null
+          id: string
+          item_id: string
+          location_id: string | null
+          norm_qty: number
+          qty: number
+          source: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cleaner_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id: string
+          event_id?: string | null
+          id?: string
+          item_id: string
+          location_id?: string | null
+          norm_qty?: number
+          qty: number
+          source?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cleaner_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string
+          event_id?: string | null
+          id?: string
+          item_id?: string
+          location_id?: string | null
+          norm_qty?: number
+          qty?: number
+          source?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_job_consumption_event_coach_id_fkey"
+            columns: ["event_coach_id"]
+            isOneToOne: false
+            referencedRelation: "rail_event_coaches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_job_consumption_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_kit_issues: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          issue_date: string
+          item_id: string
+          location_id: string | null
+          qty_issued: number
+          qty_returned: number
+          returned_at: string | null
+          shift_id: string | null
+          supervisor_person_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issue_date?: string
+          item_id: string
+          location_id?: string | null
+          qty_issued: number
+          qty_returned?: number
+          returned_at?: string | null
+          shift_id?: string | null
+          supervisor_person_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issue_date?: string
+          item_id?: string
+          location_id?: string | null
+          qty_issued?: number
+          qty_returned?: number
+          returned_at?: string | null
+          shift_id?: string | null
+          supervisor_person_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_kit_issues_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_kit_issues_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_kit_issues_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_kit_issues_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "rail_shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_kit_issues_supervisor_person_id_fkey"
+            columns: ["supervisor_person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rail_labels: {
         Row: {
@@ -6723,6 +8288,324 @@ export type Database = {
           },
         ]
       }
+      rail_meter_readings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_id: string | null
+          id: string
+          location_id: string | null
+          meter_id: string
+          photo_path: string | null
+          read_at: string
+          reader_id: string | null
+          reading: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          meter_id: string
+          photo_path?: string | null
+          read_at?: string
+          reader_id?: string | null
+          reading: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          meter_id?: string
+          photo_path?: string | null
+          read_at?: string
+          reader_id?: string | null
+          reading?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_meter_readings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "rail_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_meter_readings_meter_id_fkey"
+            columns: ["meter_id"]
+            isOneToOne: false
+            referencedRelation: "rail_meters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_meters: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          location_id: string | null
+          name: string
+          resource: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          location_id?: string | null
+          name: string
+          resource: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          location_id?: string | null
+          name?: string
+          resource?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_meters_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_penalties: {
+        Row: {
+          amount: number
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_coach_id: string | null
+          event_id: string | null
+          id: string
+          location_id: string | null
+          penalty_date: string
+          qty: number
+          reason: string | null
+          rule_code: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount: number
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          penalty_date?: string
+          qty?: number
+          reason?: string | null
+          rule_code: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          penalty_date?: string
+          qty?: number
+          reason?: string | null
+          rule_code?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_penalties_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_penalties_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "rail_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_penalty_rules: {
+        Row: {
+          amount: number
+          basis: string
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount: number
+          basis?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number
+          basis?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_people: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          daily_wage: number | null
+          deleted_at: string | null
+          enabled: boolean
+          full_name: string
+          home_location_id: string | null
+          id: string
+          language: string
+          mobile: string
+          role_key: string
+          scope_contract_id: string | null
+          scope_location_id: string | null
+          scope_type: string
+          skill: string
+          updated_at: string
+          updated_by: string | null
+          valid_from: string
+          valid_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          daily_wage?: number | null
+          deleted_at?: string | null
+          enabled?: boolean
+          full_name: string
+          home_location_id?: string | null
+          id?: string
+          language?: string
+          mobile: string
+          role_key: string
+          scope_contract_id?: string | null
+          scope_location_id?: string | null
+          scope_type?: string
+          skill?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          daily_wage?: number | null
+          deleted_at?: string | null
+          enabled?: boolean
+          full_name?: string
+          home_location_id?: string | null
+          id?: string
+          language?: string
+          mobile?: string
+          role_key?: string
+          scope_contract_id?: string | null
+          scope_location_id?: string | null
+          scope_type?: string
+          skill?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_people_home_location_id_fkey"
+            columns: ["home_location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_people_scope_contract_id_fkey"
+            columns: ["scope_contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_people_scope_location_id_fkey"
+            columns: ["scope_location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_permissions: {
         Row: {
           action: string
@@ -6758,6 +8641,137 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      rail_ppe_issues: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          issued_on: string
+          item_name: string
+          location_id: string | null
+          next_due: string | null
+          person_id: string
+          replace_every_days: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issued_on?: string
+          item_name: string
+          location_id?: string | null
+          next_due?: string | null
+          person_id: string
+          replace_every_days?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issued_on?: string
+          item_name?: string
+          location_id?: string | null
+          next_due?: string | null
+          person_id?: string
+          replace_every_days?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_ppe_issues_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_purchase_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          grn_at: string | null
+          grn_batch: string | null
+          grn_expiry: string | null
+          grn_qty: number | null
+          id: string
+          item_id: string
+          location_id: string | null
+          qty: number
+          reason: string | null
+          requested_by: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          grn_at?: string | null
+          grn_batch?: string | null
+          grn_expiry?: string | null
+          grn_qty?: number | null
+          id?: string
+          item_id: string
+          location_id?: string | null
+          qty: number
+          reason?: string | null
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          grn_at?: string | null
+          grn_batch?: string | null
+          grn_expiry?: string | null
+          grn_qty?: number | null
+          id?: string
+          item_id?: string
+          location_id?: string | null
+          qty?: number
+          reason?: string | null
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_purchase_requests_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_purchase_requests_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rail_rate_lines: {
         Row: {
@@ -6875,6 +8889,116 @@ export type Database = {
         }
         Relationships: []
       }
+      rail_resource_ledger: {
+        Row: {
+          co2e_kg: number
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          event_coach_id: string | null
+          event_id: string | null
+          id: string
+          ledger_date: string
+          location_id: string | null
+          metered: boolean
+          method: string | null
+          qty: number
+          resource: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          co2e_kg?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          ledger_date?: string
+          location_id?: string | null
+          metered?: boolean
+          method?: string | null
+          qty: number
+          resource: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          co2e_kg?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          event_coach_id?: string | null
+          event_id?: string | null
+          id?: string
+          ledger_date?: string
+          location_id?: string | null
+          metered?: boolean
+          method?: string | null
+          qty?: number
+          resource?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_resource_ledger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "rail_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_resource_norms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          method: string
+          qty_per_coach: number
+          resource: string
+          unit: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          method: string
+          qty_per_coach: number
+          resource: string
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          method?: string
+          qty_per_coach?: number
+          resource?: string
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rail_roles: {
         Row: {
           created_at: string
@@ -6956,6 +9080,51 @@ export type Database = {
           name?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_settings_kv: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          key: string
+          text_value: string | null
+          updated_at: string
+          updated_by: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          key: string
+          text_value?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          key?: string
+          text_value?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
         }
         Relationships: []
       }
@@ -7310,6 +9479,57 @@ export type Database = {
           user_id?: string
           valid_from?: string
           valid_to?: string | null
+        }
+        Relationships: []
+      }
+      rail_wage_rules: {
+        Row: {
+          area_class: string
+          basic_per_day: number
+          category: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          skill: string
+          total_per_day: number | null
+          updated_at: string
+          updated_by: string | null
+          vda_per_day: number
+        }
+        Insert: {
+          area_class: string
+          basic_per_day: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from: string
+          effective_to?: string | null
+          id?: string
+          skill: string
+          total_per_day?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          vda_per_day: number
+        }
+        Update: {
+          area_class?: string
+          basic_per_day?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          skill?: string
+          total_per_day?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          vda_per_day?: number
         }
         Relationships: []
       }
@@ -9395,11 +11615,89 @@ export type Database = {
         }
         Returns: Json
       }
+      rail_bill_advance: {
+        Args: {
+          _bill: string
+          _otp?: string
+          _ref?: string
+          _sha256?: string
+          _to: string
+        }
+        Returns: undefined
+      }
       rail_can: {
         Args: { _action: string; _location?: string; _module: string }
         Returns: boolean
       }
+      rail_check_shortfall: { Args: { _date: string }; Returns: number }
+      rail_complete_task: {
+        Args: {
+          _ai_score?: number
+          _completed_at?: string
+          _offline_id?: string
+          _photo?: string
+          _task: string
+        }
+        Returns: string
+      }
+      rail_generate_bill: {
+        Args: { _contract: string; _month: string }
+        Returns: string
+      }
+      rail_kpis: { Args: { _date?: string }; Returns: Json }
       rail_location_ancestors: { Args: { _loc: string }; Returns: string[] }
+      rail_min_wage: {
+        Args: { _location: string; _on?: string; _skill: string }
+        Returns: number
+      }
+      rail_my_mobile: { Args: never; Returns: string }
+      rail_my_roles: {
+        Args: never
+        Returns: {
+          role_key: string
+          scope_location_id: string
+          scope_type: string
+        }[]
+      }
+      rail_place_rake: {
+        Args: { _event: string; _reason?: string; _removed?: string[] }
+        Returns: undefined
+      }
+      rail_plan_day: {
+        Args: { _date: string; _location?: string }
+        Returns: number
+      }
+      rail_post_event_resources: {
+        Args: { _event: string }
+        Returns: undefined
+      }
+      rail_release_event: { Args: { _event: string }; Returns: undefined }
+      rail_review_coach: {
+        Args: {
+          _coach: string
+          _pass: boolean
+          _reason?: string
+          _remarks?: string
+          _score?: number
+        }
+        Returns: undefined
+      }
+      rail_roll_up: { Args: { _coach: string }; Returns: undefined }
+      rail_save_person: {
+        Args: {
+          _home?: string
+          _mobile: string
+          _name: string
+          _role: string
+          _scope?: string
+          _scope_contract?: string
+          _scope_location?: string
+          _skill?: string
+          _wage?: number
+        }
+        Returns: string
+      }
+      rail_setting: { Args: { _key: string; _on?: string }; Returns: number }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }
       rec_reschedule_interview: {
         Args: {
