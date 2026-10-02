@@ -154,7 +154,7 @@ function CandidatePage() {
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-1">
           <h2 className="font-display text-sm font-semibold">Details</h2>
           <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Post</span><span className="truncate font-medium">{opening?.title ?? "Not assigned"}</span></div>
-          {isRecruiter && !closed && <Button variant="outline" size="sm" onClick={() => setAssignOpening(true)}>{opening ? "Change post" : "Assign post"}</Button>}
+          {isRecruiter && ["new", "screening"].includes(c.stage) && <Button variant="outline" size="sm" onClick={() => setAssignOpening(true)}>{opening ? "Change post" : "Assign post"}</Button>}
           <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Item k="Location" v={c.current_location} />
             <Item k="Experience" v={`${c.experience_years} yrs`} />
