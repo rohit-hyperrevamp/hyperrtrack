@@ -47,7 +47,12 @@ function CommandPage() {
         events.push(...page);
         if (page.length < 1000) break;
       }
-      return dates.map((date) => ({ date, total: events.filter((e) => e.event_date === date).length, released: events.filter((e) => e.event_date === date && e.status === "released").length }));
+      return dates.map((day) => {
+        const jobs = events.filter((e) => e.event_date === day);
+        const cleaned = jobs.filter((e) => ["completed", "approved", "released"].includes(e.status)).length;
+        const ratio = jobs.length ? cleaned / jobs.length : 0;
+        return { date: day, total: jobs.length, cleaned, tone: ratio >= 0.9 ? "on-track" : ratio >= 0.6 ? "in-between" : "behind" };
+      });
     },
   });
   const { data: feed = [] } = useQuery({
@@ -91,14 +96,14 @@ function CommandPage() {
           <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">7 days to {new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span></div>
           {hasTrend ? <>
             <div className="mt-6 grid h-44 grid-cols-7 items-end gap-2 border-b border-border/70 pb-1 sm:gap-4">
-              {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.released} released of ${d.total} jobs`}>
-                <div className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-brand/15" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
-                  <div className="absolute inset-x-0 bottom-0 bg-brand" style={{ height: `${d.total ? d.released / d.total * 100 : 0}%` }} />
+              {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.cleaned} cleaned of ${d.total} planned jobs (${d.total ? Math.round(d.cleaned / d.total * 100) : 0}%)`} aria-label={`${d.date}: ${d.cleaned} of ${d.total} planned jobs cleaned`}>
+                <div className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-muted" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
+                  <div className="absolute inset-x-0 bottom-0" data-performance={d.tone} style={{ height: `${d.total ? d.cleaned / d.total * 100 : 0}%` }} />
                 </div>
               </div>)}
             </div>
             <div className="mt-2 grid grid-cols-7 gap-2 text-center text-[11px] text-muted-foreground sm:gap-4">{trend.map((d) => <span key={d.date}>{new Date(`${d.date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short" })}</span>)}</div>
-            <div className="mt-4 flex gap-4 text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-sm bg-brand" />Released</span><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-sm bg-brand/20" />Other jobs</span></div>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-good" />≥90% cleaned</span><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-brand" />60–89%</span><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-danger" />Below 60%</span><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-muted ring-1 ring-border" />Not cleaned</span></div>
           </> : <div className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">No cleaning jobs in the last 7 days</div>}
         </section>
         <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Depot operations">
