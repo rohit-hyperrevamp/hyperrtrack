@@ -8410,6 +8410,87 @@ export type Database = {
           },
         ]
       }
+      rail_pay_structures: {
+        Row: {
+          bonus_pct: number
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          esic_emp_pct: number
+          esic_er_pct: number
+          esic_gross_limit: number
+          hra_pct: number
+          id: string
+          is_placeholder: boolean
+          label: string
+          leave_pct: number
+          lwf_monthly: number
+          pf_emp_pct: number
+          pf_er_pct: number
+          pf_wage_cap: number
+          pt_monthly: number
+          role_key: string
+          skill: string
+          uniform_pct: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bonus_pct?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          esic_emp_pct?: number
+          esic_er_pct?: number
+          esic_gross_limit?: number
+          hra_pct?: number
+          id?: string
+          is_placeholder?: boolean
+          label: string
+          leave_pct?: number
+          lwf_monthly?: number
+          pf_emp_pct?: number
+          pf_er_pct?: number
+          pf_wage_cap?: number
+          pt_monthly?: number
+          role_key: string
+          skill?: string
+          uniform_pct?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bonus_pct?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          esic_emp_pct?: number
+          esic_er_pct?: number
+          esic_gross_limit?: number
+          hra_pct?: number
+          id?: string
+          is_placeholder?: boolean
+          label?: string
+          leave_pct?: number
+          lwf_monthly?: number
+          pf_emp_pct?: number
+          pf_er_pct?: number
+          pf_wage_cap?: number
+          pt_monthly?: number
+          role_key?: string
+          skill?: string
+          uniform_pct?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rail_penalties: {
         Row: {
           amount: number
@@ -11642,6 +11723,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      rail_briefing: { Args: { _date?: string }; Returns: Json }
       rail_can: {
         Args: { _action: string; _location?: string; _module: string }
         Returns: boolean
@@ -11699,6 +11781,10 @@ export type Database = {
           scope_location_id: string
           scope_type: string
         }[]
+      }
+      rail_payslip_preview: {
+        Args: { _month?: string; _person: string }
+        Returns: Json
       }
       rail_people_users: {
         Args: never
@@ -11758,6 +11844,15 @@ export type Database = {
         Returns: string
       }
       rail_setting: { Args: { _key: string; _on?: string }; Returns: number }
+      rail_suggest_cleaners: {
+        Args: { _task: string }
+        Returns: {
+          full_name: string
+          open_tasks: number
+          present: boolean
+          user_id: string
+        }[]
+      }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }
       rec_reschedule_interview: {
         Args: {

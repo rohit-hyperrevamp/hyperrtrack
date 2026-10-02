@@ -211,6 +211,14 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     void logActivity({ module: "Rail Operations", action: "assign_task", entityType: "rail_event_tasks", entityId: t.id });
     refresh();
   }
+  async function autoAssign(t: Task) {
+    const { data: picks, error } = await db.rpc("rail_suggest_cleaners", { _task: t.id });
+    if (error) { toast.error(error.message); return; }
+    const best = (picks ?? [])[0] as { user_id: string; full_name: string; present: boolean; open_tasks: number } | undefined;
+    if (!best) { toast.error("No signed-in cleaner is available for this depot"); return; }
+    if (!window.confirm(`Assign to ${best.full_name}? ${best.present ? "On duty" : "Not checked in"} · ${best.open_tasks} open tasks`)) return;
+    await assign(t, best.user_id);
+  }
 
   async function place() {
     const r = await rpc("rail_place_rake", { _event: id, _removed: [...removed], _reason: "Not in rake on arrival" }, "Rake placed");
@@ -295,6 +303,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                               <option value="">Assign cleaner…</option>
                               {workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev.location_id || w.user_id === t.assigned_to).map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
                             </select>}
+                            {canAssign && !t.assigned_to && <Button size="sm" variant="outline" onClick={() => void autoAssign(t)}>Best match</Button>}
                             <span className="text-xs text-muted-foreground">{t.accepted_at ? "Accepted" : t.assigned_to ? "Awaiting acceptance" : "Unassigned"}</span>
                           </div>}
                       </li>
