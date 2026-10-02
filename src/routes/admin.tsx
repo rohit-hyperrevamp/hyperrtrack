@@ -413,65 +413,6 @@ function AdminLayout() {
   }
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
-  const isFieldOfficer = false;
-
-  const groups: GroupItem[] = useMemo(
-    () => [
-      { key: "rail", label: "Rail Operations", module: "rail_ops", icon: TrainFront, children: railChildren, activePrefixes: ["/admin/rail"] },
-    ],
-    [],
-  );
-
-  const isInventoryOnly =
-    !isSuperAdmin &&
-    can("inventory") &&
-    !can("organizations") &&
-    !can("contracts") &&
-    !can("employees") &&
-    !can("vehicles") &&
-    !can("assets") &&
-    !can("attendance") &&
-    !can("payroll") &&
-    !can("invoice");
-  const filteredInventoryChildren = useMemo(
-    () => {
-      const isFO = roleKey === "field_officer";
-      const isInvAdmin = isSuperAdmin || roleKey === "inventory_manager" || roleKey === "inventory";
-      const visibleInventoryChildren = inventoryChildren.filter((c) => c.to !== "/admin/inventory/collections" || isFO);
-      if (isSuperAdmin) return visibleInventoryChildren.filter((c) => !c.adminOnly || isInvAdmin);
-      const list = inventoryChildren.filter((c) => {
-        if (c.adminOnly) return isInvAdmin;
-        // These are field-officer workflows — bypass sub-permission gating for FOs.
-        if (isFO && [
-          "/admin/inventory",
-          "/admin/inventory/demands",
-          "/admin/inventory/goods-receipts",
-          "/admin/inventory/collections",
-          "/admin/inventory/issuances",
-        ].includes(c.to)) return true;
-        return !c.sub || canSub("inventory", c.sub);
-      });
-      if (isFO) return list.filter((c) => [
-        "/admin/inventory",
-        "/admin/inventory/demands",
-        "/admin/inventory/goods-receipts",
-        "/admin/inventory/issuances",
-        "/admin/inventory/collections",
-      ].includes(c.to));
-      return list;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isSuperAdmin, permsLoading, roleKey],
-  );
-
-  const isGuard = false;
-  const guardGroups: GroupItem[] = useMemo(() => [
-    { key: "dashboard", label: "My Dashboard", icon: LayoutGrid, to: "/admin/employee-dashboard", activePrefixes: ["/admin/employee-dashboard"] },
-    { key: "my-inventory", label: "My Uniform", icon: Boxes, to: "/admin/my-inventory", activePrefixes: ["/admin/my-inventory"] },
-    { key: "my-attendance", label: "My Attendance", icon: Clock, to: "/admin/my-attendance", activePrefixes: ["/admin/my-attendance"] },
-    { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
-  ], []);
-
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
       const links = roleKey === "rail_cleaner"
@@ -481,92 +422,7 @@ function AdminLayout() {
           : railChildren;
       return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
-    // Legacy security-company destinations remain as routes for migration,
-    // but never appear in the HyperTrack navigation.
-    if (!isGuard) return [];
-    if (isGuard) return [];
-    if (isControlCenterRole) {
-      const children = controlCenterRadarChildren.filter(
-        (item) => !item.sub || canSub("field_sense", item.sub),
-      );
-      return [
-        {
-          key: "field-sense",
-          label: "Radar",
-          icon: Radio,
-          children,
-          activePrefixes: ["/admin/dashboard", "/admin/field-sense"],
-          module: "field_sense",
-        } satisfies GroupItem,
-        { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
-      ];
-    }
-    if (isInventoryOnly) {
-      return filteredInventoryChildren.map<GroupItem>((c, idx) => ({
-        key: c.to,
-        label: c.label,
-        icon: c.icon,
-        to: c.to,
-        activePrefixes: [c.to],
-        exact: idx === 0,
-      }));
-    }
-    const base = groups
-      .filter((g) => {
-        if (g.key === "field-sense") {
-          // Field officers use the site visit workflow without the Radar map.
-          // Other roles need RBAC access to the field_sense module and map.
-          return isFieldOfficer || isSuperAdmin || can("field_sense");
-        }
-        // Leadership-only analytics surfaces — hidden from field officers and
-        // the operations team (their scope is sites, visits and deployments).
-        if (g.key === "compliance") {
-          if (roleKey === "hr_executive") return false;
-          if (isFieldOfficer || (roleKey && OPERATIONS_ROLES.has(roleKey))) return false;
-          return isSuperAdmin || can("contracts") || can("employees");
-        }
-        // Client/organization masters are leadership surfaces — never for field officers.
-        if (g.key === "org-manager" || g.key === "unit-manager") {
-          if (isFieldOfficer) return false;
-          if (roleKey === "hr_executive" && g.key === "org-manager") return false;
-        }
-        // Sales & Marketing CRM: Super Admin only until a role is granted sales_marketing.
-        if (g.key === "sales") return isSuperAdmin || can("sales_marketing");
-        if (g.key === "rail") return isSuperAdmin || isRailRole || can("rail_ops");
-        // Recruitment: Super Admin only until a role is granted the recruitment module.
-        if (g.key === "recruitment") return isSuperAdmin || can("recruitment");
-        if (g.key === "inventory" && isFieldOfficer) return true;
-        if (!g.module) return true;
-        if (!can(g.module)) return false;
-        if (g.sub && !canSub(g.module, g.sub)) return false;
-        return true;
-      })
-      .map((g) => {
-        if (g.key === "inventory") return { ...g, children: filteredInventoryChildren };
-        if (g.key === "field-sense" && g.children) {
-          let kids = g.children;
-          if (isFieldOfficer) {
-            // FOs only see the Day Patrol dashboard — no Team/Expenses/Reports.
-            kids = kids
-              .filter((c) => c.to === "/admin/field-sense")
-              .map((c) => ({ ...c, label: "Site Visits" }));
-          } else if (!isSuperAdmin) {
-            kids = kids.filter((c) => !c.sub || canSub("field_sense", c.sub));
-          }
-          return { ...g, children: kids };
-        }
-        if (!g.module || !g.children) return g;
-        // Control Center hosts the State/Branch managers — their subs live under the organizations module.
-        const subModule = g.key === "control" ? "organizations" : g.module!;
-        const filtered = g.children.filter((c) => !c.sub || canSub(subModule, c.sub));
-        return { ...g, children: filtered };
-      });
-
-    if (isFieldOfficer) {
-      // FO gets a single dashboard entry that already shows their units and team.
-      return base;
-    }
-    return base;
+    return [];
   })();
 
 
@@ -583,12 +439,11 @@ function AdminLayout() {
     <TooltipProvider delayDuration={150} skipDelayDuration={100}>
     <div className={cn(
       "relative flex min-h-[100dvh] min-w-0 flex-col lg:block lg:min-h-screen",
-      (isFieldOfficer || isGuard) && "bg-white dark:bg-neutral-950",
     )}>
       <AppleNativeSetupCard autoStart nativeOnly className="hidden" />
       <ImpersonationBanner />
       {/* Soft tinted canvas — clean glass backdrop, no grid */}
-      {!isFieldOfficer && !isGuard && <div className="pointer-events-none fixed inset-0 z-0 app-canvas" />}
+      <div className="pointer-events-none fixed inset-0 z-0 app-canvas" />
 
 
 
