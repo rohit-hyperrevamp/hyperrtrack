@@ -140,7 +140,7 @@ const candidateSchema = z.object({
   first_name: z.string().trim().min(1, "Enter a first name").max(80),
   last_name: z.string().trim().min(1, "Enter a last name").max(80),
   mobile: z.string().regex(/^[0-9]{10}$/, "Enter a 10-digit mobile number"),
-  email: z.union([z.literal(""), z.email("Enter a valid email").max(255)]),
+  email: z.union([z.literal(""), z.string().email("Enter a valid email").max(255)]),
   current_location: z.string().trim().max(120),
   opening_id: z.string(),
 });
