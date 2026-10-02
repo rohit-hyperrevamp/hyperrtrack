@@ -50,6 +50,7 @@ import {
   Radio,
   TrendingUp,
   Search,
+  History,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { RailDockPulse } from "@/components/RailDockPulse";
@@ -121,17 +122,17 @@ type GroupItem = {
 const controlCenterChildren: LeafItem[] = [];
 
 const railChildren: LeafItem[] = [
-  { to: "/admin/rail/command", label: "Command Centre", icon: Gauge },
-  { to: "/admin/rail/live", label: "Live Board", icon: Rows3 },
-  { to: "/admin/rail/me", label: "My Day", icon: Smartphone },
-  { to: "/admin/rail/checker", label: "Railway Checker", icon: FileSignature },
+  { to: "/admin/rail/command", label: "Overview", icon: Gauge },
+  { to: "/admin/rail/live", label: "Operations", icon: Rows3 },
+  { to: "/admin/rail/me", label: "My Shift", icon: Smartphone },
+  { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
   { to: "/admin/rail/quality", label: "Quality", icon: ClipboardCheck },
-  { to: "/admin/rail/supplies", label: "Supplies & Equipment", icon: Boxes },
-  { to: "/admin/rail/sustainability", label: "Sustainability", icon: Leaf },
-  { to: "/admin/rail/billing", label: "Railway Billing", icon: Receipt },
-  { to: "/admin/rail/people", label: "People & Logins", icon: UsersRound },
-  { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
-  { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
+  { to: "/admin/rail/supplies", label: "Supplies", icon: Boxes },
+  { to: "/admin/rail/sustainability", label: "Resources", icon: Leaf },
+  { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
+  { to: "/admin/rail/people", label: "Team", icon: UsersRound },
+  { to: "/admin/rail/settings", label: "Setup", icon: SlidersHorizontal },
+  { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
 ];
 
 const salesChildren: LeafItem[] = [
@@ -424,7 +425,8 @@ function AdminLayout() {
         const section = c.to.split("/")[3];
         return section && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
       });
-      return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
+      const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }] : links;
+      return accessible.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
     return [];
   })();

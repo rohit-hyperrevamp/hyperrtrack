@@ -10,9 +10,9 @@ export const Route = createFileRoute("/admin/rail")({
 });
 
 const PAGES = [
-  ["/admin/rail/command", "Command Centre"], ["/admin/rail/live", "Live Board"], ["/admin/rail/me", "My Day"], ["/admin/rail/checker", "Railway Checker"],
-  ["/admin/rail/quality", "Quality"], ["/admin/rail/supplies", "Supplies & Equipment"], ["/admin/rail/sustainability", "Sustainability"],
-  ["/admin/rail/billing", "Railway Billing"], ["/admin/rail/people", "People & Logins"], ["/admin/rail/settings", "Configuration Hub"], ["/admin/rail/ai-check", "AI Clean Check"],
+  ["/admin/rail/command", "Overview"], ["/admin/rail/live", "Operations"], ["/admin/rail/me", "My Shift"], ["/admin/rail/checker", "Checks"],
+  ["/admin/rail/quality", "Quality"], ["/admin/rail/supplies", "Supplies"], ["/admin/rail/sustainability", "Resources"],
+  ["/admin/rail/billing", "Billing"], ["/admin/rail/people", "Team"], ["/admin/rail/settings", "Setup"], ["/admin/rail/ai-check", "Photo Check"],
 ] as const;
 
 // Ctrl+K / ⌘K palette: jump to a page, train, coach or person.

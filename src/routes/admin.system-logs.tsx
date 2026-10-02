@@ -33,6 +33,11 @@ import {
 import { DataPagination, usePagination } from "@/components/DataPagination";
 
 export const Route = createFileRoute("/admin/system-logs")({
+  head: () => ({ meta: [
+    { title: "Activity Log — HyperTrack" }, { name: "description", content: "Review sign-ins, sign-outs and changes across HyperTrack." },
+    { property: "og:title", content: "Activity Log — HyperTrack" }, { property: "og:description", content: "Review sign-ins, sign-outs and changes across HyperTrack." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: SystemLogsPage,
 });
 
@@ -171,12 +176,8 @@ function SystemLogsPage() {
   return (
     <div>
       <PageHeader
-        title="System Logs"
-        description="Audit trail of every action across the platform — auth, edits, toggles, deletes."
-        crumbs={[
-          { label: "Control Center", to: "/admin/control-center" },
-          { label: "System Logs" },
-        ]}
+        title="Activity Log"
+        description="Sign-ins, sign-outs and recorded changes across the workspace."
       />
 
       <div className="mb-4 grid gap-3 rounded-2xl border border-border bg-card p-4 lg:grid-cols-12">
