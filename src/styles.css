@@ -970,21 +970,18 @@
   [data-slot="dialog-content"]:has(form) [data-slot="dialog-footer"],
   [data-slot="dialog-content"]:has(input, textarea, [role="combobox"]) [data-slot="dialog-footer"],
   [data-slot="sheet-content"]:has(form) [data-slot="sheet-footer"] {
-    position: sticky;
-    bottom: 0;
-    z-index: 5;
-    margin-inline: -1rem;
-    margin-bottom: -1rem;
-    padding: 0.875rem 1rem max(0.875rem, env(safe-area-inset-bottom));
-    border-top: 0;
-    background: var(--card);
+    position: static;
+    margin: 0;
+    padding: 0.875rem 0 max(0.875rem, env(safe-area-inset-bottom));
+    border: 0;
+    background: transparent;
   }
 
   @media (min-width: 640px) {
     [data-slot="dialog-content"]:has(form) [data-slot="dialog-footer"] {
-      margin-inline: -1.5rem;
-      margin-bottom: -1.5rem;
-      padding-inline: 1.5rem;
+      margin-inline: 0;
+      margin-bottom: 0;
+      padding-inline: 0;
     }
   }
 
@@ -1988,6 +1985,8 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-summary:hover { transform: translateY(-2px); border-color: var(--live-color); background: var(--card); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] { border-color: var(--live-color); box-shadow: 0 0 0 2px var(--live-color); }
 [data-rail-shell] .rail-live-summary-icon { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"] { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"] .rail-live-summary-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); }
 [data-rail-shell] .rail-live-row { --live-color: var(--brand-blue); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }
 [data-rail-shell] .rail-live-row[data-status="placed"], [data-rail-shell] .rail-live-row[data-status="approved"] { --live-color: var(--brand-blue); }
 [data-rail-shell] .rail-live-row[data-status="released"] { --live-color: var(--palette-good-strong); }
@@ -1996,6 +1995,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-row:hover { background: color-mix(in oklab, var(--live-color) 5%, var(--card)); }
 [data-rail-shell] .rail-live-row-icon { background: var(--live-color); color: var(--primary-foreground); }
 [data-rail-shell] .rail-live-row-status { color: var(--live-color); background: color-mix(in oklab, var(--live-color) 11%, var(--card)); }
+.dark [data-rail-shell] .rail-live-row-status { color: var(--foreground); background: color-mix(in oklab, var(--live-color) 35%, var(--card)); }
 [data-rail-shell] .rail-live-row[data-slot="button"] { border-radius: 0 !important; }
 [data-rail-shell] .rail-live-summary[data-slot="button"] { border-radius: 16px; }
 [data-rail-shell] .rail-chart-bar > div {
@@ -2021,17 +2021,17 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a { color: var(--dock-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand):hover { background: var(--muted); }
-  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand) > span:first-child { background: var(--muted); color: var(--dock-foreground); }
+  [data-rail-shell] [data-hyper-dock] nav a:not(.bg-brand) > span:first-child { background: var(--muted); color: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--primary-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand > span:first-child { background: var(--primary-foreground); color: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-brand svg { color: var(--brand-blue); stroke: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--primary-foreground); border-radius: 10px; }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--primary-foreground); }
-  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--muted); color: var(--dock-foreground); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a { background: var(--muted); color: var(--brand-blue); }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a:hover { background: color-mix(in oklab, var(--rail-ink) 16%, var(--card)); }
-  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--card); }
-  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand svg { color: var(--card); stroke: var(--card); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell][data-rail-collapsed] [data-hyper-dock] nav a.bg-brand svg { color: var(--primary-foreground); stroke: var(--primary-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a > span:first-child { border-radius: 50%; }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 10px; }
   [data-rail-shell] [data-hyper-dock] .hypertrack-wordmark { font-size: 20px; font-weight: 750; }
