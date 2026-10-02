@@ -17,6 +17,8 @@ import {
   stageLabel, stageTone, uploadResume, type RecCandidate,
 } from "@/lib/recruitment";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchMasters } from "@/lib/recruitment";
 
 type Search = { stage?: string; q?: string };
 
@@ -51,6 +53,8 @@ function CandidatesPage() {
   const navigate = useNavigate({ from: "/admin/hr/recruitment/candidates/" });
   const cq = useQuery({ queryKey: QK.candidates, queryFn: fetchCandidates });
   const oq = useQuery({ queryKey: QK.openings, queryFn: fetchOpenings });
+  const rolesQ = useQuery({ queryKey: ["rail", "recruitment-roles"], queryFn: async () => { const { data, error } = await supabase.from("rail_roles").select("key,name").order("name"); if (error) throw error; return data ?? []; } });
+  const mastersQ = useQuery({ queryKey: QK.masters, queryFn: fetchMasters });
   const [page, setPage] = useState(0);
   const [adding, setAdding] = useState(false);
   const openingTitle = new Map((oq.data ?? []).map((o) => [o.id, o.title]));
@@ -131,7 +135,7 @@ function CandidatesPage() {
         <Button variant="outline" size="sm" disabled={page + 1 >= pages} onClick={() => setPage(page + 1)}>Next</Button>
       </div>
 
-      <AddCandidateDialog open={adding} onOpenChange={setAdding} openings={oq.data ?? []} />
+      <AddCandidateDialog open={adding} onOpenChange={setAdding} roles={rolesQ.data ?? []} designations={mastersQ.data?.designations ?? []} />
     </div>
   );
 }
@@ -142,13 +146,14 @@ const candidateSchema = z.object({
   mobile: z.string().regex(/^[0-9]{10}$/, "Enter a 10-digit mobile number"),
   email: z.union([z.literal(""), z.string().email("Enter a valid email").max(255)]),
   current_location: z.string().trim().max(120),
-  opening_id: z.string(),
+  role_key: z.string().min(1, "Select a position"),
+  designation_id: z.string().min(1, "Select a designation"),
 });
 
-function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; onOpenChange: (v: boolean) => void; openings: { id: string; title: string; status: string; rec_opening_rounds?: unknown[] }[] }) {
+function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open: boolean; onOpenChange: (v: boolean) => void; roles: { key: string; name: string }[]; designations: { id: string; name: string }[] }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", opening_id: "" };
+  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", role_key: "", designation_id: "" };
   const [f, setF] = useState(blank);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -160,11 +165,10 @@ function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; o
     if (file && (file.size > 10 * 1024 * 1024 || !/\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(file.name))) return toast.error("Upload a PDF, document or image under 10 MB");
     setBusy(true);
     try {
-      const op = openings.find((o) => o.id === f.opening_id);
-      const total = Math.max(1, Math.min(3, op?.rec_opening_rounds?.length || 1));
       const { data, error } = await recDb.from("rec_candidates").insert({
         full_name: `${checked.data.first_name} ${checked.data.last_name}`, mobile: checked.data.mobile, email: checked.data.email,
-        current_location: checked.data.current_location, opening_id: checked.data.opening_id || null, total_rounds: total,
+        current_location: checked.data.current_location, total_rounds: 1,
+        offer: { role_key: checked.data.role_key, designation_id: checked.data.designation_id },
       }).select("id,code").single();
       if (error) throw error;
       if (file) await uploadResume(data.id, file);
@@ -188,12 +192,8 @@ function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; o
           <F label="Mobile *"><Input autoComplete="tel" inputMode="numeric" maxLength={10} value={f.mobile} onChange={(e) => setF({ ...f, mobile: e.target.value.replace(/\D/g, "") })} /></F>
           <F label="Email"><Input autoComplete="email" type="email" maxLength={255} value={f.email} onChange={set("email")} /></F>
           <F label="City / current location"><Input maxLength={120} value={f.current_location} onChange={set("current_location")} /></F>
-          <F label="Post / opening">
-            <Select value={f.opening_id || "later"} onValueChange={(v) => setF({ ...f, opening_id: v === "later" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Assign later" /></SelectTrigger>
-              <SelectContent><SelectItem value="later">Assign later</SelectItem>{openings.filter((o) => o.status === "open").map((o) => <SelectItem key={o.id} value={o.id}>{o.title}</SelectItem>)}</SelectContent>
-            </Select>
-          </F>
+          <F label="Position *"><Select value={f.role_key} onValueChange={(v) => setF({ ...f, role_key: v })}><SelectTrigger><SelectValue placeholder="Cleaner, supervisor…" /></SelectTrigger><SelectContent>{roles.map((r) => <SelectItem key={r.key} value={r.key}>{r.name}</SelectItem>)}</SelectContent></Select></F>
+          <F label="Designation *"><Select value={f.designation_id} onValueChange={(v) => setF({ ...f, designation_id: v })}><SelectTrigger><SelectValue placeholder="Choose designation" /></SelectTrigger><SelectContent>{designations.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent></Select></F>
           <div className="sm:col-span-2"><F label="Resume (optional)"><Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></F></div>
         </div>
         <DialogFooter>
