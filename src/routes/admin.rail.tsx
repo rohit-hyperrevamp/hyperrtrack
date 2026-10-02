@@ -5,6 +5,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db, rows } from "@/lib/rail-ui";
+import { RailSidePanel, RailSidePanelMobile } from "@/components/RailSidePanel";
 
 export const Route = createFileRoute("/admin/rail")({
   component: RailLayout,
@@ -14,6 +15,9 @@ const PAGES = [
   ["/admin/rail/command", "Overview"], ["/admin/rail/live", "Operations"], ["/admin/rail/checker", "Checks"],
   ["/admin/rail/quality", "Quality"], ["/admin/rail/supplies", "Supplies"], ["/admin/rail/sustainability", "Resources"],
   ["/admin/rail/billing", "Billing"], ["/admin/rail/people", "Team"], ["/admin/rail/settings", "Configuration Hub"], ["/admin/rail/ai-check", "Photo Check"],
+  ["/admin/rail/finance", "Profit view"], ["/admin/rail/pay", "My Pay"], ["/admin/payroll", "Payroll"], ["/admin/invoice", "Invoices"],
+  ["/admin/employees", "Employees"], ["/admin/attendance", "Attendance"], ["/admin/allowance-manager", "Salary parts"],
+  ["/admin/deduction-type-manager", "Deductions"], ["/admin/employer-contributions", "Employer contributions"],
 ] as const;
 
 // Ctrl+K / ⌘K palette: jump to a page, train, coach or person.
@@ -57,7 +61,11 @@ function RailLayout() {
   const go = (to: string) => { setOpen(false); setQ(""); navigate({ to: to as never }); };
   return (
     <>
-      <Outlet />
+      <div className="flex gap-5">
+        <RailSidePanel />
+        <div className="min-w-0 flex-1"><Outlet /></div>
+      </div>
+      <RailSidePanelMobile />
        {open && <div ref={searchRef} role="search" aria-label="Search HyperTrack" className="rail-search-panel">
            <Command shouldFilter={false} className="rounded-lg bg-transparent">
              <div className="flex items-center gap-1 border-b border-border/60 pr-2"><CommandInput ref={inputRef} aria-label="Search pages, trains, coaches, people" placeholder="Search pages, trains, coaches, people…" value={q} onValueChange={setQ} className="!h-12 !text-base" /><Button type="button" variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close search" className="h-8 w-8 shrink-0 rounded-full"><X className="h-4 w-4" /></Button></div>
