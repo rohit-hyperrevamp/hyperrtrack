@@ -1952,6 +1952,9 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 14px; }
   [data-rail-shell] [data-hyper-dock] .hypertrack-wordmark { font-size: 20px; font-weight: 750; }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-photo { isolation: isolate; }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-photo:hover img { transform: scale(1.04); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-photo img { transition: transform .35s ease; }
   [data-rail-shell] [data-hyper-dock] > div:last-child { border-color: var(--rail-line); }
   [data-rail-shell] [data-hyper-dock] > div:last-child button,
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white { color: var(--rail-ink); }
