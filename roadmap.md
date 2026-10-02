@@ -1,5 +1,8 @@
 # HyperTrack roadmap
 
+- [ ] Finish Recruitment intake fields for Aadhaar, PAN, address, dates, role, location and private documents once the production database connection is available; never put identity numbers in notes or general candidate fields.
+- [ ] Verify the revised Recruitment and Operations screens on the authenticated live site; the current production database URL is a placeholder.
+
 - [x] Scope task assignment to authorized managers and cleaner acceptance to the assignee, hide My Shift from super admins, and use full-width layout (authenticated UI test pending)
 - [x] Insert labelled 30-day synthetic cleaning history into the connected production database: 90 jobs, 360 coaches, 1,440 tasks, 360 inspections, 600 resource readings, 1,800 supply entries and 90 attendance records
 - [ ] Verify every graph and form with authenticated manager, checker and cleaner accounts; local authenticated routes redirect to login and the limited database role cannot call rail_kpis

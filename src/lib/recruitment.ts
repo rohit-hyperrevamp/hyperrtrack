@@ -1,4 +1,4 @@
-// Recruitment (HR) data layer — non-billable hiring funnel.
+// Recruitment (HR) data layer — staff hiring funnel.
 // Tables are gated by RLS (`current_user_can_recruit()`): Super Admin, plus any
 // role later granted the `recruitment` RBAC module. Interviewers see only their
 // own interviews; HR Head onboarding follows workflow 'recruitment_onboarding'.
