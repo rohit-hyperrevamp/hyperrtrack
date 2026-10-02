@@ -65,7 +65,8 @@ function jsonResponse(request: Request, body: unknown, status = 200) {
 }
 
 function hasAiKey() {
-  return Boolean(process.env["GEMINI_API_KEY"]?.trim());
+  // Built-in Lovable AI key (primary) or a company Google key (legacy fallback).
+  return Boolean(process.env["LOVABLE_API_KEY"]?.trim() || process.env["GEMINI_API_KEY"]?.trim());
 }
 
 function isBridgeHost(request: Request) {
