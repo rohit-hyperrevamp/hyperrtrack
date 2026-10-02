@@ -9,14 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logActivity } from "@/lib/activity-log";
-import { db, Empty, Kpi, railHead, rows, rpc, StatusPill, today, useRailRoles, hasRole } from "@/lib/rail-ui";
+import { db, Empty, railHead, rows, rpc, StatusPill, today, useRailRoles, hasRole } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/live")({
   head: () => railHead("Live Board", "Today's cleaning jobs by pit line: place rakes, track coaches and tasks, approve and release."),
+  validateSearch: (search: Record<string, unknown>) => ({
+    depot: typeof search.depot === "string" ? search.depot : undefined,
+    date: typeof search.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(search.date) ? search.date : undefined,
+  }),
   component: LiveBoard,
 });
 
+type Loc = { id: string; name: string; code: string; type: string; parent_id: string | null };
 type Ev = {
   id: string; event_date: string; status: string; planned_start: string; planned_end: string; wash_method: string; location_id: string;
   rail_trains: { number: string; name: string } | null; rail_locations: { code: string; name: string } | null; rail_service_types: { code: string; name: string } | null;
@@ -28,8 +33,10 @@ function shiftDate(d: string, n: number) { const x = new Date(d); x.setDate(x.ge
 
 function LiveBoard() {
   const qc = useQueryClient();
+  const search = Route.useSearch();
   const { data: roles } = useRailRoles();
-  const [date, setDate] = useState(today());
+  const [date, setDate] = useState(search.date ?? today());
+  const [depot, setDepot] = useState(search.depot ?? "");
   const [openId, setOpenId] = useState<string | null>(null);
   const [planning, setPlanning] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -38,6 +45,23 @@ function LiveBoard() {
     queryKey: ["rail-events", date],
     queryFn: () => rows<Ev>(db.from("rail_events").select("id,event_date,status,planned_start,planned_end,wash_method,location_id,rail_trains(number,name),rail_locations(code,name),rail_service_types(code,name)").eq("event_date", date).is("deleted_at", null).order("planned_start")),
   });
+  const { data: locations = [] } = useQuery({
+    queryKey: ["rail-live-locations"],
+    queryFn: () => rows<Loc>(db.from("rail_locations").select("id,name,code,type,parent_id").is("deleted_at", null)),
+  });
+  useEffect(() => { if (search.depot) setDepot(search.depot); }, [search.depot]);
+  useEffect(() => { if (search.date) setDate(search.date); }, [search.date]);
+  const depots = locations.filter((l) => l.type === "depot" || l.type === "station").sort((a, b) => a.name.localeCompare(b.name));
+  const selectedDepot = depots.find((l) => l.id === depot);
+  const scopedLocationIds = useMemo(() => {
+    if (!depot) return null;
+    const ids = new Set([depot]);
+    for (let i = 0; i < locations.length; i++) {
+      for (const l of locations) if (l.parent_id && ids.has(l.parent_id)) ids.add(l.id);
+    }
+    return ids;
+  }, [depot, locations]);
+  const scopedEvents = useMemo(() => (events ?? []).filter((e) => !scopedLocationIds || scopedLocationIds.has(e.location_id)), [events, scopedLocationIds]);
 
   // Keyboard: ← / → change day, P plans the day, Esc closes
   useEffect(() => {
@@ -65,19 +89,19 @@ function LiveBoard() {
 
   const byLine = useMemo(() => {
     const m = new Map<string, Ev[]>();
-    for (const e of events ?? []) {
+    for (const e of scopedEvents) {
       if (statusFilter && e.status !== statusFilter) continue;
       const k = e.rail_locations?.code ?? "—";
       m.set(k, [...(m.get(k) ?? []), e]);
     }
     return [...m.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [events, statusFilter]);
+  }, [scopedEvents, statusFilter]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const e of events ?? []) c[e.status] = (c[e.status] ?? 0) + 1;
+    for (const e of scopedEvents) c[e.status] = (c[e.status] ?? 0) + 1;
     return c;
-  }, [events]);
+  }, [scopedEvents]);
 
   const canPlan = hasRole(roles, "project_head", "depot_manager", "shift_supervisor");
   const statuses = [
@@ -96,7 +120,8 @@ function LiveBoard() {
         <RailDateStepper value={date} onChange={setDate} />
         {canPlan && <Button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</Button>}
       </RailTopbarSlot>
-      <PageHeader title="Live Board" description="Every cleaning job for the day, by pit line." />
+       <PageHeader title="Live Board" description={selectedDepot ? `${selectedDepot.name} · cleaning jobs` : "Every cleaning job for the day, by pit line."} />
+       <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-live-depot" className="text-sm font-medium">Depot</label><select id="rail-live-depot" className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setStatusFilter(null); }}><option value="">All depots</option>{depots.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
 
        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Filter cleaning jobs by status">
          {statuses.map(({ key, label, icon: Icon }) => (
@@ -108,11 +133,11 @@ function LiveBoard() {
          ))}
       </div>
 
-       {isLoading ? <Skeleton className="h-64 w-full rounded-lg" /> : !events?.length ? (
-        <Empty title="No cleaning jobs for this day" hint="Plan the day to create jobs from train schedules, coach lists and task templates." action={canPlan ? <Button onClick={plan}><CalendarPlus className="mr-2 h-4 w-4" />Plan day</Button> : undefined} />
+       {isLoading ? <Skeleton className="h-64 w-full rounded-lg" /> : !scopedEvents.length ? (
+         <Empty title={selectedDepot ? `No cleaning jobs at ${selectedDepot.name}` : "No cleaning jobs for this day"} hint={selectedDepot ? "Try a different day or depot." : "Plan the day to create jobs from train schedules, coach lists and task templates."} action={selectedDepot ? <Button variant="outline" onClick={() => setDepot("")}>All depots</Button> : canPlan ? <Button onClick={plan}><CalendarPlus className="mr-2 h-4 w-4" />Plan day</Button> : undefined} />
       ) : (
          <section className="min-w-0" aria-label="Cleaning jobs">
-           <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-semibold">Cleaning jobs <span className="ml-1 text-sm font-normal text-muted-foreground">{statusFilter ? `${counts[statusFilter] ?? 0} ${statusFilter.replace("_", " ")}` : `${events.length} total`}</span></h2>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-semibold">Cleaning jobs <span className="ml-1 text-sm font-normal text-muted-foreground">{statusFilter ? `${counts[statusFilter] ?? 0} ${statusFilter.replace("_", " ")}` : `${scopedEvents.length} total`}</span></h2>
              {statusFilter && <Button variant="ghost" size="sm" onClick={() => setStatusFilter(null)}>Show all</Button>}
            </div>
            {byLine.length === 0 ? <Empty title="No jobs in this status" hint="Choose another status or show all cleaning jobs." action={<Button variant="outline" onClick={() => setStatusFilter(null)}>Show all</Button>} /> : <div className="space-y-5">
@@ -123,11 +148,11 @@ function LiveBoard() {
                    {evs.map((e) => {
                      const Icon = statuses.find((s) => s.key === e.status)?.icon ?? Clock3;
                      return <Button key={e.id} variant="ghost" data-status={e.status} onClick={() => setOpenId(e.id)}
-                       className="rail-live-row flex h-auto min-h-[76px] w-full items-center justify-start gap-3 rounded-none px-4 py-3 text-left last:border-b-0 sm:gap-4">
+                        className="rail-live-row flex h-auto min-h-[76px] w-full items-center justify-start gap-3 rounded-none px-4 py-3 text-left last:border-b-0 sm:gap-4">
                        <span className="rail-live-row-icon grid h-10 w-10 shrink-0 place-items-center rounded-full"><Icon className="h-5 w-5" /></span>
                        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-foreground sm:text-base">{e.rail_trains?.number ?? "Train"} <span className="font-normal text-muted-foreground">{e.rail_trains?.name}</span></span><span className="block truncate text-xs text-muted-foreground">{e.rail_service_types?.name ?? e.rail_service_types?.code ?? "Cleaning"}</span></span>
                        <span className="hidden shrink-0 text-sm tabular-nums text-foreground sm:block">{time(e.planned_start)} – {time(e.planned_end)}</span>
-                       <span className="rail-live-row-status shrink-0 text-xs font-semibold capitalize sm:min-w-24 sm:text-right">{e.status.replace("_", " ")}</span>
+                        <span className="rail-live-row-status shrink-0 rounded-md px-2 py-1 text-xs font-semibold capitalize sm:min-w-24 sm:text-center">{e.status.replace("_", " ")}</span>
                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                      </Button>;
                    })}
