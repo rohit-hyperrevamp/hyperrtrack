@@ -464,7 +464,7 @@ function AdminLayout() {
             <Link
               to={dashboardHref}
               aria-label="HyperTrack home"
-              className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-foreground"
+               className="mx-auto grid h-11 w-11 place-items-center rounded-full transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand [&>div>span]:h-11 [&>div>span]:w-11"
             >
               <BrandMark compact />
             </Link>
@@ -491,7 +491,7 @@ function AdminLayout() {
                   return (
                     <div key={s.label} className="space-y-[3px]">
                       {!collapsed && s.label && (
-                        <div className="px-2.5 pt-1 pb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">
+                         <div className="px-2.5 pt-1 pb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-dock-foreground/40">
                           {s.label}
                         </div>
                       )}
@@ -507,7 +507,7 @@ function AdminLayout() {
                   return (
                     <div className="space-y-[3px]">
                       {!collapsed && (
-                        <div className="px-2.5 pt-1 pb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/40">More</div>
+                         <div className="px-2.5 pt-1 pb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-dock-foreground/40">More</div>
                       )}
                       {rest.map((g) => (
                         <SidebarGroup key={g.key} group={g} collapsed={collapsed} isActive={isActive} groupActive={isGroupActive(g)} />
