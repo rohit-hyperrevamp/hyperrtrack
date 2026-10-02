@@ -6,6 +6,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
+import { PeopleTabs } from "@/components/PeopleTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,13 +73,14 @@ function CandidatesPage() {
   return (
     <div className="space-y-4">
       <RailTopbarSlot>
-        <Input className="h-10 w-56 shrink-0" aria-label="Search candidates" placeholder="Search candidates" value={q} onChange={(e) => setSearch({ q: e.target.value })} />
-        <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
-          <SelectTrigger className="h-10 w-44 shrink-0" aria-label="Candidate status"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">In progress</SelectItem><SelectItem value="pending_onboarding">Awaiting approval</SelectItem><SelectItem value="lost">Closed</SelectItem>
-          </SelectContent>
-        </Select>
+        <PeopleTabs active="candidates" />
+        <div className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card p-1">
+          {([["", "All"], ["open", "In progress"], ["pending_onboarding", "Awaiting approval"]] as const).map(([k, l]) => (
+            <button key={k} type="button" onClick={() => setSearch({ stage: k })} className={cn("h-8 rounded-full px-3 text-sm", stage === k ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground")}>{l}</button>
+          ))}
+          <Link to="/admin/hr/recruitment/onboarding" className="h-8 rounded-full px-3 text-sm leading-8 text-muted-foreground hover:text-foreground">Approve</Link>
+        </div>
+        <Input className="h-10 w-48 shrink-0" aria-label="Search candidates" placeholder="Search candidates" value={q} onChange={(e) => setSearch({ q: e.target.value })} />
         <Button variant="outline" className="h-10 shrink-0" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
           code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
           stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
