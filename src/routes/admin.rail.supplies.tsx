@@ -55,7 +55,7 @@ function SuppliesPage() {
     },
   });
   const [loc, setLoc] = useState<string>("");
-  const [tab, setTab] = useState("stock");
+  const [tab, setTab] = useState("stores");
   const [kitForm, setKitForm] = useState({ loc: "", item_id: "", qty: "" });
   const [scan, setScan] = useState({ tag: "", person: "", due: "" });
   const flow = useStockFlow().data;
@@ -101,11 +101,11 @@ function SuppliesPage() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex-wrap h-auto">
-          {[["stock", "Stock"], ["stores", "Stores"], ["orders", "Requests & orders"], ["transfers", "Transfers"], ["suppliers", "Suppliers"], ["kit", "Kit issue"], ["variance", "Variance"], ["custody", "Custody board"], ["scan", "Scan"], ["maintenance", "Maintenance"], ["ppe", "PPE"]].map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}
+          {[["stores", "Stores"], ["stock", "Stock"], ["orders", "Requests"], ["transfers", "Transfers"], ["kit", "Kits"], ["custody", "Equipment"], ["suppliers", "Suppliers"]].map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}
         </TabsList>
 
         <TabsContent value="stock"><StockView locId={loc} /></TabsContent>
-        <TabsContent value="stores"><StoresView onPick={(id) => { setLoc(id); setTab("stock"); }} /></TabsContent>
+        <TabsContent value="stores"><StoresView onPick={(id) => { setLoc(id); setTab("stock"); }} onTransfer={() => setTab("transfers")} /></TabsContent>
         <TabsContent value="orders"><OrdersView locId={loc} /></TabsContent>
         <TabsContent value="transfers"><TransfersView locId={loc} /></TabsContent>
         <TabsContent value="suppliers"><SuppliersView /></TabsContent>
@@ -138,7 +138,7 @@ function SuppliesPage() {
                 {!k.returned_at && <Button size="sm" variant="outline" onClick={async () => { const r = window.prompt("Quantity returned at end of shift?", "0"); if (r === null) return; (await act(db.from("rail_kit_issues").update({ qty_returned: Number(r), returned_at: new Date().toISOString() }).eq("id", k.id), "Return recorded")) && inv(); }}>Record return</Button>}</div>))}</div>}
         </TabsContent>
 
-        <TabsContent value="variance" className="space-y-2">
+        <TabsContent value="custody" data-merged="variance" className="space-y-2">
           <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => downloadCsv(`consumption-variance-${today()}`, variance)}>Export</Button></div>
           {!variance.length ? <Empty title="No consumption recorded yet" hint="Usage is filled from norms when a cleaning job completes." /> :
             <div className="divide-y rounded-2xl border bg-card">{variance.map((v, i) => (
@@ -153,7 +153,7 @@ function SuppliesPage() {
                 return <tr key={a.id} className="border-b last:border-0"><td className="p-3 font-mono text-xs">{a.qr_tag}</td><td>{a.name}</td><td><StatusPill s={a.status} /></td><td>{person(a.custodian_person_id)}</td><td className={overdue ? "text-destructive font-medium" : ""}>{c?.due_back_at ? new Date(c.due_back_at).toLocaleString() : "—"}</td></tr>; })}</tbody></table></div>}
         </TabsContent>
 
-        <TabsContent value="scan" className="space-y-3">
+        <TabsContent value="custody" data-merged="scan" className="space-y-3">
           <div className="mx-auto max-w-md space-y-3 rounded-2xl border bg-card p-4">
             <div className="flex items-center gap-2 font-medium"><QrCode className="h-5 w-5" />Store keeper scan</div>
             <Input autoFocus placeholder="Scan or type QR tag" value={scan.tag} onChange={(e) => setScan({ ...scan, tag: e.target.value.trim() })} className="h-12 text-lg" />
@@ -175,7 +175,7 @@ function SuppliesPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="maintenance" className="space-y-3">
+        <TabsContent value="custody" data-merged="maintenance" className="space-y-3">
           <div className="text-sm font-medium">Preventive schedule</div>
           <div className="divide-y rounded-2xl border bg-card">{(data?.assets ?? []).filter((a) => a.pm_every_days && (!locId || a.location_id === locId)).map((a) => {
             const next = new Date(new Date(a.last_pm_on ?? "2025-06-01").getTime() + a.pm_every_days! * 864e5); const late = next < new Date();
@@ -188,7 +188,7 @@ function SuppliesPage() {
               {m.status === "open" ? <Button size="sm" variant="outline" onClick={async () => (await act(db.from("rail_asset_maintenance").update({ status: "closed", closed_at: new Date().toISOString() }).eq("id", m.id), "Closed")) && (await db.from("rail_assets").update({ status: "available" }).eq("id", m.asset_id), inv())}>Close</Button> : <StatusPill s="resolved" />}</div>))}</div>}
         </TabsContent>
 
-        <TabsContent value="ppe">
+        <TabsContent value="custody" data-merged="ppe">
           {!data?.ppe.length ? <Empty title="No PPE issued" /> : <div className="divide-y rounded-2xl border bg-card">{data.ppe.map((p) => { const late = new Date(p.next_due) < new Date();
             return <div key={p.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{person(p.person_id)} · {p.item_name}</div><div className="text-xs text-muted-foreground">Issued {p.issued_on}</div></div><div className={late ? "text-destructive font-medium" : "text-muted-foreground"}>Replace by {p.next_due}</div></div>; })}</div>}
         </TabsContent>
