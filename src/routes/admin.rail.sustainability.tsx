@@ -13,11 +13,12 @@ import { logActivity } from "@/lib/activity-log";
 import { db, Empty, Kpi, monthStart, num, parseCsv, railHead, rows } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/sustainability")({
-  head: () => railHead("Sustainability", "Water saved, recycled share, chemicals and carbon per coach, meter readings, ACWP imports and the monthly ESG report."),
+  head: () => railHead("Sustainability", "Chemical use per product, water saved, carbon per coach, meter readings, ACWP imports and the monthly ESG report."),
   component: SustainPage,
 });
 
 type L = { id: string; event_coach_id: string | null; location_id: string | null; ledger_date: string; resource: string; qty: number; unit: string; metered: boolean; co2e_kg: number; method: string | null };
+type K = { item_id: string; qty_issued: number; qty_returned: number; issue_date: string; inv_items: { name: string; unit: string; co2e_kg_per_unit: number | null; rail_category: string | null } | null };
 
 export function summarize(ledger: L[], baseline: number, chemL: number) {
   const coaches = new Set(ledger.map((l) => l.event_coach_id).filter(Boolean)).size;
@@ -40,7 +41,9 @@ function SustainPage() {
   const { data } = useQuery({
     queryKey: ["rail-sus", month],
     queryFn: async () => {
-      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct] = await Promise.all([
+      const pm0 = new Date(new Date(m0).getFullYear(), new Date(m0).getMonth() - 1, 1).toISOString().slice(0, 10);
+      const pm1 = new Date(new Date(m0).getTime() - 86400000).toISOString().slice(0, 10);
+      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct, kitsPrev, chemStock, chemFactor] = await Promise.all([
         rows<L>(db.from("rail_resource_ledger").select("id,event_coach_id,location_id,ledger_date,resource,qty,unit,metered,co2e_kg,method").gte("ledger_date", m0).lte("ledger_date", m1).limit(20000)),
         rows<{ id: string; code: string; name: string; resource: string; unit: string; location_id: string }>(db.from("rail_meters").select("id,code,name,resource,unit,location_id")),
         rows<{ id: string; meter_id: string; reading: number; read_at: string }>(db.from("rail_meter_readings").select("id,meter_id,reading,read_at").order("read_at", { ascending: false }).limit(200)),
@@ -50,10 +53,13 @@ function SustainPage() {
         rows<L>(db.from("rail_resource_ledger").select("ledger_date,resource,qty,co2e_kg,event_coach_id,method,metered").gte("ledger_date", new Date(new Date(m0).getFullYear(), new Date(m0).getMonth() - 5, 1).toISOString().slice(0, 10)).limit(50000)),
         db.rpc("rail_setting", { _key: "baseline_manual_litres" }).then((r: { data: number | null }) => r.data ?? 1500),
         db.rpc("rail_setting", { _key: "leak_alert_pct" }).then((r: { data: number | null }) => r.data ?? 20),
+        rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", pm0).lte("issue_date", pm1).not("returned_at", "is", null)).catch(() => []),
+        rows<{ item_id: string; location_id: string; qty_on_hand: number }>(db.from("rail_item_batches").select("item_id,location_id,qty_on_hand").gt("qty_on_hand", 0)).catch(() => []),
+        rows<{ factor: number }>(db.from("rail_emission_factors").select("factor").eq("resource", "chemical").is("deleted_at", null).limit(1)).catch(() => []),
       ]);
       // Real chemical use = kit issued − returned (chemical items in litres), counted once the return is recorded.
-      const kits = await rows<{ qty_issued: number; qty_returned: number; issue_date: string; inv_items: { unit: string; rail_category: string | null } | null }>(db.from("rail_kit_issues").select("qty_issued,qty_returned,issue_date,inv_items(unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
-      return { ledger, meters, readings, locs, chem, acwp, trend, kits, baseline: Number(baseline), leakPct: Number(leakPct) };
+      const kits = await rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
+      return { ledger, meters, readings, locs, chem, acwp, trend, kits, kitsPrev, chemStock, chemFactor: chemFactor[0]?.factor ?? null, baseline: Number(baseline), leakPct: Number(leakPct) };
     },
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
@@ -72,6 +78,27 @@ function SustainPage() {
   const s = summarize(data.ledger, data.baseline, chemL);
   const normPerCoach = s.coaches ? normChemL / s.coaches : 0;
   const days = new Set(kitChem.map((k) => k.issue_date)).size;
+  // Per-product chemical view: real use = issued − returned; CO₂e from each product's own factor.
+  type Prod = { id: string; name: string; unit: string; issued: number; returned: number; consumed: number; prev: number; stock: number; factor: number };
+  const prodMap = new Map<string, Prod>();
+  const blank = (k: K): Prod => ({ id: k.item_id, name: k.inv_items?.name ?? "Unknown product", unit: k.inv_items?.unit ?? "", issued: 0, returned: 0, consumed: 0, prev: 0, stock: 0, factor: k.inv_items?.co2e_kg_per_unit ?? data.chemFactor ?? 0 });
+  for (const k of data.kits) {
+    if (!k.inv_items || k.inv_items.rail_category !== "chemical") continue;
+    const p = prodMap.get(k.item_id) ?? blank(k);
+    p.issued += Number(k.qty_issued); p.returned += Number(k.qty_returned); p.consumed = p.issued - p.returned;
+    prodMap.set(k.item_id, p);
+  }
+  for (const k of data.kitsPrev) {
+    if (!k.inv_items || k.inv_items.rail_category !== "chemical") continue;
+    const p = prodMap.get(k.item_id) ?? blank(k);
+    p.prev += Number(k.qty_issued) - Number(k.qty_returned);
+    prodMap.set(k.item_id, p);
+  }
+  for (const p of prodMap.values()) p.stock = data.chemStock.filter((b) => b.item_id === p.id).reduce((t, b) => t + Number(b.qty_on_hand), 0);
+  const products = [...prodMap.values()].sort((a, b) => b.consumed - a.consumed || b.stock - a.stock);
+  const chemCo2 = products.reduce((t, p) => t + p.consumed * p.factor, 0);
+  const co2Total = s.co2 + chemCo2;
+  const co2PerCoachTotal = s.coaches ? co2Total / s.coaches : 0;
   const depotOf = (id: string | null) => { let l = data.locs.find((x) => x.id === id); while (l && l.type !== "depot") l = data.locs.find((x) => x.id === l!.parent_id); return l; };
   const league = data.locs.filter((l) => l.type === "depot").map((d) => ({ d, ...summarize(data.ledger.filter((x) => depotOf(x.location_id)?.id === d.id), data.baseline, 0) })).sort((a, b) => a.freshPerCoach - b.freshPerCoach);
   const months = [...new Set(data.trend.map((t) => t.ledger_date.slice(0, 7)))].sort();
@@ -111,10 +138,10 @@ function SustainPage() {
       <h2>Summary</h2><table>
       <tr><td>Coaches cleaned</td><td>${num(s.coaches)}</td></tr><tr><td>Water saved vs manual baseline</td><td>${num(s.saved)} L</td></tr>
       <tr><td>Recycled water share</td><td>${Math.round(s.recycledPct * 100)}%</td></tr><tr><td>Fresh water per coach</td><td>${num(s.freshPerCoach)} L</td></tr>
-      <tr><td>Chemical per coach</td><td>${num(s.chemPerCoach, 2)} L</td></tr><tr><td>CO₂e per coach</td><td>${num(s.co2PerCoach, 2)} kg</td></tr><tr><td>Total CO₂e</td><td>${num(s.co2, 1)} kg</td></tr>
+      <tr><td>Chemical per coach</td><td>${num(s.chemPerCoach, 2)} L</td></tr><tr><td>CO₂e from chemicals</td><td>${num(chemCo2, 1)} kg (per-product factors)</td></tr><tr><td>CO₂e per coach</td><td>${num(co2PerCoachTotal, 2)} kg</td></tr><tr><td>Total CO₂e</td><td>${num(co2Total, 1)} kg</td></tr>
       <tr><td>Method mix</td><td>${s.acwpCoaches} auto wash plant · ${manualCoaches} manual</td></tr></table>
       <h2>Depot league</h2><table><tr><th>Depot</th><th>Coaches</th><th>Fresh L/coach</th></tr>${league.map((l) => `<tr><td>${l.d.name}</td><td>${l.coaches}</td><td>${num(l.freshPerCoach)}</td></tr>`).join("")}</table>
-      <h2>Data quality statement</h2><p>${Math.round(s.meteredShare * 100)}% of resource lines are from meter readings; the remaining ${100 - Math.round(s.meteredShare * 100)}% are estimates from approved norms (manual wash ${data!.baseline} L/coach; auto wash 300 L/coach with 80% recycled). Estimated and metered figures are kept separate. Emission factors: grid electricity 0.7 kg/kWh (to be replaced with the client's chosen CEA value), diesel 2.68 kg/L.</p>
+      <h2>Data quality statement</h2><p>${Math.round(s.meteredShare * 100)}% of resource lines are from meter readings; the remaining ${100 - Math.round(s.meteredShare * 100)}% are estimates from approved norms (manual wash ${data!.baseline} L/coach; auto wash 300 L/coach with 80% recycled). Estimated and metered figures are kept separate. Emission factors: grid electricity 0.7 kg/kWh (to be replaced with the client's chosen CEA value), diesel 2.68 kg/L, chemicals per product (Configuration Hub → Item types).</p>
       <br/><br/><table><tr><td>Prepared by: ____________________</td><td>Railway sign-off: ____________________</td></tr></table>
       <script>window.print()</script></body></html>`);
   }
@@ -124,17 +151,43 @@ function SustainPage() {
       {topControls}
       <PageHeader title="Resources" description="Water, chemicals and carbon per coach." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} hint={kitChem.length ? `From kit returns · norm ${num(normPerCoach, 2)} · ${num(days ? usedChemL / days : 0, 1)} L/day` : "Estimated from norms — record kit returns for actuals"} tone={kitChem.length && normPerCoach && s.chemPerCoach > normPerCoach * 1.25 ? "bad" : "brand"} />
+        <Kpi label="kg CO₂e / coach" value={num(co2PerCoachTotal, 2)} hint={`${num(s.coaches)} coaches · ${num(chemCo2, 1)} kg from chemicals`} />
         <Kpi label="Fresh water L / coach" value={num(s.freshPerCoach)} hint={`Norm ${num(data.baseline)} L`} tone={s.freshPerCoach > data.baseline ? "bad" : "good"} />
-        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} hint={kitChem.length ? `From kit returns · norm ${num(normPerCoach, 2)} · ${num(days ? usedChemL / days : 0, 1)} L/day` : "Estimated from norms — record kit returns for actuals"} tone={kitChem.length && normPerCoach && s.chemPerCoach > normPerCoach * 1.25 ? "bad" : "default"} />
         <Kpi label="Water saved L" value={num(s.saved)} hint={`${Math.round(s.recycledPct * 100)}% recycled`} />
-        <Kpi label="kg CO₂e / coach" value={num(s.co2PerCoach, 2)} hint={`${num(s.coaches)} coaches`} />
       </div>
       {league.filter((l) => l.coaches && l.freshPerCoach > data.baseline * (1 + data.leakPct / 100)).map((l) => (
         <div key={l.d.id} className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">Possible leak at <b>{l.d.name}</b>: {num(l.freshPerCoach)} L per coach.</div>
       ))}
 
-      <Tabs defaultValue="trend">
-        <TabsList><TabsTrigger value="trend">Trend</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
+      <Tabs defaultValue="chemicals">
+        <TabsList><TabsTrigger value="chemicals">Chemicals</TabsTrigger><TabsTrigger value="trend">Water</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
+        <TabsContent value="chemicals" className="space-y-3">
+          <p className="text-xs text-muted-foreground">Real use per product = issued to shifts minus what came back. Carbon uses each product's CO₂e factor — set it under Configuration Hub → Organization → Item types. "Vs last month" shows whether use is going down.</p>
+          {!products.length ? <Empty title="No chemical use recorded yet" hint="Issue kits in Supplies and record returns — real consumption shows here, product by product." /> : (
+            <div className="overflow-x-auto rounded-lg border bg-card">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground"><th className="p-3">Product</th><th className="p-3 text-right">Used this month</th><th className="p-3 text-right">Vs last month</th><th className="p-3 text-right">In godowns</th><th className="p-3 text-right">CO₂e</th><th className="w-28 p-3">Share of use</th></tr></thead>
+                <tbody className="divide-y">
+                  {products.map((p) => {
+                    const top = products[0].consumed || 1;
+                    const pct = p.prev > 0 ? Math.round((1 - p.consumed / p.prev) * 100) : null;
+                    return (
+                      <tr key={p.id}>
+                        <td className="p-3 font-medium">{p.name}<div className="text-xs text-muted-foreground">{num(p.issued)} issued · {num(p.returned)} returned{p.factor ? ` · ${num(p.factor, 2)} kg CO₂e/${p.unit}` : " · no CO₂e factor set"}</div></td>
+                        <td className="p-3 text-right tabular-nums">{num(p.consumed, 1)} {p.unit}</td>
+                        <td className="p-3 text-right tabular-nums">{p.prev > 0 ? <span className={pct! > 0 ? "text-good" : pct! < 0 ? "text-destructive" : ""}>{pct! > 0 ? `▼ ${pct}% lower` : pct! < 0 ? `▲ ${-pct!}% higher` : "same"}</span> : <span className="text-muted-foreground">first month</span>}</td>
+                        <td className="p-3 text-right tabular-nums">{num(p.stock, 1)} {p.unit}</td>
+                        <td className="p-3 text-right tabular-nums">{p.factor ? `${num(p.consumed * p.factor, 1)} kg` : "—"}</td>
+                        <td className="p-3"><div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Math.max(2, (p.consumed / top) * 100)}%` }} /></div></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
         <TabsContent value="trend">
           {!months.length ? <Empty title="No water or energy data yet" hint="Figures are logged automatically when cleaning jobs complete." /> : (
             <div className="rounded-lg border bg-card p-4"><div className="flex h-48 items-end gap-3">{months.map((mo) => {
