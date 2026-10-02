@@ -16,10 +16,10 @@ async function availableCoaches(supabase: SupabaseClient<Database>, userId: stri
   const { data: canManage, error: permissionError } = await supabase.rpc("rail_can", { _module: "rail_ops", _action: "edit" });
   if (permissionError) throw permissionError;
   const manager = canManage === true;
-  const day = new Date().toISOString().slice(0, 10);
+  const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   let ids: string[] | null = null;
   if (!manager) {
-    const { data: tasks, error } = await supabase.from("rail_event_tasks").select("event_coach_id").eq("assigned_to", userId).is("deleted_at", null).limit(1000);
+    const { data: tasks, error } = await supabase.from("rail_event_tasks").select("event_coach_id,rail_event_coaches!inner(rail_events!inner(event_date))").eq("assigned_to", userId).eq("rail_event_coaches.rail_events.event_date", day).is("deleted_at", null).limit(1000);
     if (error) throw error;
     const assignedIds = [...new Set((tasks ?? []).map((task) => task.event_coach_id))];
     if (!assignedIds.length) return { coaches: [], manager };
