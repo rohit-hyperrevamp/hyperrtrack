@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/ConfirmProvider";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -239,7 +240,7 @@ function RolesAccess() {
     <section className="min-w-0">
       {!activeRole ? <div className="flex min-h-52 items-center justify-center rounded-lg border border-dashed border-border bg-card text-sm text-muted-foreground">Select a role to manage access</div> : <>
         <div className="mb-4 flex flex-wrap items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-brand text-primary-foreground"><ShieldCheck className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">{activeRole.name}</h2><p className="text-xs text-muted-foreground">Access to pages and actions</p></div>
-          {activeRole.key.startsWith("custom_") && <Button size="icon" variant="ghost" className="rounded-full" title="Remove role" aria-label="Remove role" disabled={removeRole.isPending} onClick={() => { if (window.confirm(`Remove ${activeRole.name}?`)) removeRole.mutate(activeRole); }}><Trash2 /></Button>}
+          {activeRole.key.startsWith("custom_") && <Button size="icon" variant="ghost" className="rounded-full" title="Remove role" aria-label="Remove role" disabled={removeRole.isPending} onClick={async () => { if (await confirmAction({ title: `Remove ${activeRole.name}?`, description: "People with this role lose its access.", confirmText: "Remove", destructive: true })) removeRole.mutate(activeRole); }}><Trash2 /></Button>}
           <Button onClick={() => savePermissions.mutate()} disabled={!changed || savePermissions.isPending || permissionsLoading || protectedRole} className="active:scale-95">{savePermissions.isPending ? "Saving…" : "Save access"}</Button>
         </div>
         {protectedRole && <p className="mb-3 text-xs text-muted-foreground">Super Admin access is protected and cannot be changed here.</p>}

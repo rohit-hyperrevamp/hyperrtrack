@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logActivity } from "@/lib/activity-log";
+import { confirmAction } from "@/components/ConfirmProvider";
 import { db, Empty, railHead, rows, rpc, StatusPill, today, useRailRoles, hasRole } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/live")({
@@ -203,8 +204,10 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const canInspect = hasRole(roles, "project_head", "depot_manager", "shift_supervisor", "railway_checker");
   const canRelease = hasRole(roles, "project_head", "depot_manager", "shift_supervisor");
   const canAssign = hasRole(roles, "super_admin", "project_head", "depot_manager", "shift_supervisor");
-  async function assign(t: Task, uid: string) {
+  async function assign(t: Task, uid: string, ask = true) {
     if (!uid) return;
+    const who = workers.find((w) => w.user_id === uid)?.full_name ?? "this cleaner";
+    if (ask && !(await confirmAction({ title: `Assign ${t.task_name}?`, description: `${who} will see it in My Shift and must accept it.`, confirmText: "Assign" }))) return;
     const { error } = await db.rpc("rail_assign_task", { _task: t.id, _assignee: uid });
     if (error) { toast.error(error.message); return; }
     toast.success("Work assigned");
@@ -216,11 +219,12 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     if (error) { toast.error(error.message); return; }
     const best = (picks ?? [])[0] as { user_id: string; full_name: string; present: boolean; open_tasks: number } | undefined;
     if (!best) { toast.error("No signed-in cleaner is available for this depot"); return; }
-    if (!window.confirm(`Assign to ${best.full_name}? ${best.present ? "On duty" : "Not checked in"} · ${best.open_tasks} open tasks`)) return;
-    await assign(t, best.user_id);
+    if (!(await confirmAction({ title: `Assign to ${best.full_name}?`, description: `${best.present ? "On duty now" : "Not checked in yet"} · ${best.open_tasks} open tasks`, confirmText: "Assign" }))) return;
+    await assign(t, best.user_id, false);
   }
 
   async function place() {
+    if (!(await confirmAction({ title: "Place this rake?", description: "Coaches marked missing will be left out of this job.", confirmText: "Place rake" }))) return;
     const r = await rpc("rail_place_rake", { _event: id, _removed: [...removed], _reason: "Not in rake on arrival" }, "Rake placed");
     if (r !== null) { void logActivity({ module: "Rail Live Board", action: "place_rake", entityType: "rail_events", entityId: id ?? undefined, details: { removed: removed.size } }); refresh(); }
   }
@@ -233,12 +237,14 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     if (r !== null) refresh();
   }
   async function review(coachId: string, pass: boolean) {
+    if (!(await confirmAction(pass ? { title: "Approve this coach?", description: "It will count as cleaned and passed.", confirmText: "Approve" } : { title: "Send for rework?", description: "The cleaner will be asked to clean this coach again.", confirmText: "Send", destructive: true }))) return;
     const remarks = pass ? null : rejectionReason.trim();
     if (!pass && !remarks) { toast.error("Enter a reason for rework"); return; }
     const r = await rpc("rail_review_coach", { _coach: coachId, _pass: pass, _remarks: remarks }, pass ? "Coach approved" : "Coach sent back for rework");
     if (r !== null) { setRejecting(false); setRejectionReason(""); void logActivity({ module: "Rail Live Board", action: pass ? "approve_coach" : "reject_coach", entityType: "rail_event_coaches", entityId: coachId }); refresh(); }
   }
   async function release() {
+    if (!(await confirmAction({ title: "Release this rake?", description: "The train is marked ready and can't be cleaned further in this job.", confirmText: "Release" }))) return;
     const r = await rpc("rail_release_event", { _event: id }, "Rake released");
     if (r !== null) { void logActivity({ module: "Rail Live Board", action: "release", entityType: "rail_events", entityId: id ?? undefined }); refresh(); }
   }
@@ -293,18 +299,17 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     <div className="font-medium">Coach {c.position} · {c.rail_coach_types?.code} {c.rail_coaches?.coach_number}</div>
                     <div className="flex shrink-0 items-center gap-2"><StatusPill s={c.status} />{c.rework_count > 0 && <span className="text-xs text-destructive">Rework ×{c.rework_count}</span>}</div>
                   </div>
-                  <ul className="divide-y divide-border border-y border-border">
+                  <ul className="space-y-2">
                     {coachTasks(c.id).map((t) => (
-                      <li key={t.id} className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                        <span className="min-w-0 font-medium">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}</span>
-                        {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
+                      <li key={t.id} className="flex flex-col gap-3 rounded-lg bg-muted/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                        <span className="flex min-w-0 items-center gap-3 font-medium"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-primary-foreground ${t.status === "done" ? "bg-success" : t.assigned_to ? "bg-brand" : "bg-danger"}`}>{t.status === "done" ? <CheckCircle2 className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}</span><span className="min-w-0">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}<span className="block text-xs font-normal text-muted-foreground">{t.status === "done" ? "Done" : t.status === "skipped" ? "Skipped" : t.accepted_at ? "Accepted" : t.assigned_to ? "Awaiting acceptance" : "Unassigned"}</span></span></span>
+                        {t.status === "done" || t.status === "skipped" ? null :
                           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                            {canAssign && <select aria-label={`Assign ${t.task_name}`} className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card px-2 text-sm sm:w-44" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)}>
+                            {canAssign && <select aria-label={`Assign ${t.task_name}`} className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card pl-3 text-sm sm:w-48 sm:flex-none" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)}>
                               <option value="">Assign cleaner…</option>
                               {workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev.location_id || w.user_id === t.assigned_to).map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
                             </select>}
                             {canAssign && !t.assigned_to && <Button size="sm" variant="outline" onClick={() => void autoAssign(t)}>Best match</Button>}
-                            <span className="text-xs text-muted-foreground">{t.accepted_at ? "Accepted" : t.assigned_to ? "Awaiting acceptance" : "Unassigned"}</span>
                           </div>}
                       </li>
                     ))}

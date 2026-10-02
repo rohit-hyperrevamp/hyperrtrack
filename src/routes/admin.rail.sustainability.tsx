@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/ConfirmProvider";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -77,7 +78,7 @@ function SustainPage() {
     const ins = recs.map((r) => ({ run_date: r.date || r.run_date, coaches: Number(r.coaches || r.coach_count || 0), run_minutes: Number(r.run_minutes || r.minutes || 0) || null, kwh: Number(r.kwh || r.energy_kwh || 0) || null, fresh_litres: Number(r.fresh_litres || 0) || null, recycled_litres: Number(r.recycled_litres || 0) || null, location_id: data!.locs.find((l) => l.code === r.depot)?.id ?? depot?.id, source_file: file.name }))
       .filter((r) => r.run_date && r.coaches > 0);
     if (!ins.length) return toast.error("No valid rows. Expected columns: date, coaches, run_minutes, kwh, fresh_litres, recycled_litres, depot");
-    if (!window.confirm(`Import ${ins.length} ACWP run(s) from ${file.name}?`)) return;
+    if (!(await confirmAction({ title: `Import ${ins.length} wash runs?`, description: `From ${file.name}.`, confirmText: "Import" }))) return;
     const { error } = await db.from("rail_acwp_runs").insert(ins);
     if (error) return toast.error(error.message);
     toast.success(`${ins.length} runs imported`); qc.invalidateQueries({ queryKey: ["rail-sus"] });
