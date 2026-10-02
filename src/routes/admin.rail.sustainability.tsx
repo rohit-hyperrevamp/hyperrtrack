@@ -13,11 +13,12 @@ import { logActivity } from "@/lib/activity-log";
 import { db, Empty, Kpi, monthStart, num, parseCsv, railHead, rows } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/sustainability")({
-  head: () => railHead("Sustainability", "Water saved, recycled share, chemicals and carbon per coach, meter readings, ACWP imports and the monthly ESG report."),
+  head: () => railHead("Sustainability", "Chemical use per product, water saved, carbon per coach, meter readings, ACWP imports and the monthly ESG report."),
   component: SustainPage,
 });
 
 type L = { id: string; event_coach_id: string | null; location_id: string | null; ledger_date: string; resource: string; qty: number; unit: string; metered: boolean; co2e_kg: number; method: string | null };
+type K = { item_id: string; qty_issued: number; qty_returned: number; issue_date: string; inv_items: { name: string; unit: string; co2e_kg_per_unit: number | null; rail_category: string | null } | null };
 
 export function summarize(ledger: L[], baseline: number, chemL: number) {
   const coaches = new Set(ledger.map((l) => l.event_coach_id).filter(Boolean)).size;
@@ -40,7 +41,9 @@ function SustainPage() {
   const { data } = useQuery({
     queryKey: ["rail-sus", month],
     queryFn: async () => {
-      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct] = await Promise.all([
+      const pm0 = new Date(new Date(m0).getFullYear(), new Date(m0).getMonth() - 1, 1).toISOString().slice(0, 10);
+      const pm1 = new Date(new Date(m0).getTime() - 86400000).toISOString().slice(0, 10);
+      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct, kitsPrev, chemStock, chemFactor] = await Promise.all([
         rows<L>(db.from("rail_resource_ledger").select("id,event_coach_id,location_id,ledger_date,resource,qty,unit,metered,co2e_kg,method").gte("ledger_date", m0).lte("ledger_date", m1).limit(20000)),
         rows<{ id: string; code: string; name: string; resource: string; unit: string; location_id: string }>(db.from("rail_meters").select("id,code,name,resource,unit,location_id")),
         rows<{ id: string; meter_id: string; reading: number; read_at: string }>(db.from("rail_meter_readings").select("id,meter_id,reading,read_at").order("read_at", { ascending: false }).limit(200)),
