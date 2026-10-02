@@ -1,5 +1,7 @@
 # HyperTrack roadmap
 
+- [ ] Integrate camera and advisory cleanliness score directly into My Shift task completion: show pass/retry before completing, remove standalone Photo Check navigation and screen entry points.
+- [ ] Replace empty or dummy cleaner Overview tiles with only assigned work and useful own-data; tailor other role home views, retain accessible Profile/photo and Notifications.
 - [ ] Combine Candidate and Team into one People navigation entry: new and returning applicants stay Candidates until approved; onboarded people appear in Team. Remove interview/opening recruitment surfaces from that entry.
 - [ ] Align contextual top-bar date selectors and filters in Resources, Supplies, Finance & Payroll and Billing; move Recruitment and Attendance filters into the top space and avoid crowded controls on narrow screens.
 - [ ] Require task-linked after-cleaning photos and AI scores with private retained history, supervisor review and worker feedback; secure database/storage and live verification are blocked by the unavailable production connection.
