@@ -148,6 +148,7 @@ import { Route as ApiPublicNativePushRouteImport } from './routes/api/public/nat
 import { Route as ApiPublicHooksDailyPeoplePingsRouteImport } from './routes/api/public/hooks/daily-people-pings'
 import { Route as ApiPublicHooksAlertcheckinSyncRouteImport } from './routes/api/public/hooks/alertcheckin-sync'
 import { Route as AdminSalesProspectsLeadIdRouteImport } from './routes/admin.sales.prospects.$leadId'
+import { Route as AdminRailTasksReviewRouteImport } from './routes/admin.rail.tasks.review'
 import { Route as AdminHrRecruitmentOpeningsRouteImport } from './routes/admin.hr.recruitment.openings'
 import { Route as AdminHrRecruitmentOnboardingRouteImport } from './routes/admin.hr.recruitment.onboarding'
 import { Route as AdminHrRecruitmentInterviewsRouteImport } from './routes/admin.hr.recruitment.interviews'
@@ -881,6 +882,11 @@ const AdminSalesProspectsLeadIdRoute =
     path: '/prospects/$leadId',
     getParentRoute: () => AdminSalesRoute,
   } as any)
+const AdminRailTasksReviewRoute = AdminRailTasksReviewRouteImport.update({
+  id: '/tasks/review',
+  path: '/tasks/review',
+  getParentRoute: () => AdminRailRoute,
+} as any)
 const AdminHrRecruitmentOpeningsRoute =
   AdminHrRecruitmentOpeningsRouteImport.update({
     id: '/openings',
@@ -1070,6 +1076,7 @@ export interface FileRoutesByFullPath {
   '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
   '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
+  '/admin/rail/tasks/review': typeof AdminRailTasksReviewRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
@@ -1214,6 +1221,7 @@ export interface FileRoutesByTo {
   '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
   '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
+  '/admin/rail/tasks/review': typeof AdminRailTasksReviewRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
@@ -1364,6 +1372,7 @@ export interface FileRoutesById {
   '/admin/hr/recruitment/interviews': typeof AdminHrRecruitmentInterviewsRoute
   '/admin/hr/recruitment/onboarding': typeof AdminHrRecruitmentOnboardingRoute
   '/admin/hr/recruitment/openings': typeof AdminHrRecruitmentOpeningsRoute
+  '/admin/rail/tasks/review': typeof AdminRailTasksReviewRoute
   '/admin/sales/prospects/$leadId': typeof AdminSalesProspectsLeadIdRoute
   '/api/public/hooks/alertcheckin-sync': typeof ApiPublicHooksAlertcheckinSyncRoute
   '/api/public/hooks/daily-people-pings': typeof ApiPublicHooksDailyPeoplePingsRoute
@@ -1515,6 +1524,7 @@ export interface FileRouteTypes {
     | '/admin/hr/recruitment/interviews'
     | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
+    | '/admin/rail/tasks/review'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
@@ -1659,6 +1669,7 @@ export interface FileRouteTypes {
     | '/admin/hr/recruitment/interviews'
     | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
+    | '/admin/rail/tasks/review'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
@@ -1808,6 +1819,7 @@ export interface FileRouteTypes {
     | '/admin/hr/recruitment/interviews'
     | '/admin/hr/recruitment/onboarding'
     | '/admin/hr/recruitment/openings'
+    | '/admin/rail/tasks/review'
     | '/admin/sales/prospects/$leadId'
     | '/api/public/hooks/alertcheckin-sync'
     | '/api/public/hooks/daily-people-pings'
@@ -2811,6 +2823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesProspectsLeadIdRouteImport
       parentRoute: typeof AdminSalesRoute
     }
+    '/admin/rail/tasks/review': {
+      id: '/admin/rail/tasks/review'
+      path: '/tasks/review'
+      fullPath: '/admin/rail/tasks/review'
+      preLoaderRoute: typeof AdminRailTasksReviewRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
     '/admin/hr/recruitment/openings': {
       id: '/admin/hr/recruitment/openings'
       path: '/openings'
@@ -3004,6 +3023,7 @@ interface AdminRailRouteChildren {
   AdminRailSettingsRoute: typeof AdminRailSettingsRoute
   AdminRailSuppliesRoute: typeof AdminRailSuppliesRoute
   AdminRailSustainabilityRoute: typeof AdminRailSustainabilityRoute
+  AdminRailTasksReviewRoute: typeof AdminRailTasksReviewRoute
 }
 
 const AdminRailRouteChildren: AdminRailRouteChildren = {
@@ -3020,6 +3040,7 @@ const AdminRailRouteChildren: AdminRailRouteChildren = {
   AdminRailSettingsRoute: AdminRailSettingsRoute,
   AdminRailSuppliesRoute: AdminRailSuppliesRoute,
   AdminRailSustainabilityRoute: AdminRailSustainabilityRoute,
+  AdminRailTasksReviewRoute: AdminRailTasksReviewRoute,
 }
 
 const AdminRailRouteWithChildren = AdminRailRoute._addFileChildren(

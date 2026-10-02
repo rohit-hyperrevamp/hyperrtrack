@@ -1,5 +1,9 @@
 # HyperTrack roadmap
 
+- [ ] Combine Candidate and Team into one People navigation entry: new and returning applicants stay Candidates until approved; onboarded people appear in Team. Remove interview/opening recruitment surfaces from that entry.
+- [ ] Align contextual top-bar date selectors and filters in Resources, Supplies, Finance & Payroll and Billing; move Recruitment and Attendance filters into the top space and avoid crowded controls on narrow screens.
+- [ ] Require task-linked after-cleaning photos and AI scores with private retained history, supervisor review and worker feedback; secure database/storage and live verification are blocked by the unavailable production connection.
+
 - [ ] Soften rail summary tiles across pages, remove colored edge stripes, use solid circular icons with white glyphs; move page search/filters into the shared contextual top bar without duplicating controls.
 - [ ] Align the Operations coach-detail section, repair cleaner selector arrow and empty cleaner list, and explain job/task statuses and the complete operations workflow. Selector now uses the location- and permission-checked cleaner recommendations, with loading/error/empty states; live authenticated verification remains blocked by the unavailable production connection.
 - [x] Scope Photo Check choices and submission to the signed-in cleaner's assigned coaches, while allowing authorized managers and super admins to choose a depot, train and coach; make the dashboard's colored tiles restrained and professional. Authenticated live visual verification remains unavailable because the production page returns 404.

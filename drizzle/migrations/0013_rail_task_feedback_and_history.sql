@@ -16,3 +16,8 @@ CREATE POLICY "rail_task_photos_auth_delete" ON storage.objects FOR DELETE TO au
 
 -- Grant permissions for new columns
 GRANT UPDATE(supervisor_score, supervisor_feedback, history) ON public.rail_event_tasks TO authenticated;
+
+-- Link completed_by to rail_people if possible (optional but helpful for the join)
+-- This assumes rail_people.id is what's stored in completed_by, 
+-- but often it's auth.uid(). If it's auth.uid(), we join via rail_people.user_id.
+-- For this implementation, we'll assume a standard join is needed.
