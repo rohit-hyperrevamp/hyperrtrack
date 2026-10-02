@@ -655,7 +655,7 @@ function AdminLayout() {
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
-           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full"><Search className="h-5 w-5" /></Button>}
+           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full bg-muted text-foreground"><Search className="h-5 w-5" /></Button>}
           {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link

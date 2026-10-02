@@ -2654,9 +2654,9 @@ nav[data-bottom-nav] > ul {
   min-height: 56px;
 }
 nav[data-bottom-nav] li > * > div > span:first-child {
-  height: 24px !important;
+  height: 36px !important;
   width: 36px !important;
-  border-radius: 8px !important;
+  border-radius: 50% !important;
 }
 nav[data-bottom-nav] li svg {
   height: 19px !important;

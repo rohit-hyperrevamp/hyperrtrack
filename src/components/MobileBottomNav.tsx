@@ -112,13 +112,13 @@ export function MobileBottomNav({
           </div>
         </div>
       </div>
-      <ul className="mx-auto grid h-16 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 border-t border-dock-foreground/10 px-1.5 py-1.5">
+      <ul className="mx-auto grid h-16 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 px-1.5 py-1.5">
         {primary.map((it) => {
           const Icon = it.icon;
           const inner = (
             <div
               className={cn(
-                 "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200",
+                 "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200",
                   railStyle ? (it.active ? "text-primary-foreground" : "text-dock-foreground/65") : (it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65"),
               )}
             >
@@ -127,7 +127,7 @@ export function MobileBottomNav({
                   "grid h-8 w-8 place-items-center rounded-full transition-colors",
                      it.active
                       ? "bg-brand text-primary-foreground"
-                      : "bg-dock-foreground/10 text-dock-foreground/65",
+                       : "bg-muted text-muted-foreground",
                 )}
               >
                  <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
@@ -162,11 +162,11 @@ export function MobileBottomNav({
             aria-label="More"
              className="block h-full w-full select-none rounded-lg p-0 outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
           >
-               <div className={cn("relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200", moreActive ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65")}>
+               <div className="relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200">
               <span
                 className={cn(
-                  "grid h-6 w-9 place-items-center rounded-lg transition-colors",
-                   moreActive ? "text-dock-foreground" : "text-dock-foreground/65",
+                  "grid h-8 w-8 place-items-center rounded-full transition-colors",
+                   moreActive ? "bg-brand text-primary-foreground" : "bg-muted text-muted-foreground",
                 )}
               >
                  <LayoutGrid className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
