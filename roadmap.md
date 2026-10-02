@@ -1,5 +1,6 @@
 # HyperTrack roadmap
 
+- [ ] Make dock icons identifiable by color, align and strengthen the wordmark, use Apple system typography, and redesign role-relevant rail dashboards
 - [x] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
 - [x] HyperTrack identity, rail-only navigation and Industrial Precision shared styling
 - [x] Direct rail dock destinations, HT circular compact identity, and legacy dashboard redirect for rail accounts

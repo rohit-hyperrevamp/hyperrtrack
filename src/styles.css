@@ -261,9 +261,9 @@
   --color-field-hero-muted: var(--field-hero-muted);
   --color-field-hero-soft: var(--field-hero-soft);
   --color-field-hero-border: var(--field-hero-border);
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Sora', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -519,6 +519,9 @@
 .font-black,
 .font-semibold { font-weight: 500 !important; }
 .font-medium { font-weight: 450 !important; }
+
+/* The identity uses a deliberate heavier weight than ordinary interface labels. */
+.hypertrack-wordmark { font-weight: 700 !important; }
 
 
 

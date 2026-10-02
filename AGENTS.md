@@ -15,3 +15,4 @@
 - HyperTrack is the rail workspace brand; expose rail screens directly in the dock and send legacy dashboard visits to role-appropriate rail pages while keeping legacy routes intact for migration — preserves existing records without presenting irrelevant security-company options.
 - Keep HyperTrack's split-color wordmark in BrandMark and rail presentation rules in the shared workspace styles — one source keeps login, navigation, and operational pages visually aligned.
 - Resolve legacy named status and tile colors through shared semantic palette tokens rather than rewriting business-state labels — good, caution, danger and brand cues must remain distinguishable without changing workflows.
+- Use the Apple system font stack for the interface, with SF Pro on Apple devices and a system fallback elsewhere — Apple's font is not bundled for redistribution.
