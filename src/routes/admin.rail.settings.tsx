@@ -9,7 +9,7 @@ import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { RAIL_MASTERS, type MasterDef, type MasterField } from "@/lib/rail-masters";
 import { PageHeader } from "@/components/PageHeader";
-import { RailOrgSetup } from "@/components/RailOrgSetup";
+import { RailItemTypes, RailOrgSetup } from "@/components/RailOrgSetup";
 import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ function RailSettingsPage() {
         {isSuperAdmin && <Button variant="ghost" aria-pressed={section === "roles"} className={cn("rounded-md", section === "roles" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
         {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
       </div>
-      {section === "org" ? <RailOrgSetup /> : section === "roles" && isSuperAdmin ? <RolesAccess /> : <>{groups.map(([group, entries]) => {
+      {section === "org" ? <RailOrgSetup /> : section === "roles" && isSuperAdmin ? <RolesAccess /> : <><RailItemTypes />{groups.map(([group, entries]) => {
         const defs = entries.filter((d) => `${d.label} ${d.description}`.toLowerCase().includes(catalogQuery.toLowerCase()));
         return defs.length ? (
         <section key={group} className="space-y-3" aria-label={group}>
