@@ -1956,11 +1956,11 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis .rail-kpi { min-height: 152px; border: 1px solid var(--rail-line); background: var(--card); box-shadow: 0 8px 24px color-mix(in oklab, var(--rail-ink) 6%, transparent); transition: transform .24s cubic-bezier(.22,1,.36,1), box-shadow .24s ease, border-color .24s ease; }
 [data-rail-shell] .rail-command-kpis a:hover .rail-kpi { transform: translateY(-4px); box-shadow: 0 16px 32px color-mix(in oklab, var(--rail-ink) 12%, transparent); }
 [data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); font-size: clamp(1.65rem, 2.5vw, 2.4rem); }
-[data-rail-shell] .rail-command-kpis > :nth-child(1) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
-[data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
-[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: var(--palette-good-main); border-color: var(--palette-good-main); }
-[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--palette-danger-main); border-color: var(--palette-danger-main); }
-[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
+[data-rail-shell] .rail-command-kpis > :nth-child(1) .rail-kpi,
+[data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi,
+[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); border-color: var(--brand-blue); }
+[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: linear-gradient(145deg, color-mix(in oklab, var(--palette-good-main) 91%, var(--primary-foreground)), var(--palette-good-main) 76%, color-mix(in oklab, var(--palette-good-main) 88%, var(--foreground))); border-color: var(--palette-good-main); }
+[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: linear-gradient(145deg, color-mix(in oklab, var(--palette-danger-main) 91%, var(--primary-foreground)), var(--palette-danger-main) 76%, color-mix(in oklab, var(--palette-danger-main) 88%, var(--foreground))); border-color: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(5), :nth-child(7), :nth-child(8)) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi-icon { background: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi-icon { background: var(--palette-danger-main); }
@@ -1985,8 +1985,8 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-summary:hover { transform: translateY(-2px); border-color: var(--live-color); background: var(--card); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] { border-color: var(--live-color); box-shadow: 0 0 0 2px var(--live-color); }
 [data-rail-shell] .rail-live-summary-icon { background: var(--live-color); color: var(--primary-foreground); }
-[data-rail-shell] .rail-live-summary[aria-pressed="true"] { background: var(--live-color); color: var(--primary-foreground); }
-[data-rail-shell] .rail-live-summary[aria-pressed="true"]:hover { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"] { background: linear-gradient(145deg, color-mix(in oklab, var(--live-color) 91%, var(--primary-foreground)), var(--live-color) 76%, color-mix(in oklab, var(--live-color) 88%, var(--foreground))); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"]:hover { background: linear-gradient(145deg, color-mix(in oklab, var(--live-color) 91%, var(--primary-foreground)), var(--live-color) 76%, color-mix(in oklab, var(--live-color) 88%, var(--foreground))); color: var(--primary-foreground); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] .rail-live-summary-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); }
 [data-rail-shell] .rail-live-row { --live-color: var(--brand-blue); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }
 [data-rail-shell] .rail-live-row[data-status="placed"], [data-rail-shell] .rail-live-row[data-status="approved"] { --live-color: var(--brand-blue); }
@@ -1999,9 +1999,10 @@ nav[data-bottom-nav] {
 .dark [data-rail-shell] .rail-live-row-status { color: var(--foreground); background: color-mix(in oklab, var(--live-color) 35%, var(--card)); }
 [data-rail-shell] .rail-live-row[data-slot="button"] { border-radius: 0 !important; }
 [data-rail-shell] .rail-live-summary[data-slot="button"] { border-radius: 16px; }
-[data-rail-shell] .rail-chart-bar > div {
-  background-image: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in oklab, var(--card) 20%, transparent) 3px 6px);
-}
+[data-rail-shell] .rail-chart-bar > [data-performance="on-track"] { background: var(--palette-good-main); }
+[data-rail-shell] .rail-chart-bar > [data-performance="in-between"] { background: var(--brand-blue); }
+[data-rail-shell] .rail-chart-bar > [data-performance="behind"] { background: var(--palette-danger-main); }
+[data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
 
 @media (min-width: 1024px) {
   [data-rail-shell] { margin: 0; min-height: 100dvh; border-radius: 0; background: var(--card); box-shadow: none; overflow: visible; }
@@ -2050,7 +2051,7 @@ nav[data-bottom-nav] {
   [data-rail-shell][data-rail-collapsed] .rail-topbar { margin-left: 72px; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 12px; white-space: nowrap; transition: background .2s, color .2s; }
   [data-rail-shell] .rail-topbar-tab:hover { background: var(--palette-soft); color: var(--brand-blue); }
-  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-icon { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border-radius: 50%; background: var(--muted); color: var(--rail-ink); }
   [data-rail-shell] .rail-topbar-icon:hover { background: var(--palette-soft); }
   [data-rail-shell] .rail-topbar-profile { display: flex; max-width: 175px; align-items: center; gap: 8px; margin-left: 7px; color: var(--rail-ink); }
@@ -2769,7 +2770,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   [data-rail-shell] .rail-topbar { order: -1; position: sticky; top: calc(48px + env(safe-area-inset-top)); z-index: 19; align-items: center; padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); border-bottom: 1px solid var(--rail-line); background: color-mix(in oklab, var(--card) 88%, transparent); backdrop-filter: blur(18px) saturate(1.4); }
   [data-rail-shell] .rail-topbar:has(.rail-topbar-slot:empty) { display: none; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 13px; white-space: nowrap; flex: none; }
-  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-slot input[type="date"] { font-size: 14px; }
   [data-rail-shell] [data-rail-workspace] .page-header p { display: none; }
 }

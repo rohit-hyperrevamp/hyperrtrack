@@ -1,5 +1,7 @@
 # HyperTrack roadmap
 
+- [x] Color the seven-day cleaning graph by completed jobs against planned jobs (green ≥90%, blue 60–89%, red below 60%) and give colored dashboard tiles and selected controls restrained gradients.
+
 - [ ] Finish Recruitment intake fields for Aadhaar, PAN, address, dates, role, location and private documents once the production database connection is available; never put identity numbers in notes or general candidate fields.
 - [ ] Verify the revised Recruitment and Operations screens on the authenticated live site; the current production database URL is a placeholder.
 
