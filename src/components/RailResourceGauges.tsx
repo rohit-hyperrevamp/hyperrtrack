@@ -72,7 +72,7 @@ export function RailResourceGauges() {
   return (
     <section aria-label="Resources at a glance" className="space-y-2">
       <div className="flex items-center justify-between"><h2 className="font-heading text-base font-semibold">Resources this month</h2><span className="text-xs text-muted-foreground">{num(coaches)} coaches cleaned</span></div>
-       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
         <Gauge label="Chemical stock health" value={healthy} max={total || 1} display={total ? `${Math.round(healthy / total * 100)}%` : "—"} hint={total ? `${total - healthy} item·store pairs low or out` : "No chemical stock yet"} good="high" to="/admin/rail/supplies" />
         <Gauge label="Chemical L per coach" value={usedPer} max={(normPer || usedPer || 1) * 2} display={coaches && used ? num(usedPer, 2) : "—"} hint={normPer ? `Norm ${num(normPer, 2)} L · from kit returns` : "Record kit returns to measure"} to="/admin/rail/sustainability" />
          <Gauge label="Chemical CO₂e" value={chemicalCarbon} max={Math.max(chemicalCarbon, ledgerCarbon, 1) * 1.5} display={carbonComplete ? `${num(chemicalCarbon, 1)} kg` : "—"} hint={carbonComplete ? "From returned kits · product factors" : "Set product factors and record returns"} to="/admin/rail/sustainability" />

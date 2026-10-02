@@ -130,7 +130,7 @@ function SustainPage() {
   }
 
   async function esgReport() {
-    const summary = { month, ...s, baseline: data!.baseline, league: league.map((l) => ({ depot: l.d.name, freshPerCoach: Math.round(l.freshPerCoach), coaches: l.coaches })) };
+    const summary = { month, ...s, chemical_co2e_kg: chemCo2, total_co2e_kg: co2Total, baseline: data!.baseline, league: league.map((l) => ({ depot: l.d.name, freshPerCoach: Math.round(l.freshPerCoach), coaches: l.coaches })) };
     await db.from("rail_esg_reports").insert({ month: m0, summary });
     void logActivity({ module: "Rail Sustainability", action: "esg_report", entityType: "rail_esg_reports", entityLabel: month });
     const w = window.open("", "_blank");
