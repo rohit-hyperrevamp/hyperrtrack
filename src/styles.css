@@ -2751,6 +2751,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 .rail-event-dialog .rail-coach-option[data-status="rejected"], .rail-event-dialog .rail-coach-option[data-status="removed"] { border-color: var(--destructive); }
 .rail-event-dialog .rail-coach-option[aria-pressed="true"] { background: var(--brand-blue); border-color: var(--brand-blue); color: var(--primary-foreground); }
 .rail-event-dialog .rail-coach-option[data-status="removed"][aria-pressed="true"] { background: var(--destructive); border-color: var(--destructive); }
+.rail-event-dialog .rail-assign-select { appearance: none; -webkit-appearance: none; background-image: none !important; padding-right: 2.5rem !important; }
 [data-slot="sheet-content"][data-state], [data-slot="dialog-content"][data-state] { border-radius: 12px; }
 [data-slot="sheet-content"] :where(input,textarea,select,[data-slot="select-trigger"]) { border-radius: 8px; }
 .rail-attention-item { min-height: 66px; }

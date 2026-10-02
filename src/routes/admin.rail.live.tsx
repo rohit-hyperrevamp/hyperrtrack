@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, CheckCircle2, ChevronRight, CircleCheck, Clock3, MapPin, Play, Send, ShieldCheck, TrainFront, XCircle } from "lucide-react";
+import { CalendarPlus, CheckCircle2, ChevronDown, ChevronRight, CircleCheck, Clock3, MapPin, Play, Send, ShieldCheck, TrainFront, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { PageHeader } from "@/components/PageHeader";
@@ -177,14 +177,15 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const [selected, setSelected] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
-  const { data: workers = [] } = useQuery({
+  const { data: workers = [], isLoading: workersLoading, isError: workersError } = useQuery({
     queryKey: ["rail-assignable-cleaners"], enabled: !!id,
     queryFn: async () => {
       const [people, users] = await Promise.all([
         rows<{ mobile: string; full_name: string; scope_type: string; scope_location_id: string | null; enabled: boolean }>(db.from("rail_people").select("mobile,full_name,scope_type,scope_location_id,enabled").eq("role_key", "cleaner").eq("enabled", true)),
         rows<{ mobile: string; user_id: string }>(db.rpc("rail_people_users")),
       ]);
-      return people.flatMap((person) => { const user = users.find((u) => u.mobile === person.mobile); return user ? [{ ...person, user_id: user.user_id }] : []; });
+      const byMobile = new Map(users.map((u) => [u.mobile.replace(/\D/g, "").slice(-10), u.user_id]));
+      return people.flatMap((person) => { const userId = byMobile.get(person.mobile.replace(/\D/g, "").slice(-10)); return userId ? [{ ...person, user_id: userId }] : []; });
     },
   });
 
@@ -250,6 +251,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   }
 
   const coachTasks = (cid: string) => data?.tasks.filter((t) => t.event_coach_id === cid) ?? [];
+  const locationCleaners = workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev?.location_id || w.user_id === data?.tasks.find((t) => t.assigned_to === w.user_id)?.assigned_to);
 
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
@@ -294,26 +296,30 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
               const c = data.coaches.find((x) => x.id === selected);
               if (!c) return null;
               return (
-                <div className="space-y-4 border-t border-border pt-5">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">Coach {c.position} · {c.rail_coach_types?.code} {c.rail_coaches?.coach_number}</div>
+                <div className="space-y-4 pt-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0 font-medium">Coach {c.position} · {c.rail_coach_types?.code} {c.rail_coaches?.coach_number}</div>
                     <div className="flex shrink-0 items-center gap-2"><StatusPill s={c.status} />{c.rework_count > 0 && <span className="text-xs text-destructive">Rework ×{c.rework_count}</span>}</div>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className="divide-y divide-border/60">
                     {coachTasks(c.id).map((t) => (
-                      <li key={t.id} className="flex flex-col gap-3 rounded-lg bg-muted/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                      <li key={t.id} className="flex flex-col gap-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                         <span className="flex min-w-0 items-center gap-3 font-medium"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-primary-foreground ${t.status === "done" ? "bg-success" : t.assigned_to ? "bg-brand" : "bg-danger"}`}>{t.status === "done" ? <CheckCircle2 className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}</span><span className="min-w-0">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}<span className="block text-xs font-normal text-muted-foreground">{t.status === "done" ? "Done" : t.status === "skipped" ? "Skipped" : t.accepted_at ? "Accepted" : t.assigned_to ? "Awaiting acceptance" : "Unassigned"}</span></span></span>
                         {t.status === "done" || t.status === "skipped" ? null :
-                          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                            {canAssign && <select aria-label={`Assign ${t.task_name}`} className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card pl-3 text-sm sm:w-48 sm:flex-none" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)}>
-                              <option value="">Assign cleaner…</option>
-                              {workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev.location_id || w.user_id === t.assigned_to).map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
-                            </select>}
+                          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+                            {canAssign && <div className="relative min-w-0 flex-1 sm:w-48 sm:flex-none">
+                              <select aria-label={`Assign ${t.task_name}`} className="rail-assign-select h-10 w-full min-w-0 truncate rounded-lg border border-border bg-card px-3 pr-10 text-sm text-foreground focus-visible:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)} disabled={workersLoading || workersError}>
+                                <option value="">{workersLoading ? "Loading cleaners…" : workersError ? "Unable to load cleaners" : locationCleaners.length ? "Assign cleaner…" : "No eligible cleaners"}</option>
+                                {locationCleaners.map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
+                              </select><ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            </div>}
                             {canAssign && !t.assigned_to && <Button size="sm" variant="outline" onClick={() => void autoAssign(t)}>Best match</Button>}
                           </div>}
                       </li>
                     ))}
                   </ul>
+                  {canAssign && !workersLoading && !workersError && !locationCleaners.length && <p className="text-xs text-muted-foreground">No cleaner with an active sign-in and access to this location. Add a cleaner in Team, give them access to this location and connect their phone to a sign-in account.</p>}
+                  {canAssign && workersError && <p role="alert" className="text-xs text-destructive">Cleaners could not be loaded. Retry after checking your connection.</p>}
                   {canInspect && c.status === "done" && (
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" onClick={() => review(c.id, true)}><CheckCircle2 className="mr-1 h-4 w-4" />Approve</Button>
