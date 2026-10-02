@@ -689,75 +689,27 @@ function AdminLayout() {
 
       {/* Mobile bottom tab bar — primary destinations + More opens full drawer */}
       {(() => {
-        const bottomItems: BottomNavItem[] = (() => {
-          if (isGuard) {
-            const guardBottomKeys = ["dashboard", "my-inventory", "my-attendance", "training"];
-            return guardGroups
-              .filter((g) => guardBottomKeys.includes(g.key))
-              .sort((a, b) => guardBottomKeys.indexOf(a.key) - guardBottomKeys.indexOf(b.key))
-              .map((g) => ({
-                key: g.key,
-                label: g.label.replace(/^My\s+/i, ""),
-                icon: g.icon,
-                to: g.to,
-                active: isGroupActive(g),
-              }));
-          }
-          // Build primary destinations in priority order, filtered by permissions.
-          // FO gets exactly 3 tiles (Dashboard, Site Visits, Candidates) + More.
-          const priorityKeys = isRailRole || isSuperAdmin || can("rail_ops")
-            ? visibleGroups.slice(0, 4).map((g) => g.key)
-            : isFieldOfficer
-            ? ["dashboard", "field-sense", "employees"]
-            : ["dashboard", "employees", "attendance", "payroll", "invoice", "inventory", "organizations"];
-          const cap = isFieldOfficer ? 3 : 4;
-          const byKey = new Map(visibleGroups.map((g) => [g.key, g]));
-          const picked: GroupItem[] = [];
-          for (const k of priorityKeys) {
-            const g = byKey.get(k);
-            if (g && picked.length < cap) picked.push(g);
-          }
-          // Fallback: fill from remaining visibleGroups (skipped for FO to keep exactly 3)
-          if (!isFieldOfficer) {
-            for (const g of visibleGroups) {
-              if (picked.length >= cap) break;
-              if (!picked.find((p) => p.key === g.key)) picked.push(g);
-            }
-          }
-
-          return picked.map((g) => ({
+        const bottomItems: BottomNavItem[] = visibleGroups.slice(0, 4).map((g) => ({
             key: g.key,
             label: g.label,
             icon: g.icon,
-            to: g.to ?? g.children?.[0]?.to,
+            to: g.to,
             active: isGroupActive(g),
-          }));
-        })();
-        const moreItems: BottomNavMoreItem[] = isFieldOfficer
-          ? [
-              { key: "fo-dashboard", to: "/admin/field-dashboard", label: "Dashboard", icon: LayoutDashboard, active: isActive("/admin/field-dashboard") },
-              { key: "fo-candidates", to: "/admin/employees", label: "Candidates", icon: UserPlus, active: isActive("/admin/employees") },
-              { key: "fo-attendance", to: "/admin/attendance", label: "Attendance", icon: ClipboardList, active: isActive("/admin/attendance") },
-               { key: "fo-radar", to: "/admin/field-sense", label: "Site Visits", icon: MapPin, active: isActive("/admin/field-sense") },
-              { key: "fo-uniform", to: "/admin/inventory", label: "Uniform", icon: Boxes, active: isActive("/admin/inventory") },
-              { key: "fo-my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") },
-              { key: "fo-training", to: "/admin/my-training", label: "Training", icon: BookOpen, active: isActive("/admin/my-training") },
-            ]
-          : visibleGroups.flatMap((g) => {
+        }));
+        const moreItems: BottomNavMoreItem[] = visibleGroups.flatMap((g) => {
               const to = g.to ?? g.children?.[0]?.to;
               return to ? [{ key: g.key, to, label: g.label, icon: g.icon, active: isGroupActive(g) }] : [];
             });
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
-        if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
+        addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
+        addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav
             items={bottomItems}
             onMore={() => setMobileOpen((open) => !open)}
             moreActive={mobileOpen}
-            hideMore={isGuard}
             moreItems={moreItems}
           />
         );
