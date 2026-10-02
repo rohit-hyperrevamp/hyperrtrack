@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, CheckCircle2, Send, TrainFront, XCircle } from "lucide-react";
+import { CalendarPlus, CheckCircle2, ChevronRight, CircleCheck, Clock3, MapPin, Play, Send, ShieldCheck, TrainFront, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { PageHeader } from "@/components/PageHeader";
@@ -32,6 +32,7 @@ function LiveBoard() {
   const [date, setDate] = useState(today());
   const [openId, setOpenId] = useState<string | null>(null);
   const [planning, setPlanning] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["rail-events", date],
@@ -65,11 +66,12 @@ function LiveBoard() {
   const byLine = useMemo(() => {
     const m = new Map<string, Ev[]>();
     for (const e of events ?? []) {
+      if (statusFilter && e.status !== statusFilter) continue;
       const k = e.rail_locations?.code ?? "—";
       m.set(k, [...(m.get(k) ?? []), e]);
     }
     return [...m.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [events]);
+  }, [events, statusFilter]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -78,54 +80,62 @@ function LiveBoard() {
   }, [events]);
 
   const canPlan = hasRole(roles, "project_head", "depot_manager", "shift_supervisor");
+  const statuses = [
+    { key: "planned", label: "Planned", icon: Clock3 },
+    { key: "placed", label: "Placed", icon: MapPin },
+    { key: "in_progress", label: "In progress", icon: Play },
+    { key: "completed", label: "Completed", icon: CircleCheck },
+    { key: "approved", label: "Approved", icon: ShieldCheck },
+    { key: "released", label: "Released", icon: Send },
+  ];
+  const time = (value: string) => new Date(value).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="space-y-5">
       <RailTopbarSlot>
         <RailDateStepper value={date} onChange={setDate} />
-        {canPlan && <button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</button>}
+        {canPlan && <Button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</Button>}
       </RailTopbarSlot>
       <PageHeader title="Live Board" description="Every cleaning job for the day, by pit line." />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-        {["planned", "placed", "in_progress", "completed", "approved", "released"].map((s) => (
-          <Kpi key={s} label={s.replace("_", " ")} value={counts[s] ?? 0} />
-        ))}
+       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Filter cleaning jobs by status">
+         {statuses.map(({ key, label, icon: Icon }) => (
+           <Button key={key} type="button" variant="ghost" aria-pressed={statusFilter === key} onClick={() => setStatusFilter((current) => current === key ? null : key)}
+             className="rail-live-summary flex h-auto min-h-24 min-w-0 items-center justify-start gap-3 whitespace-normal px-3 py-3 text-left shadow-none sm:min-h-28 sm:px-4" data-status={key}>
+             <span className="rail-live-summary-icon grid h-10 w-10 shrink-0 place-items-center rounded-full"><Icon className="h-5 w-5" /></span>
+             <span className="min-w-0"><span className="block text-xl font-semibold tabular-nums text-foreground sm:text-2xl">{counts[key] ?? 0}</span><span className="block text-xs font-medium text-foreground sm:text-sm">{label}</span></span>
+           </Button>
+         ))}
       </div>
 
-      {isLoading ? <Skeleton className="h-64 w-full rounded-2xl" /> : !events?.length ? (
+       {isLoading ? <Skeleton className="h-64 w-full rounded-lg" /> : !events?.length ? (
         <Empty title="No cleaning jobs for this day" hint="Plan the day to create jobs from train schedules, coach lists and task templates." action={canPlan ? <Button onClick={plan}><CalendarPlus className="mr-2 h-4 w-4" />Plan day</Button> : undefined} />
       ) : (
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="mb-2 grid grid-cols-[120px_1fr] text-xs text-muted-foreground">
-            <div />
-            <div className="flex justify-between">{Array.from({ length: 13 }, (_, i) => <span key={i}>{String(i * 2).padStart(2, "0")}:00</span>)}</div>
-          </div>
-          <div className="space-y-2">
+         <section className="min-w-0" aria-label="Cleaning jobs">
+           <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-semibold">Cleaning jobs <span className="ml-1 text-sm font-normal text-muted-foreground">{statusFilter ? `${counts[statusFilter] ?? 0} ${statusFilter.replace("_", " ")}` : `${events.length} total`}</span></h2>
+             {statusFilter && <Button variant="ghost" size="sm" onClick={() => setStatusFilter(null)}>Show all</Button>}
+           </div>
+           {byLine.length === 0 ? <Empty title="No jobs in this status" hint="Choose another status or show all cleaning jobs." action={<Button variant="outline" onClick={() => setStatusFilter(null)}>Show all</Button>} /> : <div className="space-y-5">
             {byLine.map(([line, evs]) => (
-              <div key={line} className="grid grid-cols-[120px_1fr] items-center">
-                <div className="text-sm font-medium">{line}</div>
-                <div className="relative h-12 rounded-lg bg-muted/40">
-                  {evs.map((e) => {
-                    const s = new Date(e.planned_start), en = new Date(e.planned_end);
-                    const left = ((s.getHours() * 60 + s.getMinutes()) / 1440) * 100;
-                    const width = Math.max(4, ((en.getTime() - s.getTime()) / 60000 / 1440) * 100);
-                    return (
-                      <button key={e.id} onClick={() => setOpenId(e.id)}
-                        className={cn("absolute top-1 bottom-1 rounded-md border px-2 text-left text-xs overflow-hidden focus:outline-none focus:ring-2 focus:ring-ring",
-                           e.status === "released" ? "bg-success/15 text-foreground border-success/40" : e.status === "approved" ? "bg-success/10 border-success/30" :
-                           e.status === "in_progress" ? "bg-warning/10 border-warning/30" : e.status === "completed" ? "bg-accent/10 border-accent/30" : "bg-background")}
-                        style={{ left: `${left}%`, width: `${Math.min(width, 100 - left)}%` }}>
-                        <div className="font-semibold truncate">{e.rail_trains?.number} · {e.rail_service_types?.code}</div>
-                        <div className="truncate opacity-80">{e.status.replace("_", " ")}</div>
-                      </button>
-                    );
-                  })}
+               <div key={line} className="overflow-hidden rounded-lg border border-border bg-card">
+                 <div className="flex items-center gap-2 border-b border-border px-4 py-3 text-sm font-semibold"><MapPin className="h-4 w-4 text-brand" />{evs[0]?.rail_locations?.name ?? line}<span className="ml-auto text-xs font-medium text-muted-foreground">{evs.length} {evs.length === 1 ? "job" : "jobs"}</span></div>
+                 <div>
+                   {evs.map((e) => {
+                     const Icon = statuses.find((s) => s.key === e.status)?.icon ?? Clock3;
+                     return <Button key={e.id} variant="ghost" data-status={e.status} onClick={() => setOpenId(e.id)}
+                       className="rail-live-row flex h-auto min-h-[76px] w-full items-center justify-start gap-3 rounded-none px-4 py-3 text-left last:border-b-0 sm:gap-4">
+                       <span className="rail-live-row-icon grid h-10 w-10 shrink-0 place-items-center rounded-full"><Icon className="h-5 w-5" /></span>
+                       <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-foreground sm:text-base">{e.rail_trains?.number ?? "Train"} <span className="font-normal text-muted-foreground">{e.rail_trains?.name}</span></span><span className="block truncate text-xs text-muted-foreground">{e.rail_service_types?.name ?? e.rail_service_types?.code ?? "Cleaning"}</span></span>
+                       <span className="hidden shrink-0 text-sm tabular-nums text-foreground sm:block">{time(e.planned_start)} – {time(e.planned_end)}</span>
+                       <span className="rail-live-row-status shrink-0 text-xs font-semibold capitalize sm:min-w-24 sm:text-right">{e.status.replace("_", " ")}</span>
+                       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                     </Button>;
+                   })}
                 </div>
               </div>
             ))}
-          </div>
-        </div>
+           </div>}
+         </section>
       )}
 
       <EventSheet id={openId} onClose={() => setOpenId(null)} date={date} />
@@ -208,7 +218,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     className={cn("min-w-[64px] rounded-md border px-2 py-2 text-xs text-center focus:outline-none focus:ring-2 focus:ring-ring",
                       removed.has(c.id) && "opacity-40 line-through",
                       selected === c.id && "ring-2 ring-primary",
-                       c.status === "approved" ? "bg-success/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}>
+                       c.status === "approved" ? "bg-brand/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}> 
                     <div className="font-semibold">{c.position}. {c.rail_coach_types?.code}</div>
                     <div className="opacity-70">{c.rail_coaches?.coach_number ?? "—"}</div>
                   </button>
@@ -229,7 +239,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     {coachTasks(c.id).map((t) => (
                       <li key={t.id} className="flex items-center justify-between py-2 text-sm">
                         <span>{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced from offline)</span>}</span>
-                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-success" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
+                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
                           <Button size="sm" variant="outline" onClick={() => complete(t)}>Mark done</Button>}
                       </li>
                     ))}

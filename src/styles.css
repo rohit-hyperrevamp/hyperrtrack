@@ -1958,16 +1958,40 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); font-size: clamp(1.65rem, 2.5vw, 2.4rem); }
 [data-rail-shell] .rail-command-kpis > :nth-child(1) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--palette-neutral-ink); border-color: var(--palette-neutral-ink); }
-[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--palette-good-deep); border-color: var(--palette-good-deep); }
+[data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--palette-caution-deep); border-color: var(--palette-caution-deep); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
-[data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi-icon { background: var(--palette-good-main); }
+[data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi-icon { background: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi-icon { background: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi-icon { background: var(--palette-caution-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(6) .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi-icon { background: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon { background: var(--brand-blue); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-caution-deep); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); }
+
+/* Live Board: status is readable by name and color, never by a timeline bar alone. */
+[data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--palette-neutral-deep); }
+[data-rail-shell] .rail-live-summary[data-status="placed"] { --live-color: var(--brand-blue); }
+[data-rail-shell] .rail-live-summary[data-status="in_progress"] { --live-color: var(--palette-caution-deep); }
+[data-rail-shell] .rail-live-summary[data-status="completed"] { --live-color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-live-summary[data-status="approved"] { --live-color: var(--brand-blue); }
+[data-rail-shell] .rail-live-summary[data-status="released"] { --live-color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-live-summary { border: 1px solid var(--rail-line); background: var(--card); border-radius: 16px; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+[data-rail-shell] .rail-live-summary:hover { transform: translateY(-2px); border-color: var(--live-color); background: var(--card); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"] { border-color: var(--live-color); box-shadow: 0 0 0 2px var(--live-color); }
+[data-rail-shell] .rail-live-summary-icon { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-row { --live-color: var(--palette-neutral-deep); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }
+[data-rail-shell] .rail-live-row[data-status="placed"], [data-rail-shell] .rail-live-row[data-status="approved"] { --live-color: var(--brand-blue); }
+[data-rail-shell] .rail-live-row[data-status="released"] { --live-color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-live-row[data-status="in_progress"] { --live-color: var(--palette-caution-deep); }
+[data-rail-shell] .rail-live-row[data-status="completed"] { --live-color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-live-row:hover { background: color-mix(in oklab, var(--live-color) 5%, var(--card)); }
+[data-rail-shell] .rail-live-row-icon { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-row-status { color: var(--live-color); }
 [data-rail-shell] .rail-chart-bar > div {
   background-image: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in oklab, var(--card) 20%, transparent) 3px 6px);
 }

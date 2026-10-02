@@ -1,6 +1,7 @@
 # HyperTrack roadmap
 
-- [x] Replace Command Centre's pale, striped tiles with strong solid blue, charcoal and green feature cards plus status-aware colored icons; show the train-film tagline on the login screen at desktop and mobile sizes
+- [x] Replace green dashboard/rail KPI accents with blue, red and yellow; redesign Live Board as a color-coded, filterable job list instead of hard-to-read timeline bars
+- [x] Replace Command Centre's pale, striped tiles with strong solid blue, charcoal and yellow feature cards plus status-aware colored icons; show the train-film tagline on the login screen at desktop and mobile sizes
 - [x] Refine login input and left-side copy, replace train film with 1080p footage, align collapsed dock and Command Centre cards, add focused drop-down search, and center rail/recruitment entry panels with mobile-fit spacing
 - [ ] Extend staged entry to every complex form beyond People and multi-field Configuration Hub masters; verify authenticated visual flows on the live site after publication
 - [x] Rename Rail Settings to Configuration Hub; redesign its master catalog and add role creation, permission editing, page-aware navigation, circular icons and glass editors (production verification blocked by unavailable production database connection)

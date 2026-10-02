@@ -72,12 +72,11 @@ const kpiIcons: [RegExp, LucideIcon][] = [
 
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const Icon = kpiIcons.find(([pattern]) => pattern.test(label))?.[1] ?? FileText;
-  const tint = tone === "good" ? "bg-good-soft/70 dark:bg-good/15" : tone === "warn" ? "bg-caution-soft/70 dark:bg-caution/15" : tone === "bad" ? "bg-danger-soft/70 dark:bg-danger/15" : "bg-card";
   const iconTone = "bg-brand text-primary-foreground";
   const body = (
     <div data-tone={tone} className={cn(
       "rail-kpi group flex h-full min-h-32 min-w-0 flex-col justify-between rounded-lg border border-border/70 p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
-      tint,
+       "bg-card",
       to && "cursor-pointer hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
     )}>
       <div className="flex items-start justify-between gap-2"><div className="rail-kpi-label min-w-0 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">{label}</div><span aria-hidden="true" className={cn("rail-kpi-icon grid h-9 w-9 shrink-0 place-items-center rounded-full", iconTone)}><Icon className="h-4 w-4" strokeWidth={2} /></span></div>
@@ -103,14 +102,14 @@ export function StatusPill({ s }: { s: string }) {
     planned: "bg-muted text-muted-foreground", placed: "bg-accent/10 text-accent",
     in_progress: "bg-warning/10 text-warning", pending: "bg-muted text-muted-foreground",
     done: "bg-accent/10 text-accent", completed: "bg-accent/10 text-accent",
-    approved: "bg-success/10 text-success", released: "bg-success text-card",
+    approved: "bg-brand/10 text-brand", released: "bg-brand text-primary-foreground",
     rejected: "bg-destructive/15 text-destructive", removed: "bg-muted text-muted-foreground line-through",
     draft: "bg-muted text-muted-foreground", submitted: "bg-accent/10 text-accent",
-    checker_verified: "bg-accent/10 text-accent", certified: "bg-success/10 text-success",
-    paid: "bg-success text-card", cancelled: "bg-muted text-muted-foreground line-through",
+    checker_verified: "bg-accent/10 text-accent", certified: "bg-brand/10 text-brand",
+    paid: "bg-brand text-primary-foreground", cancelled: "bg-muted text-muted-foreground line-through",
     open: "bg-warning/10 text-warning", proposed: "bg-warning/10 text-warning",
-    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-success/10 text-success",
-    requested: "bg-warning/10 text-warning", received: "bg-success/10 text-success",
+    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-brand/10 text-brand",
+    requested: "bg-warning/10 text-warning", received: "bg-brand/10 text-brand",
   };
   return <span className={cn("inline-flex min-h-6 max-w-full items-center justify-center rounded-md px-2 py-0.5 text-center text-xs font-medium capitalize leading-4", tone[s] ?? "bg-muted text-muted-foreground")}>{s.replace(/_/g, " ")}</span>;
 }
