@@ -83,7 +83,7 @@ function WelcomePage() {
         </div>
 
         <p className="mt-6 text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
-          Radiant Guard Services Pvt. Ltd.
+          HyperTrack rail operations
         </p>
       </div>
     </div>

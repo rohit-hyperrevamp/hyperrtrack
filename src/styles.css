@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Radiant Guard Services design tokens.
- * High-contrast brutalist palette: white + black + navy blue + yellow accent.
+ * HyperTrack design tokens.
+ * Industrial precision palette: white + navy + vivid blue.
  * All colors in oklch.
  */
 
 @theme inline {
-  /* Radiant brand blue — bright, bold identity blue (white + blue) */
+  /* HyperTrack brand blue — bright, bold identity blue (white + blue) */
   --color-brand: #1877f2;
   --color-brand-foreground: #ffffff;
   --radius-sm: calc(var(--radius) - 4px);
@@ -67,31 +67,31 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --mobile-edge: 0.5rem;
   --mobile-dock-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /* surfaces — soft neutral canvas, pure white cards (reference design language) */
-  --background: oklch(0.958 0.004 170);
-  --foreground: oklch(0.19 0.015 168);
+  --background: oklch(0.978 0.003 250);
+  --foreground: oklch(0.22 0.025 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.015 168);
+  --card-foreground: oklch(0.22 0.025 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.015 168);
+  --popover-foreground: oklch(0.22 0.025 250);
   /* deep ink primary — the dark pill used for active nav / primary buttons */
-  --primary: oklch(0.22 0.022 168);
+  --primary: oklch(0.21 0.045 252);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.945 0.006 170);
-  --secondary-foreground: oklch(0.22 0.02 168);
-  --muted: oklch(0.948 0.005 170);
-  --muted-foreground: oklch(0.52 0.012 170);
-  /* vivid blue accent — echoes the Radiant brand blue inside the app */
+  --secondary: oklch(0.96 0.006 250);
+  --secondary-foreground: oklch(0.22 0.025 250);
+  --muted: oklch(0.96 0.005 250);
+  --muted-foreground: oklch(0.50 0.014 250);
+  /* vivid blue accent — echoes the HyperTrack logo inside the app */
   --accent: oklch(0.585 0.197 259);
   --accent-foreground: oklch(0.99 0 0);
-  --accent-secondary: oklch(0.22 0.022 168);
+  --accent-secondary: oklch(0.21 0.045 252);
   --destructive: oklch(0.62 0.16 20);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.905 0.005 170);
-  --input: oklch(0.905 0.005 170);
+  --border: oklch(0.90 0.009 250);
+  --input: oklch(0.90 0.009 250);
 
   --ring: oklch(0.585 0.197 259);
   --chart-1: oklch(0.585 0.197 259);
@@ -100,12 +100,12 @@
   --chart-4: oklch(0.62 0.19 300);
   --chart-5: oklch(0.65 0.2 25);
   --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.22 0.02 168);
-  --sidebar-primary: oklch(0.20 0.022 168);
+  --sidebar-foreground: oklch(0.22 0.025 250);
+  --sidebar-primary: oklch(0.21 0.045 252);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.955 0.005 170);
-  --sidebar-accent-foreground: oklch(0.22 0.02 168);
-  --sidebar-border: oklch(0.925 0.005 170);
+  --sidebar-accent: oklch(0.96 0.006 250);
+  --sidebar-accent-foreground: oklch(0.22 0.025 250);
+  --sidebar-border: oklch(0.925 0.005 250);
   --sidebar-ring: oklch(0.60 0.075 192);
   --dock: oklch(0.12 0.006 168);
   --dock-foreground: oklch(0.98 0 0);
@@ -114,21 +114,20 @@
   --surface: 255 255 255;                 /* rgb triplet for translucent backgrounds */
   --surface-strong: 255 255 255;
   --surface-hairline: 226 231 229;        /* hairline edge */
-  --surface-shadow: 17 34 30;             /* rgb for shadow ink */
+  --surface-shadow: 17 30 52;             /* rgb for shadow ink */
   --surface-glass-alpha: 0.96;
   --surface-glass-strong-alpha: 1;
   --surface-border-alpha: 0.9;
 
-  /* Pastel tint palette taken from the reference dashboard cards:
-     soft lime, mint/teal, blush pink plus quiet neutrals. */
-  --tint-blue:    226 240 246;
-  --tint-indigo:  232 238 250;
-  --tint-emerald: 205 234 226;   /* mint */
-  --tint-amber:   238 244 205;   /* lime */
-  --tint-rose:    250 214 219;   /* blush */
-  --tint-violet:  238 234 250;
-  --tint-sky:     224 240 245;
-  --tint-slate:   240 242 241;
+  /* Operational status tints, restrained against the neutral canvas. */
+  --tint-blue:    233 242 252;
+  --tint-indigo:  238 242 250;
+  --tint-emerald: 227 242 236;
+  --tint-amber:   250 243 225;
+  --tint-rose:    251 235 235;
+  --tint-violet:  244 239 250;
+  --tint-sky:     232 244 249;
+  --tint-slate:   243 245 248;
   --field-hero: oklch(0.99 0 0);
   --field-hero-muted: oklch(0.9 0.01 245);
   --field-hero-soft: oklch(1 0 0 / 14%);
@@ -305,14 +304,14 @@
     background: rgb(var(--surface) / var(--surface-glass-alpha));
     backdrop-filter: blur(10px);
     border: 1px solid rgb(var(--surface-hairline) / var(--surface-border-alpha));
-    border-radius: 24px;
+    border-radius: 8px;
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.04), 0 10px 28px -22px rgb(var(--surface-shadow) / 0.18);
   }
   .glass-strong {
     background: rgb(var(--surface-strong) / var(--surface-glass-strong-alpha));
     backdrop-filter: blur(12px);
     border: 1px solid rgb(var(--surface-hairline) / var(--surface-border-alpha));
-    border-radius: 24px;
+    border-radius: 8px;
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.05), 0 16px 36px -26px rgb(var(--surface-shadow) / 0.22);
   }
   .glass-dark {
@@ -1004,11 +1003,11 @@
   /* Grid removed — kept as no-op so existing usages stay safe */
   .app-canvas-grid { background-image: none; }
 
-  /* Every base card: pure white, generously rounded, whisper-soft shadow. */
+  /* Shared data cards: precise edges and restrained elevation. */
   .bg-card {
     background-image: none;
-    border-radius: 24px;
-    box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.035), 0 12px 30px -24px rgb(var(--surface-shadow) / 0.18);
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.04);
   }
   .dark .bg-card {
     background-image: none;

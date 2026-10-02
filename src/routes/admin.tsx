@@ -884,7 +884,9 @@ function AdminLayout() {
           }
           // Build primary destinations in priority order, filtered by permissions.
           // FO gets exactly 3 tiles (Dashboard, Site Visits, Candidates) + More.
-          const priorityKeys = isFieldOfficer
+          const priorityKeys = isRailRole || isSuperAdmin || can("rail_ops")
+            ? ["rail"]
+            : isFieldOfficer
             ? ["dashboard", "field-sense", "employees"]
             : ["dashboard", "employees", "attendance", "payroll", "invoice", "inventory", "organizations"];
           const cap = isFieldOfficer ? 3 : 4;
@@ -927,8 +929,10 @@ function AdminLayout() {
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
+        if (isRailRole || isSuperAdmin || can("rail_ops")) {
+          for (const child of railChildren) addMoreItem({ key: child.to, to: child.to, label: child.label, icon: child.icon, active: isActive(child.to) });
+        }
         if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        addMoreItem({ key: "my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") });
         if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav
