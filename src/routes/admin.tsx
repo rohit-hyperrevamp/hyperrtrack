@@ -133,6 +133,20 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/people", label: "Team", icon: UsersRound },
   { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
   { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
+  { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
+  { to: "/admin/rail/finance", label: "Profit view", icon: Receipt },
+];
+
+// Existing people, pay and invoice screens, shown to super admin inside HyperTrack.
+const railPeoplePayChildren: LeafItem[] = [
+  { to: "/admin/employees", label: "Employees", icon: UsersRound },
+  { to: "/admin/attendance", label: "Attendance", icon: ClipboardCheck },
+  { to: "/admin/candidates/rehire", label: "Rehire", icon: UserPlus },
+  { to: "/admin/allowance-manager", label: "Salary parts", icon: Banknote },
+  { to: "/admin/deduction-type-manager", label: "Deductions", icon: Receipt },
+  { to: "/admin/employer-contributions", label: "Employer contributions", icon: ShieldCheck },
+  { to: "/admin/payroll", label: "Payroll", icon: Banknote },
+  { to: "/admin/invoice", label: "Invoices", icon: FileText },
 ];
 
 const salesChildren: LeafItem[] = [
@@ -422,8 +436,10 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = isSuperAdmin ? railChildren.filter((c) => c.to !== "/admin/rail/me") : railChildren.filter((c) => {
+      const links = isSuperAdmin ? [...railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"), ...railPeoplePayChildren] : railChildren.filter((c) => {
         const section = c.to.split("/")[3];
+        if (section === "pay") return true;
+        if (section === "finance") return railPageAccess?.rail_billing === true;
         return section && (section !== "me" || roleKey === "rail_cleaner") && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
       });
       const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }, { to: "/admin/view-as-user", label: "View as User", icon: Eye }] : links;

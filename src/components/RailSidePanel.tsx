@@ -75,7 +75,7 @@ function PanelBody() {
         return { present, required };
       }
       if (kind === "ops") {
-        let q = db.from("rail_event_tasks").select("id,status,rail_events!inner(location_id,planned_date)").eq("rail_events.planned_date", today()).limit(5000);
+        let q = db.from("rail_event_tasks").select("id,status,rail_events!inner(location_id,event_date)").eq("rail_events.event_date", today()).limit(5000);
         if (loc) q = q.eq("rail_events.location_id", loc);
         const tasks = await rows<{ status: string }>(q);
         const present = await rows<{ person_id: string; full_name: string; role_key: string; location_name: string | null; check_in: string | null }>(db.rpc("rail_presence", { _location: loc }));
