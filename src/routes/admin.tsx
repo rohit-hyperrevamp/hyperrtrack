@@ -743,6 +743,7 @@ function AdminLayout() {
             onMore={() => setMobileOpen((open) => !open)}
             moreActive={mobileOpen}
             moreItems={moreItems}
+            railStyle={railWorkspace}
           />
         );
       })()}

@@ -34,12 +34,14 @@ export function MobileBottomNav({
   moreActive,
   hideMore = false,
   moreItems = [],
+  railStyle = false,
 }: {
   items: BottomNavItem[];
   onMore: () => void;
   moreActive?: boolean;
   hideMore?: boolean;
   moreItems?: BottomNavMoreItem[];
+  railStyle?: boolean;
 }) {
   const primary = items.slice(0, 4);
   const [nativeShell, setNativeShell] = useState(false);
@@ -65,6 +67,7 @@ export function MobileBottomNav({
       <nav
       aria-label="Primary"
       data-bottom-nav
+       data-rail-bottom-nav={railStyle ? "" : undefined}
       data-expanded={moreActive ? "true" : "false"}
       className={cn(
          "fixed left-[max(0.5rem,env(safe-area-inset-left,0px))] right-[max(0.5rem,env(safe-area-inset-right,0px))] bottom-[calc(0.5rem+env(safe-area-inset-bottom,0px))] z-[80] overflow-hidden rounded-lg border border-dock-foreground/15 bg-dock/90 text-dock-foreground shadow-lg transition-[border-color,box-shadow] duration-300",
@@ -116,7 +119,7 @@ export function MobileBottomNav({
             <div
               className={cn(
                  "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200",
-                 it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65",
+                 railStyle ? (it.active ? "bg-brand text-primary-foreground" : "text-muted-foreground") : (it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65"),
               )}
             >
               <span
@@ -132,7 +135,7 @@ export function MobileBottomNav({
               <span
                 className={cn(
                   "block w-full truncate whitespace-nowrap text-center text-[9px] leading-none",
-                   it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65",
+                   railStyle ? (it.active ? "font-medium text-primary-foreground" : "font-normal text-muted-foreground") : (it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65"),
                 )}
               >
                 {it.label}
