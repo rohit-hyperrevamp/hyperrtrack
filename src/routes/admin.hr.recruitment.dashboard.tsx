@@ -9,7 +9,6 @@ import {
   employeeNames, fetchAllInterviews, fetchCandidates, fetchMasters, fetchOpenings, fmtDateTime,
   LOST, monthStartIso, PIPELINE, QK, STAGES,
 } from "@/lib/recruitment";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/hr/recruitment/dashboard")({
   head: () => ({
@@ -72,8 +71,6 @@ function RecruitmentDashboard() {
   });
   const candName = new Map(cands.map((c) => [c.id, c.full_name]));
   const go = (stage?: string) => navigate({ to: "/admin/hr/recruitment/candidates", search: { stage: stage ?? "" } as never });
-
-  const funnelMax = Math.max(1, ...PIPELINE.map((k) => s.byStage.get(k) ?? 0), s.byStage.get("onboarded") ?? 0);
 
   return (
     <div className="space-y-4">
