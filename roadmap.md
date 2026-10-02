@@ -3,7 +3,7 @@
 - [ ] Fix mobile Finance & Payroll density, payslip estimate feedback and worker selector; mobile Operations/Quality overlap; overview control; More background; dark overlays; show available staff photos without inventing real employee portraits; deliver an updated illustrated workflow PDF.
 - [ ] Trace Quality penalties from proposal to confirmation, bill and finance; make ledger status and destination explicit without treating railway penalties as automatic employee payroll deductions.
 - [ ] Simplify Recruitment into intake → review → onboard → document-completion, preserve private uploads and show outstanding documents on the worker's own dashboard.
-- [ ] Add Aadhaar, PAN and photo to candidate intake securely, select operational role/designation and location instead of an opening, connect approved worker to the relevant pay structure.
+- [ ] Add Aadhaar/PAN numbers and photo to candidate intake with verified private storage and record-level permissions; create the approved worker/payroll link in the production database. Position/designation now select independently of openings and the candidate screen shows matching pay structure, but no automatic payroll assignment is claimed (production connection remains unavailable).
 - [x] Apply bright blue, green, red and yellow semantic tile accents to shared rail summaries, including Quality and Supplies; keep text readable on yellow.
 
 - [x] Color the seven-day cleaning graph by completed jobs against planned jobs (green ≥90%, blue 60–89%, red below 60%) and give colored dashboard tiles and selected controls restrained gradients.
