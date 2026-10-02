@@ -206,9 +206,9 @@ function CandidatePage() {
         <section className="space-y-3 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold">Offer &amp; onboarding</h2>
-            {c.stage === "hr_approved" && <Button size="sm" onClick={() => setOfferOpen(true)}><Send className="mr-1 h-4 w-4" />Send to HR Head</Button>}
+            {isRecruiter && c.stage === "hr_approved" && <Button size="sm" onClick={() => setOfferOpen(true)}><Send className="mr-1 h-4 w-4" />Send to HR Head</Button>}
           </div>
-          {c.stage === "hr_approved" && <p className="text-sm text-muted-foreground">All rounds approved. Fill in the offer and send it to the HR Head to onboard.</p>}
+          {isRecruiter && c.stage === "hr_approved" && <p className="text-sm text-muted-foreground">All rounds approved. Fill in the offer and send it to the HR Head to onboard.</p>}
           {c.offer?.monthly_ctc ? (
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm sm:grid-cols-4">
               <Item k="Monthly CTC" v={inr(c.offer.monthly_ctc)} />
