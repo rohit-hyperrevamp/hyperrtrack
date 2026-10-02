@@ -29,6 +29,13 @@
       "when": 1790925709275,
       "tag": "0003_restore_missing_masters_and_dashboard_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790926231557,
+      "tag": "0004_field_officer_scope_and_role_enabled",
+      "breakpoints": true
     }
   ]
 }

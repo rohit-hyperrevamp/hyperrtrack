@@ -212,6 +212,13 @@ export type Database = {
             foreignKeyName: "alertcheckin_site_map_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "alertcheckin_site_map_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -658,6 +665,13 @@ export type Database = {
             foreignKeyName: "attendance_scan_jobs_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "attendance_scan_jobs_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -1013,6 +1027,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "candidates"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_reporting_managers_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "candidate_reporting_managers_unit_id_fkey"
@@ -1486,6 +1507,13 @@ export type Database = {
             foreignKeyName: "client_contracts_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "client_contracts_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -1902,6 +1930,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "crm_stages"
             referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "crm_leads_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "crm_leads_unit_id_fkey"
@@ -2679,6 +2714,13 @@ export type Database = {
             foreignKeyName: "employee_wages_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "employee_wages_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -2909,6 +2951,13 @@ export type Database = {
             foreignKeyName: "field_visit_requests_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "field_visit_requests_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -3000,6 +3049,13 @@ export type Database = {
             foreignKeyName: "field_visits_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "field_visits_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -3037,6 +3093,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "final_invoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "final_invoice_units_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "final_invoice_units_unit_id_fkey"
@@ -4633,6 +4696,13 @@ export type Database = {
             foreignKeyName: "invoice_extra_charges_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "invoice_extra_charges_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -4679,6 +4749,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "customers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_number_client_tokens_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "invoice_number_client_tokens_unit_id_fkey"
@@ -4748,6 +4825,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invoice_number_registry_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
           {
             foreignKeyName: "invoice_number_registry_unit_id_fkey"
             columns: ["unit_id"]
@@ -4995,6 +5079,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "mis_templates"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mis_unit_values_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "mis_unit_values_unit_id_fkey"
@@ -5404,6 +5495,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payroll_runs_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
           {
             foreignKeyName: "payroll_runs_unit_id_fkey"
             columns: ["unit_id"]
@@ -6306,6 +6404,13 @@ export type Database = {
             foreignKeyName: "rehire_requests_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "rehire_requests_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
@@ -6362,6 +6467,7 @@ export type Database = {
         Row: {
           created_at: string
           description: string
+          enabled: boolean
           is_system: boolean
           key: string
           name: string
@@ -6371,6 +6477,7 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string
+          enabled?: boolean
           is_system?: boolean
           key: string
           name: string
@@ -6380,6 +6487,7 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string
+          enabled?: boolean
           is_system?: boolean
           key?: string
           name?: string
@@ -6489,6 +6597,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "candidates"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "self_attendance_punches_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "field_officer_scope"
+            referencedColumns: ["unit_id"]
           },
           {
             foreignKeyName: "self_attendance_punches_unit_id_fkey"
@@ -7389,6 +7504,39 @@ export type Database = {
       }
     }
     Views: {
+      field_officer_scope: {
+        Row: {
+          address: string | null
+          branch_id: string | null
+          branch_name: string | null
+          candidate_id: string | null
+          customer_id: string | null
+          customer_name: string | null
+          guard_count: number | null
+          is_primary: boolean | null
+          latitude: number | null
+          longitude: number | null
+          unit_code: string | null
+          unit_id: string | null
+          unit_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_number_month_counts: {
         Row: {
           first_sequence: number | null
