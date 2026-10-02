@@ -15,7 +15,7 @@ export type MasterDef = {
   table: string;
   label: string;
   description: string;
-  group: "Places & trains" | "Cleaning" | "Contracts" | "System";
+  group: "Places & trains" | "Cleaning" | "Contracts" | "Supplies & resources" | "Billing & wages" | "System";
   orderBy: string;
   versioned?: boolean;
   fields: MasterField[];
@@ -214,6 +214,127 @@ export const RAIL_MASTERS: MasterDef[] = [
     fields: [
       { key: "pass_score", label: "Pass mark (of 10)", type: "number", required: true },
       { key: "attention_score", label: "Attention mark", type: "number", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_train_schedules", label: "Train schedules", group: "Places & trains", orderBy: "arrival",
+    description: "When each train reaches a pit line or station and how long it stays.",
+    fields: [
+      { key: "train_id", label: "Train", type: "ref", required: true, ref: { table: "rail_trains", label: "number" } },
+      { key: "location_id", label: "Place", type: "ref", required: true, ref: { table: "rail_locations", label: "name" } },
+      { key: "arrival", label: "Arrives", type: "time" },
+      { key: "departure", label: "Leaves", type: "time" },
+      { key: "dwell_minutes", label: "Minutes available", type: "number" },
+    ],
+  },
+  {
+    table: "rail_deployment_norms", label: "Staffing norms", group: "Contracts", orderBy: "role_key", versioned: true,
+    description: "Minimum people per role and shift at each contract site; shortfalls raise penalties.",
+    fields: [
+      { key: "contract_site_id", label: "Contract site", type: "ref", required: true, ref: { table: "rail_contract_sites", label: "id" } },
+      { key: "shift_id", label: "Shift", type: "ref", ref: { table: "rail_shifts", label: "name" } },
+      { key: "role_key", label: "Role", type: "select", required: true, options: ["cleaner", "shift_supervisor", "store_keeper"] },
+      { key: "min_count", label: "Minimum", type: "number", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_consumption_norms", label: "Chemical norms", group: "Supplies & resources", orderBy: "effective_from", versioned: true,
+    description: "Expected quantity per coach for each item, service and coach type.",
+    fields: [
+      { key: "item_id", label: "Item", type: "ref", required: true, ref: { table: "inv_items", label: "name" } },
+      { key: "service_type_id", label: "Service", type: "ref", ref: { table: "rail_service_types", label: "name" } },
+      { key: "coach_type_id", label: "Coach type", type: "ref", ref: { table: "rail_coach_types", label: "code" } },
+      { key: "qty_per_coach", label: "Qty / coach", type: "number", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_contract_items", label: "Approved items", group: "Supplies & resources", orderBy: "created_at",
+    description: "Items allowed on each contract. Anything else is blocked at kit issue.",
+    fields: [
+      { key: "contract_id", label: "Contract", type: "ref", required: true, ref: { table: "rail_contracts", label: "loa_number" } },
+      { key: "item_id", label: "Item", type: "ref", required: true, ref: { table: "inv_items", label: "name" } },
+    ],
+  },
+  {
+    table: "rail_assets", label: "Equipment", group: "Supplies & resources", orderBy: "qr_tag",
+    description: "Machines, ladders, PPE and devices with QR tag, warranty and service interval.",
+    fields: [
+      { key: "qr_tag", label: "QR tag", type: "text", required: true },
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "category", label: "Category", type: "select", required: true, options: ["jet_machine", "scrubber_drier", "vacuum", "fogger", "ladder", "trolley", "ppe", "uniform", "phone_tablet", "acwp_spare", "tractor", "tanker", "other"] },
+      { key: "serial_no", label: "Serial", type: "text", hideInTable: true },
+      { key: "purchase_date", label: "Bought", type: "date", hideInTable: true },
+      { key: "value", label: "Value (₹)", type: "number" },
+      { key: "warranty_until", label: "Warranty to", type: "date" },
+      { key: "location_id", label: "Site", type: "ref", ref: { table: "rail_locations", label: "name" } },
+      { key: "pm_every_days", label: "Service every (days)", type: "number" },
+    ],
+  },
+  {
+    table: "rail_meters", label: "Meters", group: "Supplies & resources", orderBy: "code",
+    description: "Water, recycled water, electricity and fuel meters by location.",
+    fields: [
+      { key: "code", label: "Code", type: "text", required: true },
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "resource", label: "Resource", type: "select", required: true, options: ["water_fresh", "water_recycled", "electricity", "diesel"] },
+      { key: "unit", label: "Unit", type: "text", required: true },
+      { key: "location_id", label: "Place", type: "ref", ref: { table: "rail_locations", label: "name" } },
+    ],
+  },
+  {
+    table: "rail_resource_norms", label: "Water & energy norms", group: "Supplies & resources", orderBy: "method", versioned: true,
+    description: "Estimated litres and kWh per coach for manual wash and the auto wash plant.",
+    fields: [
+      { key: "method", label: "Method", type: "select", required: true, options: ["manual", "acwp"] },
+      { key: "resource", label: "Resource", type: "select", required: true, options: ["water_fresh", "water_recycled", "electricity", "diesel"] },
+      { key: "qty_per_coach", label: "Per coach", type: "number", required: true },
+      { key: "unit", label: "Unit", type: "text", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_emission_factors", label: "Emission factors", group: "Supplies & resources", orderBy: "resource", versioned: true,
+    description: "kg CO2e per unit of each resource, with source note.",
+    fields: [
+      { key: "resource", label: "Resource", type: "text", required: true },
+      { key: "factor", label: "Factor", type: "number", required: true },
+      { key: "unit", label: "Unit", type: "text", required: true },
+      { key: "source_note", label: "Source", type: "text" },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_penalty_rules", label: "Penalty schedule", group: "Billing & wages", orderBy: "code", versioned: true,
+    description: "Penalty amounts raised automatically or by inspectors.",
+    fields: [
+      { key: "code", label: "Code", type: "text", required: true },
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "basis", label: "Basis", type: "select", required: true, options: ["per_instance", "per_coach", "per_head", "percent_of_bill"] },
+      { key: "amount", label: "Amount (₹)", type: "number", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_wage_rules", label: "Wage rules", group: "Billing & wages", orderBy: "effective_from", versioned: true,
+    description: "Minimum basic + VDA per day by area class and skill (VDA revises 1 April and 1 October).",
+    fields: [
+      { key: "area_class", label: "Area", type: "select", required: true, options: ["A", "B", "C"] },
+      { key: "skill", label: "Skill", type: "select", required: true, options: ["unskilled", "semi_skilled", "skilled", "highly_skilled"] },
+      { key: "basic_per_day", label: "Basic / day", type: "number", required: true },
+      { key: "vda_per_day", label: "VDA / day", type: "number", required: true },
+      ...dated,
+    ],
+  },
+  {
+    table: "rail_settings_kv", label: "Rules & limits", group: "System", orderBy: "key", versioned: true,
+    description: "Alert limits, EPF/ESIC %, baseline litres, deep-clean interval and other numbers.",
+    fields: [
+      { key: "key", label: "Setting", type: "text", required: true },
+      { key: "value", label: "Value", type: "number" },
+      { key: "description", label: "Meaning", type: "text" },
       ...dated,
     ],
   },
