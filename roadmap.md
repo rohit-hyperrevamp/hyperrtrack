@@ -1,14 +1,13 @@
-# Roadmap
+# Rail Clean OS roadmap
 
-## Rail Clean OS
-- [x] Phase 1 foundation: rail_ tables, role × module × action + data scope (rail_can), append-only audit trail, feature switches, sample data
-- [x] Phase 1 Settings hub: every master editable, dated versions, history tab, CSV import with checks, export
-- [x] AI cleanliness check: camera → AI score out of 10 → stored result
-- [ ] Phase 1 remaining: place-tree drag editor + map boundaries, train coach-strip editor, checklist builder preview, role grid with "view as role"
-- [ ] Phase 2: Live Board, cleaning jobs and tasks, nightly job generator, offline cleaner app
-- [ ] Phase 3: inspections, penalties, deep-clean planner, complaints, trust score, alerts (link the AI score into tasks)
-- [ ] Phase 4: supplies and equipment
-- [ ] Phase 5: water, energy, carbon
-- [ ] Phase 6: railway billing and wage compliance
-- [ ] Phase 7: dashboards, polish, end-to-end test
-- Open questions (not blocking): contract types, a sample rate and penalty schedule, railway checker login
+- [x] Phase 1: masters, Settings hub, scoped access, audit trail, sample data, AI photo check
+- [x] Phase 2: day planning, rake placement, tasks, offline cleaner app, live board
+- [x] Phase 3: checker review, rework, penalties, complaints, alerts, trust score
+- [x] Phase 4: consumables, kit issue, norms, variance, purchase → GRN, assets, custody, maintenance, PPE
+- [x] Phase 5: meters, resource ledger, sustainability dashboard, ESG report
+- [x] Phase 6: monthly bill, annexure, checker OTP sign, compliance pack, wage floor
+- [x] Phase 7: command centre, depot/checker/cleaner views, scorecards, Ctrl+K
+- [x] End-to-end test script (37/37 passing)
+- [ ] Real contract rates, penalties and 1 Oct 2026 wage rates (waiting on user)
+- [ ] Real SMS OTP (waiting on SMS provider key; test mode uses last 4 digits)
+- [ ] Not done yet: depot map, coach-order editor, multilingual offline install, undo toasts
