@@ -692,7 +692,7 @@ function AdminLayout() {
 
 
       {/* Main */}
-      <main data-admin-scroll data-rail-workspace={railWorkspace ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
+      <main data-admin-scroll data-rail-workspace={railWorkspace ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-auto safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
         <div className="w-full min-w-0">

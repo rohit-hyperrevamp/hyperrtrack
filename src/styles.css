@@ -1936,6 +1936,10 @@ nav[data-bottom-nav] {
 [data-rail-shell] .app-canvas { display: none; }
 [data-rail-shell] [data-rail-workspace] {
   background: color-mix(in oklab, var(--brand-blue) 3%, var(--card));
+  height: calc(100dvh - 48px - env(safe-area-inset-top));
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 [data-rail-shell] [data-rail-workspace] :where(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) { border-radius: 17px; }
 [data-rail-shell] [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
