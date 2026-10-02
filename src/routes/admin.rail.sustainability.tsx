@@ -43,7 +43,7 @@ function SustainPage() {
     queryFn: async () => {
       const pm0 = new Date(new Date(m0).getFullYear(), new Date(m0).getMonth() - 1, 1).toISOString().slice(0, 10);
       const pm1 = new Date(new Date(m0).getTime() - 86400000).toISOString().slice(0, 10);
-      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct, kitsPrev, chemStock, chemFactor] = await Promise.all([
+      const [ledger, meters, readings, locs, chem, acwp, trend, baseline, leakPct, kitsPrev, chemStock, chemFactor, chemicalItems] = await Promise.all([
         rows<L>(db.from("rail_resource_ledger").select("id,event_coach_id,location_id,ledger_date,resource,qty,unit,metered,co2e_kg,method").gte("ledger_date", m0).lte("ledger_date", m1).limit(20000)),
         rows<{ id: string; code: string; name: string; resource: string; unit: string; location_id: string }>(db.from("rail_meters").select("id,code,name,resource,unit,location_id")),
         rows<{ id: string; meter_id: string; reading: number; read_at: string }>(db.from("rail_meter_readings").select("id,meter_id,reading,read_at").order("read_at", { ascending: false }).limit(200)),
@@ -56,10 +56,11 @@ function SustainPage() {
         rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", pm0).lte("issue_date", pm1).not("returned_at", "is", null)).catch(() => []),
         rows<{ item_id: string; location_id: string; qty_on_hand: number }>(db.from("rail_item_batches").select("item_id,location_id,qty_on_hand").gt("qty_on_hand", 0)).catch(() => []),
         rows<{ factor: number }>(db.from("rail_emission_factors").select("factor").eq("resource", "chemical").is("deleted_at", null).limit(1)).catch(() => []),
+        rows<{ id: string; name: string; unit: string; co2e_kg_per_unit: number | null; default_reorder_level: number }>(db.from("inv_items").select("id,name,unit,co2e_kg_per_unit,default_reorder_level").eq("rail_category", "chemical")).catch(() => []),
       ]);
       // Real chemical use = kit issued − returned (chemical items in litres), counted once the return is recorded.
       const kits = await rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
-      return { ledger, meters, readings, locs, chem, acwp, trend, kits, kitsPrev, chemStock, chemFactor: chemFactor[0]?.factor ?? null, baseline: Number(baseline), leakPct: Number(leakPct) };
+      return { ledger, meters, readings, locs, chem, acwp, trend, kits, kitsPrev, chemStock, chemicalItems, chemFactor: chemFactor[0]?.factor ?? null, baseline: Number(baseline), leakPct: Number(leakPct) };
     },
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
@@ -79,9 +80,10 @@ function SustainPage() {
   const normPerCoach = s.coaches ? normChemL / s.coaches : 0;
   const days = new Set(kitChem.map((k) => k.issue_date)).size;
   // Per-product chemical view: real use = issued − returned; CO₂e from each product's own factor.
-  type Prod = { id: string; name: string; unit: string; issued: number; returned: number; consumed: number; prev: number; stock: number; factor: number };
+  type Prod = { id: string; name: string; unit: string; issued: number; returned: number; consumed: number; prev: number; stock: number; reorder: number; factor: number };
   const prodMap = new Map<string, Prod>();
-  const blank = (k: K): Prod => ({ id: k.item_id, name: k.inv_items?.name ?? "Unknown product", unit: k.inv_items?.unit ?? "", issued: 0, returned: 0, consumed: 0, prev: 0, stock: 0, factor: k.inv_items?.co2e_kg_per_unit ?? data.chemFactor ?? 0 });
+  for (const item of data.chemicalItems) prodMap.set(item.id, { id: item.id, name: item.name, unit: item.unit, issued: 0, returned: 0, consumed: 0, prev: 0, stock: 0, reorder: Number(item.default_reorder_level), factor: item.co2e_kg_per_unit ?? data.chemFactor ?? 0 });
+  const blank = (k: K): Prod => ({ id: k.item_id, name: k.inv_items?.name ?? "Unknown product", unit: k.inv_items?.unit ?? "", issued: 0, returned: 0, consumed: 0, prev: 0, stock: 0, reorder: 0, factor: k.inv_items?.co2e_kg_per_unit ?? data.chemFactor ?? 0 });
   for (const k of data.kits) {
     if (!k.inv_items || k.inv_items.rail_category !== "chemical") continue;
     const p = prodMap.get(k.item_id) ?? blank(k);
@@ -95,7 +97,7 @@ function SustainPage() {
     prodMap.set(k.item_id, p);
   }
   for (const p of prodMap.values()) p.stock = data.chemStock.filter((b) => b.item_id === p.id).reduce((t, b) => t + Number(b.qty_on_hand), 0);
-  const products = [...prodMap.values()].sort((a, b) => b.consumed - a.consumed || b.stock - a.stock);
+  const products = [...prodMap.values()].sort((a, b) => b.consumed - a.consumed || a.name.localeCompare(b.name));
   const chemCo2 = products.reduce((t, p) => t + p.consumed * p.factor, 0);
   const co2Total = s.co2 + chemCo2;
   const co2PerCoachTotal = s.coaches ? co2Total / s.coaches : 0;
@@ -128,7 +130,7 @@ function SustainPage() {
   }
 
   async function esgReport() {
-    const summary = { month, ...s, baseline: data!.baseline, league: league.map((l) => ({ depot: l.d.name, freshPerCoach: Math.round(l.freshPerCoach), coaches: l.coaches })) };
+    const summary = { month, ...s, chemical_co2e_kg: chemCo2, total_co2e_kg: co2Total, baseline: data!.baseline, league: league.map((l) => ({ depot: l.d.name, freshPerCoach: Math.round(l.freshPerCoach), coaches: l.coaches })) };
     await db.from("rail_esg_reports").insert({ month: m0, summary });
     void logActivity({ module: "Rail Sustainability", action: "esg_report", entityType: "rail_esg_reports", entityLabel: month });
     const w = window.open("", "_blank");
@@ -163,7 +165,7 @@ function SustainPage() {
       <Tabs defaultValue="chemicals">
         <TabsList><TabsTrigger value="chemicals">Chemicals</TabsTrigger><TabsTrigger value="trend">Water</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
         <TabsContent value="chemicals" className="space-y-3">
-          <p className="text-xs text-muted-foreground">Real use per product = issued to shifts minus what came back. Carbon uses each product's CO₂e factor — set it under Configuration Hub → Organization → Item types. "Vs last month" shows whether use is going down.</p>
+           <p className="text-xs text-muted-foreground">Real use per product = issued to shifts minus what came back. Carbon requires a product CO₂e factor under Configuration Hub → Masters & rules → Inventory. No receipt or return means no recorded use.</p>
           {!products.length ? <Empty title="No chemical use recorded yet" hint="Issue kits in Supplies and record returns — real consumption shows here, product by product." /> : (
             <div className="overflow-x-auto rounded-lg border bg-card">
               <table className="w-full text-sm">
@@ -177,9 +179,9 @@ function SustainPage() {
                         <td className="p-3 font-medium">{p.name}<div className="text-xs text-muted-foreground">{num(p.issued)} issued · {num(p.returned)} returned{p.factor ? ` · ${num(p.factor, 2)} kg CO₂e/${p.unit}` : " · no CO₂e factor set"}</div></td>
                         <td className="p-3 text-right tabular-nums">{num(p.consumed, 1)} {p.unit}</td>
                         <td className="p-3 text-right tabular-nums">{p.prev > 0 ? <span className={pct! > 0 ? "text-good" : pct! < 0 ? "text-destructive" : ""}>{pct! > 0 ? `▼ ${pct}% lower` : pct! < 0 ? `▲ ${-pct!}% higher` : "same"}</span> : <span className="text-muted-foreground">first month</span>}</td>
-                        <td className="p-3 text-right tabular-nums">{num(p.stock, 1)} {p.unit}</td>
+                         <td className="p-3 text-right tabular-nums">{num(p.stock, 1)} {p.unit}{p.stock < p.reorder && <span className="block text-xs text-destructive">Low stock</span>}</td>
                         <td className="p-3 text-right tabular-nums">{p.factor ? `${num(p.consumed * p.factor, 1)} kg` : "—"}</td>
-                        <td className="p-3"><div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Math.max(2, (p.consumed / top) * 100)}%` }} /></div></td>
+                         <td className="p-3"><div className="h-2 rounded-full bg-muted"><div className="rail-striped-bar h-2 rounded-full bg-primary" style={{ width: `${p.consumed ? Math.max(2, (p.consumed / top) * 100) : 0}%` }} /></div></td>
                       </tr>
                     );
                   })}
@@ -193,7 +195,7 @@ function SustainPage() {
             <div className="rounded-lg border bg-card p-4"><div className="flex h-48 items-end gap-3">{months.map((mo) => {
               const t = summarize(data.trend.filter((x) => x.ledger_date.startsWith(mo)), data.baseline, 0);
               const max = Math.max(...months.map((m2) => summarize(data.trend.filter((x) => x.ledger_date.startsWith(m2)), data.baseline, 0).saved), 1);
-              return <div key={mo} className="flex flex-1 flex-col items-center gap-1"><div className="text-xs tabular-nums">{num(t.saved / 1000, 1)} kL</div><div className="w-full rounded-t bg-primary" style={{ height: `${Math.max(4, (t.saved / max) * 150)}px` }} /><div className="text-xs text-muted-foreground">{mo}</div></div>;
+               return <div key={mo} className="flex flex-1 flex-col items-center gap-1"><div className="text-xs tabular-nums">{num(t.saved / 1000, 1)} kL</div><div className="rail-striped-bar w-full rounded-t bg-primary" style={{ height: `${Math.max(4, (t.saved / max) * 150)}px` }} /><div className="text-xs text-muted-foreground">{mo}</div></div>;
             })}</div><div className="mt-2 text-xs text-muted-foreground">Water saved per month</div></div>)}
         </TabsContent>
         <TabsContent value="league">

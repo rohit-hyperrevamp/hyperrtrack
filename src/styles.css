@@ -1994,9 +1994,13 @@ nav[data-bottom-nav] {
 .dark [data-rail-shell] .rail-live-row-status { color: var(--foreground); background: color-mix(in oklab, var(--live-color) 35%, var(--card)); }
 [data-rail-shell] .rail-live-row[data-slot="button"] { border-radius: 0 !important; }
 [data-rail-shell] .rail-live-summary[data-slot="button"] { border-radius: 16px; }
-[data-rail-shell] .rail-chart-bar > [data-performance="on-track"] { background: var(--palette-good-main); }
-[data-rail-shell] .rail-chart-bar > [data-performance="in-between"] { background: var(--brand-blue); }
-[data-rail-shell] .rail-chart-bar > [data-performance="behind"] { background: var(--palette-danger-main); }
+[data-rail-shell] .rail-chart-bar > [data-performance="on-track"] { background-color: var(--palette-good-main); }
+[data-rail-shell] .rail-chart-bar > [data-performance="in-between"] { background-color: var(--brand-blue); }
+[data-rail-shell] .rail-chart-bar > [data-performance="behind"] { background-color: var(--palette-danger-main); }
+[data-rail-shell] .rail-striped-bar,
+[data-rail-shell] .rail-chart-bar > [data-performance] {
+  background-image: repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in oklab, var(--primary-foreground) 19%, transparent) 7px 10px);
+}
 [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
 
 @media (min-width: 1024px) {
