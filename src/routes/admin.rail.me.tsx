@@ -100,8 +100,8 @@ function MePage() {
         <div className="text-sm text-muted-foreground">Namaste</div>
         <div className="text-xl font-semibold">{me?.full_name ?? "My Day"}</div>
         <div className="mt-2 flex items-center gap-2 text-xs">
-          {online ? <span className="text-emerald-600">Online</span> : <span className="flex items-center gap-1 text-amber-600"><CloudOff className="h-3 w-3" />Offline — work is saved on this phone</span>}
-          {queued > 0 && <span className="rounded-full bg-amber-500/15 px-2 py-0.5">{queued} waiting to sync</span>}
+          {online ? <span className="text-success">Online</span> : <span className="flex items-center gap-1 text-warning"><CloudOff className="h-3 w-3" />Offline — work is saved on this phone</span>}
+          {queued > 0 && <span className="rounded-md bg-warning/10 px-2 py-0.5 text-warning">{queued} waiting to sync</span>}
           {queued > 0 && online && <Button size="sm" variant="ghost" onClick={async () => { await flushQueue(); setQueued(readQueue().length); qc.invalidateQueries({ queryKey: ["rail-me-tasks"] }); }}><RefreshCw className="h-3 w-3" /></Button>}
         </div>
       </div>

@@ -145,7 +145,7 @@ function QualityPage() {
           {!due.length ? <Empty title="No coaches due for deep cleaning" /> :
             <div className="divide-y rounded-2xl border bg-card">{due.slice(0, 200).map((c) => (
               <div key={c.id} className="flex items-center justify-between p-3 text-sm"><div className="font-medium">{c.coach_number} · {c.rail_coach_types?.code}</div>
-                <div className="flex items-center gap-3"><span className={c.days > interval ? "text-destructive" : "text-amber-600"}>{c.days === 9999 ? "Never deep-cleaned" : `${c.days} days since last`}</span>
+                 <div className="flex items-center gap-3"><span className={c.days > interval ? "text-destructive" : "text-warning"}>{c.days === 9999 ? "Never deep-cleaned" : `${c.days} days since last`}</span>
                   <Button size="sm" variant="outline" onClick={async () => (await setField("rail_coaches", c.id, { last_intensive_on: today() }, "Marked deep-cleaned today")) && inv()}>Done today</Button></div></div>))}</div>}
         </TabsContent>
 

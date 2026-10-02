@@ -67,7 +67,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
       to && "cursor-pointer hover:border-accent/40 hover:shadow-sm",
     )}>
       <div className="text-xs font-medium text-muted-foreground">{label}</div>
-      <div className={cn("mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground", tone === "bad" && "text-destructive", tone === "warn" && "text-warning", tone === "good" && "text-success")}>{value}</div>
+      <div className="mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground">{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );
@@ -98,7 +98,7 @@ export function StatusPill({ s }: { s: string }) {
     confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-success/10 text-success",
     requested: "bg-warning/10 text-warning", received: "bg-success/10 text-success",
   };
-  return <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize", tone[s] ?? "bg-muted")}>{s.replace(/_/g, " ")}</span>;
+  return <span className={cn("inline-flex min-h-6 max-w-full items-center justify-center rounded-md px-2 py-0.5 text-center text-xs font-medium capitalize leading-4", tone[s] ?? "bg-muted text-muted-foreground")}>{s.replace(/_/g, " ")}</span>;
 }
 
 export async function sha256Hex(text: string) {
