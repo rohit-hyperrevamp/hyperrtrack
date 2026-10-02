@@ -25,20 +25,26 @@ type RecruitmentSummary = {
 
 export function MyUpcomingInterviewsCard() {
   const query = useQuery({ queryKey: QK.myInterviews, queryFn: fetchMyInterviews });
-  const upcoming = (query.data ?? []).filter((item) => item.status === "scheduled" && new Date(item.scheduled_at) >= new Date()).slice(0, 4);
+  // Every interview assigned to me that still needs feedback — including ones
+  // whose slot has started or passed — so the interviewer is never left unaware.
+  const upcoming = (query.data ?? []).filter((item) => item.status === "scheduled").slice(0, 6);
   if (!query.isLoading && upcoming.length === 0) return null;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border/60 bg-card/80">
       <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold"><CalendarClock className="h-4 w-4 text-accent" />My upcoming interviews</div>
+        <div className="flex items-center gap-2 text-sm font-semibold"><CalendarClock className="h-4 w-4 text-accent" />My interviews · action needed</div>
         <Link to="/admin/hr/recruitment/interviews" className="text-xs font-semibold text-accent hover:underline">View all</Link>
       </div>
       <div className="divide-y divide-border/60">
         {query.isLoading ? <p className="p-4 text-xs text-muted-foreground">Loading…</p> : upcoming.map((item) => (
-          <Link key={item.id} to="/admin/hr/recruitment/candidates/$recId" params={{ recId: item.candidate_id }} className="block px-4 py-3 transition hover:bg-accent/5">
+          <Link key={item.id} to="/admin/hr/recruitment/interviews" className="block px-4 py-3 transition hover:bg-accent/5">
             <div className="truncate text-sm font-semibold">{item.rec_candidates?.full_name ?? "Candidate"}</div>
-            <div className="mt-0.5 text-xs text-muted-foreground">Round {item.round_no} · {fmtDateTime(item.scheduled_at)}</div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+              <span>Round {item.round_no}{item.round_name ? `: ${item.round_name}` : ""}{item.rec_candidates?.rec_openings?.title ? ` · ${item.rec_candidates.rec_openings.title}` : ""}</span>
+              <span className="font-semibold text-foreground">{fmtDateTime(item.scheduled_at)}</span>
+              {new Date(item.scheduled_at) < new Date() && <span className="rounded-full bg-destructive/10 px-2 py-0.5 font-semibold text-destructive">Feedback pending</span>}
+            </div>
           </Link>
         ))}
       </div>

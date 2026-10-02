@@ -1338,13 +1338,14 @@ function DashboardPage() {
 
   return (
     <div data-mobile-dashboard className="w-full min-w-0 px-0 py-1 sm:p-6">
+      <div className="mb-4 empty:hidden"><MyUpcomingInterviewsCard /></div>
       <DashboardShell
         rightExtras={
           opsFocus ? (
             <PeopleInsightsSection hideLive roleKeys={OPS_PEOPLE_ROLE_KEYS} />
           ) : can("employees") ? (
-            <><MyUpcomingInterviewsCard /><PeopleInsightsSection compact hideLive={roleKey === "hr"} /></>
-          ) : <MyUpcomingInterviewsCard />
+            <PeopleInsightsSection compact hideLive={roleKey === "hr"} />
+          ) : undefined
         }
         fullWidthBelow={
           opsFocus ? (
