@@ -4,6 +4,199 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Legacy status utility names resolve to the approved monochrome/blue system.
+   Keep the existing state labels and icons intact while eliminating stray hues. */
+@theme inline {
+  --color-red-50: var(--palette-neutral-softest);
+  --color-red-100: var(--palette-neutral-soft);
+  --color-red-200: var(--palette-neutral-soft-strong);
+  --color-red-300: var(--palette-neutral-light);
+  --color-red-400: var(--palette-neutral-medium);
+  --color-red-500: var(--palette-neutral-main);
+  --color-red-600: var(--palette-neutral-strong);
+  --color-red-700: var(--palette-neutral-deep);
+  --color-red-800: var(--palette-neutral-darker);
+  --color-red-900: var(--palette-neutral-darkest);
+  --color-red-950: var(--palette-neutral-ink);
+  --color-orange-50: var(--palette-neutral-softest);
+  --color-orange-100: var(--palette-neutral-soft);
+  --color-orange-200: var(--palette-neutral-soft-strong);
+  --color-orange-300: var(--palette-neutral-light);
+  --color-orange-400: var(--palette-neutral-medium);
+  --color-orange-500: var(--palette-neutral-main);
+  --color-orange-600: var(--palette-neutral-strong);
+  --color-orange-700: var(--palette-neutral-deep);
+  --color-orange-800: var(--palette-neutral-darker);
+  --color-orange-900: var(--palette-neutral-darkest);
+  --color-orange-950: var(--palette-neutral-ink);
+  --color-amber-50: var(--palette-neutral-softest);
+  --color-amber-100: var(--palette-neutral-soft);
+  --color-amber-200: var(--palette-neutral-soft-strong);
+  --color-amber-300: var(--palette-neutral-light);
+  --color-amber-400: var(--palette-neutral-medium);
+  --color-amber-500: var(--palette-neutral-main);
+  --color-amber-600: var(--palette-neutral-strong);
+  --color-amber-700: var(--palette-neutral-deep);
+  --color-amber-800: var(--palette-neutral-darker);
+  --color-amber-900: var(--palette-neutral-darkest);
+  --color-amber-950: var(--palette-neutral-ink);
+  --color-yellow-50: var(--palette-neutral-softest);
+  --color-yellow-100: var(--palette-neutral-soft);
+  --color-yellow-200: var(--palette-neutral-soft-strong);
+  --color-yellow-300: var(--palette-neutral-light);
+  --color-yellow-400: var(--palette-neutral-medium);
+  --color-yellow-500: var(--palette-neutral-main);
+  --color-yellow-600: var(--palette-neutral-strong);
+  --color-yellow-700: var(--palette-neutral-deep);
+  --color-yellow-800: var(--palette-neutral-darker);
+  --color-yellow-900: var(--palette-neutral-darkest);
+  --color-yellow-950: var(--palette-neutral-ink);
+  --color-lime-50: var(--palette-neutral-softest);
+  --color-lime-100: var(--palette-neutral-soft);
+  --color-lime-200: var(--palette-neutral-soft-strong);
+  --color-lime-300: var(--palette-neutral-light);
+  --color-lime-400: var(--palette-neutral-medium);
+  --color-lime-500: var(--palette-neutral-main);
+  --color-lime-600: var(--palette-neutral-strong);
+  --color-lime-700: var(--palette-neutral-deep);
+  --color-lime-800: var(--palette-neutral-darker);
+  --color-lime-900: var(--palette-neutral-darkest);
+  --color-lime-950: var(--palette-neutral-ink);
+  --color-green-50: var(--palette-neutral-softest);
+  --color-green-100: var(--palette-neutral-soft);
+  --color-green-200: var(--palette-neutral-soft-strong);
+  --color-green-300: var(--palette-neutral-light);
+  --color-green-400: var(--palette-neutral-medium);
+  --color-green-500: var(--palette-neutral-main);
+  --color-green-600: var(--palette-neutral-strong);
+  --color-green-700: var(--palette-neutral-deep);
+  --color-green-800: var(--palette-neutral-darker);
+  --color-green-900: var(--palette-neutral-darkest);
+  --color-green-950: var(--palette-neutral-ink);
+  --color-emerald-50: var(--palette-neutral-softest);
+  --color-emerald-100: var(--palette-neutral-soft);
+  --color-emerald-200: var(--palette-neutral-soft-strong);
+  --color-emerald-300: var(--palette-neutral-light);
+  --color-emerald-400: var(--palette-neutral-medium);
+  --color-emerald-500: var(--palette-neutral-main);
+  --color-emerald-600: var(--palette-neutral-strong);
+  --color-emerald-700: var(--palette-neutral-deep);
+  --color-emerald-800: var(--palette-neutral-darker);
+  --color-emerald-900: var(--palette-neutral-darkest);
+  --color-emerald-950: var(--palette-neutral-ink);
+  --color-rose-50: var(--palette-neutral-softest);
+  --color-rose-100: var(--palette-neutral-soft);
+  --color-rose-200: var(--palette-neutral-soft-strong);
+  --color-rose-300: var(--palette-neutral-light);
+  --color-rose-400: var(--palette-neutral-medium);
+  --color-rose-500: var(--palette-neutral-main);
+  --color-rose-600: var(--palette-neutral-strong);
+  --color-rose-700: var(--palette-neutral-deep);
+  --color-rose-800: var(--palette-neutral-darker);
+  --color-rose-900: var(--palette-neutral-darkest);
+  --color-rose-950: var(--palette-neutral-ink);
+  --color-pink-50: var(--palette-neutral-softest);
+  --color-pink-100: var(--palette-neutral-soft);
+  --color-pink-200: var(--palette-neutral-soft-strong);
+  --color-pink-300: var(--palette-neutral-light);
+  --color-pink-400: var(--palette-neutral-medium);
+  --color-pink-500: var(--palette-neutral-main);
+  --color-pink-600: var(--palette-neutral-strong);
+  --color-pink-700: var(--palette-neutral-deep);
+  --color-pink-800: var(--palette-neutral-darker);
+  --color-pink-900: var(--palette-neutral-darkest);
+  --color-pink-950: var(--palette-neutral-ink);
+  --color-blue-50: var(--palette-softest);
+  --color-blue-100: var(--palette-soft);
+  --color-blue-200: var(--palette-soft-strong);
+  --color-blue-300: var(--palette-light);
+  --color-blue-400: var(--palette-medium);
+  --color-blue-500: var(--palette-main);
+  --color-blue-600: var(--palette-strong);
+  --color-blue-700: var(--palette-deep);
+  --color-blue-800: var(--palette-darker);
+  --color-blue-900: var(--palette-darkest);
+  --color-blue-950: var(--palette-ink);
+  --color-sky-50: var(--palette-softest);
+  --color-sky-100: var(--palette-soft);
+  --color-sky-200: var(--palette-soft-strong);
+  --color-sky-300: var(--palette-light);
+  --color-sky-400: var(--palette-medium);
+  --color-sky-500: var(--palette-main);
+  --color-sky-600: var(--palette-strong);
+  --color-sky-700: var(--palette-deep);
+  --color-sky-800: var(--palette-darker);
+  --color-sky-900: var(--palette-darkest);
+  --color-sky-950: var(--palette-ink);
+  --color-cyan-50: var(--palette-softest);
+  --color-cyan-100: var(--palette-soft);
+  --color-cyan-200: var(--palette-soft-strong);
+  --color-cyan-300: var(--palette-light);
+  --color-cyan-400: var(--palette-medium);
+  --color-cyan-500: var(--palette-main);
+  --color-cyan-600: var(--palette-strong);
+  --color-cyan-700: var(--palette-deep);
+  --color-cyan-800: var(--palette-darker);
+  --color-cyan-900: var(--palette-darkest);
+  --color-cyan-950: var(--palette-ink);
+  --color-teal-50: var(--palette-softest);
+  --color-teal-100: var(--palette-soft);
+  --color-teal-200: var(--palette-soft-strong);
+  --color-teal-300: var(--palette-light);
+  --color-teal-400: var(--palette-medium);
+  --color-teal-500: var(--palette-main);
+  --color-teal-600: var(--palette-strong);
+  --color-teal-700: var(--palette-deep);
+  --color-teal-800: var(--palette-darker);
+  --color-teal-900: var(--palette-darkest);
+  --color-teal-950: var(--palette-ink);
+  --color-indigo-50: var(--palette-softest);
+  --color-indigo-100: var(--palette-soft);
+  --color-indigo-200: var(--palette-soft-strong);
+  --color-indigo-300: var(--palette-light);
+  --color-indigo-400: var(--palette-medium);
+  --color-indigo-500: var(--palette-main);
+  --color-indigo-600: var(--palette-strong);
+  --color-indigo-700: var(--palette-deep);
+  --color-indigo-800: var(--palette-darker);
+  --color-indigo-900: var(--palette-darkest);
+  --color-indigo-950: var(--palette-ink);
+  --color-violet-50: var(--palette-softest);
+  --color-violet-100: var(--palette-soft);
+  --color-violet-200: var(--palette-soft-strong);
+  --color-violet-300: var(--palette-light);
+  --color-violet-400: var(--palette-medium);
+  --color-violet-500: var(--palette-main);
+  --color-violet-600: var(--palette-strong);
+  --color-violet-700: var(--palette-deep);
+  --color-violet-800: var(--palette-darker);
+  --color-violet-900: var(--palette-darkest);
+  --color-violet-950: var(--palette-ink);
+  --color-purple-50: var(--palette-softest);
+  --color-purple-100: var(--palette-soft);
+  --color-purple-200: var(--palette-soft-strong);
+  --color-purple-300: var(--palette-light);
+  --color-purple-400: var(--palette-medium);
+  --color-purple-500: var(--palette-main);
+  --color-purple-600: var(--palette-strong);
+  --color-purple-700: var(--palette-deep);
+  --color-purple-800: var(--palette-darker);
+  --color-purple-900: var(--palette-darkest);
+  --color-purple-950: var(--palette-ink);
+  --color-fuchsia-50: var(--palette-softest);
+  --color-fuchsia-100: var(--palette-soft);
+  --color-fuchsia-200: var(--palette-soft-strong);
+  --color-fuchsia-300: var(--palette-light);
+  --color-fuchsia-400: var(--palette-medium);
+  --color-fuchsia-500: var(--palette-main);
+  --color-fuchsia-600: var(--palette-strong);
+  --color-fuchsia-700: var(--palette-deep);
+  --color-fuchsia-800: var(--palette-darker);
+  --color-fuchsia-900: var(--palette-darkest);
+  --color-fuchsia-950: var(--palette-ink);
+}
+
+
 /*
  * HyperTrack design tokens.
  * Industrial precision palette: white + navy + vivid blue.
@@ -71,8 +264,30 @@
 :root {
   --radius: 0.5rem;
   --brand-blue: oklch(0.55 0.2 255);
+  --palette-softest: oklch(0.985 0.005 255);
+  --palette-soft: oklch(0.965 0.015 255);
+  --palette-soft-strong: oklch(0.935 0.03 255);
+  --palette-light: oklch(0.85 0.06 255);
+  --palette-medium: oklch(0.7 0.12 255);
+  --palette-main: var(--brand-blue);
+  --palette-strong: oklch(0.48 0.19 255);
+  --palette-deep: oklch(0.42 0.16 255);
+  --palette-darker: oklch(0.34 0.11 255);
+  --palette-darkest: oklch(0.26 0.06 255);
+  --palette-ink: oklch(0.2 0.025 255);
+  --palette-neutral-softest: oklch(0.99 0 0);
+  --palette-neutral-soft: oklch(0.965 0 0);
+  --palette-neutral-soft-strong: oklch(0.93 0 0);
+  --palette-neutral-light: oklch(0.82 0 0);
+  --palette-neutral-medium: oklch(0.68 0 0);
+  --palette-neutral-main: oklch(0.52 0 0);
+  --palette-neutral-strong: oklch(0.42 0 0);
+  --palette-neutral-deep: oklch(0.34 0 0);
+  --palette-neutral-darker: oklch(0.27 0 0);
+  --palette-neutral-darkest: oklch(0.21 0 0);
+  --palette-neutral-ink: oklch(0.16 0 0);
   --mobile-edge: 0.5rem;
-  --mobile-dock-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  --mobile-dock-clearance: calc(5.25rem + env(safe-area-inset-bottom, 0px));
   /* surfaces — soft neutral canvas, pure white cards (reference design language) */
   --background: oklch(0.978 0.003 250);
   --foreground: oklch(0.22 0.025 250);
@@ -89,21 +304,21 @@
   --muted-foreground: oklch(0.50 0.014 250);
   /* vivid blue accent — echoes the HyperTrack logo inside the app */
   --accent: var(--brand-blue);
-  --success: oklch(0.49 0.12 155);
-  --warning: oklch(0.59 0.14 70);
+  --success: var(--palette-strong);
+  --warning: var(--palette-neutral-strong);
   --accent-foreground: oklch(0.99 0 0);
   --accent-secondary: var(--brand-blue);
-  --destructive: oklch(0.62 0.16 20);
+  --destructive: var(--palette-neutral-deep);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.90 0.009 250);
   --input: oklch(0.90 0.009 250);
 
   --ring: var(--brand-blue);
   --chart-1: var(--brand-blue);
-  --chart-2: oklch(0.72 0.15 160);
-  --chart-3: oklch(0.75 0.15 85);
-  --chart-4: oklch(0.62 0.19 300);
-  --chart-5: oklch(0.65 0.2 25);
+  --chart-2: var(--palette-light);
+  --chart-3: var(--palette-deep);
+  --chart-4: var(--palette-neutral-medium);
+  --chart-5: var(--palette-soft-strong);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.22 0.025 250);
   --sidebar-primary: var(--brand-blue);
@@ -126,12 +341,12 @@
 
   /* Operational status tints, restrained against the neutral canvas. */
   --tint-blue:    233 242 252;
-  --tint-indigo:  238 242 250;
-  --tint-emerald: 227 242 236;
-  --tint-amber:   250 243 225;
-  --tint-rose:    251 235 235;
-  --tint-violet:  244 239 250;
-  --tint-sky:     232 244 249;
+  --tint-indigo:  235 241 251;
+  --tint-emerald: 230 239 252;
+  --tint-amber:   243 244 246;
+  --tint-rose:    239 241 244;
+  --tint-violet:  236 242 253;
+  --tint-sky:     232 244 251;
   --tint-slate:   243 245 248;
   --field-hero: oklch(0.99 0 0);
   --field-hero-muted: oklch(0.9 0.01 245);
@@ -181,47 +396,47 @@
 
 
 .dark {
-  --background: oklch(0.19 0.012 168);
+  --background: oklch(0.18 0 0);
   --foreground: oklch(0.98 0 0);
-  --card: oklch(0.235 0.014 168);
+  --card: oklch(0.235 0 0);
   --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.235 0.014 168);
+  --popover: oklch(0.235 0 0);
   --popover-foreground: oklch(0.98 0 0);
   --primary: var(--brand-blue);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.29 0.014 168);
+  --secondary: oklch(0.29 0 0);
   --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.29 0.014 168);
-  --muted-foreground: oklch(0.8 0.01 168);
+  --muted: oklch(0.29 0 0);
+  --muted-foreground: oklch(0.8 0 0);
   --accent: var(--brand-blue);
-  --success: oklch(0.76 0.12 155);
-  --warning: oklch(0.82 0.13 80);
+  --success: var(--palette-light);
+  --warning: var(--palette-neutral-light);
   --accent-foreground: oklch(1 0 0);
   --accent-secondary: var(--brand-blue);
-  --destructive: oklch(0.7 0.18 22);
+  --destructive: var(--palette-neutral-light);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(1 0 0 / 16%);
   --input: oklch(1 0 0 / 20%);
   --ring: var(--brand-blue);
-  --chart-1: oklch(0.82 0.1 168);
-  --chart-2: oklch(0.86 0.13 120);
-  --chart-3: oklch(0.82 0.09 15);
-  --chart-4: oklch(0.7 0.06 190);
-  --chart-5: oklch(0.75 0.05 240);
-  --sidebar: oklch(0.22 0.014 168);
+  --chart-1: var(--brand-blue);
+  --chart-2: var(--palette-light);
+  --chart-3: var(--palette-deep);
+  --chart-4: var(--palette-neutral-medium);
+  --chart-5: var(--palette-soft-strong);
+  --sidebar: oklch(0.22 0 0);
   --sidebar-foreground: oklch(0.98 0 0);
   --sidebar-primary: var(--brand-blue);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.3 0.014 168);
+  --sidebar-accent: oklch(0.3 0 0);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 14%);
-  --sidebar-ring: oklch(0.8 0.09 190);
+  --sidebar-ring: var(--brand-blue);
   --dock: oklch(0.18 0.015 255);
   --dock-foreground: oklch(0.98 0 0);
 
   /* Dark theme surfaces — deep ink, lifted for readability */
-  --surface: 40 50 48;
-  --surface-strong: 52 63 60;
+  --surface: 39 39 39;
+  --surface-strong: 51 51 51;
   --surface-hairline: 255 255 255;
   --surface-shadow: 0 0 0;
   --surface-glass-alpha: 0.82;
@@ -996,8 +1211,7 @@
     }
   }
 
-  /* Flat neutral canvas — the reference uses one quiet grey field behind
-     pure-white rounded cards, with no coloured washes. */
+  /* Neutral canvas supports blue-accented operational content. */
   .app-canvas {
     background: var(--background);
   }
