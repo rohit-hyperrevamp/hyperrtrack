@@ -5,6 +5,7 @@ import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
+import { PeopleTabs } from "@/components/PeopleTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,7 +82,7 @@ function PeoplePage() {
 
   return (
     <div className="space-y-5">
-      <RailTopbarSlot><Input className="min-w-44 max-w-60" aria-label="Search people" placeholder="Search people" value={q} onChange={(e) => setQ(e.target.value)} /><Button variant="outline" onClick={() => downloadCsv(`rail-people-${today()}`, list.map((p) => ({ name: p.full_name, mobile: p.mobile, role: roleName(p.role_key), area: locName(p.scope_location_id), skill: p.skill, daily_wage: p.daily_wage, enabled: p.enabled })))}>Export</Button><Button onClick={() => { setFormStep(0); setForm({ ...blank }); }}><UserPlus className="mr-2 h-4 w-4" />Add person</Button></RailTopbarSlot>
+      <RailTopbarSlot><PeopleTabs active="employees" /><Input className="min-w-44 max-w-60" aria-label="Search people" placeholder="Search people" value={q} onChange={(e) => setQ(e.target.value)} /><Button variant="outline" onClick={() => downloadCsv(`rail-people-${today()}`, list.map((p) => ({ name: p.full_name, mobile: p.mobile, role: roleName(p.role_key), area: locName(p.scope_location_id), skill: p.skill, daily_wage: p.daily_wage, enabled: p.enabled })))}>Export</Button><Button onClick={() => { setFormStep(0); setForm({ ...blank }); }}><UserPlus className="mr-2 h-4 w-4" />Add person</Button></RailTopbarSlot>
       <PageHeader title="People & Logins" description="Everyone signs in with their mobile number. Railway checkers get their own read-mostly login." />
       <Tabs defaultValue="people">
         <TabsList><TabsTrigger value="people">People</TabsTrigger><TabsTrigger value="scores">Scorecards</TabsTrigger></TabsList>

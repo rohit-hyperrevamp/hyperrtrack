@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, FileText } from "lucide-react";
+import { ArrowLeft, BadgeCheck, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
+import { PeopleTabs } from "@/components/PeopleTabs";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,9 +57,11 @@ function OnboardingQueue() {
   return (
     <div className="space-y-4">
       <RailTopbarSlot>
-        {(["pending", "done"] as const).map((t) => <Button key={t} size="sm" variant={tab === t ? "default" : "outline"} onClick={() => { setTab(t); setPage(0); }}>{t === "pending" ? "Pending" : "Decided"}</Button>)}
+        <PeopleTabs active="candidates" />
+        {(["pending", "done"] as const).map((t) => <Button key={t} size="sm" className="h-10" variant={tab === t ? "default" : "outline"} onClick={() => { setTab(t); setPage(0); }}>{t === "pending" ? "Awaiting approval" : "Decided"}</Button>)}
       </RailTopbarSlot>
-      <PageHeader eyebrow="People" title="Approvals" description="Review candidates before they join the team. An employee ID is generated on approval." icon={BadgeCheck} />
+      <Link to="/admin/hr/recruitment/candidates" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Back to candidates</Link>
+      <PageHeader eyebrow="Candidates" title="Approvals" description="Approved candidates move to Employees with a new employee ID." icon={BadgeCheck} />
       {q.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {!q.isLoading && pageRows.length === 0 && <p className="text-sm text-muted-foreground">No requests.</p>}
       <div className="space-y-3">
