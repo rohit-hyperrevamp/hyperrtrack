@@ -211,7 +211,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     className={cn("min-w-[64px] rounded-md border px-2 py-2 text-xs text-center focus:outline-none focus:ring-2 focus:ring-ring",
                       removed.has(c.id) && "opacity-40 line-through",
                       selected === c.id && "ring-2 ring-primary",
-                       c.status === "approved" ? "bg-success/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}
+                       c.status === "approved" ? "bg-success/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}>
                     <div className="font-semibold">{c.position}. {c.rail_coach_types?.code}</div>
                     <div className="opacity-70">{c.rail_coaches?.coach_number ?? "—"}</div>
                   </button>
