@@ -73,7 +73,7 @@ function CommandPage() {
     <div className="rail-command space-y-5 sm:space-y-6">
       <RailTopbarSlot><RailDateStepper value={date} onChange={setDate} /></RailTopbarSlot>
       <PageHeader title="Command Centre" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
-      <div className="rail-command-kpis grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-4">
+      <div className="rail-command-kpis grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
         <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${num(k?.released)} released`} to="/admin/rail/live" tone="good" />
