@@ -1981,7 +1981,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-summary[data-status="approved"] { --live-color: var(--brand-blue); }
 [data-rail-shell] .rail-live-summary[data-status="released"] { --live-color: var(--palette-neutral-ink); }
 [data-rail-shell] .rail-live-summary { border: 1px solid var(--rail-line); background: var(--card); border-radius: 16px; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-[data-rail-shell] .rail-live-summary:hover { transform: translateY(-2px); border-color: var(--live-color); }
+[data-rail-shell] .rail-live-summary:hover { transform: translateY(-2px); border-color: var(--live-color); background: var(--card); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] { border-color: var(--live-color); box-shadow: 0 0 0 2px var(--live-color); }
 [data-rail-shell] .rail-live-summary-icon { background: var(--live-color); color: var(--primary-foreground); }
 [data-rail-shell] .rail-live-row { --live-color: var(--palette-neutral-deep); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }

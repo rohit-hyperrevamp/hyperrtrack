@@ -101,7 +101,7 @@ function LiveBoard() {
        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Filter cleaning jobs by status">
          {statuses.map(({ key, label, icon: Icon }) => (
            <Button key={key} type="button" variant="ghost" aria-pressed={statusFilter === key} onClick={() => setStatusFilter((current) => current === key ? null : key)}
-             className="rail-live-summary flex h-auto min-h-24 min-w-0 items-center justify-start gap-3 px-3 py-3 text-left shadow-none sm:min-h-28 sm:px-4" data-status={key}>
+             className="rail-live-summary flex h-auto min-h-24 min-w-0 items-center justify-start gap-3 whitespace-normal px-3 py-3 text-left shadow-none sm:min-h-28 sm:px-4" data-status={key}>
              <span className="rail-live-summary-icon grid h-10 w-10 shrink-0 place-items-center rounded-full"><Icon className="h-5 w-5" /></span>
              <span className="min-w-0"><span className="block text-xl font-semibold tabular-nums text-foreground sm:text-2xl">{counts[key] ?? 0}</span><span className="block text-xs font-medium text-foreground sm:text-sm">{label}</span></span>
            </Button>
@@ -239,7 +239,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     {coachTasks(c.id).map((t) => (
                       <li key={t.id} className="flex items-center justify-between py-2 text-sm">
                         <span>{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced from offline)</span>}</span>
-                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-success" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
+                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
                           <Button size="sm" variant="outline" onClick={() => complete(t)}>Mark done</Button>}
                       </li>
                     ))}
