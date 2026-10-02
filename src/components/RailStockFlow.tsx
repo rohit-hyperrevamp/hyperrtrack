@@ -168,9 +168,9 @@ export function StoresView({ onPick, onTransfer }: { onPick: (id: string) => voi
       <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" placeholder="Search store" value={q} onChange={(e) => setQ(e.target.value)} /></div>
       {!stores.length ? <Empty title="No stores yet" hint="Add your main godown in Configuration Hub → Organization." /> :
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{stores.map((s) => (
-          <div key={s.id} className={`rounded-2xl border bg-card p-4 ${s.main ? "border-brand" : ""}`}>
+          <div key={s.id} className={`rounded-2xl border p-4 ${s.main ? "border-2 border-brand bg-brand/5 shadow-md ring-4 ring-brand/10 sm:col-span-2 lg:col-span-1" : "bg-card"}`}>
             <button type="button" onClick={() => onPick(s.id)} className="block w-full text-left">
-              <div className="flex items-center gap-2"><span className="truncate font-semibold">{s.name}</span>{s.main && <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Main store</span>}</div>
+              <div className="flex min-w-0 items-center gap-2"><span className="min-w-0 truncate font-semibold">{s.name}</span>{s.main && <span className="shrink-0 whitespace-nowrap rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Head office</span>}</div>
               <div className="text-xs capitalize text-muted-foreground">{s.type} · {s.code}</div>
               <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
                 <div><div className="text-lg font-bold">{num(s.units)}</div>In stock</div>
@@ -203,7 +203,7 @@ export function OrdersView({ locId }: { locId: string }) {
   const vendor = (id: string | null) => data?.vendors.find((v) => v.id === id)?.name;
   const isHq = !!data?.isHq; const mainId = data?.mainId ?? "";
   const myLocs = data?.locs ?? [];
-  const target = f.loc || locId || (myLocs.length === 1 ? myLocs[0].id : "");
+  const target = f.loc || locId || (isHq && mainId ? mainId : myLocs[0]?.id ?? "");
   const canEdit = (at: string) => isHq || myLocs.some((l) => l.id === at);
   const open = ["requested", "approved", "ordered", "sending"];
   const list = (data?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && (status === "all" || (status === "open" ? open.includes(p.status) : status === "closed" ? ["rejected", "refused"].includes(p.status) : p.status === status)));
@@ -290,7 +290,7 @@ export function TransfersView({ locId }: { locId: string }) {
   const myLocs = data?.locs ?? [];
   const mainId = data?.mainId ?? "";
   const from = f.from || (myLocs.some((l) => l.id === mainId) ? mainId : myLocs[0]?.id ?? "");
-  const to = f.to || (locId && locId !== from ? locId : "");
+  const to = f.to || (locId && locId !== from ? locId : mainId && mainId !== from ? mainId : "");
   const avail = f.item_id && from ? usable(data?.batches ?? [], f.item_id, from) : null;
   const canReceive = (at: string) => !!data?.isHq || myLocs.some((l) => l.id === at);
   const step = async (t: Trf, action: "receive" | "refuse") => {
