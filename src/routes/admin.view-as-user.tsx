@@ -1,7 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Eye } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { ViewAsUserButton } from "@/components/ImpersonationControls";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/admin/view-as-user")({
@@ -28,7 +26,6 @@ function ViewAsUserPage() {
         <ViewAsUserButton initialOpen className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground" />
         <span className="min-w-0 text-sm text-muted-foreground">Choose an employee to see their view.</span>
       </div>
-      <Button asChild variant="outline"><Link to="/admin/system-logs"><Eye className="h-4 w-4" /> Activity Log</Link></Button>
     </div>
   );
 }
