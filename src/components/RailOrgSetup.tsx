@@ -86,35 +86,36 @@ export function RailOrgSetup() {
 export function RailItemTypes() {
   const qc = useQueryClient();
   const [itemOpen, setItemOpen] = useState(false);
-  const [it, setIt] = useState({ name: "", unit: "nos", rail_category: "consumable", reorder: "" });
-  const items = useQuery({ queryKey: ["rail-org-items"], queryFn: () => rows<{ id: string; item_code: string; name: string; unit: string; rail_category: string | null; default_reorder_level: number }>(db.from("inv_items").select("id,item_code,name,unit,rail_category,default_reorder_level").not("rail_category", "is", null).order("name")) });
+  const [it, setIt] = useState({ name: "", unit: "nos", rail_category: "consumable", reorder: "", co2: "" });
+  const items = useQuery({ queryKey: ["rail-org-items"], queryFn: () => rows<{ id: string; item_code: string; name: string; unit: string; rail_category: string | null; default_reorder_level: number; co2e_kg_per_unit: number | null }>(db.from("inv_items").select("id,item_code,name,unit,rail_category,default_reorder_level,co2e_kg_per_unit").not("rail_category", "is", null).order("name")) });
   const refresh = () => ["rail-org-items", "rail-stock-flow", "rail-sup"].forEach((k) => void qc.invalidateQueries({ queryKey: [k] }));
   async function addItem() {
     const name = it.name.trim();
     if (!name) return toast.error("Enter an item name");
     const item_code = `RC-${name.replace(/[^A-Za-z0-9]+/g, "").toUpperCase().slice(0, 10)}-${Date.now().toString().slice(-4)}`;
-    const { data: row, error } = await db.from("inv_items").insert({ name, item_code, unit: it.unit || "nos", rail_category: it.rail_category, default_reorder_level: Number(it.reorder) || 0 }).select("id").single();
+    const { data: row, error } = await db.from("inv_items").insert({ name, item_code, unit: it.unit || "nos", rail_category: it.rail_category, default_reorder_level: Number(it.reorder) || 0, co2e_kg_per_unit: it.co2 === "" ? null : Number(it.co2) }).select("id").single();
     if (error) return toast.error(error.message);
     void logActivity({ module: "Organization", action: "create", entityType: "inv_items", entityId: row?.id, entityLabel: name });
-    toast.success("Item added"); setIt({ name: "", unit: "nos", rail_category: "consumable", reorder: "" }); setItemOpen(false); refresh();
+    toast.success("Item added"); setIt({ name: "", unit: "nos", rail_category: "consumable", reorder: "", co2: "" }); setItemOpen(false); refresh();
   }
 
   return (
     <div className="space-y-2">
       <Section icon={Boxes} title="Inventory · Item types" hint="Chemicals, consumables, linen and tools your stores hold." action={<Button size="sm" onClick={() => setItemOpen((v) => !v)}>{itemOpen ? "Close" : "Add item"}</Button>}>
-        {itemOpen && <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+        {itemOpen && <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto]">
           <Input placeholder="Item name" value={it.name} onChange={(e) => setIt({ ...it, name: e.target.value })} />
           <select className={sel} value={it.rail_category} onChange={(e) => setIt({ ...it, rail_category: e.target.value })} aria-label="Category">{ITEM_CATEGORIES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}</select>
           <Input placeholder="Unit (nos, L, kg)" value={it.unit} onChange={(e) => setIt({ ...it, unit: e.target.value })} />
           <Input type="number" min={0} placeholder="Low-stock level" value={it.reorder} onChange={(e) => setIt({ ...it, reorder: e.target.value })} />
+          <Input type="number" min={0} step="0.01" placeholder="CO₂e kg per unit" value={it.co2} onChange={(e) => setIt({ ...it, co2: e.target.value })} />
           <Button onClick={addItem}>Save</Button>
         </div>}
         {!items.data?.length ? <Empty title="No item types yet" /> :
           <ul className="divide-y rounded-xl border">{items.data.map((i) => (
-            <li key={i.id} className="flex items-center gap-3 p-3 text-sm"><div className="min-w-0 flex-1"><div className="font-medium">{i.name}</div><div className="text-xs capitalize text-muted-foreground">{i.rail_category} · {i.unit} · low below {i.default_reorder_level}</div></div></li>))}</ul>}
+            <li key={i.id} className="flex items-center gap-3 p-3 text-sm"><div className="min-w-0 flex-1"><div className="font-medium">{i.name}</div><div className="text-xs capitalize text-muted-foreground">{i.rail_category} · {i.unit} · low below {i.default_reorder_level}{i.co2e_kg_per_unit != null ? ` · ${i.co2e_kg_per_unit} kg CO₂e/${i.unit}` : ""}</div></div></li>))}</ul>}
       </Section>
+      <p className="px-1 text-xs text-muted-foreground">CO₂e kg per unit turns consumption into carbon on Resources → Chemicals — set it for chemical products you manufacture or buy.</p>
       <p className="px-1 text-xs text-muted-foreground">To issue an item on a contract, also add it under Masters & rules → Approved items.</p>
-      <p className="px-1 text-xs text-muted-foreground">To issue an item on a contract, also add it under Approved items.</p>
     </div>
   );
 }
