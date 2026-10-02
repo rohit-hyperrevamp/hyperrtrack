@@ -448,10 +448,11 @@ function AdminLayout() {
 
   const sidebarWidth = collapsed ? "lg:w-[72px]" : "lg:w-[244px]";
   const mainOffset = nativeShell ? "" : collapsed ? "lg:ml-24" : "lg:ml-[260px]";
+  const railWorkspace = pathname.startsWith("/admin/rail");
 
   return (
     <TooltipProvider delayDuration={150} skipDelayDuration={100}>
-    <div className={cn(
+    <div data-rail-shell={railWorkspace ? "" : undefined} data-rail-collapsed={collapsed ? "" : undefined} className={cn(
       "relative flex min-h-[100dvh] min-w-0 flex-col lg:block lg:min-h-screen",
     )}>
       <AppleNativeSetupCard autoStart nativeOnly className="hidden" />
@@ -488,6 +489,8 @@ function AdminLayout() {
             </Link>
           )}
         </div>
+
+        {!collapsed && railWorkspace && <div className="rail-dock-intro px-4 pb-5 pt-2"><div className="font-heading text-2xl font-medium leading-tight">Welcome back,<br />{me.fullName?.split(" ")[0] || "team"}.</div><div className="mt-1 text-xs text-muted-foreground">Rail operations at a glance</div></div>}
 
         {/* Nav — grouped like the reference portal (Menu / Operations / Finance / Admin) */}
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
@@ -642,6 +645,17 @@ function AdminLayout() {
         </div>
       </aside>
 
+      {railWorkspace && <div className="rail-topbar hidden lg:flex">
+        <nav aria-label="Quick rail navigation" className="rail-topbar-tabs flex items-center gap-1">
+          {[railChildren[0], railChildren[1], railChildren[4], railChildren[7]].filter((item) => visibleGroups.some((group) => group.to === item.to)).map((item) => <Link key={item.to} to={item.to} className={cn("rail-topbar-tab", pathname === item.to && "is-active")}>{item.label === "Command Centre" ? "Dashboard" : item.label === "Railway Billing" ? "Billing" : item.label}</Link>)}
+        </nav>
+        <div className="flex items-center gap-2">
+          <Link to="/admin/rail/settings" aria-label="Rail settings" className="rail-topbar-icon"><SlidersHorizontal className="h-4 w-4" /></Link>
+          <NotificationBell triggerClassName="rail-topbar-icon" />
+          <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
+        </div>
+      </div>}
+
       {/* Mobile top bar — compact native-app chrome */}
       <header data-app-header className={cn(
          "sticky top-0 z-20 grid min-h-[48px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-1 animate-slide-in-top safe-top safe-x",
@@ -680,7 +694,7 @@ function AdminLayout() {
 
 
       {/* Main */}
-      <main data-admin-scroll data-rail-workspace={pathname.startsWith("/admin/rail") ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
+      <main data-admin-scroll data-rail-workspace={railWorkspace ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
         <div className={cn("min-w-0", !pathname.startsWith("/admin/rail") && "mx-auto max-w-[1500px]")}>
