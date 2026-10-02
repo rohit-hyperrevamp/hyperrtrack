@@ -224,6 +224,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   }
 
   async function place() {
+    if (!(await confirmAction({ title: "Place this rake?", description: "Coaches marked missing will be left out of this job.", confirmText: "Place rake" }))) return;
     const r = await rpc("rail_place_rake", { _event: id, _removed: [...removed], _reason: "Not in rake on arrival" }, "Rake placed");
     if (r !== null) { void logActivity({ module: "Rail Live Board", action: "place_rake", entityType: "rail_events", entityId: id ?? undefined, details: { removed: removed.size } }); refresh(); }
   }
@@ -236,12 +237,14 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     if (r !== null) refresh();
   }
   async function review(coachId: string, pass: boolean) {
+    if (!(await confirmAction(pass ? { title: "Approve this coach?", description: "It will count as cleaned and passed.", confirmText: "Approve" } : { title: "Send for rework?", description: "The cleaner will be asked to clean this coach again.", confirmText: "Send", destructive: true }))) return;
     const remarks = pass ? null : rejectionReason.trim();
     if (!pass && !remarks) { toast.error("Enter a reason for rework"); return; }
     const r = await rpc("rail_review_coach", { _coach: coachId, _pass: pass, _remarks: remarks }, pass ? "Coach approved" : "Coach sent back for rework");
     if (r !== null) { setRejecting(false); setRejectionReason(""); void logActivity({ module: "Rail Live Board", action: pass ? "approve_coach" : "reject_coach", entityType: "rail_event_coaches", entityId: coachId }); refresh(); }
   }
   async function release() {
+    if (!(await confirmAction({ title: "Release this rake?", description: "The train is marked ready and can't be cleaned further in this job.", confirmText: "Release" }))) return;
     const r = await rpc("rail_release_event", { _event: id }, "Rake released");
     if (r !== null) { void logActivity({ module: "Rail Live Board", action: "release", entityType: "rail_events", entityId: id ?? undefined }); refresh(); }
   }
