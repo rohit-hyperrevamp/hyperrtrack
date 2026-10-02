@@ -156,7 +156,7 @@ export function RailSidePanel() {
   if (roleKey === "rail_cleaner") return null;
   return (
     <aside aria-label="Overview" className="hidden w-72 shrink-0 xl:block">
-      <div className="sticky top-4 max-h-[calc(100dvh-2rem)] space-y-3 overflow-y-auto pb-4">
+       <div className="sticky top-0 max-h-[calc(100dvh-7.5rem)] space-y-3 overflow-y-auto overscroll-contain pb-4">
         <div className="flex items-center gap-2 text-sm font-semibold"><span className="grid h-8 w-8 place-items-center rounded-full bg-brand text-primary-foreground"><Users className="h-4 w-4" /></span>Overview</div>
         <PanelBody />
       </div>

@@ -156,6 +156,7 @@ function MePage() {
   }
 
   async function accept(t: Task) {
+    if (!att?.check_in || att.check_out) { toast.error("Check in before starting a task"); return; }
     const { error } = await db.rpc("rail_accept_task", { _task: t.id });
     if (error) { toast.error(error.message); return; }
     toast.success("Task accepted");
@@ -211,7 +212,7 @@ function MePage() {
             </div>
             <Button 
               size="lg" 
-              disabled={busy === t.id}
+               disabled={busy === t.id || !att?.check_in || !!att.check_out}
               onClick={() => t.status === "pending" ? void accept(t) : markDone(t)}
             >
               {busy === t.id ? <Loader2 className="h-5 w-5 animate-spin" /> : 

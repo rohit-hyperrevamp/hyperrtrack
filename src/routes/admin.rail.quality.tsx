@@ -7,6 +7,7 @@ import { confirmAction } from "@/components/ConfirmProvider";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
+import { RailEvidenceReview } from "@/components/RailEvidenceReview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +16,7 @@ import { downloadCsv } from "@/lib/csv-export";
 import { db, Empty, inr, Kpi, railHead, rows, StatusPill, today } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/quality")({
-  head: () => railHead("Quality", "Inspections, penalties, passenger complaints, alerts, deep-clean due list and depot trust scores."),
+  head: () => railHead("Quality", "Review cleaning task photos, inspections, penalties, complaints and depot quality."),
   component: QualityPage,
 });
 
@@ -94,7 +95,7 @@ function QualityPage() {
   return (
     <div className="space-y-5">
       <RailTopbarSlot><select aria-label="Depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-44 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></RailTopbarSlot>
-      <PageHeader title="Quality" description="Inspections, penalties, complaints and alerts in one place." />
+      <PageHeader title="Quality" description="Cleaning photos, inspections, penalties and complaints." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} tone="brand" />
         <Kpi label="Fines" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
@@ -103,8 +104,9 @@ function QualityPage() {
         <Kpi label="Deep clean due" value={due.length} tone={due.length ? "warn" : "good"} />
       </div>
 
-      <Tabs defaultValue="penalties">
+      <Tabs defaultValue="photos">
         <TabsList className="w-full min-w-0 flex-nowrap justify-start overflow-x-auto whitespace-nowrap [&>button]:shrink-0 [&>button]:whitespace-nowrap">
+          <TabsTrigger value="photos">Cleaning photos</TabsTrigger>
           <TabsTrigger value="penalties">Penalties</TabsTrigger>
           <TabsTrigger value="inspections">Inspections</TabsTrigger>
           <TabsTrigger value="complaints">Complaints</TabsTrigger>
@@ -112,6 +114,8 @@ function QualityPage() {
           <TabsTrigger value="intensive">Deep clean due</TabsTrigger>
           <TabsTrigger value="trust">Trust score</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="photos"><RailEvidenceReview depot={depot} depotOf={depotOf} /></TabsContent>
 
         <TabsContent value="penalties" className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted-foreground">Proposed → review → confirm or waive. Confirmed amounts reduce the railway bill, not a worker's salary. <Link to="/admin/rail/billing" className="text-brand underline">Open billing</Link></p><Button variant="outline" size="sm" onClick={() => downloadCsv(`penalty-statement-${today()}`, data?.pen ?? [])}>Export penalty statement</Button></div>

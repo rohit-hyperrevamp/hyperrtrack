@@ -1936,6 +1936,10 @@ nav[data-bottom-nav] {
 [data-rail-shell] .app-canvas { display: none; }
 [data-rail-shell] [data-rail-workspace] {
   background: color-mix(in oklab, var(--brand-blue) 3%, var(--card));
+  height: calc(100dvh - 48px - env(safe-area-inset-top));
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 [data-rail-shell] [data-rail-workspace] :where(.rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl) { border-radius: 17px; }
 [data-rail-shell] [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
@@ -2059,7 +2063,7 @@ nav[data-bottom-nav] {
   [data-rail-shell] .rail-topbar-icon { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border-radius: 50%; background: var(--muted); color: var(--rail-ink); }
   [data-rail-shell] .rail-topbar-icon:hover { background: var(--palette-soft); }
   [data-rail-shell] .rail-topbar-profile { display: flex; max-width: 175px; align-items: center; gap: 8px; margin-left: 7px; color: var(--rail-ink); }
-  [data-rail-shell] [data-rail-workspace] { margin-left: 244px; min-height: calc(100dvh - 72px); padding: 22px 22px 32px; }
+  [data-rail-shell] [data-rail-workspace] { margin-left: 244px; height: calc(100dvh - 72px); min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 22px 22px 32px; }
   [data-rail-shell][data-rail-collapsed] [data-rail-workspace] { margin-left: 72px; }
 }
 @media (max-width: 1023px) {

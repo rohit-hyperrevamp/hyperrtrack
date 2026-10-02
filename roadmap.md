@@ -73,3 +73,5 @@
 - [ ] Record verified starting quantities and historical chemical consumption for VIOARR products. Blocked: production database connection is a placeholder, and no source quantities, dated receipts or usage records were supplied; do not fabricate inventory or emissions.
 - [x] Show chemical products even before first use, flag low stock, use three solid-color multi-stick D dials without pointers, and stripe filled dashboard bars.
 - [x] Animate Overview tile figures, D-dial stick fills and seven-day graph bars as dashboard data appears, with reduced-motion support.
+- [x] Constrain page scrolling to the workspace and repair the right-side Overview; redesign rail Attendance and employee lookup with top-bar filters and no legacy organization/unit charter; gate cleaner task acceptance on active check-in in the UI and migration. Live verification and migration application await the production connection.
+- [x] Add a Cleaning photos tab under Quality for authorized supervisors/admins, task-linked review status, scoped task-read policy and short-lived private photo links; live verification and migration application await the production connection.
