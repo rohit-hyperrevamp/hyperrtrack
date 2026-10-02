@@ -64,6 +64,13 @@
       "when": 1790932747526,
       "tag": "0008_rail_people_users",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790933181293,
+      "tag": "0009_rail_fix_coach_allocation_and_wage_floor",
+      "breakpoints": true
     }
   ]
 }
