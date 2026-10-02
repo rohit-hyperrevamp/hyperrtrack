@@ -634,8 +634,8 @@ function AdminLayout() {
         !nativeShell && "lg:hidden",
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
-          <div className="relative shrink-0">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-primary font-heading text-[10px] font-bold text-primary-foreground" aria-hidden="true">HT</span>
+          <div className="relative shrink-0 [&>div>span]:h-7 [&>div>span]:w-7 [&>div>span]:text-[10px]">
+            <BrandMark compact />
           </div>
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>

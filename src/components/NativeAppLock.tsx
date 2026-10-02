@@ -64,7 +64,7 @@ export function NativeAppLock() {
       }
 
       logNativeEvent("biometric", "app lock required", { reason });
-      setMessage("Face ID is required to unlock Radiant Guard.");
+       setMessage("Face ID is required to unlock HyperTrack.");
       setMode("locked");
       return true;
     },
@@ -81,7 +81,7 @@ export function NativeAppLock() {
         const savedPhone = await signInWithBiometric();
         if (!savedPhone) {
           logNativeEvent("biometric", "app unlock cancelled", { reason });
-          setMessage("Face ID is required to unlock Radiant Guard.");
+           setMessage("Face ID is required to unlock HyperTrack.");
           setMode("locked");
           return;
         }
@@ -109,7 +109,7 @@ export function NativeAppLock() {
           reason,
           error: err instanceof Error ? err.message : String(err),
         });
-        setMessage("Face ID is required to unlock Radiant Guard.");
+         setMessage("Face ID is required to unlock HyperTrack.");
         setMode("locked");
       } finally {
         setBusy(false);
