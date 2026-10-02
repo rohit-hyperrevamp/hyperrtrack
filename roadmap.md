@@ -1,5 +1,11 @@
 # HyperTrack roadmap
 
+- [ ] Fix mobile Finance & Payroll density, payslip estimate feedback and worker selector; mobile Operations/Quality overlap; overview control; More background; dark overlays; show available staff photos without inventing real employee portraits; deliver an updated illustrated workflow PDF.
+- [ ] Trace Quality penalties from proposal to confirmation, bill and finance; make ledger status and destination explicit without treating railway penalties as automatic employee payroll deductions.
+- [ ] Simplify Recruitment into intake → review → onboard → document-completion, preserve private uploads and show outstanding documents on the worker's own dashboard.
+- [ ] Add Aadhaar, PAN and photo to candidate intake securely, select operational role/designation and location instead of an opening, connect approved worker to the relevant pay structure.
+- [ ] Apply bright blue, green, red and yellow semantic tile accents consistently on Operations, Quality and other rail pages.
+
 - [x] Color the seven-day cleaning graph by completed jobs against planned jobs (green ≥90%, blue 60–89%, red below 60%) and give colored dashboard tiles and selected controls restrained gradients.
 
 - [ ] Finish Recruitment intake fields for Aadhaar, PAN, address, dates, role, location and private documents once the production database connection is available; never put identity numbers in notes or general candidate fields.

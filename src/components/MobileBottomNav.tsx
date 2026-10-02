@@ -60,7 +60,7 @@ export function MobileBottomNav({
            variant="ghost"
           aria-label="Close more apps"
           data-more-backdrop
-           className="fixed inset-0 z-[79] h-auto w-auto rounded-none bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200 lg:hidden"
+           className="fixed inset-0 z-[79] h-auto w-auto rounded-none bg-foreground/35 animate-in fade-in-0 duration-200 lg:hidden"
           onClick={onMore}
         />
       )}
@@ -97,8 +97,8 @@ export function MobileBottomNav({
                     className={cn(
                       "grid min-h-14 min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-[background-color,transform] duration-200 active:scale-[0.98]",
                       item.active
-                        ? "bg-brand/10 text-foreground"
-                        : "bg-muted/50 text-foreground active:bg-muted",
+                        ? "text-brand"
+                        : "text-foreground active:bg-muted/30",
                     )}
                   >
                       <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-muted text-foreground") }>
@@ -142,7 +142,7 @@ export function MobileBottomNav({
               </span>
             </div>
           );
-           const tapClass = "block h-full w-full select-none rounded-lg outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80";
+           const tapClass = "block h-full w-full select-none rounded-full outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80";
           return (
             <li key={it.key} className="min-w-0">
               {it.to ? (
@@ -160,7 +160,7 @@ export function MobileBottomNav({
             variant="ghost"
             onClick={onMore}
             aria-label="More"
-             className="block h-full w-full select-none rounded-lg p-0 outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
+             className="block h-full w-full select-none rounded-full p-0 outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
           >
                <div className="relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200">
               <span

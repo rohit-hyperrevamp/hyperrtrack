@@ -1974,6 +1974,17 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(5), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(5)):not(:nth-child(7)):not(:nth-child(8)) .rail-kpi .rail-kpi-icon { color: var(--primary-foreground); }
 
+/* Rail section summaries: saturated role colors, with legible white text and circular icons. */
+[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="good"] { background: linear-gradient(145deg, var(--palette-good-main), var(--palette-good-strong)); border-color: var(--palette-good-strong); }
+[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="bad"] { background: linear-gradient(145deg, var(--palette-danger-main), var(--palette-danger-strong)); border-color: var(--palette-danger-strong); }
+[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="warn"] { background: linear-gradient(145deg, var(--palette-caution-main), var(--palette-caution-strong)); border-color: var(--palette-caution-strong); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint) { color: var(--primary-foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon,
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon,
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
+
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
 [data-rail-shell] .rail-live-summary[data-status="placed"] { --live-color: var(--brand-blue); }
@@ -2580,7 +2591,7 @@ nav[data-bottom-nav] {
   z-index: 80 !important;
   border: 1px solid color-mix(in oklab, var(--dock-foreground) 14%, transparent);
   background: var(--dock);
-  box-shadow: 0 12px 34px -18px color-mix(in oklab, var(--foreground) 45%, transparent);
+  box-shadow: 0 12px 34px -18px color-mix(in oklab, var(--palette-neutral-ink) 45%, transparent);
   padding: 0;
   transform: none !important;
   translate: none !important;
@@ -2603,7 +2614,7 @@ nav[data-bottom-nav] {
 }
 nav[data-bottom-nav][data-expanded="true"] {
   border-color: color-mix(in oklab, var(--dock-foreground) 22%, transparent);
-  box-shadow: 0 24px 64px -18px color-mix(in oklab, var(--foreground) 70%, transparent);
+  box-shadow: 0 24px 64px -18px color-mix(in oklab, var(--palette-neutral-ink) 70%, transparent);
 }
 nav[data-bottom-nav]::after {
   content: none;
@@ -2745,7 +2756,9 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 }
 
 /* Search drops into the page without a modal overlay or background blur. */
-.rail-search-panel { position: fixed; z-index: 100; top: clamp(72px, 12dvh, 120px); left: 50%; transform: translateX(-50%); width: min(38rem, calc(100vw - 1.5rem)); max-height: calc(100dvh - 100px); overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--foreground); padding: 6px; box-shadow: 0 16px 50px color-mix(in oklab, var(--foreground) 18%, transparent); animation: rail-search-drop .24s ease-out both; }
+.rail-search-panel { position: fixed; z-index: 100; top: clamp(72px, 12dvh, 120px); left: 50%; transform: translateX(-50%); width: min(38rem, calc(100vw - 1.5rem)); max-height: calc(100dvh - 100px); overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--foreground); padding: 6px; box-shadow: 0 16px 50px color-mix(in oklab, var(--palette-neutral-ink) 18%, transparent); animation: rail-search-drop .24s ease-out both; }
+.dark .rail-search-panel, .dark [data-slot="dialog-content"], .dark [data-slot="sheet-content"] { background: var(--card); box-shadow: 0 16px 40px color-mix(in oklab, var(--background) 80%, transparent); backdrop-filter: none; }
+.dark [data-slot="dialog-overlay"], .dark [data-slot="sheet-overlay"] { backdrop-filter: none; }
 .rail-search-panel [cmdk-input-wrapper] { flex: 1; min-width: 0; border: 0; }
 .rail-search-panel [cmdk-input] { min-width: 0; }
 @keyframes rail-search-drop { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -2772,6 +2785,14 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 13px; white-space: nowrap; flex: none; }
   [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-slot input[type="date"] { font-size: 14px; }
+  [data-rail-shell] .rail-topbar { min-width: 0; height: auto; min-height: 48px; padding-right: 58px; }
+  [data-rail-shell] .rail-topbar-slot { min-width: 0; max-width: 100%; flex-wrap: wrap; overflow-x: visible; }
+  [data-rail-shell] .rail-topbar-slot > * { min-width: 0; }
+  [data-rail-shell] .rail-topbar-tab { min-height: 36px; }
+  [data-rail-shell] .rail-overview-trigger { box-shadow: 0 3px 10px color-mix(in oklab, var(--palette-neutral-ink) 14%, transparent); }
+  nav[data-rail-bottom-nav] [data-app-drawer-grid] > a { border-radius: 0; }
+  .dark nav[data-rail-bottom-nav] { box-shadow: 0 8px 24px color-mix(in oklab, var(--background) 75%, transparent); }
+  [data-rail-shell] .rail-topbar-slot input[type="date"] { flex-shrink: 0; }
   [data-rail-shell] [data-rail-workspace] .page-header p { display: none; }
 }
 

@@ -75,7 +75,7 @@ function CandidatesPage() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
               code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, opening: c.opening_id ? openingTitle.get(c.opening_id) ?? "" : "",
-              stage: stageLabel(c.stage), rounds: `${c.rounds_cleared}/${c.total_rounds}`, source: c.source, experience: c.experience_years,
+              stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
               current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
             })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
             <Button size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
@@ -91,11 +91,12 @@ function CandidatesPage() {
         <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
           <SelectTrigger className="sm:w-56"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All stages</SelectItem>
-            <SelectItem value="open">Open (new + screening)</SelectItem>
-            <SelectItem value="pipeline">In pipeline</SelectItem>
-            <SelectItem value="lost">Lost</SelectItem>
-            {STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
+            <SelectItem value="all">All candidates</SelectItem>
+            <SelectItem value="open">To review</SelectItem>
+            <SelectItem value="pipeline">In progress</SelectItem>
+            <SelectItem value="pending_onboarding">Ready to onboard</SelectItem>
+            <SelectItem value="onboarded">Onboarded</SelectItem>
+            <SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -103,11 +104,11 @@ function CandidatesPage() {
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-            <tr><th className="p-3">Candidate</th><th className="p-3">Opening</th><th className="p-3">Stage</th><th className="p-3">Rounds</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
+            <tr><th className="p-3">Candidate</th><th className="p-3">Post</th><th className="p-3">Progress</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {cq.isLoading && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
-            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
+            {cq.isLoading && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
+            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
             {pageRows.map((c) => (
               <tr key={c.id} role="link" tabIndex={0} className="cursor-pointer hover:bg-muted/30" onClick={() => navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } })} onKeyDown={(e) => { if (e.key === "Enter") navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } }); }}>
                 <td className="p-3">
@@ -115,8 +116,7 @@ function CandidatesPage() {
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
                 </td>
                 <td className="p-3">{c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—"}</td>
-                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{stageLabel(c.stage)}</span></td>
-                <td className="p-3 tabular-nums">{c.rounds_cleared}/{c.total_rounds}</td>
+                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{["new", "screening", "on_hold"].includes(c.stage) ? "To review" : ["round_1", "round_2", "round_3", "hr_approved"].includes(c.stage) ? "Offer pending" : stageLabel(c.stage)}</span></td>
                 <td className="p-3">{c.current_location || "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
                 <td className="p-3 text-right"><Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}><Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }}>View</Link></Button></td>

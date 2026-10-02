@@ -30,15 +30,16 @@ function BillingPage() {
   const { data } = useQuery({
     queryKey: ["rail-bill", month],
     queryFn: async () => {
-      const [contracts, bills, docs, people, wages, att] = await Promise.all([
+      const [contracts, bills, docs, people, wages, att, proposed] = await Promise.all([
         rows<{ id: string; loa_number: string; title: string | null; gst_percent: number; partial_clean_rule: string }>(db.from("rail_contracts").select("id,loa_number,title,gst_percent,partial_clean_rule")),
         rows<Bill>(db.from("rail_bills").select("*").order("bill_month", { ascending: false })),
         rows<{ id: string; contract_id: string; doc_type: string; reference: string | null; status: string }>(db.from("rail_compliance_docs").select("id,contract_id,doc_type,reference,status").eq("month", m0)),
         rows<{ id: string; full_name: string; role_key: string; skill: string; daily_wage: number | null; home_location_id: string | null }>(db.from("rail_people").select("id,full_name,role_key,skill,daily_wage,home_location_id").eq("enabled", true)),
         rows<{ area_class: string; skill: string; basic_per_day: number; vda_per_day: number; total_per_day: number; effective_from: string; effective_to: string | null }>(db.from("rail_wage_rules").select("area_class,skill,basic_per_day,vda_per_day,total_per_day,effective_from,effective_to").order("effective_from", { ascending: false })),
         rows<{ person_id: string; hours: number | null; work_date: string }>(db.from("rail_attendance").select("person_id,hours,work_date").gte("work_date", m0)),
+        rows<{ id: string; amount: number; location_id: string | null }>(db.from("rail_penalties").select("id,amount,location_id").eq("status", "proposed").gte("penalty_date", m0).lt("penalty_date", new Date(Number(month.slice(0,4)), Number(month.slice(5,7)), 1).toISOString().slice(0,10))),
       ]);
-      return { contracts, bills, docs, people, wages, att };
+      return { contracts, bills, docs, people, wages, att, proposed };
     },
   });
   const cId = contract || data?.contracts[0]?.id || "";
@@ -66,6 +67,7 @@ function BillingPage() {
   const inv = () => { qc.invalidateQueries({ queryKey: ["rail-bill"] }); qc.invalidateQueries({ queryKey: ["rail-bill-lines"] }); };
 
   async function generate() {
+    if (data?.proposed.length) return toast.error("Review proposed fines in Quality before generating this month's bill.");
     const id = await rpc<string>("rail_generate_bill", { _contract: cId, _month: m0 }, "Bill generated");
     if (id) { void logActivity({ module: "Rail Billing", action: "generate_bill", entityType: "rail_bills", entityId: id, entityLabel: month }); setOpen(id); inv(); }
   }
@@ -106,7 +108,7 @@ function BillingPage() {
         <div className="flex flex-wrap gap-2">
           <select className="h-10 rounded-md border bg-background px-3 text-sm" value={cId} onChange={(e) => setContract(e.target.value)} aria-label="Contract">{data?.contracts.map((c) => <option key={c.id} value={c.id}>{c.loa_number}</option>)}</select>
           <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />
-          <Button onClick={generate} disabled={!cId}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
+          <Button onClick={generate} disabled={!cId || !!data?.proposed.length}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
         </div>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Bills" value={bills.length} />
@@ -114,6 +116,7 @@ function BillingPage() {
         <Kpi label="Below minimum wage" value={below.length} tone={below.length ? "bad" : "good"} />
         <Kpi label="Net this month" value={inr(bills.find((b) => b.bill_month === m0 && b.status !== "cancelled")?.net_total)} />
       </div>
+      {!!data?.proposed.length && <p role="alert" className="text-sm text-destructive">{data.proposed.length} proposed fine(s) need review in Quality before billing. Confirmed fines reduce the railway bill, never worker pay.</p>}
 
       <Tabs defaultValue="bills">
         <TabsList><TabsTrigger value="bills">Bills</TabsTrigger><TabsTrigger value="compliance">Compliance pack</TabsTrigger><TabsTrigger value="wages">Wage compliance</TabsTrigger></TabsList>

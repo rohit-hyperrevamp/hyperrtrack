@@ -39,7 +39,9 @@ function PeoplePage() {
         rows<{ event_coach_id: string; norm_qty: number; qty: number }>(db.from("rail_job_consumption").select("event_coach_id,norm_qty,qty").gte("created_at", since).limit(20000)),
         db.rpc("rail_people_users").then((r: { data: { mobile: string; user_id: string }[] | null }) => r.data ?? []),
       ]);
-      return { people, roles, locs, tasks, insp, cons, auth };
+      const candidateIds = people.map((p) => p.mobile);
+      const portraits = candidateIds.length ? await rows<{ mobile: string; photo_url: string | null }>(db.from("candidates").select("mobile,photo_url").in("mobile", candidateIds)) : [];
+      return { people, roles, locs, tasks, insp, cons, auth, portraits };
     },
   });
 
@@ -58,6 +60,7 @@ function PeoplePage() {
 
   const roleName = (k: string) => data?.roles.find((r) => r.key === k)?.name ?? k;
   const locName = (id: string | null) => data?.locs.find((l) => l.id === id)?.name ?? "All places";
+  const photoOf = (mobile: string) => data?.portraits.find((c) => c.mobile === mobile)?.photo_url;
   const list = (data?.people ?? []).filter((p) => !q || `${p.full_name} ${p.mobile} ${p.role_key}`.toLowerCase().includes(q.toLowerCase()));
 
   // Scorecards (last 30 days) — needs the person's sign-in id
@@ -86,7 +89,7 @@ function PeoplePage() {
            {!list.length ? <Empty title="No people yet" hint="Add supervisors, cleaners and railway checkers so they can sign in." action={<Button onClick={() => { setFormStep(0); setForm({ ...blank }); }}>Add person</Button>} /> :
             <div className="divide-y rounded-2xl border bg-card">{list.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-3 p-3 text-sm">
-                <div><div className="font-medium">{p.full_name} {!p.enabled && <span className="text-xs text-muted-foreground">(disabled)</span>}</div><div className="text-xs text-muted-foreground">{p.mobile} · {roleName(p.role_key)} · {p.scope_type === "all" ? "All places" : locName(p.scope_location_id)} · {p.skill.replace("_", "-")}{p.daily_wage ? ` · ₹${p.daily_wage}/day` : ""}</div></div>
+                <div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/10 text-sm font-semibold text-brand">{photoOf(p.mobile) ? <img src={photoOf(p.mobile)!} alt={`${p.full_name} portrait`} className="h-full w-full object-cover" /> : p.full_name.split(/\s+/).slice(0, 2).map((n) => n[0]).join("").toUpperCase()}</span><div className="min-w-0"><div className="font-medium">{p.full_name} {!p.enabled && <span className="text-xs text-muted-foreground">(disabled)</span>}</div><div className="text-xs text-muted-foreground">{p.mobile} · {roleName(p.role_key)} · {p.scope_type === "all" ? "All places" : locName(p.scope_location_id)} · {p.skill.replace("_", "-")}{p.daily_wage ? ` · ₹${p.daily_wage}/day` : ""}</div></div></div>
                  <div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => { setFormStep(0); setForm({ mobile: p.mobile, name: p.full_name, role: p.role_key, scope: p.scope_type, scope_location: p.scope_location_id ?? "", home: p.home_location_id ?? "", skill: p.skill, wage: p.daily_wage ? String(p.daily_wage) : "" }); }}>Edit</Button>
                   <Button size="sm" variant="ghost" onClick={() => toggle(p)}>{p.enabled ? "Disable" : "Enable"}</Button></div>
               </div>))}</div>}
