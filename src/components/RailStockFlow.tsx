@@ -52,9 +52,18 @@ export function useStockFlow() {
       ]);
       // Requests need a second person to approve (database rule), so the UI must know who is signed in.
       const me = (await supabase.auth.getUser()).data.user?.id ?? null;
-      return { items, locs, batches, prs, trfs, vendors, me };
+      const allLocs = locs;
+      return { items, locs: await scopeSupplyLocs(locs), allLocs, batches, prs, trfs, vendors, me };
     },
   });
+}
+
+/** Keep only stores the signed-in user may see in Supplies (database rail_can, depot/contract scope aware). */
+export async function scopeSupplyLocs<T extends { id: string }>(locs: T[]): Promise<T[]> {
+  const checks = await Promise.all(
+    locs.map((l) => (supabase.rpc as never as (f: string, a: object) => Promise<{ data: boolean | null }>)("rail_can", { _module: "rail_supplies", _action: "view", _location: l.id }).then((r) => !!r.data).catch(() => false)),
+  );
+  return locs.filter((_, i) => checks[i]);
 }
 
 /** Filter bar shared by stock views: search, category, status. */
