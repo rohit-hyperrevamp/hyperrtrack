@@ -360,7 +360,7 @@ function RootComponent() {
     if (typeof window === "undefined") return;
 
     const labelTables = (root: ParentNode = document) => {
-      root.querySelectorAll<HTMLTableElement>("table.ios-table").forEach((table) => {
+      root.querySelectorAll<HTMLTableElement>("table.ios-table, [data-rail-workspace] table:has(thead)").forEach((table) => {
         const headers = Array.from(table.querySelectorAll<HTMLTableCellElement>("thead th")).map((th) =>
           (th.textContent ?? "").replace(/\s+/g, " ").trim(),
         );
