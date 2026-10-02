@@ -22,3 +22,4 @@
 - Use centered Sheet dialogs for entry and review while retaining explicit side sheets for navigation, and keep shared search in the rail layout — forms and search stay consistent across screens without altering access logic.
 - Rail pay reuses existing payroll/invoice screens; rail figures come from security-definer RPCs (rail_my_pay, rail_finance_summary, rail_payslip_preview over rail_pay_structures × rail_wage_rules) and duty/attendance guards are DB triggers — one enforced pay engine, own-data-only for workers.
 - The rail dock is ordered by daily use and grouped by RAIL_DOCK_SECTIONS in admin.tsx, each page once — short, duplicate-free navigation.
+- The shared Input must forward onChange to its number and date variants, and the sonner <Toaster /> stays mounted once in src/routes/__root.tsx — without either, typed quantities/dates are ignored and save/error messages are invisible app-wide.
