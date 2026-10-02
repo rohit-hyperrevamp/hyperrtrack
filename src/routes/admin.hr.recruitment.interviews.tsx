@@ -51,7 +51,9 @@ function MyInterviews() {
             <div key={i.id} role="button" tabIndex={0} onClick={() => setReview({ i, c })} onKeyDown={(e) => { if (e.key === "Enter") setReview({ i, c }); }} className="flex cursor-pointer flex-col gap-3 rounded-xl border border-border bg-card p-4 transition hover:border-accent/50 hover:bg-accent/5 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 text-sm">
                 <div className="font-medium">{c?.full_name ?? "Candidate"} <span className="text-xs text-muted-foreground">{c?.code}</span></div>
-                <div className="text-xs text-muted-foreground">Round {i.round_no}: {i.round_name} · {fmtDateTime(i.scheduled_at)} · {i.mode.replace("_", " ")}{i.location ? ` · ${i.location}` : ""}</div>
+                {c?.rec_openings?.title && <div className="text-xs font-medium text-accent">{c.rec_openings.title}</div>}
+                <div className="mt-0.5 inline-flex items-center gap-1 rounded-md bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent"><CalendarClock className="h-3.5 w-3.5" />{fmtDateTime(i.scheduled_at)}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">Round {i.round_no}: {i.round_name} · {i.mode.replace("_", " ")}{i.location ? ` · ${i.location}` : ""}</div>
                 {c && <div className="text-xs text-muted-foreground">{c.experience_years} yrs · expects {inr(c.expected_ctc)} · notice {c.notice_days} days</div>}
                 {i.status !== "scheduled" && <div className={cn("mt-1 text-xs capitalize", i.status === "rejected" ? "text-destructive" : "text-primary")}>{i.status}{i.feedback ? ` — ${i.feedback}` : ""}</div>}
               </div>

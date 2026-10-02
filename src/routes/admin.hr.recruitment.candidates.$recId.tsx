@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { logActivity } from "@/lib/activity-log";
+import { useCurrentPermissions } from "@/lib/rbac";
+import { supabase } from "@/integrations/supabase/client";
 import {
   addEvent, employeeNames, fetchCandidate, fetchMasters, fetchOpenings, fmtDateTime, inr, notifyEmployee, notifyOnboarders,
   openResume, PUNE_HOME_UNIT, QK, recDb, REC_MODULE, stageLabel, stageTone, uploadResume,
@@ -42,6 +44,9 @@ function CandidatePage() {
   const q = useQuery({ queryKey: QK.candidate(recId), queryFn: () => fetchCandidate(recId) });
   const oq = useQuery({ queryKey: QK.openings, queryFn: fetchOpenings });
   const mq = useQuery({ queryKey: QK.masters, queryFn: fetchMasters, staleTime: 600_000 });
+  const { can } = useCurrentPermissions();
+  const isRecruiter = can("recruitment");
+  const meQ = useQuery({ queryKey: ["auth", "my-candidate-id"], queryFn: async () => (await supabase.rpc("current_user_candidate_id")).data as string | null, staleTime: 300_000 });
   const c = q.data?.candidate;
   const interviews = q.data?.interviews ?? [];
   const namesQ = useQuery({
@@ -145,10 +150,12 @@ function CandidatePage() {
           {c.lost_reason && <p className="rounded-lg bg-destructive/10 p-2 text-sm text-destructive">{c.lost_reason}</p>}
           <div className="flex flex-wrap gap-2">
             {c.resume_path && <Button size="sm" variant="outline" onClick={() => openResume(c.resume_path).catch((e) => toast.error(e.message))}><FileText className="mr-1 h-4 w-4" />{c.resume_name || "Resume"}</Button>}
-            <label className="inline-flex cursor-pointer items-center rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
-              <Upload className="mr-1 h-4 w-4" />{c.resume_path ? "Replace resume" : "Upload resume"}
-              <input type="file" className="hidden" accept=".pdf,.doc,.docx,image/*" onChange={(e) => e.target.files?.[0] && onResume(e.target.files[0])} />
-            </label>
+            {isRecruiter && (
+              <label className="inline-flex cursor-pointer items-center rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+                <Upload className="mr-1 h-4 w-4" />{c.resume_path ? "Replace resume" : "Upload resume"}
+                <input type="file" className="hidden" accept=".pdf,.doc,.docx,image/*" onChange={(e) => e.target.files?.[0] && onResume(e.target.files[0])} />
+              </label>
+            )}
           </div>
         </section>
 
@@ -166,11 +173,11 @@ function CandidatePage() {
                     <div className="text-xs text-muted-foreground">{fmtDateTime(i.scheduled_at)} · {i.mode.replace("_", " ")}{i.location ? ` · ${i.location}` : ""} · {namesQ.data?.get(i.interviewer_id) ?? "Interviewer"}</div>
                     {i.feedback && <div className="mt-1 whitespace-pre-wrap text-xs">“{i.feedback}” {i.rating ? `· ${i.rating}/5` : ""}</div>}
                   </div>
-                  {i.status === "scheduled" && (
+                  {i.status === "scheduled" && (isRecruiter || i.interviewer_id === meQ.data) && (
                     <div className="flex shrink-0 gap-2">
                       <Button size="sm" variant="outline" onClick={() => setResult({ i, d: "approved" })}>Approve</Button>
                       <Button size="sm" variant="outline" onClick={() => setResult({ i, d: "rejected" })}>Reject</Button>
-                      <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(c.id, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>
+                      {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(c.id, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
                     </div>
                   )}
                 </li>
