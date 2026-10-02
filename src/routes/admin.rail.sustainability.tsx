@@ -51,15 +51,22 @@ function SustainPage() {
         db.rpc("rail_setting", { _key: "baseline_manual_litres" }).then((r: { data: number | null }) => r.data ?? 1500),
         db.rpc("rail_setting", { _key: "leak_alert_pct" }).then((r: { data: number | null }) => r.data ?? 20),
       ]);
-      return { ledger, meters, readings, locs, chem, acwp, trend, baseline: Number(baseline), leakPct: Number(leakPct) };
+      // Real chemical use = kit issued − returned (chemical items in litres), counted once the return is recorded.
+      const kits = await rows<{ qty_issued: number; qty_returned: number; issue_date: string; inv_items: { unit: string; rail_category: string | null } | null }>(db.from("rail_kit_issues").select("qty_issued,qty_returned,issue_date,inv_items(unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
+      return { ledger, meters, readings, locs, chem, acwp, trend, kits, baseline: Number(baseline), leakPct: Number(leakPct) };
     },
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
 
   const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-40 shrink-0" aria-label="Month" /><Button className="h-10 shrink-0" onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></RailTopbarSlot>;
   if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
-  const chemL = data.chem.filter((c) => c.inv_items?.unit === "L").reduce((s, c) => s + Number(c.qty), 0);
+  const normChemL = data.chem.filter((c) => c.inv_items?.unit === "L").reduce((s, c) => s + Number(c.qty), 0);
+  const kitChem = data.kits.filter((k) => k.inv_items?.rail_category === "chemical" && k.inv_items?.unit === "L");
+  const usedChemL = kitChem.reduce((s, k) => s + Number(k.qty_issued) - Number(k.qty_returned), 0);
+  const chemL = kitChem.length ? usedChemL : normChemL;
   const s = summarize(data.ledger, data.baseline, chemL);
+  const normPerCoach = s.coaches ? normChemL / s.coaches : 0;
+  const days = new Set(kitChem.map((k) => k.issue_date)).size;
   const depotOf = (id: string | null) => { let l = data.locs.find((x) => x.id === id); while (l && l.type !== "depot") l = data.locs.find((x) => x.id === l!.parent_id); return l; };
   const league = data.locs.filter((l) => l.type === "depot").map((d) => ({ d, ...summarize(data.ledger.filter((x) => depotOf(x.location_id)?.id === d.id), data.baseline, 0) })).sort((a, b) => a.freshPerCoach - b.freshPerCoach);
   const months = [...new Set(data.trend.map((t) => t.ledger_date.slice(0, 7)))].sort();
@@ -111,7 +118,7 @@ function SustainPage() {
       <PageHeader title="Resources" description="Water, chemicals and carbon per coach." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Fresh water L / coach" value={num(s.freshPerCoach)} hint={`Norm ${num(data.baseline)} L`} tone={s.freshPerCoach > data.baseline ? "bad" : "good"} />
-        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} />
+        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} hint={kitChem.length ? `From kit returns · norm ${num(normPerCoach, 2)} · ${num(days ? usedChemL / days : 0, 1)} L/day` : "Estimated from norms — record kit returns for actuals"} tone={kitChem.length && normPerCoach && s.chemPerCoach > normPerCoach * 1.25 ? "bad" : "default"} />
         <Kpi label="Water saved L" value={num(s.saved)} hint={`${Math.round(s.recycledPct * 100)}% recycled`} />
         <Kpi label="kg CO₂e / coach" value={num(s.co2PerCoach, 2)} hint={`${num(s.coaches)} coaches`} />
       </div>
