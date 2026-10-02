@@ -84,7 +84,7 @@ import { useTheme } from "@/lib/use-theme";
 import { isNativePlatform } from "@/lib/native";
 import { toast } from "sonner";
 import { isAdminConsoleRole, isFieldOfficerRole, OPERATIONS_ROLES } from "@/lib/role-keys";
-import { RAIL_PAGE_MODULES, useRailPageAccess } from "@/lib/rail-page-access";
+import { RAIL_PAGE_MODULES, railHomeForAccess, useRailPageAccess } from "@/lib/rail-page-access";
 
 
 
@@ -238,7 +238,7 @@ function AdminLayout() {
 
   const dashboardHref =
     isRailRole && !isSuperAdmin
-      ? roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command"
+      ? railHomeForAccess(railPageAccess, roleKey)
       : isGuardRole || (!isSuperAdmin && !can("rail_ops"))
         ? "/admin/dashboard"
         : "/admin/rail/command";
