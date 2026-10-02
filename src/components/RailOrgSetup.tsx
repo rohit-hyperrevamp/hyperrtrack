@@ -29,16 +29,15 @@ export function RailOrgSetup() {
   const qc = useQueryClient();
   const settings = useStoreSettings();
   const orgRow = settings.data?.find((s) => s.key === "org_name");
+  const cityRow = settings.data?.find((s) => s.key === "org_city");
+  const [city, setCity] = useState("");
   const mainRow = settings.data?.find((s) => s.key === "main_store_id");
   const mainId = mainRow?.text_value ?? "";
   const [org, setOrg] = useState<string | null>(null);
   const [storeOpen, setStoreOpen] = useState(false);
   const [sf, setSf] = useState({ name: "", code: "", type: "store" });
-  const [itemOpen, setItemOpen] = useState(false);
-  const [it, setIt] = useState({ name: "", unit: "nos", rail_category: "consumable", reorder: "" });
 
   const stores = useQuery({ queryKey: ["rail-org-stores"], queryFn: () => rows<{ id: string; code: string; name: string; type: string }>(db.from("rail_locations").select("id,code,name,type").in("type", ["store", "depot", "station"]).is("deleted_at", null).order("name")) });
-  const items = useQuery({ queryKey: ["rail-org-items"], queryFn: () => rows<{ id: string; item_code: string; name: string; unit: string; rail_category: string | null; default_reorder_level: number }>(db.from("inv_items").select("id,item_code,name,unit,rail_category,default_reorder_level").not("rail_category", "is", null).order("name")) });
   const refresh = () => ["rail-store-settings", "rail-org-stores", "rail-org-items", "rail-stock-flow", "rail-sup"].forEach((k) => void qc.invalidateQueries({ queryKey: [k] }));
 
   async function addStore() {
@@ -52,28 +51,19 @@ export function RailOrgSetup() {
     toast.success("Store added"); setSf({ name: "", code: "", type: "store" }); setStoreOpen(false); refresh();
   }
 
-  async function addItem() {
-    const name = it.name.trim();
-    if (!name) return toast.error("Enter an item name");
-    const item_code = `RC-${name.replace(/[^A-Za-z0-9]+/g, "").toUpperCase().slice(0, 10)}-${Date.now().toString().slice(-4)}`;
-    const { data: row, error } = await db.from("inv_items").insert({ name, item_code, unit: it.unit || "nos", rail_category: it.rail_category, default_reorder_level: Number(it.reorder) || 0 }).select("id").single();
-    if (error) return toast.error(error.message);
-    void logActivity({ module: "Organization", action: "create", entityType: "inv_items", entityId: row?.id, entityLabel: name });
-    toast.success("Item added"); setIt({ name: "", unit: "nos", rail_category: "consumable", reorder: "" }); setItemOpen(false); refresh();
-  }
-
   return (
     <div className="space-y-4">
       <Section icon={Building2} title="Company details" hint="Your organization's name, shown across HyperTrack."
-        action={org === null ? <Button size="sm" variant="outline" onClick={() => setOrg(orgRow?.text_value ?? "")}>Edit</Button> : null}>
+        action={org === null ? <Button size="sm" variant="outline" onClick={() => { setOrg(orgRow?.text_value ?? ""); setCity(cityRow?.text_value ?? ""); }}>Edit</Button> : null}>
         {org === null
-          ? <div className="text-lg font-semibold">{orgRow?.text_value || <span className="text-muted-foreground">Not set yet</span>}</div>
-          : <div className="flex flex-wrap gap-2"><Input autoFocus className="max-w-sm" value={org} onChange={(e) => setOrg(e.target.value)} placeholder="e.g. Hyper EWeb Pvt Ltd" />
+          ? <div><div className="text-lg font-semibold">{orgRow?.text_value || <span className="text-muted-foreground">Not set yet</span>}</div>{cityRow?.text_value && <div className="text-sm text-muted-foreground">Head office · {cityRow.text_value}</div>}</div>
+          : <div className="flex flex-wrap gap-2"><Input autoFocus className="max-w-sm" value={org} onChange={(e) => setOrg(e.target.value)} placeholder="Company name" />
+              <Input className="max-w-[200px]" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Head office city" />
               <Button variant="outline" onClick={() => setOrg(null)}>Cancel</Button>
-              <Button onClick={async () => { if (await saveStoreSetting(orgRow, "org_name", org.trim())) { toast.success("Saved"); setOrg(null); refresh(); } }}>Save</Button></div>}
+              <Button onClick={async () => { if ((await saveStoreSetting(orgRow, "org_name", org.trim())) && (await saveStoreSetting(cityRow, "org_city", city.trim()))) { toast.success("Saved"); setOrg(null); refresh(); } }}>Save</Button></div>}
       </Section>
 
-      <Section icon={Warehouse} title="Stores & godowns" hint="Your main godown sends stock to each site store." action={<Button size="sm" onClick={() => setStoreOpen((v) => !v)}>{storeOpen ? "Close" : "Add store"}</Button>}>
+      <Section icon={Warehouse} title="Stores & godowns" hint="The main store (head office) supplies every other store and is the only one that buys from suppliers." action={<Button size="sm" onClick={() => setStoreOpen((v) => !v)}>{storeOpen ? "Close" : "Add store"}</Button>}>
         {storeOpen && <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_auto]">
           <Input placeholder="Store or godown name" value={sf.name} onChange={(e) => setSf({ ...sf, name: e.target.value })} />
           <Input placeholder="Code (optional)" value={sf.code} onChange={(e) => setSf({ ...sf, code: e.target.value })} />
@@ -88,7 +78,30 @@ export function RailOrgSetup() {
             </li>))}</ul>}
       </Section>
 
-      <Section icon={Boxes} title="Item types" hint="Chemicals, consumables, linen and tools you stock." action={<Button size="sm" onClick={() => setItemOpen((v) => !v)}>{itemOpen ? "Close" : "Add item"}</Button>}>
+    </div>
+  );
+}
+
+/** Masters & rules → Inventory: the item types stores can hold. */
+export function RailItemTypes() {
+  const qc = useQueryClient();
+  const [itemOpen, setItemOpen] = useState(false);
+  const [it, setIt] = useState({ name: "", unit: "nos", rail_category: "consumable", reorder: "" });
+  const items = useQuery({ queryKey: ["rail-org-items"], queryFn: () => rows<{ id: string; item_code: string; name: string; unit: string; rail_category: string | null; default_reorder_level: number }>(db.from("inv_items").select("id,item_code,name,unit,rail_category,default_reorder_level").not("rail_category", "is", null).order("name")) });
+  const refresh = () => ["rail-org-items", "rail-stock-flow", "rail-sup"].forEach((k) => void qc.invalidateQueries({ queryKey: [k] }));
+  async function addItem() {
+    const name = it.name.trim();
+    if (!name) return toast.error("Enter an item name");
+    const item_code = `RC-${name.replace(/[^A-Za-z0-9]+/g, "").toUpperCase().slice(0, 10)}-${Date.now().toString().slice(-4)}`;
+    const { data: row, error } = await db.from("inv_items").insert({ name, item_code, unit: it.unit || "nos", rail_category: it.rail_category, default_reorder_level: Number(it.reorder) || 0 }).select("id").single();
+    if (error) return toast.error(error.message);
+    void logActivity({ module: "Organization", action: "create", entityType: "inv_items", entityId: row?.id, entityLabel: name });
+    toast.success("Item added"); setIt({ name: "", unit: "nos", rail_category: "consumable", reorder: "" }); setItemOpen(false); refresh();
+  }
+
+  return (
+    <div className="space-y-2">
+      <Section icon={Boxes} title="Inventory · Item types" hint="Chemicals, consumables, linen and tools your stores hold." action={<Button size="sm" onClick={() => setItemOpen((v) => !v)}>{itemOpen ? "Close" : "Add item"}</Button>}>
         {itemOpen && <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_1fr_auto]">
           <Input placeholder="Item name" value={it.name} onChange={(e) => setIt({ ...it, name: e.target.value })} />
           <select className={sel} value={it.rail_category} onChange={(e) => setIt({ ...it, rail_category: e.target.value })} aria-label="Category">{ITEM_CATEGORIES.map((c) => <option key={c} value={c} className="capitalize">{c}</option>)}</select>
@@ -101,6 +114,7 @@ export function RailOrgSetup() {
             <li key={i.id} className="flex items-center gap-3 p-3 text-sm"><div className="min-w-0 flex-1"><div className="font-medium">{i.name}</div><div className="text-xs capitalize text-muted-foreground">{i.rail_category} · {i.unit} · low below {i.default_reorder_level}</div></div></li>))}</ul>}
       </Section>
       <p className="px-1 text-xs text-muted-foreground">To issue an item on a contract, also add it under Masters & rules → Approved items.</p>
+      <p className="px-1 text-xs text-muted-foreground">To issue an item on a contract, also add it under Approved items.</p>
     </div>
   );
 }
