@@ -393,7 +393,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
     if (!f.designation_id || !f.department_id) return toast.error("Pick designation and department");
     setBusy(true);
     try {
-      const offer: RecOffer = { ...f, monthly_ctc: Number(f.monthly_ctc), monthly_gross: Number(f.monthly_gross || 0), unit_id: PUNE_HOME_UNIT };
+      const offer: RecOffer = { ...f, operational_role_key: o.operational_role_key, monthly_ctc: Number(f.monthly_ctc), monthly_gross: Number(f.monthly_gross || 0), unit_id: PUNE_HOME_UNIT };
       const { error: e1 } = await recDb.from("rec_candidates").update({ offer, stage: "pending_onboarding" }).eq("id", candidate.id);
       if (e1) throw e1;
       const { error: e2 } = await recDb.from("rec_onboarding_requests").insert({ candidate_id: candidate.id, offer });
