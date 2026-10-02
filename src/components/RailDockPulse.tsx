@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ScanEye, UsersRound } from "lucide-react";
-import railCleaningCard from "@/assets/rail-cleaning-card.jpg";
 import { db, num, today } from "@/lib/rail-ui";
 
 type K = Record<string, number>;
@@ -23,8 +22,7 @@ export function RailDockPulse() {
   const progress = total ? Math.round((released / total) * 100) : 0;
 
   return (
-    <div className="rail-dock-photo relative mx-3 mb-3 hidden shrink-0 overflow-hidden rounded-lg lg:block" aria-label="Today's shift">
-      <img src={railCleaningCard} alt="" loading="lazy" width={512} height={768} className="absolute inset-0 h-full w-full object-cover object-center" />
+    <div className="rail-dock-photo relative bg-brand mx-3 mb-3 hidden shrink-0 overflow-hidden rounded-lg lg:block" aria-label="Today's shift">
       <div className="relative z-10 flex flex-col gap-3 p-3 text-primary-foreground">
         <div className="flex items-baseline justify-between">
           <span className="text-[11px] font-medium opacity-80">Today's shift</span>
@@ -42,8 +40,8 @@ export function RailDockPulse() {
           <span className="flex items-center gap-1"><AlertCircle className="h-3 w-3" />{num(k?.open_alerts)} alerts</span>
         </div>
         <div className="grid grid-cols-2 gap-1.5">
-          <Link to="/admin/rail/live" className="rounded-full bg-card px-2 py-1.5 text-center text-[11px] font-medium text-brand">Live board</Link>
-          <Link to="/admin/rail/ai-check" className="flex items-center justify-center gap-1 rounded-full bg-card/20 px-2 py-1.5 text-[11px] font-medium text-primary-foreground ring-1 ring-primary-foreground/40"><ScanEye className="h-3 w-3" />Scan</Link>
+          <Link to="/admin/rail/live" className="rounded-md bg-card px-2 py-1.5 text-center text-[11px] font-medium text-brand">Live board</Link>
+          <Link to="/admin/rail/ai-check" className="flex items-center justify-center gap-1 rounded-md bg-card/20 px-2 py-1.5 text-[11px] font-medium text-primary-foreground ring-1 ring-primary-foreground/40"><ScanEye className="h-3 w-3" />Scan</Link>
         </div>
       </div>
     </div>
