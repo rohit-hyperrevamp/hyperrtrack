@@ -284,7 +284,7 @@ export function SuppliersView() {
         <Input placeholder="Email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Input placeholder="GSTIN" value={f.gstin} onChange={(e) => setF({ ...f, gstin: e.target.value })} />
         <Input type="number" placeholder="Lead days (7)" value={f.lead_days} onChange={(e) => setF({ ...f, lead_days: e.target.value })} />
-        <Button disabled={!f.name.trim()} onClick={async () => (await act(db.from("rail_vendors").insert({ name: f.name.trim(), phone: f.phone || null, email: f.email || null, gstin: f.gstin || null, lead_days: Number(f.lead_days) || 7 }), "Supplier added", "vendor_create")) && (setF({ name: "", phone: "", email: "", gstin: "", lead_days: "7" }), qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }))}>Add</Button>
+        <Button disabled={!f.name.trim()} onClick={async () => (await act(db.from("rail_vendors").insert({ name: f.name.trim(), phone: f.phone || null, email: f.email || null, gstin: f.gstin || null, lead_days: Number(f.lead_days) || 7 }), "Supplier added", "vendor_create")) && (setF({ name: "", phone: "", email: "", gstin: "", lead_days: "" }), qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }))}>Add</Button>
       </div>
       <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" placeholder="Search supplier" value={q} onChange={(e) => setQ(e.target.value)} /></div>
       {!list.length ? <Empty title="No suppliers yet" hint="Add the companies you buy chemicals and consumables from." /> :
