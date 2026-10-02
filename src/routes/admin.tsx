@@ -437,8 +437,9 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = isSuperAdmin ? (() => { const base = railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"); const i = base.findIndex((c) => c.to === "/admin/rail/people") + 1; return [...base.slice(0, i), ...railPeoplePayChildren, ...base.slice(i)]; })() : railChildren.filter((c) => {
+      const links = isSuperAdmin ? (() => { const base = railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"); const i = base.findIndex((c) => c.to === "/admin/hr/recruitment/dashboard") + 1; return [...base.slice(0, i), ...railPeoplePayChildren, ...base.slice(i)]; })() : railChildren.filter((c) => {
         const section = c.to.split("/")[3];
+        if (c.to === "/admin/hr/recruitment/dashboard") return false;
         if (section === "pay") return true;
         if (section === "finance") return railPageAccess?.rail_billing === true;
         return section && (section !== "me" || roleKey === "rail_cleaner") && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;

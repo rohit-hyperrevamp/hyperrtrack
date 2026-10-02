@@ -42,7 +42,7 @@ export const Route = createFileRoute("/admin/hr/recruitment/candidates/")({
 });
 
 function matchStage(c: RecCandidate, f: string) {
-  if (!f) return true;
+  if (!f) return c.stage !== "onboarded";
   if (f === "open") return c.stage === "new" || c.stage === "screening" || c.stage === "on_hold";
   if (f === "pipeline") return PIPELINE.includes(c.stage);
   if (f === "lost") return LOST.includes(c.stage);
@@ -72,9 +72,9 @@ function CandidatesPage() {
   return (
     <div className="space-y-4">
       <RailTopbarSlot>
-        <Input className="w-56" aria-label="Search candidates" placeholder="Search candidates" value={q} onChange={(e) => setSearch({ q: e.target.value })} />
+        <Input className="h-10 w-56 shrink-0" aria-label="Search candidates" placeholder="Search candidates" value={q} onChange={(e) => setSearch({ q: e.target.value })} />
         <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
-          <SelectTrigger className="w-40" aria-label="Candidate status"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-10 w-44 shrink-0" aria-label="Candidate status"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">In progress</SelectItem><SelectItem value="pending_onboarding">Awaiting approval</SelectItem><SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
