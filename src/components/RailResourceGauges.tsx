@@ -61,7 +61,7 @@ export function RailResourceGauges() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Gauge label="Chemical stock" value={healthy} max={data.items.length || 1} display={data.items.length ? `${Math.round(healthy / data.items.length * 100)}%` : "—"} hint={data.items.length ? `${data.items.length - healthy} of ${data.items.length} products low or out` : "No chemical products recorded"} good="high" to="/admin/rail/supplies" />
         <Gauge label="Chemical consumption" value={returned.length ? used : 0} max={norm || used || 1} display={returned.length ? `${num(used, 1)} L` : "—"} hint={returned.length ? norm ? `${num(norm, 1)} L planned · from kit returns` : "From kit returns · no planned norm" : "Record kit returns to measure"} to="/admin/rail/sustainability" />
-        <Gauge label="Carbon emissions" value={carbonComplete ? chemicalCarbon : 0} max={totalCarbon || 1} display={carbonComplete ? `${num(totalCarbon, 1)} kg CO₂e` : "—"} hint={carbonComplete ? "Colored sticks: chemical share" : "Set product factors and record returns"} to="/admin/rail/sustainability" />
+        <Gauge label="Carbon emissions" value={carbonComplete ? chemicalCarbon : 0} max={totalCarbon || 1} display={carbonComplete ? `${num(totalCarbon, 1)} kg CO₂e` : "—"} hint={carbonComplete ? `${num(chemicalCarbon, 1)} kg from chemicals` : "Set product factors and record returns"} to="/admin/rail/sustainability" />
       </div>
     </section>
   );
