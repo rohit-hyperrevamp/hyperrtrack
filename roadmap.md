@@ -1,8 +1,9 @@
 # HyperTrack roadmap
 
-- [ ] Explain the current Supplies and Resources accounting flow to the user, including whether cleaner task completion actually decrements stock and how usage is logged.
-- [ ] Integrate camera and advisory cleanliness score directly into My Shift task completion: show pass/retry before completing, remove standalone Photo Check navigation and screen entry points.
-- [ ] Replace empty or dummy cleaner Overview tiles with only assigned work and useful own-data; tailor other role home views, retain accessible Profile/photo and Notifications.
+- [x] Explain the current Supplies and Resources accounting flow to the user, including whether cleaner task completion actually decrements stock and how usage is logged. Current stock depletion on issue/usage is not implemented.
+- [ ] Reconcile actual cleaner consumption, kit returns and batch stock with an authorized, auditable decrement flow; currently job norms only estimate consumption and kit issue does not deduct stock (blocked by unavailable production connection).
+- [x] Integrate camera and advisory cleanliness score directly into My Day task completion: show score/retake before completing, remove standalone Photo Check navigation and redirect its old URL. Private evidence upload still awaits a production bucket.
+- [x] Remove dummy cleaner Overview tiles and redirect cleaner Overview to My Day; preserve existing Profile/photo and Notifications. Other role home refinements remain pending.
 - [ ] Combine Candidate and Team into one People navigation entry: new and returning applicants stay Candidates until approved; onboarded people appear in Team. Remove interview/opening recruitment surfaces from that entry.
 - [ ] Align contextual top-bar date selectors and filters in Resources, Supplies, Finance & Payroll and Billing; move Recruitment and Attendance filters into the top space and avoid crowded controls on narrow screens.
 - [ ] Require task-linked after-cleaning photos and AI scores with private retained history, supervisor review and worker feedback; secure database/storage and live verification are blocked by the unavailable production connection.
