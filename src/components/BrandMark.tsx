@@ -1,5 +1,3 @@
-import logo from "@/assets/hypertrack-logo-b.png";
-
 type BrandMarkProps = {
   className?: string;
   compact?: boolean;
@@ -11,17 +9,13 @@ export function BrandMark({
   compact = false,
   variant = "default",
 }: BrandMarkProps) {
-  const titleClass =
-    variant === "inverse" ? "text-primary-foreground" : "text-foreground";
   return (
-    <div className={`flex items-center ${className}`}>
-      <img
-        src={logo}
-        alt="HyperTrack"
-        width={1152}
-        height={576}
-        className="h-10 w-44 max-w-full object-contain object-left"
-      />
+    <div className={`flex items-center ${className}`} aria-label="HyperTrack">
+      {compact ? (
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary text-sm font-bold text-primary-foreground">HT</span>
+      ) : (
+        <span className={`font-heading text-lg font-bold ${variant === "inverse" ? "text-primary-foreground" : "text-foreground"}`}>HyperTrack</span>
+      )}
     </div>
   );
 }

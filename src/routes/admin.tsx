@@ -257,7 +257,7 @@ function AdminLayout() {
 
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const [nativeShell, setNativeShell] = useState(false);
   const { theme, toggle: toggleTheme, mounted: themeMounted } = useTheme();
 
@@ -510,7 +510,14 @@ function AdminLayout() {
   ], []);
 
   const visibleGroups: GroupItem[] = (() => {
-    if (isRailRole || isSuperAdmin || can("rail_ops")) return groups.filter((g) => g.key === "rail");
+    if (isRailRole || isSuperAdmin || can("rail_ops")) {
+      const links = roleKey === "rail_cleaner"
+        ? railChildren.filter((c) => c.to === "/admin/rail/me" || c.to === "/admin/rail/ai-check")
+        : roleKey === "rail_railway_checker"
+          ? railChildren.filter((c) => c.to === "/admin/rail/checker" || c.to === "/admin/rail/quality")
+          : railChildren;
+      return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
+    }
     // Legacy pages remain accessible by their existing links while the rail
     // workspace shows only relevant navigation to accounts without rail access.
     if (!isGuard) return [];
@@ -624,7 +631,7 @@ function AdminLayout() {
 
 
 
-      {/* Desktop vertical sidebar — glass / iPadOS */}
+      {/* Desktop rail dock: every accessible destination is a direct link. */}
       <aside
         className={cn(
           "fixed inset-y-3 left-3 z-30 hidden flex-col rounded-[26px] border border-white/10 bg-black text-white shadow-[0_18px_50px_-20px_rgba(0,0,0,0.65)] transition-[width] duration-300 lg:flex animate-slide-in-left",
@@ -638,12 +645,12 @@ function AdminLayout() {
             <Link
               to={dashboardHref}
               aria-label="HyperTrack home"
-              className="mx-auto grid h-11 w-11 place-items-center rounded-md bg-card p-1"
+              className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-foreground"
             >
-              <img src="/favicon.png" alt="HyperTrack" className="h-8 w-8 object-contain" width={64} height={64} />
+              <span className="font-heading text-sm font-bold" aria-hidden="true">HT</span>
             </Link>
           ) : (
-            <Link to={dashboardHref} className="flex min-w-0 items-center rounded-md bg-card px-2 py-1">
+            <Link to={dashboardHref} aria-label="HyperTrack home" className="flex h-12 w-full min-w-0 items-center justify-center rounded-md border border-border bg-card px-3 text-foreground">
               <BrandMark />
             </Link>
           )}
@@ -653,7 +660,7 @@ function AdminLayout() {
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
           {(() => {
             const sections: Array<{ label: string; keys: string[] }> = [
-              { label: "Operations", keys: ["rail"] },
+              { label: "Rail operations", keys: visibleGroups.map((g) => g.key) },
             ];
             const used = new Set<string>();
             return (
@@ -816,7 +823,7 @@ function AdminLayout() {
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
           <div className="relative shrink-0">
-            <img src="/favicon.png" alt="HyperTrack" className="h-7 w-7 object-contain" width={64} height={64} />
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-primary font-heading text-[10px] font-bold text-primary-foreground" aria-hidden="true">HT</span>
           </div>
           <div className="truncate text-[14px] font-semibold leading-tight text-foreground">HyperTrack</div>
         </Link>
@@ -887,7 +894,7 @@ function AdminLayout() {
           // Build primary destinations in priority order, filtered by permissions.
           // FO gets exactly 3 tiles (Dashboard, Site Visits, Candidates) + More.
           const priorityKeys = isRailRole || isSuperAdmin || can("rail_ops")
-            ? ["rail"]
+            ? visibleGroups.slice(0, 4).map((g) => g.key)
             : isFieldOfficer
             ? ["dashboard", "field-sense", "employees"]
             : ["dashboard", "employees", "attendance", "payroll", "invoice", "inventory", "organizations"];
@@ -931,9 +938,6 @@ function AdminLayout() {
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
-        if (isRailRole || isSuperAdmin || can("rail_ops")) {
-          for (const child of railChildren) addMoreItem({ key: child.to, to: child.to, label: child.label, icon: child.icon, active: isActive(child.to) });
-        }
         if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
         if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (

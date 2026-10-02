@@ -1,7 +1,7 @@
 import { AdminFieldOfficerUnitsCard } from "@/components/AdminFieldOfficerUnitsCard";
 import { AdminEscalationRequestsCard } from "@/components/AdminEscalationRequestsCard";
 import { FieldSenseLeaderboards } from "@/components/FieldSenseLeaderboards";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -185,9 +185,25 @@ export const Route = createFileRoute("/admin/dashboard")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: DashboardPage,
+  component: DashboardEntry,
   errorComponent: DashboardErrorState,
 });
+
+function DashboardEntry() {
+  const navigate = useNavigate();
+  const { roleKey, isSuperAdmin, can, isLoading } = useCurrentPermissions();
+  const railHome = roleKey === "rail_cleaner" ? "/admin/rail/me"
+    : roleKey === "rail_railway_checker" ? "/admin/rail/checker"
+    : "/admin/rail/command";
+  const showRail = isSuperAdmin || !!roleKey?.startsWith("rail_") || can("rail_ops");
+
+  React.useEffect(() => {
+    if (!isLoading && showRail) navigate({ to: railHome, replace: true });
+  }, [isLoading, showRail, railHome, navigate]);
+
+  if (isLoading || showRail) return null;
+  return <DashboardPage />;
+}
 
 const MONTH_NAMES = [
   "January",
