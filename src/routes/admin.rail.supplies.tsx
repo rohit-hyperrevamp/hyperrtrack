@@ -62,10 +62,9 @@ function SuppliesPage() {
   const person = (id: string | null) => data?.people.find((p) => p.id === id)?.full_name ?? "—";
   const locId = loc;
 
-  const stock = (data?.items ?? []).map((i) => {
-    const onHand = data!.batches.filter((b) => b.item_id === i.id && (!locId || b.location_id === locId) && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
-    return { ...i, onHand };
-  });
+  // Low stock is judged per store (same rule as the Stores cards), so "All stores" adds up each store's low items.
+  const usableAt = (itemId: string, at: string) => (data?.batches ?? []).filter((b) => b.item_id === itemId && b.location_id === at && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
+  const lowCount = (data?.locs ?? []).filter((l) => !locId || l.id === locId).reduce((n, l) => n + (data?.items ?? []).filter((i) => usableAt(i.id, l.id) < Number(i.default_reorder_level)).length, 0);
   const scopedBatches = (data?.batches ?? []).filter((b) => (!locId || b.location_id === locId) && Number(b.qty_on_hand) > 0);
   const pendingReq = (flow?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && p.status === "requested").length
     + (flow?.trfs ?? []).filter((t) => (!locId || t.from_location_id === locId || t.to_location_id === locId) && t.status === "requested").length;
@@ -90,7 +89,7 @@ function SuppliesPage() {
       </RailTopbarSlot>
       <PageHeader title="Supplies & Equipment" description="Stock by store, expiry, requests, supplier orders and transfers." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Kpi label="Low stock items" value={stock.filter((s) => s.onHand < s.default_reorder_level).length} tone="bad" />
+        <Kpi label="Low stock items" value={lowCount} tone="bad" />
         <Kpi label="Expired batches" value={scopedBatches.filter((b) => expiryState(b.expiry_date) === "expired").length} tone="bad" />
         <Kpi label="Expiring in 60 days" value={scopedBatches.filter((b) => expiryState(b.expiry_date) === "soon").length} tone="warn" />
         <Kpi label="Requests waiting" value={pendingReq} />
@@ -116,7 +115,7 @@ function SuppliesPage() {
             const qty = Number(kitForm.qty);
             const missing = !kitLoc ? "Choose a store" : !kitForm.item_id ? "Choose an item" : !(qty > 0) ? "Enter a quantity above 0" : "";
             return <div className="space-y-1.5">
-              <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[1.2fr_2fr_1fr_auto]">
+              <div className="grid gap-2 rounded-2xl border bg-card p-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
                 <select className="h-10 rounded-md border bg-background px-3 text-sm" value={kitLoc} onChange={(e) => setKitForm({ ...kitForm, loc: e.target.value })} aria-label="Store">
                   <option value="">Choose store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                 </select>
@@ -133,7 +132,7 @@ function SuppliesPage() {
           {!data?.kit.length ? <Empty title="No kits issued in the last 30 days" /> :
             <div className="divide-y rounded-2xl border bg-card">{data.kit.map((k) => (
               <div key={k.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{item(k.item_id)?.name}</div><div className="text-xs text-muted-foreground">{k.issue_date} · issued {k.qty_issued} · returned {k.qty_returned}</div></div>
-                {!k.returned_at && <Button size="sm" variant="outline" onClick={async () => { const r = window.prompt("Quantity returned at end of shift?", "0"); if (r === null) return; (await act(db.from("rail_kit_issues").update({ qty_returned: Number(r), returned_at: new Date().toISOString() }).eq("id", k.id), "Return recorded")) && inv(); }}>Record return</Button>}</div>))}</div>}
+                {!k.returned_at && <Button size="sm" variant="outline" onClick={async () => { const r = window.prompt(`Quantity returned at end of shift? (0 to ${k.qty_issued})`, "0"); if (r === null) return; const back = Number(r); if (!Number.isFinite(back) || back < 0 || back > Number(k.qty_issued)) { toast.error(`Enter a number between 0 and ${k.qty_issued}.`); return; } (await act(db.from("rail_kit_issues").update({ qty_returned: back, returned_at: new Date().toISOString() }).eq("id", k.id), "Return recorded")) && inv(); }}>Record return</Button>}</div>))}</div>}
         </TabsContent>
 
         <TabsContent value="kit" data-merged="variance" className="space-y-2">

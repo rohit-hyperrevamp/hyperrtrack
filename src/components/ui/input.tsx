@@ -391,10 +391,10 @@ const Input = React.forwardRef<
     );
   }
   if (type === "date") {
-    return <DateInput className={className} {...props} ref={ref} />;
+    return <DateInput className={className} onChange={onChange} {...props} ref={ref} />;
   }
   if (type === "number") {
-    return <NumberInput className={className} {...props} ref={ref} />;
+    return <NumberInput className={className} onChange={onChange} {...props} ref={ref} />;
   }
   const capOff = !shouldCapitalize(type, inputMode, autoCapitalize);
   return (
