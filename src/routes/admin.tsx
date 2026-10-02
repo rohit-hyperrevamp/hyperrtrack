@@ -75,7 +75,7 @@ import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
 import { RBAC_MODULES } from "@/lib/rbac-modules";
-import { TrainFront, ScanEye } from "lucide-react";
+import { TrainFront, ScanEye, Gauge, Rows3, Smartphone, ClipboardCheck, Boxes, Leaf, Receipt, UsersRound, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -119,6 +119,15 @@ type GroupItem = {
 const controlCenterChildren: LeafItem[] = [];
 
 const railChildren: LeafItem[] = [
+  { to: "/admin/rail/command", label: "Command Centre", icon: Gauge },
+  { to: "/admin/rail/live", label: "Live Board", icon: Rows3 },
+  { to: "/admin/rail/me", label: "My Day", icon: Smartphone },
+  { to: "/admin/rail/checker", label: "Railway Checker", icon: FileSignature },
+  { to: "/admin/rail/quality", label: "Quality", icon: ClipboardCheck },
+  { to: "/admin/rail/supplies", label: "Supplies & Equipment", icon: Boxes },
+  { to: "/admin/rail/sustainability", label: "Sustainability", icon: Leaf },
+  { to: "/admin/rail/billing", label: "Railway Billing", icon: Receipt },
+  { to: "/admin/rail/people", label: "People & Logins", icon: UsersRound },
   { to: "/admin/rail/settings", label: "Rail Settings", icon: TrainFront },
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
@@ -229,13 +238,19 @@ function AdminLayout() {
   // Users with NO role_key at all (freshly onboarded frontline staff) are
   // treated as frontline too — otherwise they'd land on the admin dashboard
   // with an empty sidebar.
+  // Rail Clean staff sign in with a candidates row whose role_key is "rail_<role>".
+  // Their access is decided by rail roles in the database, not the RBAC matrix.
+  const isRailRole = !!roleKey && roleKey.startsWith("rail_");
   const isGuardRole =
     !isSuperAdmin &&
+    !isRailRole &&
     !permsLoading &&
     (!roleKey || !(isAdminConsoleRole(roleKey) || isFieldOfficerRole(roleKey)));
 
   const dashboardHref =
-    isGuardRole
+    isRailRole && !isSuperAdmin
+      ? roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command"
+      : isGuardRole
       ? "/admin/employee-dashboard"
       : roleKey === "field_officer" && !isSuperAdmin
         ? "/admin/field-dashboard"
@@ -347,6 +362,11 @@ function AdminLayout() {
       pathname.startsWith("/admin/inventory/collections") ||
       pathname.startsWith("/admin/inventory/issuances")
     )) {
+      return;
+    }
+    if (hit.module === "rail_ops" && isRailRole) return;
+    if (isRailRole && !isSuperAdmin) {
+      navigate({ to: dashboardHref, replace: true });
       return;
     }
     if (!can(hit.module)) {
@@ -555,7 +575,7 @@ function AdminLayout() {
         }
         // Sales & Marketing CRM: Super Admin only until a role is granted sales_marketing.
         if (g.key === "sales") return isSuperAdmin || can("sales_marketing");
-        if (g.key === "rail") return isSuperAdmin || can("rail_ops");
+        if (g.key === "rail") return isSuperAdmin || isRailRole || can("rail_ops");
         // Recruitment: Super Admin only until a role is granted the recruitment module.
         if (g.key === "recruitment") return isSuperAdmin || can("recruitment");
         if (g.key === "inventory" && isFieldOfficer) return true;
