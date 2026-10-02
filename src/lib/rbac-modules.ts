@@ -83,7 +83,7 @@ export const RBAC_MODULES: ModuleDef[] = [
   },
   {
     key: "rail_ops",
-    label: "Rail Clean",
+    label: "HyperTrack",
     path: "/admin/rail/settings",
     icon: Sparkles,
     subModules: [],

@@ -1,4 +1,4 @@
-import logo from "@/assets/radiant-logo-v2.png";
+import logo from "@/assets/hypertrack-logo-b.png";
 
 type BrandMarkProps = {
   className?: string;
@@ -13,30 +13,15 @@ export function BrandMark({
 }: BrandMarkProps) {
   const titleClass =
     variant === "inverse" ? "text-primary-foreground" : "text-foreground";
-  const subtitleClass =
-    variant === "inverse"
-      ? "text-primary-foreground/70"
-      : "text-muted-foreground";
-
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center ${className}`}>
       <img
         src={logo}
-        alt="Radiant Guard Services Pvt. Ltd."
-        className="h-10 w-10 shrink-0 object-contain"
+        alt="HyperTrack"
+        width={1152}
+        height={576}
+        className="h-10 w-44 max-w-full object-contain object-left"
       />
-      {!compact && (
-        <div className="leading-tight">
-          <div className={`font-display text-base font-bold tracking-tight ${titleClass}`}>
-            Radiant Guard
-          </div>
-          <div
-            className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${subtitleClass}`}
-          >
-            Services Pvt. Ltd.
-          </div>
-        </div>
-      )}
     </div>
   );
 }

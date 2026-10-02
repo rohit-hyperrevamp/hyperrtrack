@@ -177,9 +177,9 @@ function DashboardErrorState({ error }: import("@tanstack/react-router").ErrorCo
 export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard | Radiant Guard Services" },
+      { title: "Dashboard | HyperTrack" },
       { name: "description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
-      { property: "og:title", content: "Dashboard | Radiant Guard Services" },
+      { property: "og:title", content: "Dashboard | HyperTrack" },
       { property: "og:description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -1,4 +1,4 @@
-// Shared helpers for Rail Clean screens: loose DB access, role lookup,
+// Shared helpers for HyperTrack screens: loose DB access, role lookup,
 // KPI tiles, empty states, money/number formatting and the offline task queue.
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -50,9 +50,9 @@ export const monthStart = (d = new Date()) => new Date(d.getFullYear(), d.getMon
 export function railHead(title: string, description: string) {
   return {
     meta: [
-      { title: `${title} — Rail Clean` },
+      { title: `${title} — HyperTrack` },
       { name: "description", content: description },
-      { property: "og:title", content: `${title} — Rail Clean` },
+      { property: "og:title", content: `${title} — HyperTrack` },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -63,7 +63,7 @@ export function railHead(title: string, description: string) {
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const body = (
     <div className={cn(
-      "rounded-2xl border bg-card p-4 transition-colors h-full",
+      "rounded-md border bg-card p-4 transition-colors h-full",
       to && "hover:border-primary/50 cursor-pointer",
       tone === "good" && "border-l-4 border-l-emerald-500",
       tone === "warn" && "border-l-4 border-l-amber-500",
@@ -79,7 +79,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
 
 export function Empty({ title, hint, action }: { title: string; hint?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed bg-card/50 p-8 text-center">
+    <div className="rounded-md border border-dashed bg-card/50 p-8 text-center">
       <div className="font-medium">{title}</div>
       {hint && <div className="mt-1 text-sm text-muted-foreground">{hint}</div>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}

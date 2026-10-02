@@ -51,7 +51,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import brandLogo from "@/assets/radiant-logo-v2.png";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -254,7 +253,7 @@ function AdminLayout() {
       ? "/admin/employee-dashboard"
       : roleKey === "field_officer" && !isSuperAdmin
         ? "/admin/field-dashboard"
-        : "/admin/dashboard";
+        : "/admin/rail/command";
 
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -455,29 +454,9 @@ function AdminLayout() {
 
   const groups: GroupItem[] = useMemo(
     () => [
-      { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: dashboardHref, activePrefixes: ["/admin/dashboard", "/admin/field-dashboard"] },
-      { key: "org-manager", label: "Organizations", module: "organizations", sub: "organization_manager", icon: Users, to: "/admin/customers/customer-manager", activePrefixes: ["/admin/customers/customer-manager"] },
-      { key: "unit-manager", label: "Clients", module: "organizations", sub: "unit_manager", icon: Warehouse, to: "/admin/customers/unit-manager", activePrefixes: ["/admin/customers/unit-manager"] },
-      { key: "contracts", label: "Contracts", module: "contracts", icon: Files, to: "/admin/contracts/client-contracts", activePrefixes: ["/admin/contracts"] },
-      { key: "rail", label: "Rail Clean", module: "rail_ops", icon: TrainFront, children: railChildren, activePrefixes: ["/admin/rail"] },
-      { key: "sales", label: "Sales & Marketing", module: "sales_marketing", icon: TrendingUp, children: salesChildren, activePrefixes: ["/admin/sales"] },
-      { key: "recruitment", label: "Recruitment", module: "recruitment", icon: UserPlus, children: recruitmentChildren, activePrefixes: ["/admin/hr/recruitment"] },
-      { key: "employees", label: isFieldOfficer ? "Candidates" : "Employees", module: "employees", icon: UserPlus, to: "/admin/employees", activePrefixes: ["/admin/employees"] },
-
-      { key: "attendance", label: "Attendance", module: "attendance", icon: ClipboardList, to: "/admin/attendance", activePrefixes: ["/admin/attendance"] },
-      { key: "payroll", label: "Payroll", module: "payroll", icon: Wallet, to: "/admin/payroll", activePrefixes: ["/admin/payroll", "/admin/additions", "/admin/deductions"] },
-      { key: "invoice", label: "Invoice", module: "invoice", icon: CreditCard, to: "/admin/invoice", activePrefixes: ["/admin/invoice"] },
-      { key: "inventory", label: "Uniform Manager", module: "inventory", icon: Boxes, children: inventoryChildren, activePrefixes: ["/admin/inventory"] },
-      { key: "field-sense", label: "Radar", icon: Radio, children: fieldSenseChildren, activePrefixes: ["/admin/field-sense"], module: "field_sense" },
-      { key: "vehicles", label: "Vehicles", module: "vehicles", icon: Car, to: "/admin/vehicles", children: vehiclesChildren, activePrefixes: ["/admin/vehicles"] },
-      { key: "assets", label: "Assets", module: "assets", icon: Home, to: "/admin/assets", children: assetsChildren, activePrefixes: ["/admin/assets"] },
-      
-      { key: "my-attendance", label: "My Attendance", icon: Clock, to: "/admin/my-attendance", activePrefixes: ["/admin/my-attendance"] },
-      { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
-      { key: "compliance", label: "Compliance", icon: ShieldCheck, to: "/admin/compliance", activePrefixes: ["/admin/compliance"] },
-      { key: "control", label: "Control Center", module: "control_center", icon: SlidersHorizontal, to: "/admin/control-center", children: controlCenterChildren, activePrefixes: ["/admin/control-center", "/admin/customers/state-manager", "/admin/customers/branch-manager"] },
+      { key: "rail", label: "Rail Operations", module: "rail_ops", icon: TrainFront, children: railChildren, activePrefixes: ["/admin/rail"] },
     ],
-    [dashboardHref, isFieldOfficer],
+    [],
   );
 
   const isInventoryOnly =
@@ -531,6 +510,10 @@ function AdminLayout() {
   ], []);
 
   const visibleGroups: GroupItem[] = (() => {
+    if (isRailRole || isSuperAdmin || can("rail_ops")) return groups.filter((g) => g.key === "rail");
+    // Legacy pages remain accessible by their existing links while the rail
+    // workspace shows only relevant navigation to accounts without rail access.
+    if (!isGuard) return [];
     if (isGuard) return guardGroups;
     if (isControlCenterRole) {
       const children = controlCenterRadarChildren.filter(
@@ -654,14 +637,14 @@ function AdminLayout() {
           {collapsed ? (
             <Link
               to={dashboardHref}
-              aria-label="Dashboard"
-              className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-white p-1.5 shadow-[0_10px_28px_-10px_rgba(0,0,0,0.65)]"
+              aria-label="HyperTrack home"
+              className="mx-auto grid h-11 w-11 place-items-center rounded-md bg-card p-1"
             >
-              <img src={brandLogo} alt="Radiant" className="h-full w-full object-contain" />
+              <img src="/favicon.png" alt="HyperTrack" className="h-8 w-8 object-contain" width={64} height={64} />
             </Link>
           ) : (
-            <Link to={dashboardHref} className="flex min-w-0 items-center">
-              <BrandMark className="[&_.font-display]:text-white [&_.tracking-\[0\.2em\]]:text-white/50" />
+            <Link to={dashboardHref} className="flex min-w-0 items-center rounded-md bg-card px-2 py-1">
+              <BrandMark />
             </Link>
           )}
         </div>
@@ -670,15 +653,7 @@ function AdminLayout() {
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
           {(() => {
             const sections: Array<{ label: string; keys: string[] }> = [
-              { label: "Menu", keys: ["dashboard", "my-inventory", "my-attendance"] },
-              { label: "Rail Clean", keys: ["rail"] },
-              { label: "Operations", keys: ["org-manager", "unit-manager", "contracts", "inventory", "vehicles", "assets"] },
-              { label: "HR", keys: ["employees", "recruitment", "attendance", "payroll"] },
-              { label: "Sales & Marketing", keys: ["sales"] },
-              { label: "Finance", keys: ["invoice"] },
-              { label: "Surveillance", keys: ["field-sense"] },
-              { label: "Compliance", keys: ["compliance"] },
-              { label: "Admin", keys: ["control"] },
+              { label: "Operations", keys: ["rail"] },
             ];
             const used = new Set<string>();
             return (
@@ -841,9 +816,9 @@ function AdminLayout() {
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
           <div className="relative shrink-0">
-            <img src={brandLogo} alt="Radiant" className="h-7 w-7 object-contain" />
+            <img src="/favicon.png" alt="HyperTrack" className="h-7 w-7 object-contain" width={64} height={64} />
           </div>
-          <div className="truncate text-[14px] font-semibold leading-tight text-foreground">Radiant</div>
+          <div className="truncate text-[14px] font-semibold leading-tight text-foreground">HyperTrack</div>
         </Link>
         <div className="flex shrink-0 items-center">
           {isSuperAdmin && <ViewAsUserButton />}
@@ -871,7 +846,7 @@ function AdminLayout() {
 
 
       {/* Main */}
-      <main data-admin-scroll className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
+      <main data-admin-scroll data-rail-workspace={pathname.startsWith("/admin/rail") ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
         <div className="mx-auto min-w-0 max-w-[1500px]">
@@ -911,7 +886,9 @@ function AdminLayout() {
           }
           // Build primary destinations in priority order, filtered by permissions.
           // FO gets exactly 3 tiles (Dashboard, Site Visits, Candidates) + More.
-          const priorityKeys = isFieldOfficer
+          const priorityKeys = isRailRole || isSuperAdmin || can("rail_ops")
+            ? ["rail"]
+            : isFieldOfficer
             ? ["dashboard", "field-sense", "employees"]
             : ["dashboard", "employees", "attendance", "payroll", "invoice", "inventory", "organizations"];
           const cap = isFieldOfficer ? 3 : 4;
@@ -954,8 +931,10 @@ function AdminLayout() {
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
+        if (isRailRole || isSuperAdmin || can("rail_ops")) {
+          for (const child of railChildren) addMoreItem({ key: child.to, to: child.to, label: child.label, icon: child.icon, active: isActive(child.to) });
+        }
         if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        addMoreItem({ key: "my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") });
         if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav

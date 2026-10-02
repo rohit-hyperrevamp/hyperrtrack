@@ -19,9 +19,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/admin/rail/settings")({
   head: () => ({
     meta: [
-      { title: "Rail Clean Settings" },
+      { title: "Rail Settings — HyperTrack" },
       { name: "description", content: "Configure depots, trains, coaches, checklists, contracts and rates for railway cleaning." },
-      { property: "og:title", content: "Rail Clean Settings" },
+      { property: "og:title", content: "Rail Settings — HyperTrack" },
       { property: "og:description", content: "Configure every railway cleaning master without code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -46,7 +46,7 @@ function RailSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Rail Clean Settings" description="Every business value lives here. Change it once, it applies everywhere." />
+      <PageHeader title="Rail Settings" description="Depots, trains, coaches, contracts and rates." />
       {groups.map(([group, defs]) => (
         <section key={group} className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{group}</h2>

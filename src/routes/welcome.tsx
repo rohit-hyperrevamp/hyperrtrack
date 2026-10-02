@@ -8,11 +8,15 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/welcome")({
   head: () => ({
     meta: [
-      { title: "Welcome — Radiant Guard Services" },
+      { title: "Welcome — HyperTrack" },
       {
         name: "description",
-        content: "Your Radiant Guard Services command center.",
+        content: "Your HyperTrack rail operations workspace.",
       },
+      { property: "og:title", content: "Welcome — HyperTrack" },
+      { property: "og:description", content: "Your HyperTrack rail operations workspace." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: WelcomePage,
@@ -55,7 +59,7 @@ function WelcomePage() {
           </span>
 
           <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Welcome to <span className="text-gradient-accent">Radiant</span>
+            Welcome to <span className="text-gradient-accent">HyperTrack</span>
           </h1>
 
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
@@ -79,7 +83,7 @@ function WelcomePage() {
         </div>
 
         <p className="mt-6 text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
-          Radiant Guard Services Pvt. Ltd.
+          HyperTrack rail operations
         </p>
       </div>
     </div>

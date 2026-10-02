@@ -10,7 +10,6 @@ import {
 import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
-import favicon from "../assets/radiant-logo-v2.png";
 import { Button } from "@/components/ui/button";
 import { ConfirmProvider } from "@/components/ConfirmProvider";
 import { ExportChooser } from "@/components/ExportChooser";
@@ -102,17 +101,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "format-detection", content: "telephone=no" },
       { name: "theme-color", content: "#ffffff" },
-      { title: "Radiant Guard Services" },
-      { name: "description", content: "Secure portal for Radiant Guard Services Pvt. Ltd." },
-      { name: "author", content: "Radiant Guard Services" },
-      { property: "og:title", content: "Radiant Guard Services" },
-      { property: "og:description", content: "Secure portal for Radiant Guard Services Pvt. Ltd." },
+      { title: "HyperTrack" },
+      { name: "description", content: "Rail cleaning operations workspace." },
+      { name: "author", content: "HyperTrack" },
+      { property: "og:title", content: "HyperTrack" },
+      { property: "og:description", content: "Rail cleaning operations workspace." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@HyperRevamp" },
     ],
     links: [
-      { rel: "icon", type: "image/png", href: favicon },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

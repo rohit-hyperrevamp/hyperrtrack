@@ -59,7 +59,7 @@ function CommandPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Command Centre" description="Updates every 30 seconds. Tap any number to see the detail. Press Ctrl+K to jump anywhere." />
+      <PageHeader title="Command Centre" description="Live operations across depots, coaches and quality." />
       <div className="flex items-center gap-3 rounded-2xl border bg-card p-4">
         <Droplets className="h-6 w-6 text-primary" />
         <div><div className="text-xs uppercase tracking-wide text-muted-foreground">Water saved this month</div><div className="text-3xl font-semibold tabular-nums">{num(shown)} L</div></div>

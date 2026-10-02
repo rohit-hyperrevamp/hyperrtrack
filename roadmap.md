@@ -1,4 +1,6 @@
-# Rail Clean OS roadmap
+# HyperTrack roadmap
+
+- [x] HyperTrack identity, rail-only navigation and Industrial Precision shared styling
 
 - [x] Phase 1: masters, Settings hub, scoped access, audit trail, sample data, AI photo check
 - [x] Phase 2: day planning, rake placement, tasks, offline cleaner app, live board

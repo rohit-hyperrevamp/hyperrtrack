@@ -13,31 +13,30 @@ import {
   signInWithBiometric,
 } from "@/lib/biometric";
 import { markNativeAppSessionUnlocked } from "@/lib/native-app-lock";
-import logo from "@/assets/radiant-logo-v2.png";
-import loginBg from "@/assets/login-bg.jpg";
+import logo from "@/assets/hypertrack-logo-b.png";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — Radiant Guard Services" },
+      { title: "Sign in — HyperTrack" },
       {
         name: "description",
         content:
-          "Sign in to Radiant Guard Services with your phone number and OTP.",
+          "Sign in to HyperTrack with your phone number and verification code.",
       },
-      { property: "og:title", content: "Sign in — Radiant Guard Services" },
+      { property: "og:title", content: "Sign in — HyperTrack" },
       {
         property: "og:description",
         content:
-          "Sign in to Radiant Guard Services with your phone number and OTP.",
+          "Sign in to HyperTrack with your phone number and verification code.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Sign in — Radiant Guard Services" },
+      { name: "twitter:title", content: "Sign in — HyperTrack" },
       {
         name: "twitter:description",
         content:
-          "Sign in to Radiant Guard Services with your phone number and OTP.",
+          "Sign in to HyperTrack with your phone number and verification code.",
       },
     ],
   }),
@@ -225,8 +224,7 @@ function LoginPage() {
 
   return (
     <div
-      className="relative min-h-dvh w-full overflow-x-clip bg-slate-950 bg-cover bg-center bg-no-repeat text-foreground"
-      style={{ backgroundImage: `url(${loginBg})` }}
+      className="relative min-h-dvh w-full overflow-x-clip bg-background text-foreground"
     >
       {/* Splash entrance keyframes */}
       <style>{`
@@ -256,92 +254,51 @@ function LoginPage() {
       {!splashGone && (
         <div
           aria-hidden={splashDone}
-          className={`fixed inset-0 z-50 grid place-items-center bg-slate-950 ${
+          className={`fixed inset-0 z-50 grid place-items-center bg-primary ${
             splashDone ? "[animation:login-splash-out_0.6s_ease_forwards]" : ""
           }`}
-          style={
-            splashDone
-              ? undefined
-              : { backgroundImage: `url(${loginBg})`, backgroundSize: "cover", backgroundPosition: "center" }
-          }
         >
-          {!splashDone && (
-            <div className="absolute inset-0 bg-slate-950/70" aria-hidden />
-          )}
           <div className="relative flex flex-col items-center gap-6 [animation:login-splash-fade_0.7s_ease-out_both]">
-            <div className="grid h-20 w-20 place-items-center rounded-full bg-white shadow-2xl ring-1 ring-white/40">
-              <img src={logo} alt="Radiant Guard Services" className="h-12 w-12 object-contain" />
+            <div className="rounded-md bg-card px-4 py-2">
+              <img src={logo} alt="HyperTrack" className="h-12 w-44 object-contain" width={1152} height={576} />
             </div>
-            <div className="text-center">
-              <div className="font-display text-xl font-semibold tracking-tight text-white">
-                Radiant Guard
-              </div>
-              <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/70">
-                Services Pvt. Ltd.
-              </div>
-            </div>
-            <div className="h-[3px] w-44 overflow-hidden rounded-full bg-white/20">
+            <div className="h-[3px] w-44 overflow-hidden rounded-full bg-primary-foreground/20">
               <div className="h-full rounded-full bg-brand [animation:login-loader-bar_1.6s_ease-in-out_forwards]" />
             </div>
           </div>
         </div>
       )}
 
-      {/* Subtle dark scrim for text legibility */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-slate-950/45"
-      />
-
-      {/* Soft brand-blue glow anchoring the left content */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-32 top-1/3 h-[480px] w-[480px] rounded-full bg-brand/25 blur-[140px]"
-      />
-
-      {/* Content wrapper — slides up on successful sign-in to reveal the CRM */}
+      {/* Sign-in keeps the existing phone verification flow. */}
       <div className={revealing ? "animate-slide-out-up" : ""}>
-        <div className="relative z-10 flex min-h-dvh flex-col lg:flex-row">
+        <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col justify-center p-4 lg:flex-row lg:items-stretch lg:py-12">
           {/* Left — brand + tagline */}
           <div
-            className="relative hidden flex-col px-6 pb-6 pt-6 sm:px-10 lg:flex lg:min-h-0 lg:flex-1 lg:px-14 lg:pb-10 lg:pt-10"
+            className="relative hidden flex-col justify-between overflow-hidden rounded-l-md bg-primary p-10 lg:flex lg:w-5/12 lg:p-14"
             style={{ animation: splashDone ? "login-brand-in 0.7s ease-out both" : "none", opacity: splashDone ? undefined : 0 }}
           >
-            <div className="inline-flex items-center gap-3 self-start rounded-[6px] bg-white px-3.5 py-2.5 shadow-md shadow-black/15 sm:gap-3.5 sm:px-4 sm:py-3">
+            <div className="inline-flex items-center self-start rounded-md bg-card px-2 py-1">
               <img
                 src={logo}
-                alt="Radiant Guard Services logo"
-                className="h-11 w-11 shrink-0 object-contain sm:h-12 sm:w-12"
+                alt="HyperTrack"
+                className="h-12 w-44 object-contain"
+                width={1152}
+                height={576}
               />
-              <div>
-                <div className="font-display text-[15px] font-semibold leading-none tracking-tight text-foreground sm:text-base">
-                  Radiant Guard
-                </div>
-                <div className="mt-1 text-[8px] font-medium uppercase tracking-[0.16em] text-muted-foreground sm:text-[9px]">
-                  Services Pvt. Ltd.
-                </div>
-              </div>
             </div>
             <div className="flex flex-1 items-center">
               <div className="w-full max-w-xl">
-                <h1 className="font-display text-3xl font-semibold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[44px] xl:text-[52px]">
-                  Security operations,
+                <h1 className="font-display text-3xl font-semibold leading-[1.12] text-primary-foreground sm:text-4xl">
+                  Precision rail cleaning,
                   <br />
-                  <span className="text-white/70">managed.</span>
+                  <span className="text-primary-foreground/70">managed.</span>
                 </h1>
-                <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/75 lg:text-base">
-                  One portal for attendance, payroll, contracts and field teams
-                  built for the people who keep every site running.
+                <p className="mt-4 max-w-md text-[15px] leading-relaxed text-primary-foreground/75 lg:text-base">
+                  Cleaning events, coaches and quality across the railway network.
                 </p>
-                <div className="mt-8 flex flex-wrap gap-2.5">
-                  {["Attendance", "Payroll", "Contracts", "Field Teams"].map((label) => (
-                    <span
-                      key={label}
-                      className="rounded-full bg-white/10 px-4 py-1.5 text-[12px] font-semibold tracking-wide text-white/85 ring-1 ring-white/20 backdrop-blur-sm"
-                    >
-                      {label}
-                    </span>
-                  ))}
+                <div className="mt-10 space-y-5 border-t border-primary-foreground/15 pt-8 text-sm text-primary-foreground/70">
+                  <p><span className="mr-3 inline-block h-2 w-2 rounded-full bg-brand" />Network status <span className="block pl-5 text-primary-foreground/50">Depot and train activity</span></p>
+                  <p><span className="mr-3 inline-block h-2 w-2 rounded-full bg-brand" />Rolling stock <span className="block pl-5 text-primary-foreground/50">Coach cleaning and inspections</span></p>
                 </div>
               </div>
             </div>
@@ -349,25 +306,24 @@ function LoginPage() {
 
           {/* Right — login panel */}
           <div
-            className="relative flex min-h-dvh w-full flex-col justify-center bg-white px-5 py-8 shadow-2xl sm:px-12 lg:w-[480px] lg:min-h-dvh lg:py-14"
+            className="relative flex w-full flex-col justify-center rounded-md border border-border bg-card px-5 py-10 shadow-sm sm:px-12 lg:w-7/12 lg:rounded-l-none lg:py-14"
             style={{ animation: splashDone ? "login-panel-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" : "none", opacity: splashDone ? undefined : 0 }}
           >
             <div className="mx-auto w-full max-w-[380px]">
               <div className="flex flex-col items-center text-center">
                 <img
                   src={logo}
-                  alt="Radiant Guard Services"
-                  className="mb-4 h-12 w-12 object-contain lg:hidden"
+                  alt="HyperTrack"
+                  className="mb-4 h-12 w-44 object-contain lg:hidden"
+                  width={1152}
+                  height={576}
                 />
-                <div className="mb-5 hidden h-20 w-20 place-items-center rounded-full bg-brand text-white shadow-lg shadow-brand/25 lg:grid">
-                  <UserRound className="h-10 w-10" strokeWidth={1.75} />
-                </div>
                 <h2 className="font-display text-[24px] font-semibold leading-[1.1] tracking-tight text-foreground sm:text-[28px]">
-                  {step === "phone" ? "Sign in" : "Verify your number"}
+                  {step === "phone" ? "Operator sign-in" : "Verify your number"}
                 </h2>
                 <p className="mt-2 max-w-[300px] text-[14px] leading-relaxed text-muted-foreground">
                   {step === "phone"
-                    ? "Enter your mobile number."
+                    ? "Access your rail operations workspace."
                     : `Code sent to +91 ••• ••• ${phone.slice(-4)}.`}
                 </p>
               </div>
