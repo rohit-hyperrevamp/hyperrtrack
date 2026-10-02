@@ -588,7 +588,6 @@ function AdminLayout() {
                   <Users className="h-4 w-4" /> My Profile
                 </Link>
               </DropdownMenuItem>
-              {isSuperAdmin && <div className="flex items-center gap-2 px-4 py-1 text-sm text-foreground"><ViewAsUserButton className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-foreground hover:bg-brand/10" /><span>View as user</span></div>}
               <DropdownMenuItem onClick={toggleTheme} className="gap-2">
                 {themeMounted && theme === "dark" ? (
                   <Sun className="h-4 w-4" />
@@ -603,6 +602,11 @@ function AdminLayout() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {isSuperAdmin && <div className={cn("mt-2 flex items-center gap-2 px-1 text-xs text-dock-foreground/75", collapsed && "justify-center")}>
+            <ViewAsUserButton className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dock-foreground/10 text-dock-foreground hover:bg-brand hover:text-primary-foreground" />
+            {!collapsed && <span>View as user</span>}
+          </div>}
 
           <button
             type="button"
@@ -644,6 +648,7 @@ function AdminLayout() {
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
+          {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link
             to="/admin/profile"
