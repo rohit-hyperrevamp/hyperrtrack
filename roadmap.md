@@ -530,3 +530,9 @@
 - [x] Grant Recruitment access to HR and recruiter Sanskriti (employee 43930).
 - [x] Ensure assigned interviewers can open candidate details and see interviews on their dashboard.
 - [ ] Verify recruiter-created and assigned interview flows end to end in production — blocked until the updated app is published; database policies and live records are verified.
+
+## Remix: run on Lovable Cloud + Lovable AI (2026-10-02)
+- [ ] Skip all third-party secret updates (AlertCheckin, APNs, Firebase, MSG91, Resend, SurePass, prod DB URL)
+- [ ] Point app at Lovable Cloud backend (remove external production Supabase pinning)
+- [ ] Route AI sheet-reading through Lovable AI Gateway instead of GEMINI_API_KEY
+- [ ] Verify build + login screen
