@@ -62,10 +62,6 @@ function SuppliesPage() {
   const person = (id: string | null) => data?.people.find((p) => p.id === id)?.full_name ?? "—";
   const locId = loc;
 
-  const stock = (data?.items ?? []).map((i) => {
-    const onHand = data!.batches.filter((b) => b.item_id === i.id && (!locId || b.location_id === locId) && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
-    return { ...i, onHand };
-  });
   // Low stock is judged per store (same rule as the Stores cards), so "All stores" adds up each store's low items.
   const usableAt = (itemId: string, at: string) => (data?.batches ?? []).filter((b) => b.item_id === itemId && b.location_id === at && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
   const lowCount = (data?.locs ?? []).filter((l) => !locId || l.id === locId).reduce((n, l) => n + (data?.items ?? []).filter((i) => usableAt(i.id, l.id) < Number(i.default_reorder_level)).length, 0);
