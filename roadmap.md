@@ -1,5 +1,6 @@
 # HyperTrack roadmap
 
+- [ ] Explain the current Supplies and Resources accounting flow to the user, including whether cleaner task completion actually decrements stock and how usage is logged.
 - [ ] Integrate camera and advisory cleanliness score directly into My Shift task completion: show pass/retry before completing, remove standalone Photo Check navigation and screen entry points.
 - [ ] Replace empty or dummy cleaner Overview tiles with only assigned work and useful own-data; tailor other role home views, retain accessible Profile/photo and Notifications.
 - [ ] Combine Candidate and Team into one People navigation entry: new and returning applicants stay Candidates until approved; onboarded people appear in Team. Remove interview/opening recruitment surfaces from that entry.
