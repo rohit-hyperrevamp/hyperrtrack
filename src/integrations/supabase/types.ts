@@ -7551,7 +7551,6 @@ export type Database = {
       }
     }
     Functions: {
-      _try: { Args: { q: string }; Returns: undefined }
       allocate_invoice_number: {
         Args: {
           _client_token?: string
