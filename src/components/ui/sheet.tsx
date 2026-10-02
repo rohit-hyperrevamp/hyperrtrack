@@ -6,8 +6,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { confirmAction } from "@/components/ConfirmProvider";
 
-const Sheet = SheetPrimitive.Root;
+type SheetDirty = { mark: () => void; reset: () => void };
+const SheetDirtyContext = React.createContext<SheetDirty | null>(null);
+
+/** Sheet that asks before closing when something was typed and not saved. */
+const Sheet = ({ onOpenChange, children, ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) => {
+  const dirty = React.useRef(false);
+  const ctx = React.useMemo<SheetDirty>(() => ({ mark: () => { dirty.current = true; }, reset: () => { dirty.current = false; } }), []);
+  const handle = React.useCallback((next: boolean) => {
+    if (next || !dirty.current) { dirty.current = false; onOpenChange?.(next); return; }
+    void confirmAction({ title: "Close without saving?", description: "What you've entered here will be lost.", confirmText: "Discard", cancelText: "Keep editing", destructive: true })
+      .then((ok) => { if (ok) { dirty.current = false; onOpenChange?.(false); } });
+  }, [onOpenChange]);
+  return <SheetDirtyContext.Provider value={ctx}><SheetPrimitive.Root onOpenChange={handle} {...props}>{children}</SheetPrimitive.Root></SheetDirtyContext.Provider>;
+};
 
 const SheetTrigger = SheetPrimitive.Trigger;
 
