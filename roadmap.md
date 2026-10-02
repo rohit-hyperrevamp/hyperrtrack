@@ -1,6 +1,6 @@
 # HyperTrack roadmap
 
-- [ ] Match the uploaded Fingoals reference across HyperTrack, updated to the requested full-screen canvas: circular blue sidebar brand and icons, consistent rounded bento cards with blue/green/red/yellow accents, top controls and chart textures on all devices; review against the reference (live authenticated comparison blocked until publication)
+- [ ] (in review) Match the uploaded Fingoals reference across HyperTrack, updated to the requested full-screen canvas: circular blue sidebar brand and icons, consistent rounded bento cards with blue/green/red/yellow accents, top controls and chart textures on all devices; review against the reference (live authenticated comparison blocked until publication)
 - [x] Make dock icons identifiable by color, align and strengthen the wordmark, use Apple system typography, and redesign role-relevant rail dashboards
 - [x] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
 - [x] HyperTrack identity, rail-only navigation and Industrial Precision shared styling
