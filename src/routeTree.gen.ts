@@ -95,7 +95,16 @@ import { Route as AdminVehiclesFastagsRouteImport } from './routes/admin.vehicle
 import { Route as AdminVehiclesExpenseManagerRouteImport } from './routes/admin.vehicles.expense-manager'
 import { Route as AdminSalesQuotesRouteImport } from './routes/admin.sales.quotes'
 import { Route as AdminSalesDashboardRouteImport } from './routes/admin.sales.dashboard'
+import { Route as AdminRailSustainabilityRouteImport } from './routes/admin.rail.sustainability'
+import { Route as AdminRailSuppliesRouteImport } from './routes/admin.rail.supplies'
 import { Route as AdminRailSettingsRouteImport } from './routes/admin.rail.settings'
+import { Route as AdminRailQualityRouteImport } from './routes/admin.rail.quality'
+import { Route as AdminRailPeopleRouteImport } from './routes/admin.rail.people'
+import { Route as AdminRailMeRouteImport } from './routes/admin.rail.me'
+import { Route as AdminRailLiveRouteImport } from './routes/admin.rail.live'
+import { Route as AdminRailCommandRouteImport } from './routes/admin.rail.command'
+import { Route as AdminRailCheckerRouteImport } from './routes/admin.rail.checker'
+import { Route as AdminRailBillingRouteImport } from './routes/admin.rail.billing'
 import { Route as AdminRailAiCheckRouteImport } from './routes/admin.rail.ai-check'
 import { Route as AdminPayrollUnitIdRouteImport } from './routes/admin.payroll.$unitId'
 import { Route as AdminInvoiceUnitIdRouteImport } from './routes/admin.invoice.$unitId'
@@ -588,9 +597,54 @@ const AdminSalesDashboardRoute = AdminSalesDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminSalesRoute,
 } as any)
+const AdminRailSustainabilityRoute = AdminRailSustainabilityRouteImport.update({
+  id: '/sustainability',
+  path: '/sustainability',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailSuppliesRoute = AdminRailSuppliesRouteImport.update({
+  id: '/supplies',
+  path: '/supplies',
+  getParentRoute: () => AdminRailRoute,
+} as any)
 const AdminRailSettingsRoute = AdminRailSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailQualityRoute = AdminRailQualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailPeopleRoute = AdminRailPeopleRouteImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailMeRoute = AdminRailMeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailLiveRoute = AdminRailLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailCommandRoute = AdminRailCommandRouteImport.update({
+  id: '/command',
+  path: '/command',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailCheckerRoute = AdminRailCheckerRouteImport.update({
+  id: '/checker',
+  path: '/checker',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailBillingRoute = AdminRailBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => AdminRailRoute,
 } as any)
 const AdminRailAiCheckRoute = AdminRailAiCheckRouteImport.update({
@@ -961,7 +1015,16 @@ export interface FileRoutesByFullPath {
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
   '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/billing': typeof AdminRailBillingRoute
+  '/admin/rail/checker': typeof AdminRailCheckerRoute
+  '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/live': typeof AdminRailLiveRoute
+  '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/people': typeof AdminRailPeopleRoute
+  '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
+  '/admin/rail/supplies': typeof AdminRailSuppliesRoute
+  '/admin/rail/sustainability': typeof AdminRailSustainabilityRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1093,7 +1156,16 @@ export interface FileRoutesByTo {
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
   '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/billing': typeof AdminRailBillingRoute
+  '/admin/rail/checker': typeof AdminRailCheckerRoute
+  '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/live': typeof AdminRailLiveRoute
+  '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/people': typeof AdminRailPeopleRoute
+  '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
+  '/admin/rail/supplies': typeof AdminRailSuppliesRoute
+  '/admin/rail/sustainability': typeof AdminRailSustainabilityRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1231,7 +1303,16 @@ export interface FileRoutesById {
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
   '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/billing': typeof AdminRailBillingRoute
+  '/admin/rail/checker': typeof AdminRailCheckerRoute
+  '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/live': typeof AdminRailLiveRoute
+  '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/people': typeof AdminRailPeopleRoute
+  '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
+  '/admin/rail/supplies': typeof AdminRailSuppliesRoute
+  '/admin/rail/sustainability': typeof AdminRailSustainabilityRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1370,7 +1451,16 @@ export interface FileRouteTypes {
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
     | '/admin/rail/ai-check'
+    | '/admin/rail/billing'
+    | '/admin/rail/checker'
+    | '/admin/rail/command'
+    | '/admin/rail/live'
+    | '/admin/rail/me'
+    | '/admin/rail/people'
+    | '/admin/rail/quality'
     | '/admin/rail/settings'
+    | '/admin/rail/supplies'
+    | '/admin/rail/sustainability'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -1502,7 +1592,16 @@ export interface FileRouteTypes {
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
     | '/admin/rail/ai-check'
+    | '/admin/rail/billing'
+    | '/admin/rail/checker'
+    | '/admin/rail/command'
+    | '/admin/rail/live'
+    | '/admin/rail/me'
+    | '/admin/rail/people'
+    | '/admin/rail/quality'
     | '/admin/rail/settings'
+    | '/admin/rail/supplies'
+    | '/admin/rail/sustainability'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -1639,7 +1738,16 @@ export interface FileRouteTypes {
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
     | '/admin/rail/ai-check'
+    | '/admin/rail/billing'
+    | '/admin/rail/checker'
+    | '/admin/rail/command'
+    | '/admin/rail/live'
+    | '/admin/rail/me'
+    | '/admin/rail/people'
+    | '/admin/rail/quality'
     | '/admin/rail/settings'
+    | '/admin/rail/supplies'
+    | '/admin/rail/sustainability'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -2296,11 +2404,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesDashboardRouteImport
       parentRoute: typeof AdminSalesRoute
     }
+    '/admin/rail/sustainability': {
+      id: '/admin/rail/sustainability'
+      path: '/sustainability'
+      fullPath: '/admin/rail/sustainability'
+      preLoaderRoute: typeof AdminRailSustainabilityRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/supplies': {
+      id: '/admin/rail/supplies'
+      path: '/supplies'
+      fullPath: '/admin/rail/supplies'
+      preLoaderRoute: typeof AdminRailSuppliesRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
     '/admin/rail/settings': {
       id: '/admin/rail/settings'
       path: '/settings'
       fullPath: '/admin/rail/settings'
       preLoaderRoute: typeof AdminRailSettingsRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/quality': {
+      id: '/admin/rail/quality'
+      path: '/quality'
+      fullPath: '/admin/rail/quality'
+      preLoaderRoute: typeof AdminRailQualityRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/people': {
+      id: '/admin/rail/people'
+      path: '/people'
+      fullPath: '/admin/rail/people'
+      preLoaderRoute: typeof AdminRailPeopleRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/me': {
+      id: '/admin/rail/me'
+      path: '/me'
+      fullPath: '/admin/rail/me'
+      preLoaderRoute: typeof AdminRailMeRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/live': {
+      id: '/admin/rail/live'
+      path: '/live'
+      fullPath: '/admin/rail/live'
+      preLoaderRoute: typeof AdminRailLiveRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/command': {
+      id: '/admin/rail/command'
+      path: '/command'
+      fullPath: '/admin/rail/command'
+      preLoaderRoute: typeof AdminRailCommandRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/checker': {
+      id: '/admin/rail/checker'
+      path: '/checker'
+      fullPath: '/admin/rail/checker'
+      preLoaderRoute: typeof AdminRailCheckerRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/billing': {
+      id: '/admin/rail/billing'
+      path: '/billing'
+      fullPath: '/admin/rail/billing'
+      preLoaderRoute: typeof AdminRailBillingRouteImport
       parentRoute: typeof AdminRailRoute
     }
     '/admin/rail/ai-check': {
@@ -2764,12 +2935,30 @@ const AdminPayrollRouteWithChildren = AdminPayrollRoute._addFileChildren(
 
 interface AdminRailRouteChildren {
   AdminRailAiCheckRoute: typeof AdminRailAiCheckRoute
+  AdminRailBillingRoute: typeof AdminRailBillingRoute
+  AdminRailCheckerRoute: typeof AdminRailCheckerRoute
+  AdminRailCommandRoute: typeof AdminRailCommandRoute
+  AdminRailLiveRoute: typeof AdminRailLiveRoute
+  AdminRailMeRoute: typeof AdminRailMeRoute
+  AdminRailPeopleRoute: typeof AdminRailPeopleRoute
+  AdminRailQualityRoute: typeof AdminRailQualityRoute
   AdminRailSettingsRoute: typeof AdminRailSettingsRoute
+  AdminRailSuppliesRoute: typeof AdminRailSuppliesRoute
+  AdminRailSustainabilityRoute: typeof AdminRailSustainabilityRoute
 }
 
 const AdminRailRouteChildren: AdminRailRouteChildren = {
   AdminRailAiCheckRoute: AdminRailAiCheckRoute,
+  AdminRailBillingRoute: AdminRailBillingRoute,
+  AdminRailCheckerRoute: AdminRailCheckerRoute,
+  AdminRailCommandRoute: AdminRailCommandRoute,
+  AdminRailLiveRoute: AdminRailLiveRoute,
+  AdminRailMeRoute: AdminRailMeRoute,
+  AdminRailPeopleRoute: AdminRailPeopleRoute,
+  AdminRailQualityRoute: AdminRailQualityRoute,
   AdminRailSettingsRoute: AdminRailSettingsRoute,
+  AdminRailSuppliesRoute: AdminRailSuppliesRoute,
+  AdminRailSustainabilityRoute: AdminRailSustainabilityRoute,
 }
 
 const AdminRailRouteWithChildren = AdminRailRoute._addFileChildren(

@@ -57,6 +57,13 @@
       "when": 1790932044316,
       "tag": "0007_rail_phases_2_to_7",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790932747526,
+      "tag": "0008_rail_people_users",
+      "breakpoints": true
     }
   ]
 }
