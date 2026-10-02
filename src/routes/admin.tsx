@@ -352,6 +352,10 @@ function AdminLayout() {
       return;
 
     }
+    if (isRailRole && !isSuperAdmin && !pathname.startsWith("/admin/rail") && pathname !== "/admin/profile" && !pathname.startsWith("/admin/notifications")) {
+      navigate({ to: dashboardHref, replace: true });
+      return;
+    }
     const hit = pathToModule.find((p) => pathname === p.prefix || pathname.startsWith(p.prefix + "/"));
     if (!hit) return;
     if (hit.module === "inventory" && roleKey === "field_officer" && (
