@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, CloudOff, LogIn, LogOut, RefreshCw, ScanEye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { db, Empty, enqueueTask, flushQueue, Kpi, num, railHead, readQueue, rows, today } from "@/lib/rail-ui";
+import { db, Empty, enqueueTask, flushQueue, Kpi, num, railHead, readQueue, rows, today, useRailRoles } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/me")({
   head: () => railHead("My Day", "Your cleaning tasks for today, attendance, quality score and pay — works offline."),
@@ -14,10 +14,11 @@ export const Route = createFileRoute("/admin/rail/me")({
 type Task = { id: string; task_name: string; status: string; event_coach_id: string;
   rail_event_coaches: { position: number; rail_coaches: { coach_number: string } | null; rail_coach_types: { code: string } | null; rail_events: { event_date: string; rail_trains: { number: string } | null } | null } | null };
 type Person = { id: string; full_name: string; home_location_id: string | null; daily_wage: number | null; skill: string };
-const CACHE = "rail.me.tasks.v1";
+const CACHE = (uid: string) => `rail.me.tasks.v2.${uid}`;
 
 function MePage() {
   const qc = useQueryClient();
+  const { data: roles, isLoading: rolesLoading } = useRailRoles();
   const [online, setOnline] = useState(true);
   const [queued, setQueued] = useState(0);
   const [done, setDone] = useState<Set<string>>(new Set());
@@ -42,16 +43,23 @@ function MePage() {
   });
 
   const { data: tasks = [] } = useQuery({
-    queryKey: ["rail-me-tasks"],
+    queryKey: ["rail-me-tasks", me?.id],
+    enabled: !!me && !!roles?.some((r) => r.role_key === "cleaner") && !roles?.some((r) => r.role_key === "super_admin"),
     queryFn: async () => {
       try {
+        const { data: auth } = await db.auth.getUser();
+        const uid = auth?.user?.id;
+        if (!uid) return [];
         const t = await rows<Task>(db.from("rail_event_tasks")
           .select("id,task_name,status,event_coach_id,rail_event_coaches!inner(position,rail_coaches(coach_number),rail_coach_types(code),rail_events!inner(event_date,rail_trains(number)))")
-          .eq("rail_event_coaches.rail_events.event_date", today()).in("status", ["pending", "in_progress"]).limit(200));
-        localStorage.setItem(CACHE, JSON.stringify(t));
+          .eq("assigned_to", uid).eq("rail_event_coaches.rail_events.event_date", today()).in("status", ["pending", "in_progress"]).limit(200));
+        localStorage.setItem(CACHE(uid), JSON.stringify(t));
         return t;
       } catch {
-        return JSON.parse(localStorage.getItem(CACHE) ?? "[]") as Task[];
+        const { data: auth } = await db.auth.getUser();
+        const uid = auth?.user?.id;
+        if (!uid) return [];
+        try { return JSON.parse(localStorage.getItem(CACHE(uid)) ?? "[]") as Task[]; } catch { return []; }
       }
     },
   });
@@ -81,6 +89,13 @@ function MePage() {
     else toast("Saved on phone — will sync when online");
   }
 
+  async function accept(t: Task) {
+    const { error } = await db.rpc("rail_accept_task", { _task: t.id });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Task accepted");
+    void qc.invalidateQueries({ queryKey: ["rail-me-tasks"] });
+  }
+
   async function punch(kind: "in" | "out") {
     if (!me) return;
     if (kind === "in") {
@@ -94,8 +109,10 @@ function MePage() {
   }
 
   const open = tasks.filter((t) => !done.has(t.id));
+  if (rolesLoading) return <div className="p-6 text-sm text-muted-foreground">Loading your work…</div>;
+  if (!roles?.some((r) => r.role_key === "cleaner") || roles.some((r) => r.role_key === "super_admin")) return <Empty title="No cleaning shift for this role" hint="Use Operations to assign work to cleaners." />;
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="w-full min-w-0 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4">
         <div><div className="text-xs text-muted-foreground">My Day · {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long" })}</div><h1 className="mt-1 font-heading text-xl font-semibold">{me?.full_name ?? "Today's work"}</h1></div>
         <div className="flex items-center gap-2 text-xs">
@@ -122,13 +139,13 @@ function MePage() {
 
       <div className="space-y-2">
         <div className="text-sm font-medium">Today's tasks</div>
-        {!open.length ? <Empty title="No tasks waiting" hint="New tasks appear when your supervisor places a rake." /> : open.map((t) => (
+        {!open.length ? <Empty title="No tasks waiting" hint="Your supervisor's assignments appear here." /> : open.map((t) => (
           <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-4">
             <div>
               <div className="font-medium">{t.task_name}</div>
               <div className="text-xs text-muted-foreground">Train {t.rail_event_coaches?.rail_events?.rail_trains?.number} · Coach {t.rail_event_coaches?.position} {t.rail_event_coaches?.rail_coach_types?.code} {t.rail_event_coaches?.rail_coaches?.coach_number}</div>
             </div>
-            <Button size="lg" onClick={() => markDone(t)} aria-label={`Mark ${t.task_name} done`}><CheckCircle2 className="h-5 w-5" /></Button>
+            <Button size="lg" onClick={() => t.status === "pending" ? void accept(t) : markDone(t)}>{t.status === "pending" ? "Accept" : <><CheckCircle2 className="mr-2 h-5 w-5" />Done</>}</Button>
           </div>
         ))}
       </div>

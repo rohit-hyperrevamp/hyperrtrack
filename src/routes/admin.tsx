@@ -422,9 +422,9 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = isSuperAdmin ? railChildren : railChildren.filter((c) => {
+      const links = isSuperAdmin ? railChildren.filter((c) => c.to !== "/admin/rail/me") : railChildren.filter((c) => {
         const section = c.to.split("/")[3];
-        return section && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
+        return section && (section !== "me" || roleKey === "rail_cleaner") && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
       });
       const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }, { to: "/admin/view-as-user", label: "View as User", icon: Eye }] : links;
       return accessible.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
@@ -677,7 +677,7 @@ function AdminLayout() {
       <main data-admin-scroll data-rail-workspace={railWorkspace ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
-        <div className={cn("min-w-0", !pathname.startsWith("/admin/rail") && "mx-auto max-w-[1500px]")}>
+        <div className="w-full min-w-0">
           <div
             key={pathname}
             className={cn(!pathname.startsWith("/admin/payroll/") && "page-enter")}

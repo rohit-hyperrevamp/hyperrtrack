@@ -28,7 +28,7 @@ type Ev = {
   rail_trains: { number: string; name: string } | null; rail_locations: { code: string; name: string } | null; rail_service_types: { code: string; name: string } | null;
 };
 type Coach = { id: string; position: number; status: string; rework_count: number; rate_fraction: number; rail_coaches: { coach_number: string } | null; rail_coach_types: { code: string } | null };
-type Task = { id: string; event_coach_id: string; task_name: string; status: string; assigned_to: string | null; completed_offline: boolean };
+type Task = { id: string; event_coach_id: string; task_name: string; status: string; assigned_to: string | null; accepted_at: string | null; completed_offline: boolean };
 
 function shiftDate(d: string, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); }
 
@@ -176,6 +176,16 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const [selected, setSelected] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
+  const { data: workers = [] } = useQuery({
+    queryKey: ["rail-assignable-cleaners"], enabled: !!id,
+    queryFn: async () => {
+      const [people, users] = await Promise.all([
+        rows<{ mobile: string; full_name: string; scope_type: string; scope_location_id: string | null; enabled: boolean }>(db.from("rail_people").select("mobile,full_name,scope_type,scope_location_id,enabled").eq("role_key", "cleaner").eq("enabled", true)),
+        rows<{ mobile: string; user_id: string }>(db.rpc("rail_people_users")),
+      ]);
+      return people.flatMap((person) => { const user = users.find((u) => u.mobile === person.mobile); return user ? [{ ...person, user_id: user.user_id }] : []; });
+    },
+  });
 
   const { data } = useQuery({
     queryKey: ["rail-event", id],
@@ -183,7 +193,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
     queryFn: async () => {
       const [ev] = await rows<Ev>(db.from("rail_events").select("id,event_date,status,planned_start,planned_end,wash_method,location_id,rail_trains(number,name),rail_locations(code,name),rail_service_types(code,name)").eq("id", id));
       const coaches = await rows<Coach>(db.from("rail_event_coaches").select("id,position,status,rework_count,rate_fraction,rail_coaches(coach_number),rail_coach_types(code)").eq("event_id", id).order("position"));
-      const tasks = await rows<Task>(db.from("rail_event_tasks").select("id,event_coach_id,task_name,status,assigned_to,completed_offline").eq("event_id", id));
+      const tasks = await rows<Task>(db.from("rail_event_tasks").select("id,event_coach_id,task_name,status,assigned_to,accepted_at,completed_offline").eq("event_id", id));
       return { ev, coaches, tasks };
     },
   });
@@ -192,6 +202,15 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const ev = data?.ev;
   const canInspect = hasRole(roles, "project_head", "depot_manager", "shift_supervisor", "railway_checker");
   const canRelease = hasRole(roles, "project_head", "depot_manager", "shift_supervisor");
+  const canAssign = hasRole(roles, "super_admin", "project_head", "depot_manager", "shift_supervisor");
+  async function assign(t: Task, uid: string) {
+    if (!uid) return;
+    const { error } = await db.rpc("rail_assign_task", { _task: t.id, _assignee: uid });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Work assigned");
+    void logActivity({ module: "Rail Operations", action: "assign_task", entityType: "rail_event_tasks", entityId: t.id });
+    refresh();
+  }
 
   async function place() {
     const r = await rpc("rail_place_rake", { _event: id, _removed: [...removed], _reason: "Not in rake on arrival" }, "Rake placed");
@@ -268,10 +287,16 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                   </div>
                   <ul className="divide-y divide-border border-y border-border">
                     {coachTasks(c.id).map((t) => (
-                      <li key={t.id} className="flex items-center justify-between gap-3 py-3 text-sm">
-                        <span className="min-w-0">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}</span>
-                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
-                          <Button size="sm" variant="outline" onClick={() => complete(t)}>Mark done</Button>}
+                      <li key={t.id} className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                        <span className="min-w-0 font-medium">{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced offline)</span>}</span>
+                        {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-brand" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
+                          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+                            {canAssign && <select aria-label={`Assign ${t.task_name}`} className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-card px-2 text-sm sm:w-44" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)}>
+                              <option value="">Assign cleaner…</option>
+                              {workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev.location_id || w.user_id === t.assigned_to).map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
+                            </select>}
+                            <span className="text-xs text-muted-foreground">{t.accepted_at ? "Accepted" : t.assigned_to ? "Awaiting acceptance" : "Unassigned"}</span>
+                          </div>}
                       </li>
                     ))}
                   </ul>

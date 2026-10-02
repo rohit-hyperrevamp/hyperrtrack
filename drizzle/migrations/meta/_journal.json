@@ -71,6 +71,13 @@
       "when": 1790933181293,
       "tag": "0009_rail_fix_coach_allocation_and_wage_floor",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790952481586,
+      "tag": "0010_rail_task_assignments",
+      "breakpoints": true
     }
   ]
 }
