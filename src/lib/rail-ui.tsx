@@ -158,27 +158,73 @@ export function parseCsv(text: string): Record<string, string>[] {
 }
 
 // ---------- Offline task queue (cleaner app) ----------
-const QKEY = "rail.offline.tasks.v1";
-export type QueuedTask = { task_id: string; offline_id: string; completed_at: string; label?: string };
+const QKEY = "rail.offline.tasks.v2";
+export type QueuedTask = {
+  task_id: string;
+  offline_id: string;
+  completed_at: string;
+  label?: string;
+  photo_data?: string;
+  ai_score?: number;
+};
+
 export function readQueue(): QueuedTask[] {
   if (typeof window === "undefined") return [];
   try { return JSON.parse(localStorage.getItem(QKEY) ?? "[]"); } catch { return []; }
 }
 export function writeQueue(q: QueuedTask[]) { localStorage.setItem(QKEY, JSON.stringify(q)); }
+
 export function enqueueTask(t: Omit<QueuedTask, "offline_id" | "completed_at">) {
   const q = readQueue();
   if (q.some((x) => x.task_id === t.task_id)) return;
   q.push({ ...t, offline_id: crypto.randomUUID(), completed_at: new Date().toISOString() });
   writeQueue(q);
 }
+
+async function uploadTaskPhoto(taskId: string, dataUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const ext = blob.type.split("/")[1] || "jpg";
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error("Sign in to upload task evidence");
+    const path = `${user.user.id}/${taskId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("rail-task-photos").upload(path, blob);
+    if (error) throw error;
+    return path;
+  } catch (err) {
+    console.error("Photo upload failed:", err);
+    return null;
+  }
+}
+
 export async function flushQueue(): Promise<number> {
   const q = readQueue();
   if (!q.length || (typeof navigator !== "undefined" && !navigator.onLine)) return 0;
   const left: QueuedTask[] = [];
   let ok = 0;
   for (const t of q) {
-    const { error } = await db.rpc("rail_complete_task", { _task: t.task_id, _offline_id: t.offline_id, _completed_at: t.completed_at });
-    if (error && !/not found|Not allowed/i.test(error.message)) left.push(t); else ok++;
+    try {
+      let photoPath = null;
+      if (t.photo_data) {
+        photoPath = await uploadTaskPhoto(t.task_id, t.photo_data);
+        if (!photoPath) { left.push(t); continue; }
+      }
+      const { error } = await db.rpc("rail_complete_task", {
+        _task: t.task_id,
+        _offline_id: t.offline_id,
+        _completed_at: t.completed_at,
+        _photo: photoPath,
+        _ai_score: t.ai_score,
+      });
+      if (error) {
+        left.push(t);
+      } else {
+        ok++;
+      }
+    } catch (err) {
+      left.push(t);
+    }
   }
   writeQueue(left);
   return ok;

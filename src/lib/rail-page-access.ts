@@ -13,12 +13,11 @@ export const RAIL_PAGE_MODULES: Record<string, string> = {
   billing: "rail_billing",
   people: "rail_access",
   settings: "rail_settings",
-  "ai-check": "rail_ops",
   finance: "rail_billing",
   pay: "rail_ops",
 };
 
-export const RAIL_PAGE_ORDER = ["command", "live", "me", "checker", "quality", "supplies", "sustainability", "billing", "people", "settings", "ai-check"];
+export const RAIL_PAGE_ORDER = ["command", "live", "me", "checker", "quality", "supplies", "sustainability", "billing", "people", "settings"];
 
 export function railHomeForAccess(access?: Record<string, boolean>, roleKey?: string | null) {
   const preferred = roleKey === "rail_cleaner" ? "me" : roleKey === "rail_railway_checker" ? "checker" : "command";

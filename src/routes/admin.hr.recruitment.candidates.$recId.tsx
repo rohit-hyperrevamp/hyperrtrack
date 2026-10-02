@@ -105,21 +105,13 @@ function CandidatePage() {
         icon={UserCheck}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{stageLabel(c.stage)}</span>
-            {current && (
-              <>
-                <Button onClick={() => setResult({ i: current, d: "approved" })}><Check />Approve round {current.round_no}</Button>
-                <Button variant="destructive" onClick={() => setResult({ i: current, d: "rejected" })}><X />Reject</Button>
-                <Button variant="outline" onClick={() => setResched(current)}><CalendarClock />Reschedule</Button>
-              </>
-            )}
-            {isRecruiter && ["new", "screening", "on_hold"].includes(c.stage) && <Button onClick={approveForOnboarding}><UserCheck />Continue to offer</Button>}
-            {isRecruiter && c.stage === "on_hold" && <Button variant="outline" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}><UserCheck />Resume hiring</Button>}
+            <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{c.stage === "pending_onboarding" ? "Awaiting approval" : c.stage === "onboarded" ? "Onboarded" : closed ? stageLabel(c.stage) : "In progress"}</span>
+            {isRecruiter && ["new", "screening", "on_hold", "hr_approved", "round_1", "round_2", "round_3"].includes(c.stage) && <Button onClick={() => setOfferOpen(true)}><UserCheck />Submit for approval</Button>}
             {isRecruiter && !closed && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild><Button variant="outline" aria-label="More candidate actions"><MoreHorizontal />More</Button></DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-60">
-                  {ACTIVE_FOR_SCHEDULE.includes(c.stage) && <DropdownMenuItem onClick={() => setStage("on_hold")}><Pause className="mr-2 h-4 w-4" />Pause hiring (on hold)</DropdownMenuItem>}
+                  {c.stage !== "on_hold" && <DropdownMenuItem onClick={() => setStage("on_hold")}><Pause className="mr-2 h-4 w-4" />Save as in progress</DropdownMenuItem>}
                   <DropdownMenuItem onClick={() => setCloseAs("withdrawn")}><UserMinus className="mr-2 h-4 w-4" />Candidate dropped out</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="text-destructive" onClick={() => setCloseAs("rejected")}><X className="mr-2 h-4 w-4" />Reject candidate (close)</DropdownMenuItem>
@@ -133,7 +125,7 @@ function CandidatePage() {
       <section className="border-b border-border pb-4">
         <h2 className="text-sm font-semibold">Candidate overview</h2>
         <p className="mt-1 text-sm text-muted-foreground">{c.full_name} · {c.mobile} · {c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"} · {c.current_location || "Location pending"}</p>
-        <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Next: review details, agree an offer and send to HR for onboarding. Private identity details and documents are completed in the employee record after onboarding."}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Complete the missing details, then submit for approval. Private identity documents are completed in the employee record after onboarding."}</p>
         {c.offer?.operational_role_key && <p className="mt-2 text-xs text-muted-foreground">Pay structure: {payQ.isPending ? "Checking…" : payQ.isError ? "Could not check" : payQ.data ? `${payQ.data.label} · ${payQ.data.skill.replaceAll("_", " ")}${payQ.data.is_placeholder ? " · Placeholder—verify before payroll" : ""}` : "Not configured—set up in Finance & Payroll before assigning pay"}. Final wages depend on location and attendance.</p>}
       </section>
 
@@ -172,7 +164,7 @@ function CandidatePage() {
           </div>
         </section>
 
-        {interviews.length > 0 && <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-2">
+        {false && interviews.length > 0 && <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold">Interviews</h2>
             {isRecruiter && canSchedule && interviews.length > 0 && <Button size="sm" onClick={() => setSchedule(true)}><CalendarPlus className="mr-1 h-4 w-4" />Schedule interview</Button>}
@@ -189,7 +181,7 @@ function CandidatePage() {
                   {i.status === "scheduled" && (isRecruiter || i.interviewer_id === meQ.data) && (
                     <div className="flex shrink-0 gap-2">
                       <Button size="sm" variant="outline" onClick={() => setResched(i)}><CalendarClock className="mr-1 h-4 w-4" />Reschedule</Button>
-                      {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(c.id, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
+                      {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(recId, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
                     </div>
                   )}
                 </li>
@@ -203,7 +195,7 @@ function CandidatePage() {
         <section className="space-y-3 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold">Offer &amp; onboarding</h2>
-            {isRecruiter && c.stage === "hr_approved" && <Button size="sm" onClick={() => setOfferOpen(true)}><Send className="mr-1 h-4 w-4" />Send to HR Head</Button>}
+            {isRecruiter && c.stage === "hr_approved" && <Button size="sm" onClick={() => setOfferOpen(true)}><Send className="mr-1 h-4 w-4" />Submit for approval</Button>}
           </div>
           {isRecruiter && c.stage === "hr_approved" && <p className="text-sm text-muted-foreground">Agree the offer, then send to HR to onboard. Missing documents can be completed in the employee record.</p>}
           {c.offer?.monthly_ctc ? (
@@ -232,9 +224,6 @@ function CandidatePage() {
         </ul>
       </section>
 
-      {schedule && <ScheduleDialog candidate={c} roundNo={nextRound} roundName={rounds.find((r) => r.round_no === nextRound)?.name ?? `Round ${nextRound}`} defaultInterviewer={rounds.find((r) => r.round_no === nextRound)?.default_interviewer_id ?? ""} onClose={() => setSchedule(false)} />}
-      {result && <InterviewResultDialog interview={result.i} candidateName={c.full_name} decision={result.d} onClose={() => setResult(null)} />}
-      {resched && <RescheduleDialog interview={resched} candidate={c} onClose={() => setResched(null)} />}
       {closeAs && <CloseDialog candidate={c} as={closeAs} onClose={() => setCloseAs(null)} />}
       {offerOpen && <OfferDialog candidate={c} openingDefaults={{ designation_id: opening?.designation_id ?? "", department_id: opening?.department_id ?? "", branch_id: opening?.branch_id ?? "" }} masters={mq.data} onClose={() => setOfferOpen(false)} />}
       {assignOpening && <AssignOpeningDialog candidate={c} openings={oq.data ?? []} onClose={() => setAssignOpening(false)} />}
@@ -388,6 +377,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
   });
   const [busy, setBusy] = useState(false);
   async function send() {
+    if (!o.operational_role_key) return toast.error("Choose a position before submitting for approval");
     if (!Number(f.monthly_ctc)) return toast.error("Enter the offered monthly CTC");
     if (!f.joining_date) return toast.error("Enter the date of joining");
     if (!f.designation_id || !f.department_id) return toast.error("Pick designation and department");
@@ -415,7 +405,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader><DialogTitle>Offer for {candidate.full_name}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Submit {candidate.full_name} for approval</DialogTitle></DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5"><Label className="text-xs">Monthly CTC (₹) *</Label><Input type="number" min={0} value={f.monthly_ctc} onChange={(e) => setF({ ...f, monthly_ctc: e.target.value })} /></div>
           <div className="space-y-1.5"><Label className="text-xs">Monthly gross (₹)</Label><Input type="number" min={0} value={f.monthly_gross} onChange={(e) => setF({ ...f, monthly_gross: e.target.value })} /></div>
@@ -430,10 +420,10 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
           <div className="space-y-1.5"><Label className="text-xs">Department *</Label>{sel("department_id", masters?.departments ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Branch</Label>{sel("branch_id", masters?.branches ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Reporting manager</Label><EmployeePicker value={f.reports_to} onChange={(id) => setF({ ...f, reports_to: id })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Radiant Guards - Pune Office" /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Assigned on approval" /></div>
           <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Notes for HR Head</Label><Textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
         </div>
-        <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Sending…" : "Send to HR Head"}</Button></DialogFooter>
+        <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Submitting…" : "Submit for approval"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

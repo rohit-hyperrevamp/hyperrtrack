@@ -84,7 +84,7 @@ function SuppliesPage() {
   return (
     <div className="space-y-5">
       <RailTopbarSlot>
-        <select className="h-10 rounded-md border bg-background px-3 text-sm" value={locId} onChange={(e) => setLoc(e.target.value)} aria-label="Store">
+        <select className="h-10 w-44 max-w-full shrink-0 rounded-lg border border-border bg-card px-3 pr-8 text-sm text-foreground" value={locId} onChange={(e) => setLoc(e.target.value)} aria-label="Store">
           <option value="">All stores</option>
           {data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>

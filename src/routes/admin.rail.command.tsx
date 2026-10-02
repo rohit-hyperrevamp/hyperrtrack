@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowUpRight, FileWarning, MessageSquareWarning, MapPin, TrainFront } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -7,6 +7,7 @@ import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 import { RailBriefing } from "@/components/RailBriefing";
+import { useCurrentPermissions } from "@/lib/rbac";
 
 export const Route = createFileRoute("/admin/rail/command")({
   head: () => railHead("Overview", "Live rail cleaning operations, depot performance, quality and exceptions."),
@@ -17,6 +18,12 @@ type K = Record<string, number>;
 type Depot = { id: string; code: string; name: string; type: string; parent_id: string | null; total: number; released: number; late: number; state: string };
 
 function CommandPage() {
+  const { roleKey } = useCurrentPermissions();
+  if (roleKey === "rail_cleaner") return <Navigate to="/admin/rail/me" replace />;
+  return <ManagementCommand />;
+}
+
+function ManagementCommand() {
   const [date, setDate] = useState(today());
   const { data: k } = useQuery({ queryKey: ["rail-kpis", date], refetchInterval: 30_000, queryFn: async () => {
     const { data, error } = await db.rpc("rail_kpis", { _date: date });

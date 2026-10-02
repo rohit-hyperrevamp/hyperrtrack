@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/admin/rail/ai-check")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AiCheckPage,
+  component: () => <Navigate to="/admin/rail/me" replace />,
 });
 
 const AREA_LABELS: Record<string, string> = {

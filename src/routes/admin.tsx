@@ -77,7 +77,7 @@ import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
 import { RBAC_MODULES } from "@/lib/rbac-modules";
-import { TrainFront, ScanEye, Rows3, Smartphone, ClipboardCheck, Leaf, UsersRound, FileSignature } from "lucide-react";
+import { TrainFront, Rows3, Smartphone, ClipboardCheck, Leaf, UsersRound, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -128,8 +128,7 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/me", label: "My Shift", icon: Smartphone },
   { to: "/admin/rail/quality", label: "Quality", icon: ClipboardCheck },
   { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
-  { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
-  { to: "/admin/rail/people", label: "Team", icon: UsersRound },
+  { to: "/admin/hr/recruitment/dashboard", label: "People", icon: UsersRound },
   { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
   { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
   { to: "/admin/rail/finance", label: "Finance & Payroll", icon: Banknote },
@@ -141,12 +140,11 @@ const railChildren: LeafItem[] = [
 // Existing people screens shown to super admin inside HyperTrack (one entry each; Team already lists employees).
 const railPeoplePayChildren: LeafItem[] = [
   { to: "/admin/attendance", label: "Attendance", icon: ClipboardCheck },
-  { to: "/admin/hr/recruitment/dashboard", label: "Recruitment", icon: UserPlus },
 ];
 
 const RAIL_DOCK_SECTIONS: Array<{ label: string; keys: string[] }> = [
-  { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker", "/admin/rail/ai-check"] },
-  { label: "People", keys: ["/admin/rail/people", "/admin/attendance", "/admin/hr/recruitment/dashboard", "/admin/rail/pay"] },
+  { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker"] },
+  { label: "People", keys: ["/admin/hr/recruitment/dashboard", "/admin/attendance", "/admin/rail/pay"] },
   { label: "Money", keys: ["/admin/rail/billing", "/admin/rail/finance"] },
   { label: "Stock", keys: ["/admin/rail/supplies", "/admin/rail/sustainability"] },
   { label: "Admin", keys: ["/admin/rail/settings", "/admin/system-logs", "/admin/view-as-user"] },
@@ -159,10 +157,9 @@ const salesChildren: LeafItem[] = [
 ];
 
 const recruitmentChildren: LeafItem[] = [
-  { to: "/admin/hr/recruitment/dashboard", label: "Recruitment Dashboard", icon: LayoutDashboard },
+  { to: "/admin/hr/recruitment/dashboard", label: "People", icon: LayoutDashboard },
   { to: "/admin/hr/recruitment/candidates", label: "Candidates", icon: Users },
-  { to: "/admin/hr/recruitment/openings", label: "Openings", icon: FileText },
-  { to: "/admin/hr/recruitment/interviews", label: "My Interviews", icon: Clock },
+  { to: "/admin/rail/people", label: "Team", icon: UsersRound },
   { to: "/admin/hr/recruitment/onboarding", label: "Onboarding Requests", icon: UserPlus },
 ];
 
@@ -439,8 +436,9 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = isSuperAdmin ? (() => { const base = railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"); const i = base.findIndex((c) => c.to === "/admin/rail/people") + 1; return [...base.slice(0, i), ...railPeoplePayChildren, ...base.slice(i)]; })() : railChildren.filter((c) => {
+      const links = isSuperAdmin ? (() => { const base = railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"); const i = base.findIndex((c) => c.to === "/admin/hr/recruitment/dashboard") + 1; return [...base.slice(0, i), ...railPeoplePayChildren, ...base.slice(i)]; })() : railChildren.filter((c) => {
         const section = c.to.split("/")[3];
+        if (c.to === "/admin/hr/recruitment/dashboard") return false;
         if (section === "pay") return true;
         if (section === "finance") return railPageAccess?.rail_billing === true;
         return section && (section !== "me" || roleKey === "rail_cleaner") && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;

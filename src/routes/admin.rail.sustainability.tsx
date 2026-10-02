@@ -56,7 +56,7 @@ function SustainPage() {
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
 
-  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /><Button onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></RailTopbarSlot>;
+  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-40 shrink-0" aria-label="Month" /><Button className="h-10 shrink-0" onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></RailTopbarSlot>;
   if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
   const chemL = data.chem.filter((c) => c.inv_items?.unit === "L").reduce((s, c) => s + Number(c.qty), 0);
   const s = summarize(data.ledger, data.baseline, chemL);

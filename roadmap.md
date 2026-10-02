@@ -1,5 +1,13 @@
 # HyperTrack roadmap
 
+- [x] Explain the current Supplies and Resources accounting flow to the user, including whether cleaner task completion actually decrements stock and how usage is logged. Current stock depletion on issue/usage is not implemented.
+- [ ] Reconcile actual cleaner consumption, kit returns and batch stock with an authorized, auditable decrement flow; currently job norms only estimate consumption and kit issue does not deduct stock (blocked by unavailable production connection).
+- [x] Integrate camera and advisory cleanliness score directly into My Day task completion: show score/retake before completing, remove standalone Photo Check navigation and redirect its old URL. Private evidence upload still awaits a production bucket.
+- [x] Remove dummy cleaner Overview tiles and redirect cleaner Overview to My Day; preserve existing Profile/photo and Notifications. Other role home refinements remain pending.
+- [ ] Combine Candidate and Team into one People navigation entry: new and returning applicants stay Candidates until approved; onboarded people appear in Team. Remove interview/opening recruitment surfaces from that entry.
+- [ ] Align contextual top-bar date selectors and filters in Resources, Supplies, Finance & Payroll and Billing; move Recruitment and Attendance filters into the top space and avoid crowded controls on narrow screens.
+- [ ] Require task-linked after-cleaning photos and AI scores with private retained history, supervisor review and worker feedback; secure database/storage and live verification are blocked by the unavailable production connection.
+
 - [ ] Soften rail summary tiles across pages, remove colored edge stripes, use solid circular icons with white glyphs; move page search/filters into the shared contextual top bar without duplicating controls.
 - [ ] Align the Operations coach-detail section, repair cleaner selector arrow and empty cleaner list, and explain job/task statuses and the complete operations workflow. Selector now uses the location- and permission-checked cleaner recommendations, with loading/error/empty states; live authenticated verification remains blocked by the unavailable production connection.
 - [x] Scope Photo Check choices and submission to the signed-in cleaner's assigned coaches, while allowing authorized managers and super admins to choose a depot, train and coach; make the dashboard's colored tiles restrained and professional. Authenticated live visual verification remains unavailable because the production page returns 404.
