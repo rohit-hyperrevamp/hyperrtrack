@@ -113,10 +113,10 @@ export async function fetchMyInterviews() {
     supabase.auth.getUser(),
   ]);
   const userId = auth.user?.id;
-  if (!cid && !userId) return [] as Array<RecInterview & { rec_candidates: RecCandidate | null }>;
+  if (!cid && !userId) return [] as MyInterview[];
   const scope = [cid ? `interviewer_id.eq.${cid as string}` : "", userId ? `created_by.eq.${userId}` : ""].filter(Boolean).join(",");
-  return fetchAll<RecInterview & { rec_candidates: RecCandidate | null }>(() =>
-    recDb.from("rec_interviews").select("*, rec_candidates(*)").or(scope).order("scheduled_at", { ascending: true }),
+  return fetchAll<MyInterview>(() =>
+    recDb.from("rec_interviews").select("*, rec_candidates(*, rec_openings(title))").or(scope).order("scheduled_at", { ascending: true }),
   );
 }
 
