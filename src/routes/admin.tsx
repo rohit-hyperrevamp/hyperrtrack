@@ -75,6 +75,7 @@ import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
 import { RBAC_MODULES } from "@/lib/rbac-modules";
+import { TrainFront, ScanEye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -116,6 +117,11 @@ type GroupItem = {
 
 
 const controlCenterChildren: LeafItem[] = [];
+
+const railChildren: LeafItem[] = [
+  { to: "/admin/rail/settings", label: "Rail Settings", icon: TrainFront },
+  { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
+];
 
 const salesChildren: LeafItem[] = [
   { to: "/admin/sales/dashboard", label: "Sales Dashboard", icon: LayoutDashboard },
@@ -268,6 +274,7 @@ function AdminLayout() {
     { prefix: "/admin/customers", module: "organizations" },
     { prefix: "/admin/contracts", module: "contracts" },
     { prefix: "/admin/sales", module: "sales_marketing" },
+    { prefix: "/admin/rail", module: "rail_ops" },
     { prefix: "/admin/employees", module: "employees" },
     { prefix: "/admin/deductions", module: "payroll" },
     { prefix: "/admin/additions", module: "payroll" },
@@ -428,6 +435,7 @@ function AdminLayout() {
       { key: "org-manager", label: "Organizations", module: "organizations", sub: "organization_manager", icon: Users, to: "/admin/customers/customer-manager", activePrefixes: ["/admin/customers/customer-manager"] },
       { key: "unit-manager", label: "Clients", module: "organizations", sub: "unit_manager", icon: Warehouse, to: "/admin/customers/unit-manager", activePrefixes: ["/admin/customers/unit-manager"] },
       { key: "contracts", label: "Contracts", module: "contracts", icon: Files, to: "/admin/contracts/client-contracts", activePrefixes: ["/admin/contracts"] },
+      { key: "rail", label: "Rail Clean", module: "rail_ops", icon: TrainFront, children: railChildren, activePrefixes: ["/admin/rail"] },
       { key: "sales", label: "Sales & Marketing", module: "sales_marketing", icon: TrendingUp, children: salesChildren, activePrefixes: ["/admin/sales"] },
       { key: "recruitment", label: "Recruitment", module: "recruitment", icon: UserPlus, children: recruitmentChildren, activePrefixes: ["/admin/hr/recruitment"] },
       { key: "employees", label: isFieldOfficer ? "Candidates" : "Employees", module: "employees", icon: UserPlus, to: "/admin/employees", activePrefixes: ["/admin/employees"] },
@@ -547,6 +555,7 @@ function AdminLayout() {
         }
         // Sales & Marketing CRM: Super Admin only until a role is granted sales_marketing.
         if (g.key === "sales") return isSuperAdmin || can("sales_marketing");
+        if (g.key === "rail") return isSuperAdmin || can("rail_ops");
         // Recruitment: Super Admin only until a role is granted the recruitment module.
         if (g.key === "recruitment") return isSuperAdmin || can("recruitment");
         if (g.key === "inventory" && isFieldOfficer) return true;
@@ -638,6 +647,7 @@ function AdminLayout() {
           {(() => {
             const sections: Array<{ label: string; keys: string[] }> = [
               { label: "Menu", keys: ["dashboard", "my-inventory", "my-attendance"] },
+              { label: "Rail Clean", keys: ["rail"] },
               { label: "Operations", keys: ["org-manager", "unit-manager", "contracts", "inventory", "vehicles", "assets"] },
               { label: "HR", keys: ["employees", "recruitment", "attendance", "payroll"] },
               { label: "Sales & Marketing", keys: ["sales"] },

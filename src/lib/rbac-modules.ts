@@ -82,6 +82,13 @@ export const RBAC_MODULES: ModuleDef[] = [
     ],
   },
   {
+    key: "rail_ops",
+    label: "Rail Clean",
+    path: "/admin/rail/settings",
+    icon: Sparkles,
+    subModules: [],
+  },
+  {
     key: "sales_marketing",
     label: "Sales & Marketing",
     path: "/admin/sales/dashboard",

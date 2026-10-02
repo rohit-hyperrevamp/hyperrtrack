@@ -5923,6 +5923,1396 @@ export type Database = {
         }
         Relationships: []
       }
+      rail_ai_photo_scores: {
+        Row: {
+          area: string | null
+          coach_number: string | null
+          coach_type: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          issues: Json
+          model: string
+          photo_path: string
+          score: number
+          scored_by: string | null
+          summary: string | null
+          updated_at: string
+          updated_by: string | null
+          verdict: string
+        }
+        Insert: {
+          area?: string | null
+          coach_number?: string | null
+          coach_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issues?: Json
+          model: string
+          photo_path: string
+          score: number
+          scored_by?: string | null
+          summary?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verdict: string
+        }
+        Update: {
+          area?: string | null
+          coach_number?: string | null
+          coach_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          issues?: Json
+          model?: string
+          photo_path?: string
+          score?: number
+          scored_by?: string | null
+          summary?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verdict?: string
+        }
+        Relationships: []
+      }
+      rail_ai_settings: {
+        Row: {
+          areas: string[]
+          attention_score: number
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          pass_score: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          areas?: string[]
+          attention_score?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          pass_score?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          areas?: string[]
+          attention_score?: number
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          pass_score?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_alert_rules: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          enabled: boolean
+          id: string
+          name: string
+          notify_roles: string[]
+          threshold_minutes: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          enabled?: boolean
+          id?: string
+          name: string
+          notify_roles?: string[]
+          threshold_minutes?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          enabled?: boolean
+          id?: string
+          name?: string
+          notify_roles?: string[]
+          threshold_minutes?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_audit_trail: {
+        Row: {
+          action: string
+          actor: string | null
+          at: string
+          id: number
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          at?: string
+          id?: number
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          at?: string
+          id?: number
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
+      rail_checklist_items: {
+        Row: {
+          ai_check: boolean
+          area: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          label_en: string
+          label_hi: string | null
+          label_mr: string | null
+          photo_required: boolean
+          sort_order: number
+          template_id: string
+          updated_at: string
+          updated_by: string | null
+          weight: number
+        }
+        Insert: {
+          ai_check?: boolean
+          area: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          label_en: string
+          label_hi?: string | null
+          label_mr?: string | null
+          photo_required?: boolean
+          sort_order?: number
+          template_id: string
+          updated_at?: string
+          updated_by?: string | null
+          weight?: number
+        }
+        Update: {
+          ai_check?: boolean
+          area?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          label_en?: string
+          label_hi?: string | null
+          label_mr?: string | null
+          photo_required?: boolean
+          sort_order?: number
+          template_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_checklist_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "rail_checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_checklist_templates: {
+        Row: {
+          coach_type_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          name: string
+          service_type_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name: string
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name?: string
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_checklist_templates_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_checklist_templates_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_coach_families: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_coach_types: {
+        Row: {
+          area_m2: number | null
+          berths: number | null
+          billable: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          family_id: string | null
+          icon: string | null
+          id: string
+          name: string
+          seats: number | null
+          toilet_count: number
+          toilet_type: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          area_m2?: number | null
+          berths?: number | null
+          billable?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          family_id?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          seats?: number | null
+          toilet_count?: number
+          toilet_type?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          area_m2?: number | null
+          berths?: number | null
+          billable?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          family_id?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          seats?: number | null
+          toilet_count?: number
+          toilet_type?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_coach_types_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_coaches: {
+        Row: {
+          coach_number: string
+          coach_type_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          last_intensive_on: string | null
+          owning_depot_id: string | null
+          qr_code: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coach_number: string
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          last_intensive_on?: string | null
+          owning_depot_id?: string | null
+          qr_code?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coach_number?: string
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          last_intensive_on?: string | null
+          owning_depot_id?: string | null
+          qr_code?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_coaches_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_coaches_owning_depot_id_fkey"
+            columns: ["owning_depot_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_contract_sites: {
+        Row: {
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          location_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          location_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          location_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_contract_sites_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_contract_sites_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_contracts: {
+        Row: {
+          client_location_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          end_date: string | null
+          gem_ref: string | null
+          gst_percent: number
+          id: string
+          loa_number: string
+          partial_clean_rule: string
+          start_date: string | null
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+          value: number | null
+        }
+        Insert: {
+          client_location_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date?: string | null
+          gem_ref?: string | null
+          gst_percent?: number
+          id?: string
+          loa_number: string
+          partial_clean_rule?: string
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+        }
+        Update: {
+          client_location_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_date?: string | null
+          gem_ref?: string | null
+          gst_percent?: number
+          id?: string
+          loa_number?: string
+          partial_clean_rule?: string
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_contracts_client_location_id_fkey"
+            columns: ["client_location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_custom_fields: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          entity: string
+          field: string
+          field_type: string
+          id: string
+          options: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          entity: string
+          field: string
+          field_type?: string
+          id?: string
+          options?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          entity?: string
+          field?: string
+          field_type?: string
+          id?: string
+          options?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_deployment_norms: {
+        Row: {
+          contract_site_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          min_count: number
+          role_key: string
+          shift_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contract_site_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          min_count?: number
+          role_key: string
+          shift_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contract_site_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          min_count?: number
+          role_key?: string
+          shift_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_deployment_norms_contract_site_id_fkey"
+            columns: ["contract_site_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contract_sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_deployment_norms_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "rail_shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_feature_flags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_labels: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          key: string
+          language: string
+          text: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          key: string
+          language?: string
+          text: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          key?: string
+          language?: string
+          text?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_locations: {
+        Row: {
+          area_class: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          geofence: Json | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          parent_id: string | null
+          type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          area_class?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          geofence?: Json | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          parent_id?: string | null
+          type: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          area_class?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          geofence?: Json | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          parent_id?: string | null
+          type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_locations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_permissions: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          module_key: string
+          role_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          module_key: string
+          role_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          module_key?: string
+          role_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_rate_lines: {
+        Row: {
+          billing_unit: string
+          category_id: string | null
+          coach_type_id: string | null
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          rate: number
+          service_type_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          billing_unit?: string
+          category_id?: string | null
+          coach_type_id?: string | null
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          rate: number
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          billing_unit?: string
+          category_id?: string | null
+          coach_type_id?: string | null
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          rate?: number
+          service_type_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_rate_lines_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "rail_train_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_rate_lines_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_rate_lines_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rail_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_rate_lines_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_reason_codes: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          label: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          applies_to?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          label: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          label?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          description: string | null
+          hide_costs: boolean
+          id: string
+          is_external: boolean
+          key: string
+          name: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          hide_costs?: boolean
+          id?: string
+          is_external?: boolean
+          key: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          hide_costs?: boolean
+          id?: string
+          is_external?: boolean
+          key?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_service_types: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          default_window_minutes: number
+          deleted_at: string | null
+          id: string
+          mode: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          default_window_minutes?: number
+          deleted_at?: string | null
+          id?: string
+          mode?: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          default_window_minutes?: number
+          deleted_at?: string | null
+          id?: string
+          mode?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_shifts: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          end_time: string
+          id: string
+          name: string
+          start_time: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_time: string
+          id?: string
+          name: string
+          start_time: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          end_time?: string
+          id?: string
+          name?: string
+          start_time?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_standard_compositions: {
+        Row: {
+          coach_type_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          position: number
+          train_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coach_type_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          position: number
+          train_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coach_type_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          position?: number
+          train_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_standard_compositions_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_standard_compositions_train_id_fkey"
+            columns: ["train_id"]
+            isOneToOne: false
+            referencedRelation: "rail_trains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_task_templates: {
+        Row: {
+          coach_type_id: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          service_type_id: string | null
+          skill: string | null
+          standard_minutes: number
+          task_name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          service_type_id?: string | null
+          skill?: string | null
+          standard_minutes?: number
+          task_name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coach_type_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          service_type_id?: string | null
+          skill?: string | null
+          standard_minutes?: number
+          task_name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_task_templates_coach_type_id_fkey"
+            columns: ["coach_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_coach_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_task_templates_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "rail_service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_train_categories: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          id: string
+          name: string
+          quality_weight: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name: string
+          quality_weight?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          name?: string
+          quality_weight?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rail_train_schedules: {
+        Row: {
+          arrival: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          departure: string | null
+          dwell_minutes: number | null
+          id: string
+          location_id: string
+          service_type_ids: string[]
+          train_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          arrival?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          departure?: string | null
+          dwell_minutes?: number | null
+          id?: string
+          location_id: string
+          service_type_ids?: string[]
+          train_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          arrival?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          departure?: string | null
+          dwell_minutes?: number | null
+          id?: string
+          location_id?: string
+          service_type_ids?: string[]
+          train_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_train_schedules_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_train_schedules_train_id_fkey"
+            columns: ["train_id"]
+            isOneToOne: false
+            referencedRelation: "rail_trains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_trains: {
+        Row: {
+          base_depot_id: string | null
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          days_of_run: number[]
+          deleted_at: string | null
+          id: string
+          name: string
+          number: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          base_depot_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          days_of_run?: number[]
+          deleted_at?: string | null
+          id?: string
+          name: string
+          number: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          base_depot_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          days_of_run?: number[]
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          number?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_trains_base_depot_id_fkey"
+            columns: ["base_depot_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_trains_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "rail_train_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rail_user_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          role_key: string
+          scope_contract_id: string | null
+          scope_location_id: string | null
+          scope_type: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          valid_from: string
+          valid_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          role_key: string
+          scope_contract_id?: string | null
+          scope_location_id?: string | null
+          scope_type?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          role_key?: string
+          scope_contract_id?: string | null
+          scope_location_id?: string | null
+          scope_type?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Relationships: []
+      }
       rec_candidates: {
         Row: {
           code: string
@@ -8005,6 +9395,11 @@ export type Database = {
         }
         Returns: Json
       }
+      rail_can: {
+        Args: { _action: string; _location?: string; _module: string }
+        Returns: boolean
+      }
+      rail_location_ancestors: { Args: { _loc: string }; Returns: string[] }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }
       rec_reschedule_interview: {
         Args: {

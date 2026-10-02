@@ -25,6 +25,7 @@ import { Route as AdminServiceTypeManagerRouteImport } from './routes/admin.serv
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminRolesManagerRouteImport } from './routes/admin.roles-manager'
 import { Route as AdminRbacRouteImport } from './routes/admin.rbac'
+import { Route as AdminRailRouteImport } from './routes/admin.rail'
 import { Route as AdminPublicHolidayManagerRouteImport } from './routes/admin.public-holiday-manager'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminProfessionalTaxManagerRouteImport } from './routes/admin.professional-tax-manager'
@@ -94,6 +95,8 @@ import { Route as AdminVehiclesFastagsRouteImport } from './routes/admin.vehicle
 import { Route as AdminVehiclesExpenseManagerRouteImport } from './routes/admin.vehicles.expense-manager'
 import { Route as AdminSalesQuotesRouteImport } from './routes/admin.sales.quotes'
 import { Route as AdminSalesDashboardRouteImport } from './routes/admin.sales.dashboard'
+import { Route as AdminRailSettingsRouteImport } from './routes/admin.rail.settings'
+import { Route as AdminRailAiCheckRouteImport } from './routes/admin.rail.ai-check'
 import { Route as AdminPayrollUnitIdRouteImport } from './routes/admin.payroll.$unitId'
 import { Route as AdminInvoiceUnitIdRouteImport } from './routes/admin.invoice.$unitId'
 import { Route as AdminInventoryWorkflowsRouteImport } from './routes/admin.inventory.workflows'
@@ -220,6 +223,11 @@ const AdminRolesManagerRoute = AdminRolesManagerRouteImport.update({
 const AdminRbacRoute = AdminRbacRouteImport.update({
   id: '/rbac',
   path: '/rbac',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRailRoute = AdminRailRouteImport.update({
+  id: '/rail',
+  path: '/rail',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPublicHolidayManagerRoute =
@@ -580,6 +588,16 @@ const AdminSalesDashboardRoute = AdminSalesDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminSalesRoute,
 } as any)
+const AdminRailSettingsRoute = AdminRailSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailAiCheckRoute = AdminRailAiCheckRouteImport.update({
+  id: '/ai-check',
+  path: '/ai-check',
+  getParentRoute: () => AdminRailRoute,
+} as any)
 const AdminPayrollUnitIdRoute = AdminPayrollUnitIdRouteImport.update({
   id: '/$unitId',
   path: '/$unitId',
@@ -899,6 +917,7 @@ export interface FileRoutesByFullPath {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRouteWithChildren
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -941,6 +960,8 @@ export interface FileRoutesByFullPath {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/settings': typeof AdminRailSettingsRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1029,6 +1050,7 @@ export interface FileRoutesByTo {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRouteWithChildren
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -1070,6 +1092,8 @@ export interface FileRoutesByTo {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/settings': typeof AdminRailSettingsRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1163,6 +1187,7 @@ export interface FileRoutesById {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRouteWithChildren
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -1205,6 +1230,8 @@ export interface FileRoutesById {
   '/admin/inventory/workflows': typeof AdminInventoryWorkflowsRoute
   '/admin/invoice/$unitId': typeof AdminInvoiceUnitIdRoute
   '/admin/payroll/$unitId': typeof AdminPayrollUnitIdRoute
+  '/admin/rail/ai-check': typeof AdminRailAiCheckRoute
+  '/admin/rail/settings': typeof AdminRailSettingsRoute
   '/admin/sales/dashboard': typeof AdminSalesDashboardRoute
   '/admin/sales/quotes': typeof AdminSalesQuotesRoute
   '/admin/vehicles/expense-manager': typeof AdminVehiclesExpenseManagerRoute
@@ -1299,6 +1326,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1341,6 +1369,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/rail/ai-check'
+    | '/admin/rail/settings'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -1429,6 +1459,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1470,6 +1501,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/rail/ai-check'
+    | '/admin/rail/settings'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -1562,6 +1595,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1604,6 +1638,8 @@ export interface FileRouteTypes {
     | '/admin/inventory/workflows'
     | '/admin/invoice/$unitId'
     | '/admin/payroll/$unitId'
+    | '/admin/rail/ai-check'
+    | '/admin/rail/settings'
     | '/admin/sales/dashboard'
     | '/admin/sales/quotes'
     | '/admin/vehicles/expense-manager'
@@ -1768,6 +1804,13 @@ declare module '@tanstack/react-router' {
       path: '/rbac'
       fullPath: '/admin/rbac'
       preLoaderRoute: typeof AdminRbacRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/rail': {
+      id: '/admin/rail'
+      path: '/rail'
+      fullPath: '/admin/rail'
+      preLoaderRoute: typeof AdminRailRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/public-holiday-manager': {
@@ -2253,6 +2296,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesDashboardRouteImport
       parentRoute: typeof AdminSalesRoute
     }
+    '/admin/rail/settings': {
+      id: '/admin/rail/settings'
+      path: '/settings'
+      fullPath: '/admin/rail/settings'
+      preLoaderRoute: typeof AdminRailSettingsRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/ai-check': {
+      id: '/admin/rail/ai-check'
+      path: '/ai-check'
+      fullPath: '/admin/rail/ai-check'
+      preLoaderRoute: typeof AdminRailAiCheckRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
     '/admin/payroll/$unitId': {
       id: '/admin/payroll/$unitId'
       path: '/$unitId'
@@ -2705,6 +2762,20 @@ const AdminPayrollRouteWithChildren = AdminPayrollRoute._addFileChildren(
   AdminPayrollRouteChildren,
 )
 
+interface AdminRailRouteChildren {
+  AdminRailAiCheckRoute: typeof AdminRailAiCheckRoute
+  AdminRailSettingsRoute: typeof AdminRailSettingsRoute
+}
+
+const AdminRailRouteChildren: AdminRailRouteChildren = {
+  AdminRailAiCheckRoute: AdminRailAiCheckRoute,
+  AdminRailSettingsRoute: AdminRailSettingsRoute,
+}
+
+const AdminRailRouteWithChildren = AdminRailRoute._addFileChildren(
+  AdminRailRouteChildren,
+)
+
 interface AdminSalesRouteChildren {
   AdminSalesDashboardRoute: typeof AdminSalesDashboardRoute
   AdminSalesQuotesRoute: typeof AdminSalesQuotesRoute
@@ -2824,6 +2895,7 @@ interface AdminRouteChildren {
   AdminProfessionalTaxManagerRoute: typeof AdminProfessionalTaxManagerRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminPublicHolidayManagerRoute: typeof AdminPublicHolidayManagerRoute
+  AdminRailRoute: typeof AdminRailRouteWithChildren
   AdminRbacRoute: typeof AdminRbacRoute
   AdminRolesManagerRoute: typeof AdminRolesManagerRoute
   AdminSalesRoute: typeof AdminSalesRouteWithChildren
@@ -2896,6 +2968,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProfessionalTaxManagerRoute: AdminProfessionalTaxManagerRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminPublicHolidayManagerRoute: AdminPublicHolidayManagerRoute,
+  AdminRailRoute: AdminRailRouteWithChildren,
   AdminRbacRoute: AdminRbacRoute,
   AdminRolesManagerRoute: AdminRolesManagerRoute,
   AdminSalesRoute: AdminSalesRouteWithChildren,
