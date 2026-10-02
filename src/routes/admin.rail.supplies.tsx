@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { db, Empty, Kpi, num, railHead, rows, StatusPill, today } from "@/lib/rail-ui";
-import { expiryState, OrdersView, StockView, StoresView, SuppliersView, TransfersView, useStockFlow } from "@/components/RailStockFlow";
+import { expiryState, OrdersView, StockView, StoresView, SuppliersView, TransfersView, useStockFlow, scopeSupplyLocs } from "@/components/RailStockFlow";
 
 export const Route = createFileRoute("/admin/rail/supplies")({
   head: () => railHead("Supplies & Equipment", "Chemical stock with days of cover, kit issue, consumption variance, purchases, equipment custody, maintenance and PPE."),
