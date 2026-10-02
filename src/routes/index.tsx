@@ -4,6 +4,14 @@ import { readStoredAuthUser, useAuth } from "@/lib/auth";
 import { useCurrentPermissions } from "@/lib/rbac";
 
 export const Route = createFileRoute("/")({
+  head: () => ({ meta: [
+    { title: "HyperTrack — Rail Operations" },
+    { name: "description", content: "Rail cleaning operations, quality and workforce workspace." },
+    { property: "og:title", content: "HyperTrack — Rail Operations" },
+    { property: "og:description", content: "Rail cleaning operations, quality and workforce workspace." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Index,
 });
 
@@ -43,7 +51,7 @@ function Index() {
     // waiting for the independently-hydrated RBAC query so a stale frontline
     // redirect can never be queued for a super administrator.
     if (user.role === "super_admin" || readStoredAuthUser()?.role === "super_admin") {
-      navigate({ to: "/admin/dashboard", replace: true });
+      navigate({ to: "/admin/rail/command", replace: true });
       return;
     }
     if (isLoading) return;
@@ -55,12 +63,20 @@ function Index() {
       return;
     }
     if (isSuperAdmin) {
-      navigate({ to: "/admin/dashboard", replace: true });
+      navigate({ to: "/admin/rail/command", replace: true });
+      return;
+    }
+    if (user.role.startsWith("rail_")) {
+      navigate({ to: user.role === "rail_cleaner" ? "/admin/rail/me" : user.role === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command", replace: true });
       return;
     }
     if (!isAdminConsole) {
       // Guards & other frontline employees.
       navigate({ to: "/admin/employee-dashboard", replace: true });
+      return;
+    }
+    if (can("rail_ops")) {
+      navigate({ to: "/admin/rail/command", replace: true });
       return;
     }
     if (can("dashboard") || can("organizations") || can("employees")) {
