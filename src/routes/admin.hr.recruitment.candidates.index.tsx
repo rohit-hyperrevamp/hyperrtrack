@@ -78,7 +78,7 @@ function CandidatesPage() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
-              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, opening: c.opening_id ? openingTitle.get(c.opening_id) ?? "" : "",
+              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
               stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
               current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
             })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
@@ -108,7 +108,7 @@ function CandidatesPage() {
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-            <tr><th className="p-3">Candidate</th><th className="p-3">Post</th><th className="p-3">Progress</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
+            <tr><th className="p-3">Candidate</th><th className="p-3">Position</th><th className="p-3">Progress</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
           </thead>
           <tbody className="divide-y divide-border">
             {cq.isLoading && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
@@ -119,7 +119,7 @@ function CandidatesPage() {
                   <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }} className="font-medium hover:text-accent">{c.full_name}</Link>
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
                 </td>
-                <td className="p-3">{c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—"}</td>
+                <td className="p-3 capitalize">{c.offer?.role_key?.replaceAll("_", " ") ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—")}</td>
                 <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{["new", "screening", "on_hold"].includes(c.stage) ? "To review" : ["round_1", "round_2", "round_3", "hr_approved"].includes(c.stage) ? "Offer pending" : stageLabel(c.stage)}</span></td>
                 <td className="p-3">{c.current_location || "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
@@ -194,6 +194,7 @@ function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open:
           <F label="City / current location"><Input maxLength={120} value={f.current_location} onChange={set("current_location")} /></F>
           <F label="Position *"><Select value={f.role_key} onValueChange={(v) => setF({ ...f, role_key: v })}><SelectTrigger><SelectValue placeholder="Cleaner, supervisor…" /></SelectTrigger><SelectContent>{roles.map((r) => <SelectItem key={r.key} value={r.key}>{r.name}</SelectItem>)}</SelectContent></Select></F>
           <F label="Designation *"><Select value={f.designation_id} onValueChange={(v) => setF({ ...f, designation_id: v })}><SelectTrigger><SelectValue placeholder="Choose designation" /></SelectTrigger><SelectContent>{designations.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent></Select></F>
+          <p className="sm:col-span-2 text-xs text-muted-foreground">Aadhaar, PAN and photo are completed in the private employee record. Never enter identity numbers in notes or a resume.</p>
           <div className="sm:col-span-2"><F label="Resume (optional)"><Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></F></div>
         </div>
         <DialogFooter>
