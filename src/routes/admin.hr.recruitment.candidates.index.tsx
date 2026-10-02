@@ -148,12 +148,13 @@ const candidateSchema = z.object({
   current_location: z.string().trim().max(120),
   role_key: z.string().min(1, "Select a position"),
   designation_id: z.string().min(1, "Select a designation"),
+  joining_date: z.string(),
 });
 
 function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open: boolean; onOpenChange: (v: boolean) => void; roles: { key: string; name: string }[]; designations: { id: string; name: string }[] }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", role_key: "", designation_id: "" };
+  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", role_key: "", designation_id: "", joining_date: "" };
   const [f, setF] = useState(blank);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -168,7 +169,7 @@ function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open:
       const { data, error } = await recDb.from("rec_candidates").insert({
         full_name: `${checked.data.first_name} ${checked.data.last_name}`, mobile: checked.data.mobile, email: checked.data.email,
         current_location: checked.data.current_location, total_rounds: 1,
-        offer: { operational_role_key: checked.data.role_key, designation_id: checked.data.designation_id },
+        offer: { operational_role_key: checked.data.role_key, designation_id: checked.data.designation_id, joining_date: checked.data.joining_date },
       }).select("id,code").single();
       if (error) throw error;
       if (file) await uploadResume(data.id, file);
@@ -194,6 +195,7 @@ function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open:
           <F label="City / current location"><Input maxLength={120} value={f.current_location} onChange={set("current_location")} /></F>
           <F label="Position *"><Select value={f.role_key} onValueChange={(v) => setF({ ...f, role_key: v })}><SelectTrigger><SelectValue placeholder="Cleaner, supervisor…" /></SelectTrigger><SelectContent>{roles.map((r) => <SelectItem key={r.key} value={r.key}>{r.name}</SelectItem>)}</SelectContent></Select></F>
           <F label="Designation *"><Select value={f.designation_id} onValueChange={(v) => setF({ ...f, designation_id: v })}><SelectTrigger><SelectValue placeholder="Choose designation" /></SelectTrigger><SelectContent>{designations.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent></Select></F>
+          <F label="Expected joining date"><Input type="date" value={f.joining_date} onChange={set("joining_date")} /></F>
           <p className="sm:col-span-2 text-xs text-muted-foreground">Aadhaar, PAN and photo are completed in the private employee record. Never enter identity numbers in notes or a resume.</p>
           <div className="sm:col-span-2"><F label="Resume (optional)"><Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></F></div>
         </div>
