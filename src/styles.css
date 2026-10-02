@@ -2770,7 +2770,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   [data-rail-shell] .rail-topbar { order: -1; position: sticky; top: calc(48px + env(safe-area-inset-top)); z-index: 19; align-items: center; padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); border-bottom: 1px solid var(--rail-line); background: color-mix(in oklab, var(--card) 88%, transparent); backdrop-filter: blur(18px) saturate(1.4); }
   [data-rail-shell] .rail-topbar:has(.rail-topbar-slot:empty) { display: none; }
   [data-rail-shell] .rail-topbar-tab { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 13px; white-space: nowrap; flex: none; }
-  [data-rail-shell] .rail-topbar-tab.is-active { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell] .rail-topbar-tab.is-active { background: linear-gradient(145deg, color-mix(in oklab, var(--brand-blue) 91%, var(--primary-foreground)), var(--brand-blue) 76%, color-mix(in oklab, var(--brand-blue) 88%, var(--foreground))); color: var(--primary-foreground); }
   [data-rail-shell] .rail-topbar-slot input[type="date"] { font-size: 14px; }
   [data-rail-shell] [data-rail-workspace] .page-header p { display: none; }
 }
