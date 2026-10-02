@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, CheckCircle2, Percent, UserPlus, Users, XCircle } from "lucide-react";
-import { PageHeader, PageStat } from "@/components/PageHeader";
+import { CalendarClock, CheckCircle2, Percent, UserPlus, Users, XCircle, ArrowRight, Briefcase } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Kpi } from "@/lib/rail-ui";
 import {
   employeeNames, fetchAllInterviews, fetchCandidates, fetchMasters, fetchOpenings, fmtDateTime,
   LOST, monthStartIso, PIPELINE, QK, STAGES,
@@ -12,10 +14,10 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin/hr/recruitment/dashboard")({
   head: () => ({
     meta: [
-      { title: "Recruitment Dashboard — Radiant" },
-      { name: "description", content: "Open candidates, pipeline, closures, losses and closure rate for staff hiring." },
-      { property: "og:title", content: "Recruitment Dashboard — Radiant" },
-      { property: "og:description", content: "Open candidates, pipeline, closures, losses and closure rate for staff hiring." },
+      { title: "Recruitment — HyperTrack" },
+      { name: "description", content: "Hiring progress, candidates and upcoming interviews in HyperTrack." },
+      { property: "og:title", content: "Recruitment — HyperTrack" },
+      { property: "og:description", content: "Hiring progress, candidates and upcoming interviews in HyperTrack." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -76,30 +78,35 @@ function RecruitmentDashboard() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="HR"
-        title="Recruitment Dashboard"
-        description="Staff hiring (non-billable roles) from application to onboarding."
+        eyebrow="People"
+        title="Recruitment"
+        description="Candidates, interviews and onboarding in one place."
         icon={UserPlus}
-        actions={<Link to="/admin/hr/recruitment/candidates" className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">Candidates</Link>}
-        kpis={
-          <>
-            <PageStat label="Open candidates" value={s.open} icon={Users} onClick={() => go("open")} />
-            <PageStat label="In pipeline" value={s.pipeline} icon={CalendarClock} onClick={() => go("pipeline")} />
-            <PageStat label="Closures this month" value={s.closures} icon={CheckCircle2} tone="success" onClick={() => go("onboarded")} />
-            <PageStat label="Lost this month" value={s.lost} icon={XCircle} tone="destructive" onClick={() => go("lost")} />
-            <PageStat label="Closure %" value={`${s.pct}%`} icon={Percent} tone="accent" sub="Onboarded ÷ (onboarded + lost)" />
-          </>
-        }
+        actions={<Button asChild><Link to="/admin/hr/recruitment/candidates"><Users className="h-4 w-4" />Candidates</Link></Button>}
       />
+
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/openings"><Briefcase className="h-4 w-4" />Openings</Link></Button>
+        <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/interviews"><CalendarClock className="h-4 w-4" />Interviews</Link></Button>
+        <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/onboarding"><ArrowRight className="h-4 w-4" />Onboarding</Link></Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Kpi label="New" value={s.open} to="/admin/hr/recruitment/candidates" />
+        <Kpi label="In pipeline" value={s.pipeline} to="/admin/hr/recruitment/candidates" />
+        <Kpi label="Hired" value={s.closures} tone="good" to="/admin/hr/recruitment/candidates" />
+        <Kpi label="Closed" value={s.lost} tone="bad" to="/admin/hr/recruitment/candidates" />
+        <Kpi label="Hire rate" value={`${s.pct}%`} />
+      </div>
 
       <section className="rounded-xl border border-border bg-card p-4">
         <h2 className="mb-3 font-display text-sm font-semibold">Stages</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {STAGES.map((st) => (
-            <button key={st.key} onClick={() => go(st.key)} className="rounded-lg border border-border p-3 text-left transition-colors hover:border-accent/40">
-              <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", st.tone)}>{st.label}</span>
+            <Button key={st.key} variant="outline" onClick={() => go(st.key)} className="h-auto min-w-0 flex-col items-start gap-1 rounded-lg p-3 text-left transition-colors hover:border-accent/40">
+              <span className={cn("max-w-full truncate rounded-full px-2 py-0.5 text-[11px] font-medium", st.tone)} title={st.label}>{st.label}</span>
               <div className="mt-2 text-2xl font-semibold tabular-nums">{s.byStage.get(st.key) ?? 0}</div>
-            </button>
+            </Button>
           ))}
         </div>
       </section>
@@ -111,13 +118,13 @@ function RecruitmentDashboard() {
             {[...PIPELINE, "onboarded" as const].map((k) => {
               const n = s.byStage.get(k) ?? 0;
               return (
-                <button key={k} onClick={() => go(k)} className="flex w-full items-center gap-3 text-left">
-                  <span className="w-36 shrink-0 text-xs text-muted-foreground">{STAGES.find((x) => x.key === k)?.label}</span>
+                <Button key={k} variant="ghost" onClick={() => go(k)} className="flex h-8 w-full min-w-0 items-center justify-start gap-3 p-0 text-left">
+                  <span className="w-28 shrink-0 truncate text-xs text-muted-foreground sm:w-36">{STAGES.find((x) => x.key === k)?.label}</span>
                   <span className="h-6 flex-1 overflow-hidden rounded bg-muted">
                     <span className="block h-full rounded bg-accent/70" style={{ width: `${(n / funnelMax) * 100}%` }} />
                   </span>
                   <span className="w-8 text-right text-sm tabular-nums">{n}</span>
-                </button>
+                </Button>
               );
             })}
           </div>

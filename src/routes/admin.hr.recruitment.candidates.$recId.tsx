@@ -410,7 +410,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
           <div className="space-y-1.5"><Label className="text-xs">Department *</Label>{sel("department_id", masters?.departments ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Branch</Label>{sel("branch_id", masters?.branches ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Reporting manager</Label><EmployeePicker value={f.reports_to} onChange={(id) => setF({ ...f, reports_to: id })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Home unit</Label><Input disabled value="Radiant Guards - Pune Office (non-billable)" /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Radiant Guards - Pune Office" /></div>
           <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Notes for HR Head</Label><Textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
         </div>
         <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Sending…" : "Send to HR Head"}</Button></DialogFooter>

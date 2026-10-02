@@ -48,7 +48,7 @@ function OpeningsPage() {
         actions={<Button onClick={() => setEdit("new")}><Plus className="h-4 w-4" />New opening</Button>} />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {oq.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-        {!oq.isLoading && openings.length === 0 && <p className="text-sm text-muted-foreground">No openings yet. Create one to start adding candidates.</p>}
+        {!oq.isLoading && openings.length === 0 && <p className="text-sm text-muted-foreground">No openings yet. You can still add candidates and assign a post later.</p>}
         {openings.map((o) => {
           const cs = countFor(o.id);
           const filled = cs.filter((c) => c.stage === "onboarded").length;
@@ -70,10 +70,6 @@ function OpeningsPage() {
                 <div className="rounded-lg bg-muted/50 p-2"><div className="text-base font-semibold capitalize">{o.status.replace("_", " ")}</div>Status</div>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">Salary {inr(o.salary_min)} – {inr(o.salary_max)} / month</div>
-              <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-medium">
-                <span className="rounded-full bg-secondary px-2 py-1 capitalize">{o.workforce_class.replace("_", " ")}</span>
-                <span className="rounded-full bg-secondary px-2 py-1 capitalize">{o.billing_class.replace("_", " ")}</span>
-              </div>
               <ol className="mt-2 space-y-1 text-xs">
                 {rounds.map((r) => <li key={r.id}>Round {r.round_no}: <span className="font-medium">{r.name}</span>{r.default_interviewer_id ? ` · ${namesQ.data?.get(r.default_interviewer_id) ?? ""}` : ""}</li>)}
               </ol>
@@ -160,18 +156,6 @@ function OpeningDialog({ opening, onClose, masters }: { opening: RecOpening | nu
             <Select value={f.status} onValueChange={(v) => setF({ ...f, status: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent><SelectItem value="open">Open</SelectItem><SelectItem value="on_hold">On hold</SelectItem><SelectItem value="closed">Closed</SelectItem></SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5"><Label className="text-xs">Workforce</Label>
-            <Select value={f.workforce_class} onValueChange={(v) => setF({ ...f, workforce_class: v as "blue_collar" | "white_collar" })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="blue_collar">Blue collar</SelectItem><SelectItem value="white_collar">White collar</SelectItem></SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5"><Label className="text-xs">Billing</Label>
-            <Select value={f.billing_class} onValueChange={(v) => setF({ ...f, billing_class: v as "billable" | "non_billable" })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="billable">Billable</SelectItem><SelectItem value="non_billable">Non-billable</SelectItem></SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5"><Label className="text-xs">Interview rounds</Label>
