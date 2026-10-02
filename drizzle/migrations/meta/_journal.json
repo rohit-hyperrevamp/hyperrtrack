@@ -1,5 +1,48 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790925499948,
+      "tag": "0000_schema_restore_helper",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790925535856,
+      "tag": "0001_schema_restore_queue",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790925577255,
+      "tag": "0002_schema_restore_apply",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790925709275,
+      "tag": "0003_restore_missing_masters_and_dashboard_functions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790926231557,
+      "tag": "0004_field_officer_scope_and_role_enabled",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790926956207,
+      "tag": "0005_restrict_public_role_policies_to_signed_in",
+      "breakpoints": true
+    }
+  ]
 }

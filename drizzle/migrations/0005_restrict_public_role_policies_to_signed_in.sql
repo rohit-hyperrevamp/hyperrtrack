@@ -1,0 +1,17 @@
+ALTER POLICY "Employees read teammates in their units" ON public.candidates TO authenticated;
+ALTER POLICY "Inventory managers read all candidates" ON public.candidates TO authenticated;
+ALTER POLICY "Onboarding approvers update candidates" ON public.candidates TO authenticated;
+ALTER POLICY "Scoped read inv_issuances" ON public.inv_issuances TO authenticated;
+ALTER POLICY "Scoped read inv_stock_movements" ON public.inv_stock_movements TO authenticated;
+ALTER POLICY "Scoped read payroll_runs" ON public.payroll_runs TO authenticated;
+ALTER POLICY "Users manage own device tokens" ON public.device_push_tokens TO authenticated;
+ALTER POLICY "Scoped read inv_goods_receipts" ON public.inv_goods_receipts TO authenticated;
+ALTER POLICY "Role hierarchy read inv_stock_balances" ON public.inv_stock_balances TO authenticated;
+ALTER POLICY "Scoped read inv_transfers" ON public.inv_transfers TO authenticated;
+ALTER POLICY "Scoped read attendance_sheets" ON public.attendance_sheets TO authenticated;
+ALTER POLICY "Scoped read units" ON public.units TO authenticated;
+DROP FUNCTION IF EXISTS public._try(text);
+REVOKE ALL ON public._schema_restore_queue FROM sandbox_exec;
+REVOKE ALL ON public._schema_restore_log FROM sandbox_exec;
+COMMENT ON TABLE public._schema_restore_queue IS 'DEPRECATED: one-time schema restore record, unused by the app';
+COMMENT ON TABLE public._schema_restore_log IS 'DEPRECATED: one-time schema restore record, unused by the app';
