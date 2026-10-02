@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CalendarDays, MapPinned, Search, UserRound, X } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -262,6 +263,16 @@ function EmployeeAttendanceLookupPage() {
 
   return (
     <div className="page-shell space-y-4">
+      <RailTopbarSlot>
+        <Select value={String(monthIdx)} onValueChange={(v) => setMonthIdx(Number(v))}>
+          <SelectTrigger className="h-10 w-36 shrink-0"><SelectValue /></SelectTrigger>
+          <SelectContent>{MONTH_NAMES.map((m, i) => <SelectItem key={m} value={String(i)}>{m}</SelectItem>)}</SelectContent>
+        </Select>
+        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+          <SelectTrigger className="h-10 w-28 shrink-0"><SelectValue /></SelectTrigger>
+          <SelectContent>{[year - 2, year - 1, year, year + 1].map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+        </Select>
+      </RailTopbarSlot>
       <PageHeader
         title="Employee attendance lookup"
         eyebrow="Attendance"
@@ -299,29 +310,6 @@ function EmployeeAttendanceLookupPage() {
                 <X className="h-3.5 w-3.5" />
               </Button>
             )}
-          </div>
-          <div className="grid grid-cols-[minmax(0,1.45fr)_1px_minmax(0,1fr)] items-center gap-1 rounded-xl border border-border/70 bg-background/60 p-1 sm:flex sm:rounded-2xl sm:p-1.5">
-            <Select value={String(monthIdx)} onValueChange={(v) => setMonthIdx(Number(v))}>
-              <SelectTrigger className="h-10 w-full rounded-xl border-0 bg-transparent shadow-none focus:ring-0 sm:w-[128px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MONTH_NAMES.map((m, i) => (
-                  <SelectItem key={m} value={String(i)}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="h-5 w-px bg-border/70" />
-            <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-              <SelectTrigger className="h-10 w-full rounded-xl border-0 bg-transparent shadow-none focus:ring-0 sm:w-[92px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[year - 2, year - 1, year, year + 1].map((y) => (
-                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
