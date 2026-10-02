@@ -2,13 +2,14 @@ import { confirmAction } from "@/components/ConfirmProvider";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Bell, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, ShieldCheck, TrainFront, Trash2, Upload, UsersRound, Wallet, Warehouse, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Building2, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, ShieldCheck, TrainFront, Trash2, Upload, UsersRound, Wallet, Warehouse, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
 import { RAIL_MASTERS, type MasterDef, type MasterField } from "@/lib/rail-masters";
 import { PageHeader } from "@/components/PageHeader";
+import { RailOrgSetup } from "@/components/RailOrgSetup";
 import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +61,7 @@ const db = supabase as unknown as { from: (t: string) => any };
 
 function RailSettingsPage() {
   const [active, setActive] = useState<MasterDef | null>(null);
-  const [section, setSection] = useState<"catalog" | "roles">("catalog");
+  const [section, setSection] = useState<"catalog" | "org" | "roles">("org");
   const [catalogQuery, setCatalogQuery] = useState("");
   const { isSuperAdmin } = useCurrentPermissions();
   const groups = useMemo(() => {
@@ -77,10 +78,11 @@ function RailSettingsPage() {
       <PageHeader title="Configuration Hub" />
       <div className="rail-config-tabs flex flex-wrap items-center gap-2 border-b border-border pb-3">
         <Button variant="ghost" aria-pressed={section === "catalog"} className={cn("rounded-md", section === "catalog" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
+        <Button variant="ghost" aria-pressed={section === "org"} className={cn("rounded-md", section === "org" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("org")}><Building2 className="h-4 w-4" /> Organization</Button>
         {isSuperAdmin && <Button variant="ghost" aria-pressed={section === "roles"} className={cn("rounded-md", section === "roles" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
         {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
       </div>
-      {section === "roles" && isSuperAdmin ? <RolesAccess /> : <>{groups.map(([group, entries]) => {
+      {section === "org" ? <RailOrgSetup /> : section === "roles" && isSuperAdmin ? <RolesAccess /> : <>{groups.map(([group, entries]) => {
         const defs = entries.filter((d) => `${d.label} ${d.description}`.toLowerCase().includes(catalogQuery.toLowerCase()));
         return defs.length ? (
         <section key={group} className="space-y-3" aria-label={group}>
