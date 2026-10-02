@@ -55,6 +55,13 @@ The seven briefs you shared are built in order. Each phase is finished and teste
   - It drops for repeated photos, being outside the site boundary, phone clock differences, work done impossibly fast, missing photos, and jobs completed only offline.
   - Jobs with a low score need review before billing.
 - Alerts in the app and on the phone, driven by the alert rules.
+- **AI cleanliness check:**
+  - When a cleaner takes the "after" photo of a coach area (toilet, floor, berths, windows, dustbin, doorway), the photo is checked by AI. It gives a cleanliness score out of 10, a Clean / Needs attention / Dirty result, and a short reason (for example "stains on toilet floor, dustbin not emptied").
+  - The cleaner sees the result within seconds. If it says dirty, they can reclean and retake the photo before marking the task done.
+  - The AI score is shown to the supervisor and checker next to their own score. It feeds the trust score, and it can trigger penalty rules (for example "AI score below 6").
+  - It works offline too: the photo is checked when the phone is back online.
+  - The AI only suggests. The final approval always stays with the supervisor or checker.
+  - The pass mark and which areas are checked are editable in Settings.
 
 ## Phase 4: Supplies and equipment (built on the existing inventory)
 - **Items** gain:
@@ -162,3 +169,9 @@ The seven briefs you shared are built in order. Each phase is finished and teste
 - **Photos:** stored in a private bucket. Watermarking and the perceptual-hash fingerprint are done in a server function.
 - **Offline:** the cleaner app uses an IndexedDB queue. The browser-installed app is registered only on the published site.
 - **PDFs and Excel** (annexure, ESG report, compliance pack) are generated in the browser. The SHA-256 fingerprint is stored on the bill.
+- **AI cleanliness check:**
+  - A server function sends the compressed photo plus area and coach type to the built-in Lovable AI (`openai/gpt-6-astra`, image input), with a fixed scoring rubric per area taken from the checklist.
+  - It returns structured JSON (score, verdict, issues[]).
+  - Results are stored in `rail_ai_photo_scores` (photo, model, score, verdict, issues, created_at).
+  - Pass marks live in `rail_ai_settings`, with dates.
+  - Credit or rate errors pause scoring and show a clear message, never a fake score.
