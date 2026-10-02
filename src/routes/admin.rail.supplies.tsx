@@ -50,7 +50,7 @@ function SuppliesPage() {
         rows<{ id: string; loa_number: string }>(db.from("rail_contracts").select("id,loa_number")),
       ]);
       const contractItems = await rows<{ contract_id: string; item_id: string }>(db.from("rail_contract_items").select("contract_id,item_id").is("deleted_at", null)).catch(() => []);
-      return { items, batches, locs, kit, cons, prs, assets, custody, maint, ppe, people, contracts, contractItems };
+      return { items, batches, locs: await scopeSupplyLocs(locs), kit, cons, prs, assets, custody, maint, ppe, people, contracts, contractItems };
     },
   });
   const [loc, setLoc] = useState<string>("");
