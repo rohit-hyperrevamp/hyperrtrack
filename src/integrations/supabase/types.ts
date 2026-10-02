@@ -8249,6 +8249,7 @@ export type Database = {
           name: string
           parent_id: string | null
           type: string
+          unit_id: string | null
           updated_at: string
           updated_by: string | null
         }
@@ -8265,6 +8266,7 @@ export type Database = {
           name: string
           parent_id?: string | null
           type: string
+          unit_id?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -8281,6 +8283,7 @@ export type Database = {
           name?: string
           parent_id?: string | null
           type?: string
+          unit_id?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -8526,6 +8529,7 @@ export type Database = {
       }
       rail_people: {
         Row: {
+          candidate_id: string | null
           created_at: string
           created_by: string | null
           daily_wage: number | null
@@ -8547,6 +8551,7 @@ export type Database = {
           valid_to: string | null
         }
         Insert: {
+          candidate_id?: string | null
           created_at?: string
           created_by?: string | null
           daily_wage?: number | null
@@ -8568,6 +8573,7 @@ export type Database = {
           valid_to?: string | null
         }
         Update: {
+          candidate_id?: string | null
           created_at?: string
           created_by?: string | null
           daily_wage?: number | null
@@ -11651,6 +11657,17 @@ export type Database = {
         }
         Returns: string
       }
+      rail_finance_summary: {
+        Args: { _month: string }
+        Returns: {
+          location_id: string
+          location_name: string
+          man_days: number
+          penalties: number
+          staff: number
+          wage_cost: number
+        }[]
+      }
       rail_generate_bill: {
         Args: { _contract: string; _month: string }
         Returns: string
@@ -11662,6 +11679,19 @@ export type Database = {
         Returns: number
       }
       rail_my_mobile: { Args: never; Returns: string }
+      rail_my_pay: {
+        Args: { _month: string }
+        Returns: {
+          daily_wage: number
+          days: number
+          full_name: string
+          gross: number
+          hours: number
+          mobile: string
+          role_key: string
+          skill: string
+        }[]
+      }
       rail_my_roles: {
         Args: never
         Returns: {
@@ -11689,7 +11719,19 @@ export type Database = {
         Args: { _event: string }
         Returns: undefined
       }
+      rail_presence: {
+        Args: { _location?: string }
+        Returns: {
+          check_in: string
+          check_out: string
+          full_name: string
+          location_name: string
+          person_id: string
+          role_key: string
+        }[]
+      }
       rail_release_event: { Args: { _event: string }; Returns: undefined }
+      rail_required_staff: { Args: { _location?: string }; Returns: number }
       rail_review_coach: {
         Args: {
           _coach: string

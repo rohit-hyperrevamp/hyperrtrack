@@ -20,3 +20,4 @@
 - Keep the login film as a project asset pointer and the sign-in motion in shared styles while retaining the existing server-verified phone flow — branding can evolve without weakening authentication.
 - Map HyperTrack page visibility through rail_can-backed module checks and keep role grants in rail_roles/rail_permissions — navigation reflects the same database-enforced decisions as operations.
 - Use centered Sheet dialogs for entry and review while retaining explicit side sheets for navigation, and keep shared search in the rail layout — forms and search stay consistent across screens without altering access logic.
+- Rail pay/finance reuse the existing payroll, invoice and salary-structure screens; rail-only figures come from security-definer RPCs (rail_my_pay, rail_finance_summary, rail_presence) — one pay engine, own-data-only for workers.
