@@ -224,7 +224,7 @@ function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // Live location beacon: streams an on-duty field officer's position from every
   // screen, so Radar viewers see them move in real time.
-  useLiveLocationBeacon();
+  // Field patrol tracking is not part of the rail workspace.
   const { can, canSub, isLoading: permsLoading, isSuperAdmin: isRbacSuperAdmin, roleKey } = useCurrentPermissions();
   // useAuth and RBAC hydrate in separate hook instances. Preserve the explicit
   // authenticated role during that hand-off so the route guard cannot issue a
@@ -237,14 +237,10 @@ function AdminLayout() {
   // Users with NO role_key at all (freshly onboarded frontline staff) are
   // treated as frontline too — otherwise they'd land on the admin dashboard
   // with an empty sidebar.
-  // Rail Clean staff sign in with a candidates row whose role_key is "rail_<role>".
+  // Rail staff sign in with a candidates row whose role_key is "rail_<role>".
   // Their access is decided by rail roles in the database, not the RBAC matrix.
   const isRailRole = !!roleKey && roleKey.startsWith("rail_");
-  const isGuardRole =
-    !isSuperAdmin &&
-    !isRailRole &&
-    !permsLoading &&
-    (!roleKey || !(isAdminConsoleRole(roleKey) || isFieldOfficerRole(roleKey)));
+  const isGuardRole = !isSuperAdmin && !isRailRole && !can("rail_ops");
 
   const dashboardHref =
     isRailRole && !isSuperAdmin
@@ -335,7 +331,7 @@ function AdminLayout() {
     if (readStoredAuthUser()?.role === "super_admin") return;
     if (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname)) return;
     // Guards have no module-based permissions; restrict them to their personal pages.
-    if (isGuardRole && !can("rail_ops")) {
+    if (isGuardRole) {
       if (pathname === "/admin/dashboard" || pathname === "/admin/profile" || pathname === "/admin/notifications") return;
       navigate({ to: "/admin/dashboard", replace: true });
       return;

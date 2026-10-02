@@ -69,11 +69,12 @@ function isAlwaysAllowed(pathname: string): boolean {
 export function RoutePermissionGuard({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const pathname = location.pathname;
-  const { can, canSub, isSuperAdmin, isLoading } = useCurrentPermissions();
+  const { can, canSub, isSuperAdmin, isLoading, roleKey } = useCurrentPermissions();
   const role = useCurrentUserRole();
 
   const decision = useMemo(() => {
     if (isAlwaysAllowed(pathname)) return { allow: true as const };
+    if (pathname.startsWith("/admin/rail/") && roleKey?.startsWith("rail_")) return { allow: true as const };
     if (role.isFieldOfficer && (
       pathname === "/admin/inventory" ||
       pathname === "/admin/inventory/" ||
@@ -89,7 +90,7 @@ export function RoutePermissionGuard({ children }: { children: React.ReactNode }
       allow: required.sub ? canSub(required.module, required.sub) : can(required.module),
       module: required.module,
     };
-  }, [pathname, isSuperAdmin, can, canSub, role.isFieldOfficer]);
+  }, [pathname, isSuperAdmin, can, canSub, role.isFieldOfficer, roleKey]);
 
   if (isLoading || role.isLoading) {
     return (
