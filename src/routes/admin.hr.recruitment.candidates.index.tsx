@@ -101,13 +101,13 @@ function CandidatesPage() {
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-            <tr><th className="p-3">Candidate</th><th className="p-3">Opening</th><th className="p-3">Stage</th><th className="p-3">Rounds</th><th className="p-3">Expected CTC</th><th className="p-3">Added</th></tr>
+            <tr><th className="p-3">Candidate</th><th className="p-3">Opening</th><th className="p-3">Stage</th><th className="p-3">Rounds</th><th className="p-3">Expected CTC</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {cq.isLoading && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
-            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
+            {cq.isLoading && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
+            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
             {pageRows.map((c) => (
-              <tr key={c.id} className="hover:bg-muted/30">
+              <tr key={c.id} role="link" tabIndex={0} className="cursor-pointer hover:bg-muted/30" onClick={() => navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } })} onKeyDown={(e) => { if (e.key === "Enter") navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } }); }}>
                 <td className="p-3">
                   <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }} className="font-medium hover:text-accent">{c.full_name}</Link>
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
@@ -117,6 +117,7 @@ function CandidatesPage() {
                 <td className="p-3 tabular-nums">{c.rounds_cleared}/{c.total_rounds}</td>
                 <td className="p-3 tabular-nums">{inr(c.expected_ctc)}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
+                <td className="p-3 text-right"><Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}><Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }}>View</Link></Button></td>
               </tr>
             ))}
           </tbody>
