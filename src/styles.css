@@ -1979,7 +1979,7 @@ nav[data-bottom-nav] {
 @media (max-width: 1023px) {
   [data-rail-shell] [data-rail-workspace] { padding: 18px max(12px, env(safe-area-inset-right)) var(--mobile-dock-clearance); }
   [data-rail-shell] [data-app-header] { border-color: var(--rail-line); }
-  nav[data-rail-bottom-nav] { border-radius: 20px !important; background: var(--card) !important; color: var(--rail-ink); border-color: var(--rail-line); box-shadow: 0 10px 30px color-mix(in oklab, var(--rail-ink) 12%, transparent); }
+  nav[data-rail-bottom-nav] { --rail-ink: oklch(0.18 0.008 250); --rail-line: oklch(0.935 0.003 250); border-radius: 20px !important; background: var(--card) !important; color: var(--rail-ink); border-color: var(--rail-line); box-shadow: 0 10px 30px color-mix(in oklab, var(--rail-ink) 12%, transparent); }
   nav[data-rail-bottom-nav] > ul { border-color: var(--rail-line); }
   nav[data-rail-bottom-nav] > ul li [class*="text-dock-foreground"] { color: var(--muted-foreground); }
 }
