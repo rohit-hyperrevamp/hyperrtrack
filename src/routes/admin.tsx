@@ -51,13 +51,14 @@ import {
   TrendingUp,
   Search,
   History,
+  Eye,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { RAIL_TOPBAR_SLOT_ID } from "@/components/RailTopbar";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
-import { ImpersonationBanner, ViewAsUserButton } from "@/components/ImpersonationControls";
+import { ImpersonationBanner } from "@/components/ImpersonationControls";
 import { AppleNativeSetupCard } from "@/components/AppleNativeSetupCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -309,6 +310,7 @@ function AdminLayout() {
     { prefix: "/admin/company-documents", module: "control_center" },
     { prefix: "/admin/policy-manager", module: "control_center" },
     { prefix: "/admin/system-logs", module: "control_center" },
+    { prefix: "/admin/view-as-user", module: "control_center" },
     { prefix: "/admin/asset-manager", module: "control_center" },
     { prefix: "/admin/attendance-code-manager", module: "control_center" },
     { prefix: "/admin/public-holiday-manager", module: "control_center" },
