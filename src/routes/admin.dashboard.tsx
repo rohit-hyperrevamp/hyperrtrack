@@ -324,7 +324,10 @@ function DashboardPage() {
           p_horizon: sixtyStr,
         } as never,
       );
-      if (error) throw error;
+      // A missing counting function (fresh database) must show zeros, not
+      // an endless loading state.
+      const missingFn = error && ["PGRST202", "42883", "PGRST116"].includes(String((error as { code?: string }).code));
+      if (error && !missingFn) throw error;
 
       const lifecycleResult =
         can("attendance") || can("payroll") || can("invoice")
@@ -1436,13 +1439,22 @@ function DashboardPage() {
         <div
           className={`grid auto-rows-[124px] grid-cols-2 items-stretch gap-2 sm:auto-rows-[172px] sm:gap-4 md:grid-cols-3 lg:grid-cols-3 ${opsFocus ? "xl:grid-cols-4" : "xl:grid-cols-4"}`}
         >
-          {isLoading
+          {isLoading && !countsQuery.isError
             ? Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
                   className="h-[124px] animate-pulse rounded-2xl border border-border/60 bg-card sm:h-[172px] sm:rounded-[26px]"
                 />
               ))
+            : countsQuery.isError || tiles.length === 0
+            ? (
+                <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                  <p className="text-base font-semibold text-foreground">Oops, there is no data yet.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Start by adding an organization, a site and your employees — the numbers will appear here.
+                  </p>
+                </div>
+              )
             : tiles.map((t, i) => (
                 <motion.div
                   key={t.key}
