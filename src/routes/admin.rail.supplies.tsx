@@ -125,7 +125,7 @@ function SuppliesPage() {
           {!variance.length ? <Empty title="No consumption recorded yet" hint="Usage is filled from norms when a cleaning job completes." /> :
             <div className="divide-y rounded-2xl border bg-card">{variance.map((v, i) => (
               <div key={v.key} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {v.key}</div><div className="text-xs text-muted-foreground">{v.n} coaches · norm {num(v.norm, 2)} · actual {num(v.actual, 2)}</div></div>
-                <div className={v.pct > 25 ? "font-semibold text-destructive" : v.pct < -10 ? "text-amber-600" : "text-muted-foreground"}>{v.pct > 0 ? "+" : ""}{v.pct}%</div></div>))}</div>}
+                 <div className={v.pct > 25 ? "font-semibold text-destructive" : v.pct < -10 ? "text-warning" : "text-muted-foreground"}>{v.pct > 0 ? "+" : ""}{v.pct}%</div></div>))}</div>}
         </TabsContent>
 
         <TabsContent value="purchase" className="space-y-3">

@@ -116,8 +116,8 @@ function LiveBoard() {
                     return (
                       <button key={e.id} onClick={() => setOpenId(e.id)}
                         className={cn("absolute top-1 bottom-1 rounded-md border px-2 text-left text-xs overflow-hidden focus:outline-none focus:ring-2 focus:ring-ring",
-                          e.status === "released" ? "bg-emerald-600 text-white border-emerald-700" : e.status === "approved" ? "bg-emerald-500/20 border-emerald-500/50" :
-                          e.status === "in_progress" ? "bg-amber-500/20 border-amber-500/50" : e.status === "completed" ? "bg-sky-500/20 border-sky-500/50" : "bg-background")}
+                           e.status === "released" ? "bg-success/15 text-foreground border-success/40" : e.status === "approved" ? "bg-success/10 border-success/30" :
+                           e.status === "in_progress" ? "bg-warning/10 border-warning/30" : e.status === "completed" ? "bg-accent/10 border-accent/30" : "bg-background")}
                         style={{ left: `${left}%`, width: `${Math.min(width, 100 - left)}%` }}>
                         <div className="font-semibold truncate">{e.rail_trains?.number} · {e.rail_service_types?.code}</div>
                         <div className="truncate opacity-80">{e.status.replace("_", " ")}</div>
@@ -211,7 +211,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     className={cn("min-w-[64px] rounded-md border px-2 py-2 text-xs text-center focus:outline-none focus:ring-2 focus:ring-ring",
                       removed.has(c.id) && "opacity-40 line-through",
                       selected === c.id && "ring-2 ring-primary",
-                      c.status === "approved" ? "bg-emerald-500/20" : c.status === "rejected" ? "bg-destructive/15" : c.status === "done" ? "bg-sky-500/15" : c.status === "in_progress" ? "bg-amber-500/15" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}>
+                       c.status === "approved" ? "bg-success/10" : c.status === "rejected" ? "bg-destructive/10" : c.status === "done" ? "bg-accent/10" : c.status === "in_progress" ? "bg-warning/10" : c.status === "removed" ? "bg-muted line-through" : "bg-background")}>
                     <div className="font-semibold">{c.position}. {c.rail_coach_types?.code}</div>
                     <div className="opacity-70">{c.rail_coaches?.coach_number ?? "—"}</div>
                   </button>
@@ -232,7 +232,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                     {coachTasks(c.id).map((t) => (
                       <li key={t.id} className="flex items-center justify-between py-2 text-sm">
                         <span>{t.task_name}{t.completed_offline && <span className="ml-2 text-xs text-muted-foreground">(synced from offline)</span>}</span>
-                        {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
+                         {t.status === "done" ? <CheckCircle2 className="h-4 w-4 text-success" /> : t.status === "skipped" ? <span className="text-xs text-muted-foreground">skipped</span> :
                           <Button size="sm" variant="outline" onClick={() => complete(t)}>Mark done</Button>}
                       </li>
                     ))}
