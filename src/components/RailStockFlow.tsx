@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { confirmAction } from "@/components/ConfirmProvider";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
+import { supabase } from "@/integrations/supabase/client";
 import { db, Empty, num, rows, StatusPill, today } from "@/lib/rail-ui";
 
 type Item = { id: string; item_code: string; name: string; unit: string; default_reorder_level: number; rail_category: string | null; hazard_class: string | null };
 type Loc = { id: string; code: string; name: string; type: string };
 type Batch = { id: string; item_id: string; location_id: string; batch_no: string | null; qty_on_hand: number; expiry_date: string | null };
-type PR = { id: string; item_id: string; qty: number; status: string; reason: string | null; location_id: string; created_at: string; vendor_id: string | null; po_number: string | null; unit_price: number | null; expected_on: string | null };
-type Trf = { id: string; item_id: string; from_location_id: string; to_location_id: string; qty: number; status: string; note: string | null; created_at: string };
+type PR = { id: string; item_id: string; qty: number; status: string; reason: string | null; location_id: string; created_at: string; vendor_id: string | null; po_number: string | null; unit_price: number | null; expected_on: string | null; requested_by: string | null };
+type Trf = { id: string; item_id: string; from_location_id: string; to_location_id: string; qty: number; status: string; note: string | null; created_at: string; requested_by: string | null };
 type Vendor = { id: string; name: string; phone: string | null; email: string | null; gstin: string | null; lead_days: number };
 
 const sel = "h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm";
