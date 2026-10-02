@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -82,11 +83,13 @@ function SuppliesPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Supplies & Equipment" description="Stock by store, expiry, requests, supplier orders and transfers." actions={
+      <RailTopbarSlot>
         <select className="h-10 rounded-md border bg-background px-3 text-sm" value={locId} onChange={(e) => setLoc(e.target.value)} aria-label="Store">
           <option value="">All stores</option>
           {data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-        </select>} />
+        </select>
+      </RailTopbarSlot>
+      <PageHeader title="Supplies & Equipment" description="Stock by store, expiry, requests, supplier orders and transfers." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Kpi label="Low stock items" value={stock.filter((s) => s.onHand < s.default_reorder_level).length} tone="bad" />
         <Kpi label="Expired batches" value={scopedBatches.filter((b) => expiryState(b.expiry_date) === "expired").length} tone="bad" />

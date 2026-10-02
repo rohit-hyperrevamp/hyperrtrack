@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileDown, FileSpreadsheet, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -104,12 +105,12 @@ function BillingPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Railway Billing" description="Bills come only from approved coaches. Submission needs the month's compliance pack." actions={
-        <div className="flex flex-wrap gap-2">
+      <RailTopbarSlot>
           <select className="h-10 rounded-md border bg-background px-3 text-sm" value={cId} onChange={(e) => setContract(e.target.value)} aria-label="Contract">{data?.contracts.map((c) => <option key={c.id} value={c.id}>{c.loa_number}</option>)}</select>
           <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />
           <Button onClick={generate} disabled={!cId || !!data?.proposed.some((p) => p.contract_id === cId)}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
-        </div>} />
+      </RailTopbarSlot>
+      <PageHeader title="Railway Billing" description="Bills come only from approved coaches. Submission needs the month's compliance pack." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Bills" value={bills.length} tone="brand" />
         <Kpi label="Compliance pack" value={`${DOCS.filter(([t]) => docs.some((d) => d.doc_type === t && d.status !== "rejected")).length}/4`} tone={docs.length >= 4 ? "good" : "warn"} />

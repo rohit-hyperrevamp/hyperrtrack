@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileDown, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,7 +56,8 @@ function SustainPage() {
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
 
-  if (!data) return <div className="h-64 animate-pulse rounded-lg bg-muted" />;
+  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /><Button onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></RailTopbarSlot>;
+  if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
   const chemL = data.chem.filter((c) => c.inv_items?.unit === "L").reduce((s, c) => s + Number(c.qty), 0);
   const s = summarize(data.ledger, data.baseline, chemL);
   const depotOf = (id: string | null) => { let l = data.locs.find((x) => x.id === id); while (l && l.type !== "depot") l = data.locs.find((x) => x.id === l!.parent_id); return l; };
@@ -105,8 +107,8 @@ function SustainPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Resources" description="Water, chemicals and carbon per coach." actions={
-        <div className="flex gap-2"><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /><Button onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></div>} />
+      {topControls}
+      <PageHeader title="Resources" description="Water, chemicals and carbon per coach." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Fresh water L / coach" value={num(s.freshPerCoach)} hint={`Norm ${num(data.baseline)} L`} tone={s.freshPerCoach > data.baseline ? "bad" : "good"} />
         <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} />
