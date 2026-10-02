@@ -68,5 +68,5 @@
 - [x] Remove separate Employees link (Team covers it); Rehire/onboard/offboard under People; salary parts/deductions/contributions/payroll/invoices under one Finance page
 - [ ] Attendance on sign-in prompt for workers; fix dropdown arrow alignment
 
-- [ ] Command Centre (super admin + leadership only): half-circle gauges for chemical stock vs capacity, chemical and water use per coach vs norm, water saved
-- [ ] Kits: issue to a person at the chosen store, items from that store only, return dialog that puts stock back
+- [x] Command Centre (super admin + leadership only): half-circle gauges for chemical stock vs capacity, chemical and water use per coach vs norm, water saved
+- [x] Kits: issue to a person at the chosen store, items from that store only, return dialog that puts stock back
