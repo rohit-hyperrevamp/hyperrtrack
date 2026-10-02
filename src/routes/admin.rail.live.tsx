@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/live")({
   head: () => railHead("Live Board", "Today's cleaning jobs by pit line: place rakes, track coaches and tasks, approve and release."),
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { depot?: string; date?: string } => ({
     depot: typeof search.depot === "string" ? search.depot : undefined,
     date: typeof search.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(search.date) ? search.date : undefined,
   }),

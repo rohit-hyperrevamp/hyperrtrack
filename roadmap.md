@@ -1,6 +1,6 @@
 # HyperTrack roadmap
 
-- [ ] Refine expanded dock icon visibility and selected state, remove brown accents, rebuild Configuration Hub as rectangular catalog, and add depot-aware filters to rail pages
+- [x] Refine expanded dock icon visibility and selected state, remove brown accents, rebuild Configuration Hub as rectangular catalog, and add depot-aware filters to rail pages
 - [x] Replace green dashboard/rail KPI accents with blue, red and yellow; redesign Live Board as a color-coded, filterable job list instead of hard-to-read timeline bars
 - [x] Replace Command Centre's pale, striped tiles with strong solid blue, charcoal and yellow feature cards plus status-aware colored icons; show the train-film tagline on the login screen at desktop and mobile sizes
 - [x] Refine login input and left-side copy, replace train film with 1080p footage, align collapsed dock and Command Centre cards, add focused drop-down search, and center rail/recruitment entry panels with mobile-fit spacing
