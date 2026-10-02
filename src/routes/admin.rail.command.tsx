@@ -67,7 +67,7 @@ function CommandPage() {
 
   const maximum = Math.max(1, ...trend.map((d) => d.total));
   const hasTrend = trend.some((d) => d.total > 0);
-  const statusTone = (state: string) => state === "green" ? "bg-good" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-muted-foreground";
+  const statusTone = (state: string) => state === "green" ? "bg-brand" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-muted-foreground";
 
   return (
     <div className="rail-command space-y-5 sm:space-y-6">
@@ -111,7 +111,7 @@ function CommandPage() {
 
       <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Needs attention</h2>{feed.length > 0 && <span className="rounded-md bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">{feed.length}</span>}</div>
-         {!feed.length ? <div className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"><TrainFront className="h-4 w-4 text-good" />All clear</div> : <div className="mt-3 grid gap-2 lg:grid-cols-2">{feed.slice(0, 8).map((f) => {
+         {!feed.length ? <div className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"><TrainFront className="h-4 w-4 text-brand" />All clear</div> : <div className="mt-3 grid gap-2 lg:grid-cols-2">{feed.slice(0, 8).map((f) => {
           const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
            return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="rail-attention-item group grid min-w-0 grid-cols-[36px_minmax(0,1fr)_16px] items-center gap-3 rounded-lg border border-border/70 bg-muted/30 px-3 py-3 text-sm transition-colors hover:border-brand/40 hover:bg-brand/5 hover:text-brand">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><Icon className="h-4 w-4" /></span>
