@@ -63,14 +63,11 @@ export function railHead(title: string, description: string) {
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const body = (
     <div className={cn(
-      "rounded-md border bg-card p-4 transition-colors h-full",
-      to && "hover:border-primary/50 cursor-pointer",
-      tone === "good" && "border-l-4 border-l-emerald-500",
-      tone === "warn" && "border-l-4 border-l-amber-500",
-      tone === "bad" && "border-l-4 border-l-destructive",
+      "flex h-full min-h-28 flex-col rounded-lg border border-border/70 bg-card p-4 transition-[border-color,box-shadow] sm:p-5",
+      to && "cursor-pointer hover:border-accent/40 hover:shadow-sm",
     )}>
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className={cn("mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground", tone === "bad" && "text-destructive", tone === "warn" && "text-warning", tone === "good" && "text-success")}>{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );
@@ -79,7 +76,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
 
 export function Empty({ title, hint, action }: { title: string; hint?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed bg-card/50 p-8 text-center">
+    <div className="rounded-lg border border-dashed bg-card p-8 text-center">
       <div className="font-medium">{title}</div>
       {hint && <div className="mt-1 text-sm text-muted-foreground">{hint}</div>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}

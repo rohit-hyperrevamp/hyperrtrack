@@ -58,14 +58,13 @@ function CommandPage() {
   const [minLat, maxLat, minLng, maxLng] = lat.length ? [Math.min(...lat.map((d) => d.latitude!)), Math.max(...lat.map((d) => d.latitude!)), Math.min(...lat.map((d) => d.longitude!)), Math.max(...lat.map((d) => d.longitude!))] : [0, 1, 0, 1];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader title="Command Centre" description="Live operations across depots, coaches and quality." />
-      <div className="flex items-center gap-3 rounded-2xl border bg-card p-4">
-        <Droplets className="h-6 w-6 text-primary" />
-        <div><div className="text-xs uppercase tracking-wide text-muted-foreground">Water saved this month</div><div className="text-3xl font-semibold tabular-nums">{num(shown)} L</div></div>
-        <div className="ml-auto text-right text-sm text-muted-foreground">{num(k?.coaches_mtd)} coaches · {num((k?.co2e_mtd_kg ?? 0) / Math.max(1, k?.coaches_mtd ?? 0), 2)} kg CO₂e/coach</div>
+      <div className="grid gap-4 rounded-lg border border-border/70 bg-card p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-6">
+        <div className="flex min-w-0 items-center gap-4"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent"><Droplets className="h-5 w-5" /></span><div className="min-w-0"><div className="text-sm text-muted-foreground">Water saved this month</div><div className="mt-1 font-heading text-3xl font-semibold tabular-nums">{num(shown)} <span className="text-base text-muted-foreground">L</span></div></div></div>
+        <div className="text-sm text-muted-foreground sm:text-right">{num(k?.coaches_mtd)} coaches · {num((k?.co2e_mtd_kg ?? 0) / Math.max(1, k?.coaches_mtd ?? 0), 2)} kg CO₂e/coach</div>
       </div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
         <Kpi label="Jobs today" value={k?.events_today ?? 0} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={k?.coaches_cleaned ?? 0} to="/admin/rail/live" />
         <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${k?.released ?? 0} released`} to="/admin/rail/live" />
@@ -77,13 +76,13 @@ function CommandPage() {
         <Kpi label="Open alerts" value={k?.open_alerts ?? 0} to="/admin/rail/quality" />
         <Kpi label="Open complaints" value={k?.open_complaints ?? 0} to="/admin/rail/quality" />
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="mb-3 font-medium">Depots</div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
+          <h2 className="mb-4 text-base font-semibold">Depots</h2>
           {!depots.length ? <Empty title="No depots set up" /> : (
             <>
               {lat.length > 1 && (
-                <div className="relative mb-4 h-56 rounded-xl bg-muted/40">
+                <div className="relative mb-4 h-56 rounded-lg bg-muted/40">
                   {lat.map((d) => (
                     <div key={d.id} className="absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${10 + ((d.longitude! - minLng) / Math.max(0.01, maxLng - minLng)) * 80}%`, top: `${90 - ((d.latitude! - minLat) / Math.max(0.01, maxLat - minLat)) * 80}%` }}>
                       <div className={cn("mx-auto h-4 w-4 rounded-full ring-4", d.state === "green" ? "bg-emerald-500 ring-emerald-500/20" : d.state === "amber" ? "bg-amber-500 ring-amber-500/20" : d.state === "red" ? "bg-destructive ring-destructive/20" : "bg-muted-foreground ring-muted")} />
@@ -93,20 +92,20 @@ function CommandPage() {
                 </div>
               )}
               <div className="divide-y">{depots.map((d) => (
-                <Link key={d.id} to="/admin/rail/live" className="flex items-center justify-between py-2 text-sm hover:text-primary">
-                  <span className="flex items-center gap-2"><span className={cn("h-2.5 w-2.5 rounded-full", d.state === "green" ? "bg-emerald-500" : d.state === "amber" ? "bg-amber-500" : d.state === "red" ? "bg-destructive" : "bg-muted-foreground")} />{d.name}</span>
-                  <span className="text-muted-foreground">{d.released}/{d.total} released{d.late ? ` · ${d.late} late` : ""}</span>
+                <Link key={d.id} to="/admin/rail/live" className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-sm hover:text-accent">
+                  <span className="flex min-w-0 items-center gap-2"><span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", d.state === "green" ? "bg-success" : d.state === "amber" ? "bg-warning" : d.state === "red" ? "bg-destructive" : "bg-muted-foreground")} /><span className="truncate">{d.name}</span></span>
+                  <span className="shrink-0 text-right text-xs text-muted-foreground">{d.released}/{d.total} released{d.late ? ` · ${d.late} late` : ""}</span>
                 </Link>))}</div>
             </>
           )}
-        </div>
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="mb-3 font-medium">Exceptions</div>
+        </section>
+        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
+          <h2 className="mb-4 text-base font-semibold">Exceptions</h2>
           {!feed.length ? <Empty title="All clear" hint="Late jobs, penalties, complaints and alerts show here." /> : (
             <div className="divide-y">{feed.slice(0, 15).map((f) => (
-              <Link key={f.kind + f.id} to={f.to as never} className="block py-2 text-sm hover:text-primary"><span className="mr-2 text-xs font-medium uppercase text-muted-foreground">{f.kind}</span>{f.text}<div className="text-xs text-muted-foreground">{new Date(f.at).toLocaleString()}</div></Link>))}</div>
+              <Link key={f.kind + f.id} to={f.to as never} className="block py-3 text-sm hover:text-accent"><span className="mr-2 text-xs font-medium text-muted-foreground">{f.kind}</span>{f.text}<div className="mt-1 text-xs text-muted-foreground">{new Date(f.at).toLocaleString()}</div></Link>))}</div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );

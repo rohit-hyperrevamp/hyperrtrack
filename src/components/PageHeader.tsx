@@ -48,7 +48,7 @@ export function PageHeader({
 }) {
   return (
     <div
-      className={cn("relative mb-2 pt-[env(safe-area-inset-top,0px)] sm:mb-5 sm:pt-0", className)}
+      className={cn("page-header relative mb-2 pt-[env(safe-area-inset-top,0px)] sm:mb-5 sm:pt-0", className)}
     >
       <div className="mobile-glass-surface relative overflow-hidden border-b border-border/50 bg-card/55 px-2 pb-2 pt-1 sm:rounded-xl sm:border sm:bg-card sm:p-5">
         <div className="relative flex min-w-0 flex-col gap-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-4">
