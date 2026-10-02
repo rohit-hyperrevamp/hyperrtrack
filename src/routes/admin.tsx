@@ -588,7 +588,7 @@ function AdminLayout() {
                   <Users className="h-4 w-4" /> My Profile
                 </Link>
               </DropdownMenuItem>
-              {isSuperAdmin && <div className="px-2 py-1"><ViewAsUserButton className="flex h-9 w-full items-center gap-2 rounded-md px-2 text-sm text-foreground hover:bg-muted" /></div>}
+              {isSuperAdmin && <div className="flex items-center gap-2 px-4 py-1 text-sm text-foreground"><ViewAsUserButton className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-foreground hover:bg-brand/10" /><span>View as user</span></div>}
               <DropdownMenuItem onClick={toggleTheme} className="gap-2">
                 {themeMounted && theme === "dark" ? (
                   <Sun className="h-4 w-4" />
@@ -628,7 +628,6 @@ function AdminLayout() {
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <button type="button" aria-label="Search (Ctrl+K)" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-tab gap-2"><Search className="h-4 w-4" />Search<kbd className="text-[10px] opacity-60">⌘K</kbd></button>
           <NotificationBell triggerClassName="rail-topbar-icon" />
-          <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
         </div>
       </div>}
 
