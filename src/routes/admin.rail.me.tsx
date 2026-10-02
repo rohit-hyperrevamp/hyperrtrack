@@ -95,11 +95,10 @@ function MePage() {
 
   const open = tasks.filter((t) => !done.has(t.id));
   return (
-    <div className="mx-auto max-w-xl space-y-4">
-      <div className="rounded-2xl border bg-card p-4">
-        <div className="text-sm text-muted-foreground">Namaste</div>
-        <div className="text-xl font-semibold">{me?.full_name ?? "My Day"}</div>
-        <div className="mt-2 flex items-center gap-2 text-xs">
+    <div className="mx-auto max-w-2xl space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4">
+        <div><div className="text-xs text-muted-foreground">My Day · {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long" })}</div><h1 className="mt-1 font-heading text-xl font-semibold">{me?.full_name ?? "Today's work"}</h1></div>
+        <div className="flex items-center gap-2 text-xs">
           {online ? <span className="text-success">Online</span> : <span className="flex items-center gap-1 text-warning"><CloudOff className="h-3 w-3" />Offline — work is saved on this phone</span>}
           {queued > 0 && <span className="rounded-md bg-warning/10 px-2 py-0.5 text-warning">{queued} waiting to sync</span>}
           {queued > 0 && online && <Button size="sm" variant="ghost" onClick={async () => { await flushQueue(); setQueued(readQueue().length); qc.invalidateQueries({ queryKey: ["rail-me-tasks"] }); }}><RefreshCw className="h-3 w-3" /></Button>}
@@ -113,7 +112,7 @@ function MePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Kpi label="Tasks left" value={open.length} />
         <Kpi label="Tasks (30 days)" value={num(stats?.tasks30)} />
         <Kpi label="Day wage" value={me?.daily_wage ? `₹${me.daily_wage}` : "—"} />
@@ -124,7 +123,7 @@ function MePage() {
       <div className="space-y-2">
         <div className="text-sm font-medium">Today's tasks</div>
         {!open.length ? <Empty title="No tasks waiting" hint="New tasks appear when your supervisor places a rake." /> : open.map((t) => (
-          <div key={t.id} className="flex items-center justify-between rounded-xl border bg-card p-3">
+          <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-4">
             <div>
               <div className="font-medium">{t.task_name}</div>
               <div className="text-xs text-muted-foreground">Train {t.rail_event_coaches?.rail_events?.rail_trains?.number} · Coach {t.rail_event_coaches?.position} {t.rail_event_coaches?.rail_coach_types?.code} {t.rail_event_coaches?.rail_coaches?.coach_number}</div>
