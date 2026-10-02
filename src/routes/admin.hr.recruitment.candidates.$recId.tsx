@@ -178,7 +178,7 @@ function CandidatePage() {
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold">Interviews</h2>
-            {canSchedule && <Button size="sm" onClick={() => setSchedule(true)}><CalendarPlus className="mr-1 h-4 w-4" />Schedule round {nextRound}</Button>}
+            {isRecruiter && canSchedule && <Button size="sm" onClick={() => setSchedule(true)}><CalendarPlus className="mr-1 h-4 w-4" />Schedule round {nextRound}</Button>}
           </div>
           {interviews.length === 0 ? <p className="text-sm text-muted-foreground">No interviews yet.</p> : (
             <ul className="divide-y divide-border">
