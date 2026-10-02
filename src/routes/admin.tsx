@@ -121,32 +121,35 @@ type GroupItem = {
 
 const controlCenterChildren: LeafItem[] = [];
 
+// Ordered by daily use: most-used first. Each link appears once; sub-screens are reached from their hub page.
 const railChildren: LeafItem[] = [
   { to: "/admin/rail/command", label: "Overview", icon: Gauge },
   { to: "/admin/rail/live", label: "Operations", icon: Rows3 },
   { to: "/admin/rail/me", label: "My Shift", icon: Smartphone },
-  { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
   { to: "/admin/rail/quality", label: "Quality", icon: ClipboardCheck },
+  { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
+  { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
+  { to: "/admin/rail/people", label: "Team", icon: UsersRound },
+  { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
+  { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
+  { to: "/admin/rail/finance", label: "Finance & Payroll", icon: Banknote },
   { to: "/admin/rail/supplies", label: "Supplies", icon: Boxes },
   { to: "/admin/rail/sustainability", label: "Resources", icon: Leaf },
-  { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
-  { to: "/admin/rail/people", label: "Team", icon: UsersRound },
   { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
-  { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
-  { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
-  { to: "/admin/rail/finance", label: "Profit view", icon: Receipt },
 ];
 
-// Existing people, pay and invoice screens, shown to super admin inside HyperTrack.
+// Existing people screens shown to super admin inside HyperTrack (one entry each; Team already lists employees).
 const railPeoplePayChildren: LeafItem[] = [
-  { to: "/admin/employees", label: "Employees", icon: UsersRound },
   { to: "/admin/attendance", label: "Attendance", icon: ClipboardCheck },
-  { to: "/admin/candidates/rehire", label: "Rehire", icon: UserPlus },
-  { to: "/admin/allowance-manager", label: "Salary parts", icon: Banknote },
-  { to: "/admin/deduction-type-manager", label: "Deductions", icon: Receipt },
-  { to: "/admin/employer-contributions", label: "Employer contributions", icon: ShieldCheck },
-  { to: "/admin/payroll", label: "Payroll", icon: Banknote },
-  { to: "/admin/invoice", label: "Invoices", icon: FileText },
+  { to: "/admin/candidates/rehire", label: "Hiring & Rehire", icon: UserPlus },
+];
+
+const RAIL_DOCK_SECTIONS: Array<{ label: string; keys: string[] }> = [
+  { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker", "/admin/rail/ai-check"] },
+  { label: "People", keys: ["/admin/rail/people", "/admin/attendance", "/admin/candidates/rehire", "/admin/rail/pay"] },
+  { label: "Money", keys: ["/admin/rail/billing", "/admin/rail/finance"] },
+  { label: "Stock", keys: ["/admin/rail/supplies", "/admin/rail/sustainability"] },
+  { label: "Admin", keys: ["/admin/rail/settings", "/admin/system-logs", "/admin/view-as-user"] },
 ];
 
 const salesChildren: LeafItem[] = [
