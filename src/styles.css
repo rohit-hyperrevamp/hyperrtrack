@@ -285,7 +285,7 @@
   --palette-good-soft-strong: oklch(0.89 0.07 158);
   --palette-good-light: oklch(0.78 0.11 158);
   --palette-good-medium: oklch(0.68 0.14 158);
-  --palette-good-main: oklch(0.68 0.2 150);
+  --palette-good-main: oklch(0.53 0.18 150);
   --palette-good-strong: oklch(0.48 0.13 158);
   --palette-good-deep: oklch(0.4 0.105 158);
   --palette-good-darker: oklch(0.33 0.08 158);
@@ -1973,6 +1973,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(5), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(5)):not(:nth-child(7)):not(:nth-child(8)) .rail-kpi .rail-kpi-icon { color: var(--primary-foreground); }
+.dark [data-rail-shell] .rail-command-kpis .rail-kpi:not(:is([data-tone="bad"],[data-tone="good"])) { color: var(--card-foreground); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
@@ -2738,6 +2739,10 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 [data-slot="sheet-content"][data-state], [data-slot="dialog-content"][data-state] { border-radius: 12px; }
 [data-slot="sheet-content"] :where(input,textarea,select,[data-slot="select-trigger"]) { border-radius: 8px; }
 .rail-attention-item { min-height: 66px; }
+[data-slot="dialog-content"] [data-slot="dialog-footer"] [data-variant="outline"],
+[data-slot="sheet-content"] [data-slot="sheet-footer"] [data-variant="outline"] { border-color: transparent; background: var(--muted); color: var(--foreground); }
+[data-slot="dialog-content"] [data-slot="dialog-footer"] [data-variant="outline"]:hover,
+[data-slot="sheet-content"] [data-slot="sheet-footer"] [data-variant="outline"]:hover { background: var(--secondary); }
 @media (prefers-reduced-motion: reduce) { .rail-search-dialog[data-state] { animation-duration: .01ms; } }
 
 /* Mobile contextual bar: a sticky, thumb-friendly strip under the app header,
