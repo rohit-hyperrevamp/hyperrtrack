@@ -110,6 +110,8 @@ export function StatusPill({ s }: { s: string }) {
     open: "bg-destructive/10 text-destructive", proposed: "bg-destructive/10 text-destructive",
     confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-brand/10 text-brand",
     requested: "bg-brand/10 text-brand", received: "bg-brand/10 text-brand",
+    ordered: "bg-warning/15 text-warning", dispatched: "bg-warning/15 text-warning",
+    expired: "bg-destructive/15 text-destructive", expiring: "bg-warning/15 text-warning", low: "bg-destructive/10 text-destructive",
   };
   return <span className={cn("inline-flex min-h-6 max-w-full items-center justify-center rounded-md px-2 py-0.5 text-center text-xs font-medium capitalize leading-4", tone[s] ?? "bg-muted text-muted-foreground")}>{s.replace(/_/g, " ")}</span>;
 }
