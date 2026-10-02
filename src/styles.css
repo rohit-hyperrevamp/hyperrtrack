@@ -2014,7 +2014,7 @@ nav[data-bottom-nav] {
   }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link { border: 0; background: transparent; border-radius: 0; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link .rail-dock-mark { background: var(--brand-blue); color: var(--primary-foreground); }
-  [data-rail-shell] [data-hyper-dock] .rail-dock-account { border-top: 1px solid var(--border); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-account { background: color-mix(in oklab, var(--muted) 45%, var(--dock)); }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:first-child > span { width: 34px; height: 34px; font-size: 11px; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child { min-width: 0; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child > span { white-space: nowrap; }

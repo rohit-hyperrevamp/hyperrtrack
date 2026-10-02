@@ -51,7 +51,6 @@ import {
   TrendingUp,
   Search,
   History,
-  TrainFront,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { RailDockPulse } from "@/components/RailDockPulse";
@@ -475,11 +474,11 @@ function AdminLayout() {
               aria-label="HyperTrack home"
                className="mx-auto grid h-11 w-11 place-items-center rounded-full transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand [&>div>span]:h-11 [&>div>span]:w-11"
             >
-              <span className="rail-dock-mark grid h-11 w-11 place-items-center rounded-full bg-brand text-primary-foreground"><TrainFront className="h-6 w-6" aria-hidden="true" /></span>
+              <BrandMark compact />
             </Link>
           ) : (
             <Link to={dashboardHref} aria-label="HyperTrack home" className="rail-brand-link flex h-12 w-full min-w-0 items-center gap-2.5 px-2.5 text-foreground">
-              <span className="rail-dock-mark grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><TrainFront className="h-5 w-5" aria-hidden="true" /></span>
+              <BrandMark compact />
               <BrandMark />
             </Link>
           )}
