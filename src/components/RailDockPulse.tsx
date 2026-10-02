@@ -40,7 +40,7 @@ export function RailDockPulse() {
           <span className="flex items-center gap-1"><AlertCircle className="h-3 w-3" />{num(k?.open_alerts)} alerts</span>
         </div>
         <div className="grid grid-cols-2 gap-1.5">
-          <Link to="/admin/rail/live" className="rounded-md bg-card px-2 py-1.5 text-center text-[11px] font-medium text-brand">Live board</Link>
+          <Link to="/admin/rail/live" search={{}} className="rounded-md bg-card px-2 py-1.5 text-center text-[11px] font-medium text-brand">Live board</Link>
           <Link to="/admin/rail/ai-check" className="flex items-center justify-center gap-1 rounded-md bg-card/20 px-2 py-1.5 text-[11px] font-medium text-primary-foreground ring-1 ring-primary-foreground/40"><ScanEye className="h-3 w-3" />Scan</Link>
         </div>
       </div>
