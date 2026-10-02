@@ -86,7 +86,6 @@ function RecruitmentDashboard() {
       />
 
       <div className="flex flex-wrap gap-2">
-        <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/openings"><Briefcase className="h-4 w-4" />Openings</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/interviews"><CalendarClock className="h-4 w-4" />Interviews</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/onboarding"><ArrowRight className="h-4 w-4" />Onboarding</Link></Button>
       </div>
@@ -100,7 +99,7 @@ function RecruitmentDashboard() {
       </div>
 
       <section className="rounded-xl border border-border bg-card p-4">
-        <h2 className="mb-3 font-display text-sm font-semibold">Stages</h2>
+        <h2 className="mb-3 font-display text-sm font-semibold">Candidate progress</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {STAGES.map((st) => (
             <Button key={st.key} variant="outline" onClick={() => go(st.key)} className="h-auto min-w-0 flex-col items-start gap-1 rounded-lg p-3 text-left transition-colors hover:border-accent/40">
@@ -163,7 +162,7 @@ function RecruitmentDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Breakdown title="By opening" data={s.byOpening} />
+        <Breakdown title="By position" data={new Map(cands.filter((c) => PIPELINE.includes(c.stage)).reduce((acc, c) => { const name = c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"; acc.set(name, (acc.get(name) ?? 0) + 1); return acc; }, new Map<string, number>()))} />
         <Breakdown title="By department" data={s.byDept} />
         <Breakdown title="By source" data={s.bySource} />
       </div>
