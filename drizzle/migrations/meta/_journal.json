@@ -43,6 +43,13 @@
       "when": 1790926956207,
       "tag": "0005_restrict_public_role_policies_to_signed_in",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790930711201,
+      "tag": "0006_rail_phase1_foundation",
+      "breakpoints": true
     }
   ]
 }
