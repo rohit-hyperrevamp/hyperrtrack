@@ -30,7 +30,7 @@ function Finance() {
       return { depots, bills };
     },
   });
-  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /></RailTopbarSlot>;
+  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-40 shrink-0" aria-label="Month" /></RailTopbarSlot>;
   if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
   const billed = data.bills.reduce((s, b) => s + Number(b.net_total ?? 0) - Number(b.gst_amount ?? 0), 0);
   const wages = data.depots.reduce((s, d) => s + Number(d.wage_cost), 0);

@@ -119,7 +119,8 @@ function MePage() {
           const res = await runAi({ data: { imageDataUrl: photo, area, eventCoachId: t.event_coach_id } });
           aiScore = res.score;
         } catch (err) {
-          console.warn("AI scoring failed, proceeding anyway", err);
+          toast.error(err instanceof Error ? err.message : "Photo scoring unavailable");
+          return;
         }
       }
 
@@ -140,7 +141,7 @@ function MePage() {
         if (n) {
           toast.success(`Task completed with AI score: ${aiScore ?? "—"}`);
           qc.invalidateQueries({ queryKey: ["rail-me-tasks"] });
-        }
+        } else toast.error("Photo could not be saved. Task is waiting to sync; do not delete it from this device.");
       } else {
         toast("Saved on phone — will sync when online");
       }

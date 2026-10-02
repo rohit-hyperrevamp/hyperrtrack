@@ -186,7 +186,9 @@ async function uploadTaskPhoto(taskId: string, dataUrl: string): Promise<string 
     const res = await fetch(dataUrl);
     const blob = await res.blob();
     const ext = blob.type.split("/")[1] || "jpg";
-    const path = `${taskId}/${Date.now()}.${ext}`;
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error("Sign in to upload task evidence");
+    const path = `${user.user.id}/${taskId}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("rail-task-photos").upload(path, blob);
     if (error) throw error;
     return path;
@@ -206,6 +208,7 @@ export async function flushQueue(): Promise<number> {
       let photoPath = null;
       if (t.photo_data) {
         photoPath = await uploadTaskPhoto(t.task_id, t.photo_data);
+        if (!photoPath) { left.push(t); continue; }
       }
       const { error } = await db.rpc("rail_complete_task", {
         _task: t.task_id,

@@ -106,9 +106,9 @@ function BillingPage() {
   return (
     <div className="space-y-5">
       <RailTopbarSlot>
-          <select className="h-10 rounded-md border bg-background px-3 text-sm" value={cId} onChange={(e) => setContract(e.target.value)} aria-label="Contract">{data?.contracts.map((c) => <option key={c.id} value={c.id}>{c.loa_number}</option>)}</select>
-          <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />
-          <Button onClick={generate} disabled={!cId || !!data?.proposed.some((p) => p.contract_id === cId)}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
+          <select className="h-10 w-40 min-w-0 shrink-0 rounded-lg border border-border bg-card px-3 pr-8 text-sm text-foreground" value={cId} onChange={(e) => setContract(e.target.value)} aria-label="Contract">{data?.contracts.map((c) => <option key={c.id} value={c.id}>{c.loa_number}</option>)}</select>
+          <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-40 shrink-0" aria-label="Month" />
+          <Button className="h-10 shrink-0" onClick={generate} disabled={!cId || !!data?.proposed.some((p) => p.contract_id === cId)}><Play className="mr-2 h-4 w-4" />Generate bill</Button>
       </RailTopbarSlot>
       <PageHeader title="Railway Billing" description="Bills come only from approved coaches. Submission needs the month's compliance pack." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
