@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
@@ -29,7 +30,8 @@ function Finance() {
       return { depots, bills };
     },
   });
-  if (!data) return <div className="h-64 animate-pulse rounded-lg bg-muted" />;
+  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /></RailTopbarSlot>;
+  if (!data) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
   const billed = data.bills.reduce((s, b) => s + Number(b.net_total ?? 0) - Number(b.gst_amount ?? 0), 0);
   const wages = data.depots.reduce((s, d) => s + Number(d.wage_cost), 0);
   const pen = data.depots.reduce((s, d) => s + Number(d.penalties), 0);
@@ -37,7 +39,8 @@ function Finance() {
   const manDays = data.depots.reduce((s, d) => s + Number(d.man_days), 0);
   return (
     <div className="space-y-5">
-      <PageHeader title="Finance & Payroll" description="Billed (before GST) minus wages. Penalties are already taken off the bill." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
+      {topControls}
+      <PageHeader title="Finance & Payroll" description="Billed (before GST) minus wages. Penalties are already taken off the bill." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Billed" value={inr(billed)} to="/admin/rail/billing" />
         <Kpi label="Wage cost" value={inr(wages)} />

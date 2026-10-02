@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Input } from "@/components/ui/input";
 import { db, Empty, inr, Kpi, monthStart, num, railHead, rows } from "@/lib/rail-ui";
 
@@ -27,11 +28,13 @@ function MyPay() {
       return { me, slips };
     },
   });
-  if (isLoading) return <div className="h-64 animate-pulse rounded-lg bg-muted" />;
+  const topControls = <RailTopbarSlot><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /></RailTopbarSlot>;
+  if (isLoading) return <>{topControls}<div className="h-64 animate-pulse rounded-lg bg-muted" /></>;
   const me = data?.me;
   return (
     <div className="space-y-5">
-      <PageHeader title="My Pay" description="Only your own details are shown here." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
+      {topControls}
+      <PageHeader title="My Pay" description="Only your own details are shown here." />
       {!me ? <Empty title="Your worker profile isn't linked yet" hint="Ask your supervisor to add your phone number in Team." /> : (<>
         <div className="rounded-lg border bg-card p-4">
           <div className="text-lg font-semibold">{me.full_name}</div>
