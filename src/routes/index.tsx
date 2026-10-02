@@ -39,6 +39,7 @@ function Index() {
     isSuperAdmin,
     isAdminConsole,
     isFieldOfficer,
+    roleKey,
   } = useCurrentPermissions();
 
   useEffect(() => {
@@ -62,8 +63,8 @@ function Index() {
       navigate({ to: "/admin/rail/command", replace: true });
       return;
     }
-    if (user.role.startsWith("rail_")) {
-      navigate({ to: user.role === "rail_cleaner" ? "/admin/rail/me" : user.role === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command", replace: true });
+    if (roleKey?.startsWith("rail_")) {
+      navigate({ to: roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command", replace: true });
       return;
     }
     if (can("rail_ops")) {
@@ -89,7 +90,7 @@ function Index() {
       }
     }
     navigate({ to: "/admin/employee-dashboard", replace: true });
-  }, [user, isReady, isLoading, isSuperAdmin, isAdminConsole, isFieldOfficer, can, navigate]);
+  }, [user, isReady, isLoading, isSuperAdmin, isAdminConsole, isFieldOfficer, roleKey, can, navigate]);
 
   return <div className="min-h-screen bg-background" />;
 }

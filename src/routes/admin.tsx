@@ -641,7 +641,7 @@ function AdminLayout() {
               aria-label="HyperTrack home"
               className="mx-auto grid h-11 w-11 place-items-center rounded-md bg-card p-1"
             >
-              <img src={brandLogo} alt="HyperTrack" className="h-full w-full object-cover object-left" width={1152} height={576} />
+              <img src="/favicon.png" alt="HyperTrack" className="h-8 w-8 object-contain" width={64} height={64} />
             </Link>
           ) : (
             <Link to={dashboardHref} className="flex min-w-0 items-center rounded-md bg-card px-2 py-1">
@@ -817,7 +817,7 @@ function AdminLayout() {
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
           <div className="relative shrink-0">
-            <img src={brandLogo} alt="HyperTrack" className="h-7 w-7 object-cover object-left" width={1152} height={576} />
+            <img src="/favicon.png" alt="HyperTrack" className="h-7 w-7 object-contain" width={64} height={64} />
           </div>
           <div className="truncate text-[14px] font-semibold leading-tight text-foreground">HyperTrack</div>
         </Link>
