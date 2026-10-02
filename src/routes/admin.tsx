@@ -340,20 +340,6 @@ function AdminLayout() {
       navigate({ to: "/admin/dashboard", replace: true });
       return;
     }
-    if (false && isGuardRole) {
-      const allowed =
-        pathname === "/admin/employee-dashboard" ||
-        pathname === "/admin/my-inventory" ||
-        pathname === "/admin/profile" ||
-        pathname === "/admin/my-attendance" ||
-        pathname === "/admin/my-training" ||
-        pathname === "/admin/notifications" ||
-        pathname.startsWith("/admin/my-inventory/") ||
-        pathname.startsWith("/admin/notifications/");
-      if (!allowed) navigate({ to: "/admin/employee-dashboard", replace: true });
-      return;
-
-    }
     if (isRailRole && !isSuperAdmin && !pathname.startsWith("/admin/rail") && pathname !== "/admin/profile" && !pathname.startsWith("/admin/notifications")) {
       navigate({ to: dashboardHref, replace: true });
       return;
