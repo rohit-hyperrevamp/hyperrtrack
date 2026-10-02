@@ -58,10 +58,6 @@ function Index() {
 
     // Role-based dashboard landing — derived from RBAC role helpers,
     // not from hardcoded role-key sets.
-    if (isFieldOfficer) {
-      navigate({ to: "/admin/field-dashboard", replace: true });
-      return;
-    }
     if (isSuperAdmin) {
       navigate({ to: "/admin/rail/command", replace: true });
       return;
@@ -70,13 +66,16 @@ function Index() {
       navigate({ to: user.role === "rail_cleaner" ? "/admin/rail/me" : user.role === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command", replace: true });
       return;
     }
-    if (!isAdminConsole) {
-      // Guards & other frontline employees.
-      navigate({ to: "/admin/employee-dashboard", replace: true });
-      return;
-    }
     if (can("rail_ops")) {
       navigate({ to: "/admin/rail/command", replace: true });
+      return;
+    }
+    if (isFieldOfficer) {
+      navigate({ to: "/admin/field-dashboard", replace: true });
+      return;
+    }
+    if (!isAdminConsole) {
+      navigate({ to: "/admin/employee-dashboard", replace: true });
       return;
     }
     if (can("dashboard") || can("organizations") || can("employees")) {

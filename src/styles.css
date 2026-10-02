@@ -1017,6 +1017,15 @@
       0 18px 40px -22px rgb(0 0 0 / 0.55);
   }
 
+  /* HyperTrack's rail workspace uses the same compact control-room geometry
+     across KPI tiles, lists, forms and the command board. */
+  [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
+    border-radius: 8px;
+  }
+  [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
+    box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
+  }
+
   /* Flat pastel tile variants — solid soft fills, no gradient, matching the
      lime / mint / blush cards of the reference dashboard. */
   .tile-tint-blue    { background: rgb(var(--tint-blue));    border-color: color-mix(in oklab, rgb(var(--tint-blue)) 70%, black 6%); }

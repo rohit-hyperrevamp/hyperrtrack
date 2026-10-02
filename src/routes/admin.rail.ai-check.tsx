@@ -16,9 +16,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/admin/rail/ai-check")({
   head: () => ({
     meta: [
-      { title: "AI Clean Check — Rail Clean" },
+      { title: "AI Clean Check — HyperTrack" },
       { name: "description", content: "Take a photo of a coach area and get an instant AI cleanliness score out of 10." },
-      { property: "og:title", content: "AI Clean Check — Rail Clean" },
+      { property: "og:title", content: "AI Clean Check — HyperTrack" },
       { property: "og:description", content: "Instant AI cleanliness score for train coach photos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

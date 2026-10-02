@@ -512,6 +512,9 @@ function AdminLayout() {
 
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) return groups.filter((g) => g.key === "rail");
+    // Legacy pages remain accessible by their existing links while the rail
+    // workspace shows only relevant navigation to accounts without rail access.
+    if (!isGuard) return [];
     if (isGuard) return guardGroups;
     if (isControlCenterRole) {
       const children = controlCenterRadarChildren.filter(
@@ -844,7 +847,7 @@ function AdminLayout() {
 
 
       {/* Main */}
-      <main data-admin-scroll className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
+      <main data-admin-scroll data-rail-workspace={pathname.startsWith("/admin/rail") ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
         <div className="mx-auto min-w-0 max-w-[1500px]">
