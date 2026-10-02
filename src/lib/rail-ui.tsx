@@ -72,12 +72,11 @@ const kpiIcons: [RegExp, LucideIcon][] = [
 
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const Icon = kpiIcons.find(([pattern]) => pattern.test(label))?.[1] ?? FileText;
-  const tint = tone === "good" ? "bg-card" : tone === "warn" ? "bg-card" : tone === "bad" ? "bg-card" : "bg-card";
   const iconTone = "bg-brand text-primary-foreground";
   const body = (
     <div data-tone={tone} className={cn(
       "rail-kpi group flex h-full min-h-32 min-w-0 flex-col justify-between rounded-lg border border-border/70 p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
-      tint,
+       "bg-card",
       to && "cursor-pointer hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
     )}>
       <div className="flex items-start justify-between gap-2"><div className="rail-kpi-label min-w-0 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">{label}</div><span aria-hidden="true" className={cn("rail-kpi-icon grid h-9 w-9 shrink-0 place-items-center rounded-full", iconTone)}><Icon className="h-4 w-4" strokeWidth={2} /></span></div>
