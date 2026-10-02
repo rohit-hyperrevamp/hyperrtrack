@@ -53,10 +53,13 @@ function SustainPage() {
         rows<L>(db.from("rail_resource_ledger").select("ledger_date,resource,qty,co2e_kg,event_coach_id,method,metered").gte("ledger_date", new Date(new Date(m0).getFullYear(), new Date(m0).getMonth() - 5, 1).toISOString().slice(0, 10)).limit(50000)),
         db.rpc("rail_setting", { _key: "baseline_manual_litres" }).then((r: { data: number | null }) => r.data ?? 1500),
         db.rpc("rail_setting", { _key: "leak_alert_pct" }).then((r: { data: number | null }) => r.data ?? 20),
+        rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", pm0).lte("issue_date", pm1).not("returned_at", "is", null)).catch(() => []),
+        rows<{ item_id: string; location_id: string; qty_on_hand: number }>(db.from("rail_item_batches").select("item_id,location_id,qty_on_hand").gt("qty_on_hand", 0)).catch(() => []),
+        rows<{ factor: number }>(db.from("rail_emission_factors").select("factor").eq("resource", "chemical").is("deleted_at", null).limit(1)).catch(() => []),
       ]);
       // Real chemical use = kit issued − returned (chemical items in litres), counted once the return is recorded.
-      const kits = await rows<{ qty_issued: number; qty_returned: number; issue_date: string; inv_items: { unit: string; rail_category: string | null } | null }>(db.from("rail_kit_issues").select("qty_issued,qty_returned,issue_date,inv_items(unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
-      return { ledger, meters, readings, locs, chem, acwp, trend, kits, baseline: Number(baseline), leakPct: Number(leakPct) };
+      const kits = await rows<K>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,issue_date,inv_items(name,unit,co2e_kg_per_unit,rail_category)").gte("issue_date", m0).lte("issue_date", m1).not("returned_at", "is", null)).catch(() => []);
+      return { ledger, meters, readings, locs, chem, acwp, trend, kits, kitsPrev, chemStock, chemFactor: chemFactor[0]?.factor ?? null, baseline: Number(baseline), leakPct: Number(leakPct) };
     },
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
