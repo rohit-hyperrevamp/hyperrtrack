@@ -120,6 +120,13 @@
       "when": 1790966640853,
       "tag": "0016_pr_guard_sending_receive",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790968012359,
+      "tag": "0017_kit_issue_person_stock",
+      "breakpoints": true
     }
   ]
 }

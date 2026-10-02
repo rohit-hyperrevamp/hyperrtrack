@@ -8119,8 +8119,10 @@ export type Database = {
           issue_date: string
           item_id: string
           location_id: string | null
+          person_id: string | null
           qty_issued: number
           qty_returned: number
+          return_note: string | null
           returned_at: string | null
           shift_id: string | null
           supervisor_person_id: string | null
@@ -8136,8 +8138,10 @@ export type Database = {
           issue_date?: string
           item_id: string
           location_id?: string | null
+          person_id?: string | null
           qty_issued: number
           qty_returned?: number
+          return_note?: string | null
           returned_at?: string | null
           shift_id?: string | null
           supervisor_person_id?: string | null
@@ -8153,8 +8157,10 @@ export type Database = {
           issue_date?: string
           item_id?: string
           location_id?: string | null
+          person_id?: string | null
           qty_issued?: number
           qty_returned?: number
+          return_note?: string | null
           returned_at?: string | null
           shift_id?: string | null
           supervisor_person_id?: string | null
@@ -8181,6 +8187,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_kit_issues_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "rail_people"
             referencedColumns: ["id"]
           },
           {
