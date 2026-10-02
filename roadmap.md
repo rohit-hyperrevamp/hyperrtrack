@@ -42,3 +42,6 @@
 - [ ] Not done yet: coach-order editor, multilingual offline install, undo toasts
 - [x] Overview side panel on every rail page (place filter, required vs present staff, page-specific figures), simpler Resources page, My Pay, Profit view, and People & Pay links in the sidebar
 - [ ] Link each depot to a site and each rail worker to an employee record so rail attendance flows into the formal payroll register (waiting on real mapping and salary data)
+- [ ] Overview panel on extreme right; dock grouped by category, most-used first, no duplicate links
+- [ ] Remove separate Employees link (Team covers it); Rehire/onboard/offboard under People; salary parts/deductions/contributions/payroll/invoices under one Finance page
+- [ ] Attendance on sign-in prompt for workers; fix dropdown arrow alignment
