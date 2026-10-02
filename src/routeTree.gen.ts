@@ -25,6 +25,7 @@ import { Route as AdminServiceTypeManagerRouteImport } from './routes/admin.serv
 import { Route as AdminSalesRouteImport } from './routes/admin.sales'
 import { Route as AdminRolesManagerRouteImport } from './routes/admin.roles-manager'
 import { Route as AdminRbacRouteImport } from './routes/admin.rbac'
+import { Route as AdminRailRouteImport } from './routes/admin.rail'
 import { Route as AdminPublicHolidayManagerRouteImport } from './routes/admin.public-holiday-manager'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminProfessionalTaxManagerRouteImport } from './routes/admin.professional-tax-manager'
@@ -220,6 +221,11 @@ const AdminRolesManagerRoute = AdminRolesManagerRouteImport.update({
 const AdminRbacRoute = AdminRbacRouteImport.update({
   id: '/rbac',
   path: '/rbac',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRailRoute = AdminRailRouteImport.update({
+  id: '/rail',
+  path: '/rail',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPublicHolidayManagerRoute =
@@ -899,6 +905,7 @@ export interface FileRoutesByFullPath {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -1029,6 +1036,7 @@ export interface FileRoutesByTo {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -1163,6 +1171,7 @@ export interface FileRoutesById {
   '/admin/professional-tax-manager': typeof AdminProfessionalTaxManagerRoute
   '/admin/profile': typeof AdminProfileRoute
   '/admin/public-holiday-manager': typeof AdminPublicHolidayManagerRoute
+  '/admin/rail': typeof AdminRailRoute
   '/admin/rbac': typeof AdminRbacRoute
   '/admin/roles-manager': typeof AdminRolesManagerRoute
   '/admin/sales': typeof AdminSalesRouteWithChildren
@@ -1299,6 +1308,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1429,6 +1439,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1562,6 +1573,7 @@ export interface FileRouteTypes {
     | '/admin/professional-tax-manager'
     | '/admin/profile'
     | '/admin/public-holiday-manager'
+    | '/admin/rail'
     | '/admin/rbac'
     | '/admin/roles-manager'
     | '/admin/sales'
@@ -1768,6 +1780,13 @@ declare module '@tanstack/react-router' {
       path: '/rbac'
       fullPath: '/admin/rbac'
       preLoaderRoute: typeof AdminRbacRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/rail': {
+      id: '/admin/rail'
+      path: '/rail'
+      fullPath: '/admin/rail'
+      preLoaderRoute: typeof AdminRailRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/public-holiday-manager': {
@@ -2824,6 +2843,7 @@ interface AdminRouteChildren {
   AdminProfessionalTaxManagerRoute: typeof AdminProfessionalTaxManagerRoute
   AdminProfileRoute: typeof AdminProfileRoute
   AdminPublicHolidayManagerRoute: typeof AdminPublicHolidayManagerRoute
+  AdminRailRoute: typeof AdminRailRoute
   AdminRbacRoute: typeof AdminRbacRoute
   AdminRolesManagerRoute: typeof AdminRolesManagerRoute
   AdminSalesRoute: typeof AdminSalesRouteWithChildren
@@ -2896,6 +2916,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProfessionalTaxManagerRoute: AdminProfessionalTaxManagerRoute,
   AdminProfileRoute: AdminProfileRoute,
   AdminPublicHolidayManagerRoute: AdminPublicHolidayManagerRoute,
+  AdminRailRoute: AdminRailRoute,
   AdminRbacRoute: AdminRbacRoute,
   AdminRolesManagerRoute: AdminRolesManagerRoute,
   AdminSalesRoute: AdminSalesRouteWithChildren,
