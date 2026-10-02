@@ -66,6 +66,9 @@ function SuppliesPage() {
     const onHand = data!.batches.filter((b) => b.item_id === i.id && (!locId || b.location_id === locId) && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
     return { ...i, onHand };
   });
+  // Low stock is judged per store (same rule as the Stores cards), so "All stores" adds up each store's low items.
+  const usableAt = (itemId: string, at: string) => (data?.batches ?? []).filter((b) => b.item_id === itemId && b.location_id === at && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
+  const lowCount = (data?.locs ?? []).filter((l) => !locId || l.id === locId).reduce((n, l) => n + (data?.items ?? []).filter((i) => usableAt(i.id, l.id) < Number(i.default_reorder_level)).length, 0);
   const scopedBatches = (data?.batches ?? []).filter((b) => (!locId || b.location_id === locId) && Number(b.qty_on_hand) > 0);
   const pendingReq = (flow?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && p.status === "requested").length
     + (flow?.trfs ?? []).filter((t) => (!locId || t.from_location_id === locId || t.to_location_id === locId) && t.status === "requested").length;
@@ -90,7 +93,7 @@ function SuppliesPage() {
       </RailTopbarSlot>
       <PageHeader title="Supplies & Equipment" description="Stock by store, expiry, requests, supplier orders and transfers." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Kpi label="Low stock items" value={stock.filter((s) => s.onHand < s.default_reorder_level).length} tone="bad" />
+        <Kpi label="Low stock items" value={lowCount} tone="bad" />
         <Kpi label="Expired batches" value={scopedBatches.filter((b) => expiryState(b.expiry_date) === "expired").length} tone="bad" />
         <Kpi label="Expiring in 60 days" value={scopedBatches.filter((b) => expiryState(b.expiry_date) === "soon").length} tone="warn" />
         <Kpi label="Requests waiting" value={pendingReq} />
