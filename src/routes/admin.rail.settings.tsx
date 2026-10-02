@@ -197,7 +197,7 @@ function RolesAccess() {
       if (count) throw new Error("Reassign active people before removing this role");
       const { error } = await db.from("rail_roles").update({ deleted_at: new Date().toISOString() }).eq("id", role.id);
       if (error) throw error;
-      await logActivity({ module: "Configuration Hub", action: "delete", entityType: "rail_roles", entityId: role.id, entityLabel: role.name });
+        await logActivity({ module: "Configuration Hub", action: "delete", entityType: "rail_roles", entityId: role.id, entityLabel: role.name });
     },
     onSuccess: () => { toast.success("Role removed"); setSelected(null); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-roles"] }); },
     onError: (e: Error) => toast.error(e.message),
@@ -304,7 +304,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
     mutationFn: async (r: Row) => {
       const { error } = await db.from(def.table).update({ deleted_at: new Date().toISOString() }).eq("id", r.id);
       if (error) throw error;
-      await logActivity({ module: "Rail Clean Settings", action: "delete", entityType: def.table, entityId: r.id, before: r });
+       await logActivity({ module: "Configuration Hub", action: "delete", entityType: def.table, entityId: r.id, before: r });
     },
     onSuccess: () => { toast.success("Removed"); invalidate(); },
     onError: (e: Error) => toast.error(e.message),
@@ -349,7 +349,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
       });
       const { error } = await db.from(def.table).insert(payload);
       if (error) throw error;
-      await logActivity({ module: "Rail Clean Settings", action: "import", entityType: def.table, details: { rows: payload.length } });
+       await logActivity({ module: "Configuration Hub", action: "import", entityType: def.table, details: { rows: payload.length } });
       return payload.length;
     },
     onSuccess: (n) => { toast.success(`Imported ${n} rows`); setImportRows(null); invalidate(); },
@@ -358,7 +358,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
 
   return (
     <div className="space-y-4">
-      <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />All settings</Button>
+       <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="mr-1 h-4 w-4" />Configuration Hub</Button>
       <PageHeader title={def.label} description={def.description} />
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-[220px] flex-1">
@@ -408,8 +408,8 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
                   <td key={f.key} className={`px-3 py-2 ${f.type === "number" || /number|code/.test(f.key) ? "font-mono tabular-nums" : ""}`}>{display(f, r[f.key], refs)}</td>
                 ))}
                 <td className="whitespace-nowrap px-3 py-2 text-right">
-                  <Button size="icon" variant="ghost" aria-label="Edit" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" aria-label="Remove" onClick={() => remove.mutate(r)}><Trash2 className="h-4 w-4" /></Button>
+                   <Button size="icon" variant="ghost" className="rounded-full" aria-label="Edit" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
+                   <Button size="icon" variant="ghost" className="rounded-full" aria-label="Remove" onClick={() => remove.mutate(r)}><Trash2 className="h-4 w-4" /></Button>
                 </td>
               </tr>
             ))}
@@ -458,7 +458,7 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
       if (isNew) {
         const { error } = await db.from(def.table).insert(payload);
         if (error) throw error;
-        await logActivity({ module: "Rail Clean Settings", action: "create", entityType: def.table, after: payload });
+         await logActivity({ module: "Configuration Hub", action: "create", entityType: def.table, after: payload });
       } else if (def.versioned) {
         // Dated values are never overwritten: close the old row, add a new one.
         const old = row as Row;
@@ -469,12 +469,12 @@ function EditSheet({ def, row, refs, onClose, onSaved }: {
         if (e1) throw e1;
         const { error: e2 } = await db.from(def.table).insert({ ...payload, effective_from: from });
         if (e2) throw e2;
-        await logActivity({ module: "Rail Clean Settings", action: "new_version", entityType: def.table, entityId: old.id, before: old, after: payload });
+         await logActivity({ module: "Configuration Hub", action: "new_version", entityType: def.table, entityId: old.id, before: old, after: payload });
       } else {
         const old = row as Row;
         const { error } = await db.from(def.table).update(payload).eq("id", old.id);
         if (error) throw error;
-        await logActivity({ module: "Rail Clean Settings", action: "update", entityType: def.table, entityId: old.id, before: old, after: payload });
+         await logActivity({ module: "Configuration Hub", action: "update", entityType: def.table, entityId: old.id, before: old, after: payload });
       }
     },
     onSuccess: () => { toast.success("Saved"); onSaved(); onClose(); },
