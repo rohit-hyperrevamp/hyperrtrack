@@ -8794,6 +8794,7 @@ export type Database = {
           approved_by: string | null
           created_at: string
           created_by: string | null
+          decision_note: string | null
           deleted_at: string | null
           expected_on: string | null
           grn_at: string | null
@@ -8819,6 +8820,7 @@ export type Database = {
           approved_by?: string | null
           created_at?: string
           created_by?: string | null
+          decision_note?: string | null
           deleted_at?: string | null
           expected_on?: string | null
           grn_at?: string | null
@@ -8844,6 +8846,7 @@ export type Database = {
           approved_by?: string | null
           created_at?: string
           created_by?: string | null
+          decision_note?: string | null
           deleted_at?: string | null
           expected_on?: string | null
           grn_at?: string | null
@@ -9347,6 +9350,8 @@ export type Database = {
           note: string | null
           qty: number
           received_at: string | null
+          refuse_reason: string | null
+          request_id: string | null
           requested_by: string | null
           status: string
           to_location_id: string
@@ -9366,6 +9371,8 @@ export type Database = {
           note?: string | null
           qty: number
           received_at?: string | null
+          refuse_reason?: string | null
+          request_id?: string | null
           requested_by?: string | null
           status?: string
           to_location_id: string
@@ -9385,6 +9392,8 @@ export type Database = {
           note?: string | null
           qty?: number
           received_at?: string | null
+          refuse_reason?: string | null
+          request_id?: string | null
           requested_by?: string | null
           status?: string
           to_location_id?: string
@@ -9404,6 +9413,13 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_stock_transfers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "rail_purchase_requests"
             referencedColumns: ["id"]
           },
           {
@@ -11903,8 +11919,10 @@ export type Database = {
         Args: { _contract: string; _month: string }
         Returns: string
       }
+      rail_is_hq: { Args: never; Returns: boolean }
       rail_kpis: { Args: { _date?: string }; Returns: Json }
       rail_location_ancestors: { Args: { _loc: string }; Returns: string[] }
+      rail_main_store_id: { Args: never; Returns: string }
       rail_min_wage: {
         Args: { _location: string; _on?: string; _skill: string }
         Returns: number
@@ -11992,6 +12010,17 @@ export type Database = {
         }
         Returns: string
       }
+      rail_send_stock: {
+        Args: {
+          _from: string
+          _item: string
+          _note?: string
+          _qty: number
+          _request?: string
+          _to: string
+        }
+        Returns: string
+      }
       rail_setting: { Args: { _key: string; _on?: string }; Returns: number }
       rail_suggest_cleaners: {
         Args: { _task: string }
@@ -12003,7 +12032,7 @@ export type Database = {
         }[]
       }
       rail_transfer_step: {
-        Args: { _action: string; _id: string }
+        Args: { _action: string; _id: string; _reason?: string }
         Returns: string
       }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }

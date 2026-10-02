@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.rail_transfer_step(uuid, text);
