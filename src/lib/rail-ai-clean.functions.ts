@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 const Input = z.object({
   imageDataUrl: z.string().startsWith("data:image/").max(4_000_000),
@@ -10,7 +12,7 @@ const Input = z.object({
 
 type AssignedCoach = { id: string; position: number; coach_number: string | null; coach_type: string | null; train_number: string; train_name: string | null; location_id: string; location_name: string; event_id: string };
 
-async function availableCoaches(supabase: Parameters<Parameters<typeof requireSupabaseAuth["server"]>[0]>["context"]["supabase"], userId: string): Promise<{ coaches: AssignedCoach[]; manager: boolean }> {
+async function availableCoaches(supabase: SupabaseClient<Database>, userId: string): Promise<{ coaches: AssignedCoach[]; manager: boolean }> {
   const { data: canManage, error: permissionError } = await supabase.rpc("rail_can", { _module: "rail_ops", _action: "edit" });
   if (permissionError) throw permissionError;
   const manager = canManage === true;
@@ -19,8 +21,9 @@ async function availableCoaches(supabase: Parameters<Parameters<typeof requireSu
   if (!manager) {
     const { data: tasks, error } = await supabase.from("rail_event_tasks").select("event_coach_id").eq("assigned_to", userId).is("deleted_at", null).limit(1000);
     if (error) throw error;
-    ids = [...new Set((tasks ?? []).map((task) => task.event_coach_id))];
-    if (!ids.length) return { coaches: [], manager };
+    const assignedIds = [...new Set((tasks ?? []).map((task) => task.event_coach_id))];
+    if (!assignedIds.length) return { coaches: [], manager };
+    ids = assignedIds;
   }
   const query = supabase.from("rail_event_coaches")
     .select("id,position,event_id,location_id,rail_coaches(coach_number),rail_coach_types(code),rail_events!inner(event_date,location_id,rail_trains(number,name),rail_locations(name))")
