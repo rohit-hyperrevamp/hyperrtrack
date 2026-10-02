@@ -1973,7 +1973,6 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(5), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(5)):not(:nth-child(7)):not(:nth-child(8)) .rail-kpi .rail-kpi-icon { color: var(--primary-foreground); }
-.dark [data-rail-shell] .rail-command-kpis .rail-kpi:not(:is([data-tone="bad"],[data-tone="good"])) { color: var(--card-foreground); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
@@ -2058,7 +2057,7 @@ nav[data-bottom-nav] {
 @media (max-width: 1023px) {
   [data-rail-shell] [data-rail-workspace] { padding: 18px max(12px, env(safe-area-inset-right)) var(--mobile-dock-clearance); }
   [data-rail-shell] [data-app-header] { border-color: var(--rail-line); }
-  nav[data-rail-bottom-nav] { --rail-ink: oklch(0.18 0.008 250); --rail-line: color-mix(in oklab, var(--rail-ink) 9%, var(--card)); border-radius: 20px !important; background: var(--card) !important; color: var(--rail-ink); border-color: var(--rail-line); box-shadow: 0 10px 30px color-mix(in oklab, var(--rail-ink) 12%, transparent); }
+  nav[data-rail-bottom-nav] { --rail-ink: var(--foreground); --rail-line: color-mix(in oklab, var(--rail-ink) 9%, var(--card)); border-radius: 20px !important; background: var(--card) !important; color: var(--rail-ink); border-color: var(--rail-line); box-shadow: 0 10px 30px color-mix(in oklab, var(--rail-ink) 12%, transparent); }
   nav[data-rail-bottom-nav] > ul { border-color: var(--rail-line); }
   nav[data-rail-bottom-nav] > ul li [class*="text-dock-foreground"] { color: var(--muted-foreground); }
 }

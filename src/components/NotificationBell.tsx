@@ -161,7 +161,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
       className={triggerClassName ?? "relative inline-flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-full border border-border bg-card text-foreground outline-none transition-colors focus-visible:outline-none hover:border-accent hover:text-accent"}
     >
       <Bell className="h-4 w-4" />
-      {unread > 0 && <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-brand ring-2 ring-card" aria-hidden="true" />}
+      {unread > 0 && <span className="sr-only">{unread} unread</span>}
     </Button>
   );
 
@@ -247,9 +247,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                       <div className="line-clamp-1 text-[13px] font-medium leading-snug text-foreground sm:text-[13.5px]">
                         {n.title}
                       </div>
-                      {!n.readAt && (
-                        <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
-                      )}
+                      {!n.readAt && <span className="shrink-0 text-[10px] font-semibold text-brand">New</span>}
                     </div>
                     {n.message && (
                       <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
