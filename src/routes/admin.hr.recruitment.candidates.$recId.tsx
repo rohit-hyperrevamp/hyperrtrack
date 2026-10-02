@@ -134,6 +134,14 @@ function CandidatePage() {
         <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Next: review details, agree an offer and send to HR for onboarding. Documents may be added later."}</p>
       </section>
 
+      <section className="border-b border-border pb-4" aria-label="Onboarding checklist">
+        <h2 className="text-sm font-semibold">Onboarding checklist</h2>
+        <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
+          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', false], ['PAN card and number', false], ['Photograph', false]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : 'Needs review'}</span></li>)}
+        </ul>
+        {c.stage === "onboarded" && c.employee_candidate_id && <Link to="/admin/candidates/$id/details" params={{ id: c.employee_candidate_id }} className="mt-3 inline-block text-sm font-medium text-brand underline">Complete identity documents in employee record</Link>}
+      </section>
+
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-1">
           <h2 className="font-display text-sm font-semibold">Details</h2>
