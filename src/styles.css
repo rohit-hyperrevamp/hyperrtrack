@@ -1623,7 +1623,7 @@ body {
 /* Portal pages use translucent colours, but live backdrop blur forces a
    full repaint on every scroll frame. Preserve the appearance without the
    continuously recomputed blur layer. */
-[data-admin-scroll] :where(.glass, .glass-strong, .glass-dark),
+  [data-admin-scroll] :where(.glass, .glass-strong, .glass-dark),
 [data-admin-scroll] [class*="backdrop-blur"]:not(.mobile-glass-surface):not(.mobile-glass-control):not(.mobile-glass-bar) {
   backdrop-filter: none !important;
 }
@@ -2157,7 +2157,7 @@ nav[data-bottom-nav] {
   top: auto !important;
   z-index: 80 !important;
   border: 1px solid color-mix(in oklab, var(--dock-foreground) 14%, transparent);
-   background: color-mix(in oklab, var(--dock) 90%, transparent);
+  background: color-mix(in oklab, var(--dock) 90%, transparent);
   box-shadow: 0 12px 34px -18px color-mix(in oklab, var(--foreground) 45%, transparent);
   padding: 0;
   transform: none !important;

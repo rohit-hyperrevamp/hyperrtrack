@@ -456,6 +456,7 @@ function AdminLayout() {
           nativeShell && "lg:hidden",
           sidebarWidth,
         )}
+         data-hyper-dock
       >
         {/* Brand */}
         <div className={cn("flex items-center px-4 pt-5 pb-4", collapsed && "justify-center px-2")}>
@@ -835,7 +836,6 @@ function SidebarGroup({
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={cn(itemBase, groupActive ? itemActive : itemIdle)}
-          data-hyper-dock
         >
           <span className={cn(iconSpanBase, groupActive ? iconSpanActive : iconSpanIdle)}>
             <Icon className="h-4 w-4" />
