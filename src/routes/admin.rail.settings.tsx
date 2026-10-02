@@ -195,11 +195,16 @@ function RolesAccess() {
       const { count, error: countError } = await db.from("rail_people").select("id", { count: "exact", head: true }).eq("role_key", role.key).eq("enabled", true).is("deleted_at", null);
       if (countError) throw countError;
       if (count) throw new Error("Reassign active people before removing this role");
+      const { count: assignments, error: assignmentError } = await db.from("rail_user_roles").select("id", { count: "exact", head: true }).eq("role_key", role.key).is("deleted_at", null).or(`valid_to.is.null,valid_to.gt.${new Date().toISOString()}`);
+      if (assignmentError) throw assignmentError;
+      if (assignments) throw new Error("Remove active role assignments before removing this role");
+      const { error: revokeError } = await db.from("rail_permissions").update({ deleted_at: new Date().toISOString() }).eq("role_key", role.key).is("deleted_at", null);
+      if (revokeError) throw revokeError;
       const { error } = await db.from("rail_roles").update({ deleted_at: new Date().toISOString() }).eq("id", role.id);
       if (error) throw error;
         await logActivity({ module: "Configuration Hub", action: "delete", entityType: "rail_roles", entityId: role.id, entityLabel: role.name });
     },
-    onSuccess: () => { toast.success("Role removed"); setSelected(null); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-roles"] }); },
+    onSuccess: () => { toast.success("Role removed"); setSelected(null); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-roles"] }); qc.invalidateQueries({ queryKey: ["rail-page-access"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
