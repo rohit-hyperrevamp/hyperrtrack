@@ -61,6 +61,7 @@ function CandidatePage() {
   const [closeAs, setCloseAs] = useState<"rejected" | "withdrawn" | null>(null);
   const [offerOpen, setOfferOpen] = useState(false);
   const [resched, setResched] = useState<RecInterview | null>(null);
+  const [assignOpening, setAssignOpening] = useState(false);
 
   if (q.isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!c) return <div className="p-6 text-sm text-muted-foreground">Candidate not found or you don't have access.</div>;
@@ -152,6 +153,8 @@ function CandidatePage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-1">
           <h2 className="font-display text-sm font-semibold">Details</h2>
+          <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Post</span><span className="truncate font-medium">{opening?.title ?? "Not assigned"}</span></div>
+          {isRecruiter && ["new", "screening"].includes(c.stage) && <Button variant="outline" size="sm" onClick={() => setAssignOpening(true)}>{opening ? "Change post" : "Assign post"}</Button>}
           <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Item k="Location" v={c.current_location} />
             <Item k="Experience" v={`${c.experience_years} yrs`} />
@@ -240,12 +243,35 @@ function CandidatePage() {
       {resched && <RescheduleDialog interview={resched} candidate={c} onClose={() => setResched(null)} />}
       {closeAs && <CloseDialog candidate={c} as={closeAs} onClose={() => setCloseAs(null)} />}
       {offerOpen && <OfferDialog candidate={c} openingDefaults={{ designation_id: opening?.designation_id ?? "", department_id: opening?.department_id ?? "", branch_id: opening?.branch_id ?? "" }} masters={mq.data} onClose={() => setOfferOpen(false)} />}
+      {assignOpening && <AssignOpeningDialog candidate={c} openings={oq.data ?? []} onClose={() => setAssignOpening(false)} />}
     </div>
   );
 }
 
 function Item({ k, v }: { k: string; v: string }) {
   return <div className="min-w-0"><dt className="text-xs text-muted-foreground">{k}</dt><dd className="truncate">{v || "—"}</dd></div>;
+}
+
+function AssignOpeningDialog({ candidate, openings, onClose }: { candidate: RecCandidate; openings: Awaited<ReturnType<typeof fetchOpenings>>; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [openingId, setOpeningId] = useState(candidate.opening_id ?? "none");
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (candidate.stage !== "new" && candidate.stage !== "screening") return toast.error("The candidate is already in the interview process. Contact HR before changing the post.");
+    setBusy(true);
+    const selected = openings.find((o) => o.id === openingId);
+    const { error } = await recDb.from("rec_candidates").update({ opening_id: selected?.id ?? null, total_rounds: Math.max(1, Math.min(3, selected?.rec_opening_rounds?.length || 1)) }).eq("id", candidate.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    void logActivity({ module: REC_MODULE, action: "update", entityType: "rec_candidates", entityId: candidate.id, entityLabel: candidate.code, details: { opening: selected?.title ?? "unassigned" } });
+    await qc.invalidateQueries({ queryKey: ["rec"] });
+    toast.success("Post updated");
+    onClose();
+  }
+  return <Dialog open onOpenChange={(v) => !v && onClose()}><DialogContent className="sm:max-w-md"><DialogHeader><DialogTitle>Assign post</DialogTitle></DialogHeader>
+    <div className="space-y-2"><Label>Open position</Label><Select value={openingId} onValueChange={setOpeningId}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">Not assigned</SelectItem>{openings.filter((o) => o.status === "open" || o.id === candidate.opening_id).map((o) => <SelectItem key={o.id} value={o.id}>{o.title}</SelectItem>)}</SelectContent></Select></div>
+    <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</Button></DialogFooter>
+  </DialogContent></Dialog>;
 }
 
 function ScheduleDialog({ candidate, roundNo, roundName, defaultInterviewer, onClose }: { candidate: RecCandidate; roundNo: number; roundName: string; defaultInterviewer: string; onClose: () => void }) {
@@ -410,7 +436,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
           <div className="space-y-1.5"><Label className="text-xs">Department *</Label>{sel("department_id", masters?.departments ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Branch</Label>{sel("branch_id", masters?.branches ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Reporting manager</Label><EmployeePicker value={f.reports_to} onChange={(id) => setF({ ...f, reports_to: id })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Home unit</Label><Input disabled value="Radiant Guards - Pune Office (non-billable)" /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Radiant Guards - Pune Office" /></div>
           <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Notes for HR Head</Label><Textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
         </div>
         <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Sending…" : "Send to HR Head"}</Button></DialogFooter>

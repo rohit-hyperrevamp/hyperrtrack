@@ -141,12 +141,12 @@ const railChildren: LeafItem[] = [
 // Existing people screens shown to super admin inside HyperTrack (one entry each; Team already lists employees).
 const railPeoplePayChildren: LeafItem[] = [
   { to: "/admin/attendance", label: "Attendance", icon: ClipboardCheck },
-  { to: "/admin/candidates/rehire", label: "Hiring & Rehire", icon: UserPlus },
+  { to: "/admin/hr/recruitment/dashboard", label: "Recruitment", icon: UserPlus },
 ];
 
 const RAIL_DOCK_SECTIONS: Array<{ label: string; keys: string[] }> = [
   { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker", "/admin/rail/ai-check"] },
-  { label: "People", keys: ["/admin/rail/people", "/admin/attendance", "/admin/candidates/rehire", "/admin/rail/pay"] },
+  { label: "People", keys: ["/admin/rail/people", "/admin/attendance", "/admin/hr/recruitment/dashboard", "/admin/rail/pay"] },
   { label: "Money", keys: ["/admin/rail/billing", "/admin/rail/finance"] },
   { label: "Stock", keys: ["/admin/rail/supplies", "/admin/rail/sustainability"] },
   { label: "Admin", keys: ["/admin/rail/settings", "/admin/system-logs", "/admin/view-as-user"] },
