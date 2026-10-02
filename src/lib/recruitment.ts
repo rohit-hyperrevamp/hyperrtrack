@@ -179,7 +179,8 @@ export async function addEvent(candidateId: string, event: string, details: stri
 export async function notifyEmployee(candidateId: string, title: string, message: string, link: string) {
   try {
     const { data } = await supabase.rpc("get_user_id_by_candidate_id" as never, { _candidate_id: candidateId } as never);
-    if (data) await createNotification({ userId: data as unknown as string, type: "recruitment", title, message, link });
+    // Personal type: role-agnostic so assignees without the Recruitment module still see it.
+    if (data) await createNotification({ userId: data as unknown as string, type: "interview_assigned", title, message, link });
   } catch (e) {
     console.warn("recruitment notify failed", e);
   }
