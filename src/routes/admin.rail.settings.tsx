@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUpRight, Bell, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, TrainFront, Trash2, Upload, Wallet, Warehouse, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, ShieldCheck, TrainFront, Trash2, Upload, UsersRound, Wallet, Warehouse, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity-log";
@@ -16,13 +16,14 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useCurrentPermissions } from "@/lib/rbac";
 
 export const Route = createFileRoute("/admin/rail/settings")({
   head: () => ({
     meta: [
-      { title: "Rail Settings — HyperTrack" },
+      { title: "Configuration Hub — HyperTrack" },
       { name: "description", content: "Configure depots, trains, coaches, checklists, contracts and rates for railway cleaning." },
-      { property: "og:title", content: "Rail Settings — HyperTrack" },
+      { property: "og:title", content: "Configuration Hub — HyperTrack" },
       { property: "og:description", content: "Configure every railway cleaning master without code." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -57,6 +58,8 @@ const db = supabase as unknown as { from: (t: string) => any };
 
 function RailSettingsPage() {
   const [active, setActive] = useState<MasterDef | null>(null);
+  const [section, setSection] = useState<"catalog" | "roles">("catalog");
+  const { isSuperAdmin } = useCurrentPermissions();
   const groups = useMemo(() => {
     const m = new Map<MasterDef["group"], MasterDef[]>();
     for (const d of RAIL_MASTERS) m.set(d.group, [...(m.get(d.group) ?? []), d]);
@@ -66,19 +69,22 @@ function RailSettingsPage() {
   if (active) return <MasterTable def={active} onBack={() => setActive(null)} />;
 
   return (
-    <div className="space-y-7">
-      <PageHeader title="Rail Settings" />
-      {groups.map(([group, defs]) => (
+    <div className="rail-config space-y-6">
+      <PageHeader title="Configuration Hub" />
+      <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
+        <Button variant={section === "catalog" ? "default" : "ghost"} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
+        {isSuperAdmin && <Button variant={section === "roles" ? "default" : "ghost"} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
+        {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
+      </div>
+      {section === "roles" && isSuperAdmin ? <RolesAccess /> : groups.map(([group, defs]) => (
         <section key={group} className="space-y-3" aria-label={group}>
-          <div className="flex items-center gap-2.5 border-b border-border/70 pb-3">
-            {(() => { const Icon = groupIcons[group]; return <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", groupTones[group])}><Icon className="h-4 w-4" /></span>; })()}
-            <h2 className="font-heading text-base font-semibold text-foreground">{group}</h2>
+          <div className="flex items-center gap-3 pb-1">
+            {(() => { const Icon = groupIcons[group]; return <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", groupTones[group])}><Icon className="h-4 w-4" /></span>; })()}
+            <h2 className="text-base font-semibold text-foreground">{group}</h2>
             <span className="ml-auto text-xs tabular-nums text-muted-foreground">{defs.length}</span>
           </div>
-          <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-            {defs.map((d) => (
-              <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />
-            ))}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {defs.map((d) => <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />)}
           </div>
         </section>
       ))}
@@ -101,15 +107,15 @@ function MasterCard({ def, onOpen }: { def: MasterDef; onOpen: () => void }) {
       type="button"
        variant="outline"
       onClick={onOpen}
-       className="group h-auto min-h-24 w-full items-start justify-start rounded-lg border-border/70 bg-card p-4 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-card hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring"
+       className="group h-auto min-h-28 w-full items-start justify-start rounded-lg border-border/70 bg-card p-4 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:bg-card hover:shadow-md active:translate-y-0 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="flex w-full min-w-0 items-start gap-3">
-        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-lg", groupTones[def.group])}><Icon className="h-5 w-5" strokeWidth={1.9} /></span>
+         <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full", groupTones[def.group])}><Icon className="h-5 w-5" strokeWidth={1.9} /></span>
         <span className="min-w-0 flex-1 pt-0.5">
           <span className="block truncate text-sm font-semibold text-foreground">{def.label}</span>
           <span className="mt-1 block truncate text-xs font-normal text-muted-foreground">{def.description}</span>
         </span>
-        <span className="flex shrink-0 items-center gap-1 text-xs font-semibold tabular-nums text-muted-foreground"><span>{count ?? "–"}</span><ArrowUpRight className="h-3.5 w-3.5 text-brand transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span>
+         <span className="flex shrink-0 items-center gap-1 text-xs font-semibold tabular-nums text-muted-foreground"><span>{count ?? "–"}</span><ArrowRight className="h-3.5 w-3.5 text-brand transition-transform group-hover:translate-x-1" /></span>
       </span>
     </Button>
   );

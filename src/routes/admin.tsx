@@ -129,7 +129,7 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/sustainability", label: "Sustainability", icon: Leaf },
   { to: "/admin/rail/billing", label: "Railway Billing", icon: Receipt },
   { to: "/admin/rail/people", label: "People & Logins", icon: UsersRound },
-  { to: "/admin/rail/settings", label: "Rail Settings", icon: TrainFront },
+  { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
 
