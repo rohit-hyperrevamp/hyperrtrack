@@ -41,7 +41,7 @@ export function RailResourceGauges() {
         rows<{ item_id: string; location_id: string; qty_on_hand: number }>(db.from("rail_item_batches").select("item_id,location_id,qty_on_hand").gt("qty_on_hand", 0)),
         rows<{ item_id: string; qty_issued: number; qty_returned: number; returned_at: string | null }>(db.from("rail_kit_issues").select("item_id,qty_issued,qty_returned,returned_at").gte("issue_date", m0)),
         rows<{ item_id: string; norm_qty: number; event_coach_id: string | null }>(db.from("rail_job_consumption").select("item_id,norm_qty,event_coach_id").gte("created_at", m0).limit(20000)),
-        rows<{ resource: string; qty: number; event_coach_id: string | null; method: string | null }>(db.from("rail_resource_ledger").select("resource,qty,event_coach_id,method").gte("ledger_date", m0).limit(20000)),
+        rows<{ resource: string; qty: number; co2e_kg: number; event_coach_id: string | null; method: string | null }>(db.from("rail_resource_ledger").select("resource,qty,co2e_kg,event_coach_id,method").gte("ledger_date", m0).limit(20000)),
         db.rpc("rail_setting", { _key: "baseline_manual_litres" }).then((r: { data: number | null }) => Number(r.data ?? 1500)),
       ]);
       return { items, batches, kits, cons, ledger, baseline };
@@ -64,7 +64,7 @@ export function RailResourceGauges() {
    const measuredKits = data.kits.filter((k) => chem.has(k.item_id) && k.returned_at);
    const chemicalCarbon = measuredKits.filter((k) => factors.has(k.item_id)).reduce((sum, k) => sum + (Number(k.qty_issued) - Number(k.qty_returned)) * (factors.get(k.item_id) ?? 0), 0);
    const carbonComplete = measuredKits.length > 0 && measuredKits.every((k) => factors.has(k.item_id));
-   const ledgerCarbon = data.ledger.reduce((sum, l) => sum + Number((l as { co2e_kg?: number }).co2e_kg ?? 0), 0);
+   const ledgerCarbon = data.ledger.reduce((sum, l) => sum + Number(l.co2e_kg ?? 0), 0);
   // Water: fresh litres per coach against the manual-wash baseline; saved = baseline × coaches − fresh used.
   const fresh = data.ledger.filter((l) => l.resource === "water_fresh").reduce((s, l) => s + Number(l.qty), 0);
   const waterPer = coaches ? fresh / coaches : 0;
@@ -76,6 +76,7 @@ export function RailResourceGauges() {
         <Gauge label="Chemical stock health" value={healthy} max={total || 1} display={total ? `${Math.round(healthy / total * 100)}%` : "—"} hint={total ? `${total - healthy} item·store pairs low or out` : "No chemical stock yet"} good="high" to="/admin/rail/supplies" />
         <Gauge label="Chemical L per coach" value={usedPer} max={(normPer || usedPer || 1) * 2} display={coaches && used ? num(usedPer, 2) : "—"} hint={normPer ? `Norm ${num(normPer, 2)} L · from kit returns` : "Record kit returns to measure"} to="/admin/rail/sustainability" />
          <Gauge label="Chemical CO₂e" value={chemicalCarbon} max={Math.max(chemicalCarbon, ledgerCarbon, 1) * 1.5} display={carbonComplete ? `${num(chemicalCarbon, 1)} kg` : "—"} hint={carbonComplete ? "From returned kits · product factors" : "Set product factors and record returns"} to="/admin/rail/sustainability" />
+         <Gauge label="Total CO₂e" value={ledgerCarbon + chemicalCarbon} max={Math.max(ledgerCarbon + chemicalCarbon, 1) * 1.5} display={carbonComplete || ledgerCarbon ? `${num(ledgerCarbon + chemicalCarbon, 1)} kg` : "—"} hint={carbonComplete ? "Resources + measured chemicals" : "Chemicals excluded until measured"} to="/admin/rail/sustainability" />
         <Gauge label="Fresh water L per coach" value={waterPer} max={data.baseline} display={coaches ? num(waterPer) : "—"} hint={`Manual-wash baseline ${num(data.baseline)} L`} to="/admin/rail/sustainability" />
         <Gauge label="Water saved" value={savedPct} max={1} display={coaches ? `${Math.round(savedPct * 100)}%` : "—"} hint={coaches ? `${num(Math.max(0, data.baseline * coaches - fresh) / 1000, 1)} kL vs manual wash` : "No cleaning logged"} good="high" to="/admin/rail/sustainability" />
       </div>
