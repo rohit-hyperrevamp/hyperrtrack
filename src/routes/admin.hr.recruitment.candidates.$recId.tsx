@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, Check, FileText, Pause, Send, Upload, UserCheck, UserMinus, X } from "lucide-react";
+import { CalendarClock, CalendarPlus, Check, MoreHorizontal, FileText, Pause, Send, Upload, UserCheck, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { EmployeePicker } from "@/components/EmployeePicker";
 import { InterviewResultDialog } from "@/components/recruitment/InterviewResultDialog";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { createNotification } from "@/lib/notifications";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +60,7 @@ function CandidatePage() {
   const [result, setResult] = useState<{ i: RecInterview; d: "approved" | "rejected" } | null>(null);
   const [closeAs, setCloseAs] = useState<"rejected" | "withdrawn" | null>(null);
   const [offerOpen, setOfferOpen] = useState(false);
+  const [resched, setResched] = useState<RecInterview | null>(null);
 
   if (q.isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!c) return <div className="p-6 text-sm text-muted-foreground">Candidate not found or you don't have access.</div>;
@@ -68,6 +71,8 @@ function CandidatePage() {
   const hasScheduledNext = interviews.some((i) => i.round_no === nextRound && i.status === "scheduled");
   const canSchedule = ACTIVE_FOR_SCHEDULE.includes(c.stage) && nextRound <= c.total_rounds && !hasScheduledNext;
   const refresh = () => qc.invalidateQueries({ queryKey: ["rec"] });
+  const current = interviews.find((i) => i.status === "scheduled" && (isRecruiter || i.interviewer_id === meQ.data));
+  const closed = ["onboarded", "rejected", "withdrawn", "pending_onboarding"].includes(c.stage);
 
   async function setStage(stage: string, extra: Partial<RecCandidate> = {}) {
     const { error } = await recDb.from("rec_candidates").update({ stage, ...extra }).eq("id", c!.id);
@@ -91,14 +96,25 @@ function CandidatePage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{stageLabel(c.stage)}</span>
-            {c.stage === "new" && <Button variant="outline" onClick={() => setStage("screening")}><UserCheck />Move to screening</Button>}
-            {ACTIVE_FOR_SCHEDULE.includes(c.stage) && <Button variant="secondary" onClick={() => setStage("on_hold")}><Pause />Hold</Button>}
-            {c.stage === "on_hold" && <Button variant="secondary" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}><UserCheck />Resume</Button>}
-            {!["onboarded", "rejected", "withdrawn", "pending_onboarding"].includes(c.stage) && (
+            {current && (
               <>
-                <Button variant="outline" onClick={() => setCloseAs("withdrawn")}><UserMinus />Withdraw</Button>
-                <Button variant="destructive" onClick={() => setCloseAs("rejected")}><X />Reject</Button>
+                <Button onClick={() => setResult({ i: current, d: "approved" })}><Check />Approve round {current.round_no}</Button>
+                <Button variant="destructive" onClick={() => setResult({ i: current, d: "rejected" })}><X />Reject</Button>
+                <Button variant="outline" onClick={() => setResched(current)}><CalendarClock />Reschedule</Button>
               </>
+            )}
+            {isRecruiter && c.stage === "new" && <Button variant="outline" onClick={() => setStage("screening")}><UserCheck />Move to screening</Button>}
+            {isRecruiter && c.stage === "on_hold" && <Button variant="outline" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}><UserCheck />Resume hiring</Button>}
+            {isRecruiter && !closed && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild><Button variant="outline" aria-label="More candidate actions"><MoreHorizontal />More</Button></DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-60">
+                  {ACTIVE_FOR_SCHEDULE.includes(c.stage) && <DropdownMenuItem onClick={() => setStage("on_hold")}><Pause className="mr-2 h-4 w-4" />Pause hiring (on hold)</DropdownMenuItem>}
+                  <DropdownMenuItem onClick={() => setCloseAs("withdrawn")}><UserMinus className="mr-2 h-4 w-4" />Candidate dropped out</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" onClick={() => setCloseAs("rejected")}><X className="mr-2 h-4 w-4" />Reject candidate (close)</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         }
@@ -175,8 +191,7 @@ function CandidatePage() {
                   </div>
                   {i.status === "scheduled" && (isRecruiter || i.interviewer_id === meQ.data) && (
                     <div className="flex shrink-0 gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setResult({ i, d: "approved" })}>Approve</Button>
-                      <Button size="sm" variant="outline" onClick={() => setResult({ i, d: "rejected" })}>Reject</Button>
+                      <Button size="sm" variant="outline" onClick={() => setResched(i)}><CalendarClock className="mr-1 h-4 w-4" />Reschedule</Button>
                       {isRecruiter && <Button size="sm" variant="ghost" onClick={async () => { await recDb.from("rec_interviews").update({ status: "cancelled" }).eq("id", i.id); await addEvent(c.id, "interview_cancelled", `Round ${i.round_no}`); await refresh(); }}>Cancel</Button>}
                     </div>
                   )}
@@ -222,6 +237,7 @@ function CandidatePage() {
 
       {schedule && <ScheduleDialog candidate={c} roundNo={nextRound} roundName={rounds.find((r) => r.round_no === nextRound)?.name ?? `Round ${nextRound}`} defaultInterviewer={rounds.find((r) => r.round_no === nextRound)?.default_interviewer_id ?? ""} onClose={() => setSchedule(false)} />}
       {result && <InterviewResultDialog interview={result.i} candidateName={c.full_name} decision={result.d} onClose={() => setResult(null)} />}
+      {resched && <RescheduleDialog interview={resched} candidate={c} onClose={() => setResched(null)} />}
       {closeAs && <CloseDialog candidate={c} as={closeAs} onClose={() => setCloseAs(null)} />}
       {offerOpen && <OfferDialog candidate={c} openingDefaults={{ designation_id: opening?.designation_id ?? "", department_id: opening?.department_id ?? "", branch_id: opening?.branch_id ?? "" }} masters={mq.data} onClose={() => setOfferOpen(false)} />}
     </div>
@@ -271,6 +287,49 @@ function ScheduleDialog({ candidate, roundNo, roundName, defaultInterviewer, onC
           <div className="space-y-1.5"><Label className="text-xs">Interviewer *</Label><EmployeePicker value={f.interviewer} onChange={(id) => setF({ ...f, interviewer: id })} /></div>
         </div>
         <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Schedule"}</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function RescheduleDialog({ interview, candidate, onClose }: { interview: RecInterview; candidate: RecCandidate; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [when, setWhen] = useState("");
+  const [reason, setReason] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (!when) return toast.error("Pick the new date and time");
+    if (!reason.trim()) return toast.error("Reason is required");
+    setBusy(true);
+    const newAt = new Date(when).toISOString();
+    const { data, error } = await supabase.rpc("rec_reschedule_interview" as never, { _interview_id: interview.id, _new_at: newAt, _reason: reason, _availability: availability } as never);
+    if (error) { setBusy(false); return toast.error(error.message); }
+    const row = (data as unknown as { interviewer_user_id: string | null; creator_user_id: string | null }[] | null)?.[0];
+    const { data: me } = await supabase.auth.getUser();
+    const msg = `${candidate.full_name} · Round ${interview.round_no} moved to ${fmtDateTime(newAt)}. Reason: ${reason.trim()}${availability.trim() ? `. Available: ${availability.trim()}` : ""}`;
+    const link = `/admin/hr/recruitment/candidates/${candidate.id}`;
+    const targets = new Set([row?.interviewer_user_id, row?.creator_user_id].filter((u): u is string => !!u && u !== me.user?.id));
+    await Promise.all([...targets].map((userId) => createNotification({ userId, type: "interview_assigned", title: "Interview rescheduled", message: msg, link }).catch(() => undefined)));
+    void logActivity({ module: REC_MODULE, action: "interview_rescheduled", entityType: "rec_interviews", entityId: interview.id, entityLabel: candidate.code, details: { to: newAt, reason } });
+    toast.success("Interview rescheduled and notified");
+    await qc.invalidateQueries({ queryKey: ["rec"] });
+    onClose();
+  }
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Reschedule round {interview.round_no}</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">Currently {fmtDateTime(interview.scheduled_at)}. The recruiter and interviewer will be notified.</p>
+          <div className="space-y-1.5"><Label>New date & time *</Label><Input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Reason for reschedule *</Label><Textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Client visit clashes with the slot" /></div>
+          <div className="space-y-1.5"><Label>Interviewer available on</Label><Input value={availability} onChange={(e) => setAvailability(e.target.value)} placeholder="e.g. Mon–Wed after 3 pm" /></div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button disabled={busy} onClick={save}>{busy ? "Saving…" : "Reschedule"}</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
