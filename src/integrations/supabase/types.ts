@@ -8795,6 +8795,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          expected_on: string | null
           grn_at: string | null
           grn_batch: string | null
           grn_expiry: string | null
@@ -8802,12 +8803,16 @@ export type Database = {
           id: string
           item_id: string
           location_id: string | null
+          ordered_at: string | null
+          po_number: string | null
           qty: number
           reason: string | null
           requested_by: string | null
           status: string
+          unit_price: number | null
           updated_at: string
           updated_by: string | null
+          vendor_id: string | null
         }
         Insert: {
           approved_at?: string | null
@@ -8815,6 +8820,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          expected_on?: string | null
           grn_at?: string | null
           grn_batch?: string | null
           grn_expiry?: string | null
@@ -8822,12 +8828,16 @@ export type Database = {
           id?: string
           item_id: string
           location_id?: string | null
+          ordered_at?: string | null
+          po_number?: string | null
           qty: number
           reason?: string | null
           requested_by?: string | null
           status?: string
+          unit_price?: number | null
           updated_at?: string
           updated_by?: string | null
+          vendor_id?: string | null
         }
         Update: {
           approved_at?: string | null
@@ -8835,6 +8845,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          expected_on?: string | null
           grn_at?: string | null
           grn_batch?: string | null
           grn_expiry?: string | null
@@ -8842,12 +8853,16 @@ export type Database = {
           id?: string
           item_id?: string
           location_id?: string | null
+          ordered_at?: string | null
+          po_number?: string | null
           qty?: number
           reason?: string | null
           requested_by?: string | null
           status?: string
+          unit_price?: number | null
           updated_at?: string
           updated_by?: string | null
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -8862,6 +8877,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_purchase_requests_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "rail_vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -9311,6 +9333,88 @@ export type Database = {
           },
         ]
       }
+      rail_stock_transfers: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          dispatched_at: string | null
+          from_location_id: string
+          id: string
+          item_id: string
+          note: string | null
+          qty: number
+          received_at: string | null
+          requested_by: string | null
+          status: string
+          to_location_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          dispatched_at?: string | null
+          from_location_id: string
+          id?: string
+          item_id: string
+          note?: string | null
+          qty: number
+          received_at?: string | null
+          requested_by?: string | null
+          status?: string
+          to_location_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          dispatched_at?: string | null
+          from_location_id?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          qty?: number
+          received_at?: string | null
+          requested_by?: string | null
+          status?: string
+          to_location_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_stock_transfers_from_location_id_fkey"
+            columns: ["from_location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_stock_transfers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inv_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rail_stock_transfers_to_location_id_fkey"
+            columns: ["to_location_id"]
+            isOneToOne: false
+            referencedRelation: "rail_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_task_templates: {
         Row: {
           coach_type_id: string | null
@@ -9572,6 +9676,51 @@ export type Database = {
           user_id?: string
           valid_from?: string
           valid_to?: string | null
+        }
+        Relationships: []
+      }
+      rail_vendors: {
+        Row: {
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          email: string | null
+          gstin: string | null
+          id: string
+          lead_days: number
+          name: string
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          lead_days?: number
+          name: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          lead_days?: number
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -11852,6 +12001,10 @@ export type Database = {
           present: boolean
           user_id: string
         }[]
+      }
+      rail_transfer_step: {
+        Args: { _action: string; _id: string }
+        Returns: string
       }
       rec_onboard_candidate: { Args: { _request_id: string }; Returns: string }
       rec_reschedule_interview: {
