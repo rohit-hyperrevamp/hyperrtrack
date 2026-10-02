@@ -126,7 +126,7 @@ type RailPermissionRow = { id: string; role_key: string; module_key: string; act
 const railModules = [
   ["rail_access", "People & access"], ["rail_settings", "Masters & rules"], ["rail_ops", "Live operations"],
   ["rail_quality", "Quality & inspections"], ["rail_contracts", "Contracts"], ["rail_supplies", "Supplies & equipment"],
-  ["rail_sustainability", "Sustainability"], ["rail_billing", "Railway billing"],
+  ["rail_sustainability", "Sustainability"], ["rail_billing", "Railway billing"], ["rail_wages", "Wages & compliance"],
 ] as const;
 const railActions = ["view", "create", "edit", "delete", "approve", "export", "configure", "inspect", "sign"] as const;
 
@@ -178,7 +178,7 @@ function RolesAccess() {
       const removals = permissions.filter((p) => !draft.has(`${p.module_key}:${p.action}`));
       if (additions.length) {
         const payload = additions.map((key) => { const [module_key, action] = key.split(":"); return { role_key: selected, module_key, action }; });
-        const { error } = await db.from("rail_permissions").upsert(payload, { onConflict: "role_key,module_key,action" });
+        const { error } = await db.from("rail_permissions").upsert(payload.map((p) => ({ ...p, deleted_at: null })), { onConflict: "role_key,module_key,action" });
         if (error) throw error;
       }
       if (removals.length) {
