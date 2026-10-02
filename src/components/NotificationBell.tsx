@@ -145,6 +145,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
   const trigger = (
     <Button
       type="button"
+      variant="ghost"
       aria-label="Notifications"
       data-no-tip
       onClick={(event) => {
@@ -181,6 +182,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         <div className="flex items-center gap-1.5">
           <Button
             type="button"
+            variant="ghost"
             onClick={() => {
               const next = !muted;
               setNotificationSoundMuted(next);
@@ -195,6 +197,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
           </Button>
           <Button
             type="button"
+            variant="ghost"
             disabled={unread === 0}
             onClick={async () => {
               await markAllRead();
@@ -224,6 +227,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
               <li key={n.id} className="overflow-hidden rounded-lg">
                 <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => void handleOpenNotification(n)}
                   className={cn(
                     "flex h-auto min-h-16 w-full items-center justify-start gap-3 whitespace-normal px-2.5 py-2.5 text-left transition-colors hover:bg-secondary/60 sm:px-3",
@@ -275,11 +279,11 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
     mobileOpen && typeof document !== "undefined"
       ? createPortal(
           <div className="fixed inset-0 z-[120]" role="dialog" aria-modal="true" aria-label="Notifications">
-            <Button
+            <button
               type="button"
               aria-label="Close notifications"
               data-no-tip
-               className="absolute inset-0 bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200"
+              className="absolute inset-0 bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200"
               onClick={() => setMobileOpen(false)}
             />
             <div
@@ -293,6 +297,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                 <span className="h-1 w-10 rounded-full bg-muted-foreground/30" />
                 <Button
                   type="button"
+                  variant="ghost"
                   aria-label="Close notifications"
                   data-no-tip
                   onClick={() => setMobileOpen(false)}
