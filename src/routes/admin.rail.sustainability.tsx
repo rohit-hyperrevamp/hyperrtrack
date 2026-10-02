@@ -151,17 +151,43 @@ function SustainPage() {
       {topControls}
       <PageHeader title="Resources" description="Water, chemicals and carbon per coach." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} hint={kitChem.length ? `From kit returns · norm ${num(normPerCoach, 2)} · ${num(days ? usedChemL / days : 0, 1)} L/day` : "Estimated from norms — record kit returns for actuals"} tone={kitChem.length && normPerCoach && s.chemPerCoach > normPerCoach * 1.25 ? "bad" : "brand"} />
+        <Kpi label="kg CO₂e / coach" value={num(co2PerCoachTotal, 2)} hint={`${num(s.coaches)} coaches · ${num(chemCo2, 1)} kg from chemicals`} />
         <Kpi label="Fresh water L / coach" value={num(s.freshPerCoach)} hint={`Norm ${num(data.baseline)} L`} tone={s.freshPerCoach > data.baseline ? "bad" : "good"} />
-        <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} hint={kitChem.length ? `From kit returns · norm ${num(normPerCoach, 2)} · ${num(days ? usedChemL / days : 0, 1)} L/day` : "Estimated from norms — record kit returns for actuals"} tone={kitChem.length && normPerCoach && s.chemPerCoach > normPerCoach * 1.25 ? "bad" : "default"} />
         <Kpi label="Water saved L" value={num(s.saved)} hint={`${Math.round(s.recycledPct * 100)}% recycled`} />
-        <Kpi label="kg CO₂e / coach" value={num(s.co2PerCoach, 2)} hint={`${num(s.coaches)} coaches`} />
       </div>
       {league.filter((l) => l.coaches && l.freshPerCoach > data.baseline * (1 + data.leakPct / 100)).map((l) => (
         <div key={l.d.id} className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">Possible leak at <b>{l.d.name}</b>: {num(l.freshPerCoach)} L per coach.</div>
       ))}
 
-      <Tabs defaultValue="trend">
-        <TabsList><TabsTrigger value="trend">Trend</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
+      <Tabs defaultValue="chemicals">
+        <TabsList><TabsTrigger value="chemicals">Chemicals</TabsTrigger><TabsTrigger value="trend">Water</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
+        <TabsContent value="chemicals" className="space-y-3">
+          <p className="text-xs text-muted-foreground">Real use per product = issued to shifts minus what came back. Carbon uses each product's CO₂e factor — set it under Configuration Hub → Organization → Item types. "Vs last month" shows whether use is going down.</p>
+          {!products.length ? <Empty title="No chemical use recorded yet" hint="Issue kits in Supplies and record returns — real consumption shows here, product by product." /> : (
+            <div className="overflow-x-auto rounded-lg border bg-card">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground"><th className="p-3">Product</th><th className="p-3 text-right">Used this month</th><th className="p-3 text-right">Vs last month</th><th className="p-3 text-right">In godowns</th><th className="p-3 text-right">CO₂e</th><th className="w-28 p-3">Share of use</th></tr></thead>
+                <tbody className="divide-y">
+                  {products.map((p) => {
+                    const top = products[0].consumed || 1;
+                    const pct = p.prev > 0 ? Math.round((1 - p.consumed / p.prev) * 100) : null;
+                    return (
+                      <tr key={p.id}>
+                        <td className="p-3 font-medium">{p.name}<div className="text-xs text-muted-foreground">{num(p.issued)} issued · {num(p.returned)} returned{p.factor ? ` · ${num(p.factor, 2)} kg CO₂e/${p.unit}` : " · no CO₂e factor set"}</div></td>
+                        <td className="p-3 text-right tabular-nums">{num(p.consumed, 1)} {p.unit}</td>
+                        <td className="p-3 text-right tabular-nums">{p.prev > 0 ? <span className={pct! > 0 ? "text-good" : pct! < 0 ? "text-destructive" : ""}>{pct! > 0 ? `▼ ${pct}% lower` : pct! < 0 ? `▲ ${-pct!}% higher` : "same"}</span> : <span className="text-muted-foreground">first month</span>}</td>
+                        <td className="p-3 text-right tabular-nums">{num(p.stock, 1)} {p.unit}</td>
+                        <td className="p-3 text-right tabular-nums">{p.factor ? `${num(p.consumed * p.factor, 1)} kg` : "—"}</td>
+                        <td className="p-3"><div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Math.max(2, (p.consumed / top) * 100)}%` }} /></div></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
         <TabsContent value="trend">
           {!months.length ? <Empty title="No water or energy data yet" hint="Figures are logged automatically when cleaning jobs complete." /> : (
             <div className="rounded-lg border bg-card p-4"><div className="flex h-48 items-end gap-3">{months.map((mo) => {
