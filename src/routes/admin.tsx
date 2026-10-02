@@ -249,10 +249,8 @@ function AdminLayout() {
   const dashboardHref =
     isRailRole && !isSuperAdmin
       ? roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command"
-      : isGuardRole
-      ? "/admin/employee-dashboard"
-      : roleKey === "field_officer" && !isSuperAdmin
-        ? "/admin/field-dashboard"
+      : isGuardRole || (!isSuperAdmin && !can("rail_ops"))
+        ? "/admin/dashboard"
         : "/admin/rail/command";
 
 
@@ -337,7 +335,12 @@ function AdminLayout() {
     if (readStoredAuthUser()?.role === "super_admin") return;
     if (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname)) return;
     // Guards have no module-based permissions; restrict them to their personal pages.
-    if (isGuardRole) {
+    if (isGuardRole && !can("rail_ops")) {
+      if (pathname === "/admin/dashboard" || pathname === "/admin/profile" || pathname === "/admin/notifications") return;
+      navigate({ to: "/admin/dashboard", replace: true });
+      return;
+    }
+    if (false && isGuardRole) {
       const allowed =
         pathname === "/admin/employee-dashboard" ||
         pathname === "/admin/my-inventory" ||
@@ -521,7 +524,7 @@ function AdminLayout() {
     // Legacy pages remain accessible by their existing links while the rail
     // workspace shows only relevant navigation to accounts without rail access.
     if (!isGuard) return [];
-    if (isGuard) return guardGroups;
+    if (isGuard) return [];
     if (isControlCenterRole) {
       const children = controlCenterRadarChildren.filter(
         (item) => !item.sub || canSub("field_sense", item.sub),
