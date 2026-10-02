@@ -749,13 +749,13 @@ function SidebarGroup({
 
   const itemBase =
      "group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-[background-color,color] duration-200";
-   const itemIdle = "text-dock-foreground/75 hover:bg-dock-foreground/[0.08] hover:text-dock-foreground";
+   const itemIdle = "text-foreground hover:bg-muted hover:text-foreground";
   const itemActive =
-     "bg-dock-foreground text-dock shadow-sm";
+      "bg-brand text-primary-foreground shadow-sm hover:bg-brand hover:text-primary-foreground";
 
    const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
-   const iconSpanActive = "bg-brand text-primary-foreground";
-    const iconSpanIdle = "bg-dock-foreground/10 text-dock-foreground/75 group-hover:bg-dock-foreground/20 group-hover:text-dock-foreground";
+    const iconSpanActive = "bg-primary-foreground text-brand";
+     const iconSpanIdle = "bg-muted text-foreground group-hover:bg-border group-hover:text-foreground";
   // Collapsed rail: neutral until selected, when the icon turns solid blue.
   const collapsedItem = "h-11 w-11 mx-auto justify-center rounded-full p-0";
   const collapsedIcon =

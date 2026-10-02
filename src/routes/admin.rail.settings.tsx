@@ -47,9 +47,9 @@ const masterIcons: Record<string, LucideIcon> = {
 };
 const groupTones: Record<MasterDef["group"], string> = {
   "Places & trains": "bg-brand text-primary-foreground",
-  Cleaning: "bg-good text-primary-foreground",
+  Cleaning: "bg-brand text-primary-foreground",
   Contracts: "bg-foreground text-background",
-  "Supplies & resources": "bg-caution text-background",
+  "Supplies & resources": "bg-destructive text-destructive-foreground",
   "Billing & wages": "bg-brand text-primary-foreground",
   System: "bg-foreground text-background",
 };
@@ -59,6 +59,7 @@ const db = supabase as unknown as { from: (t: string) => any };
 function RailSettingsPage() {
   const [active, setActive] = useState<MasterDef | null>(null);
   const [section, setSection] = useState<"catalog" | "roles">("catalog");
+  const [catalogQuery, setCatalogQuery] = useState("");
   const { isSuperAdmin } = useCurrentPermissions();
   const groups = useMemo(() => {
     const m = new Map<MasterDef["group"], MasterDef[]>();
@@ -71,23 +72,25 @@ function RailSettingsPage() {
   return (
     <div className="rail-config space-y-6">
       <PageHeader title="Configuration Hub" />
-      <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-        <Button variant={section === "catalog" ? "default" : "ghost"} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
-        {isSuperAdmin && <Button variant={section === "roles" ? "default" : "ghost"} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
+      <div className="rail-config-tabs flex flex-wrap items-center gap-2 border-b border-border pb-3">
+        <Button variant="ghost" aria-pressed={section === "catalog"} className={cn("rounded-md", section === "catalog" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("catalog")}><Settings2 className="h-4 w-4" /> Masters & rules</Button>
+        {isSuperAdmin && <Button variant="ghost" aria-pressed={section === "roles"} className={cn("rounded-md", section === "roles" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
         {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
       </div>
-      {section === "roles" && isSuperAdmin ? <RolesAccess /> : groups.map(([group, defs]) => (
+      {section === "roles" && isSuperAdmin ? <RolesAccess /> : <><div className="relative max-w-sm"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Find a collection" placeholder="Find a collection" value={catalogQuery} onChange={(e) => setCatalogQuery(e.target.value)} className="pl-9" /></div>{groups.map(([group, entries]) => {
+        const defs = entries.filter((d) => `${d.label} ${d.description}`.toLowerCase().includes(catalogQuery.toLowerCase()));
+        return defs.length ? (
         <section key={group} className="space-y-3" aria-label={group}>
           <div className="flex items-center gap-3 pb-1">
             {(() => { const Icon = groupIcons[group]; return <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", groupTones[group])}><Icon className="h-4 w-4" /></span>; })()}
             <h2 className="text-base font-semibold text-foreground">{group}</h2>
             <span className="ml-auto text-xs tabular-nums text-muted-foreground">{defs.length}</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {defs.map((d) => <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />)}
           </div>
         </section>
-      ))}
+      ) : null; })}</>}
     </div>
   );
 }
@@ -107,13 +110,13 @@ function MasterCard({ def, onOpen }: { def: MasterDef; onOpen: () => void }) {
       type="button"
        variant="outline"
       onClick={onOpen}
-       className="group h-auto min-h-28 w-full items-start justify-start rounded-lg border-border/70 bg-card p-4 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:bg-card hover:shadow-md active:translate-y-0 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring"
+        className="rail-config-card group h-auto min-h-32 w-full items-start justify-start gap-0 whitespace-normal rounded-lg border-border bg-card p-5 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:bg-card hover:shadow-md active:translate-y-0 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="flex w-full min-w-0 items-start gap-3">
          <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full", groupTones[def.group])}><Icon className="h-5 w-5" strokeWidth={1.9} /></span>
         <span className="min-w-0 flex-1 pt-0.5">
           <span className="block truncate text-sm font-semibold text-foreground">{def.label}</span>
-          <span className="mt-1 block truncate text-xs font-normal text-muted-foreground">{def.description}</span>
+          <span className="mt-1 block line-clamp-2 text-xs font-normal leading-relaxed text-muted-foreground">{def.description}</span>
         </span>
          <span className="flex shrink-0 items-center gap-1 text-xs font-semibold tabular-nums text-muted-foreground"><span>{count ?? "–"}</span><ArrowRight className="h-3.5 w-3.5 text-brand transition-transform group-hover:translate-x-1" /></span>
       </span>
