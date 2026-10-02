@@ -13,7 +13,7 @@
 @theme inline {
   /* HyperTrack brand blue — bright, bold identity blue (white + blue) */
   --color-brand: var(--brand-blue);
-  --color-brand-foreground: #ffffff;
+  --color-brand-foreground: var(--primary-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) - 4px);
@@ -70,7 +70,7 @@
 
 :root {
   --radius: 0.5rem;
-  --brand-blue: #1877f2;
+  --brand-blue: oklch(0.55 0.2 255);
   --mobile-edge: 0.5rem;
   --mobile-dock-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /* surfaces — soft neutral canvas, pure white cards (reference design language) */
@@ -80,8 +80,8 @@
   --card-foreground: oklch(0.22 0.025 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.025 250);
-  /* deep ink primary — the dark pill used for active nav / primary buttons */
-  --primary: oklch(0.21 0.045 252);
+  /* One action blue shared by buttons, focus, links and the wordmark. */
+  --primary: var(--brand-blue);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.006 250);
   --secondary-foreground: oklch(0.22 0.025 250);
@@ -92,7 +92,7 @@
   --success: oklch(0.49 0.12 155);
   --warning: oklch(0.59 0.14 70);
   --accent-foreground: oklch(0.99 0 0);
-  --accent-secondary: oklch(0.21 0.045 252);
+  --accent-secondary: var(--brand-blue);
   --destructive: oklch(0.62 0.16 20);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.90 0.009 250);
@@ -106,13 +106,13 @@
   --chart-5: oklch(0.65 0.2 25);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.22 0.025 250);
-  --sidebar-primary: oklch(0.21 0.045 252);
+  --sidebar-primary: var(--brand-blue);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.96 0.006 250);
   --sidebar-accent-foreground: oklch(0.22 0.025 250);
   --sidebar-border: oklch(0.925 0.005 250);
-  --sidebar-ring: oklch(0.60 0.075 192);
-  --dock: oklch(0.12 0.006 168);
+  --sidebar-ring: var(--brand-blue);
+  --dock: oklch(0.18 0.015 255);
   --dock-foreground: oklch(0.98 0 0);
 
   /* Theme-aware surfaces used by .glass, .tile, admin shell, etc. */
@@ -120,8 +120,8 @@
   --surface-strong: 255 255 255;
   --surface-hairline: 226 231 229;        /* hairline edge */
   --surface-shadow: 17 30 52;             /* rgb for shadow ink */
-  --surface-glass-alpha: 0.96;
-  --surface-glass-strong-alpha: 1;
+  --surface-glass-alpha: 0.84;
+  --surface-glass-strong-alpha: 0.93;
   --surface-border-alpha: 0.9;
 
   /* Operational status tints, restrained against the neutral canvas. */
@@ -216,7 +216,7 @@
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 14%);
   --sidebar-ring: oklch(0.8 0.09 190);
-  --dock: oklch(0.12 0.006 168);
+  --dock: oklch(0.18 0.015 255);
   --dock-foreground: oklch(0.98 0 0);
 
   /* Dark theme surfaces — deep ink, lifted for readability */
@@ -224,8 +224,8 @@
   --surface-strong: 52 63 60;
   --surface-hairline: 255 255 255;
   --surface-shadow: 0 0 0;
-  --surface-glass-alpha: 0.9;
-  --surface-glass-strong-alpha: 1;
+  --surface-glass-alpha: 0.82;
+  --surface-glass-strong-alpha: 0.92;
   --surface-border-alpha: 0.18;
 }
 
@@ -309,14 +309,14 @@
   /* ============ Glassmorphism system (theme-aware) ============ */
   .glass {
     background: rgb(var(--surface) / var(--surface-glass-alpha));
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(18px) saturate(135%);
     border: 1px solid rgb(var(--surface-hairline) / var(--surface-border-alpha));
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.04), 0 10px 28px -22px rgb(var(--surface-shadow) / 0.18);
   }
   .glass-strong {
     background: rgb(var(--surface-strong) / var(--surface-glass-strong-alpha));
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(135%);
     border: 1px solid rgb(var(--surface-hairline) / var(--surface-border-alpha));
     border-radius: 8px;
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.05), 0 16px 36px -26px rgb(var(--surface-shadow) / 0.22);
@@ -465,13 +465,13 @@
     0% { transform: translateX(-120%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
   }
-  .animate-slide-in-left { animation: slide-in-left 620ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-slide-in-left { animation: slide-in-left 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 
   @keyframes slide-in-top {
     0% { transform: translateY(-120%); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
   }
-  .animate-slide-in-top { animation: slide-in-top 560ms cubic-bezier(0.22, 1, 0.36, 1) 140ms both; }
+  .animate-slide-in-top { animation: slide-in-top 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 
   @keyframes slide-in-right-soft {
     0% { transform: translateX(40px); opacity: 0; }
@@ -1013,7 +1013,7 @@
   /* Shared data cards: precise edges and restrained elevation. */
   .bg-card {
     background-image: none;
-    border-radius: 8px;
+    border-radius: var(--radius);
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.04);
   }
   .dark .bg-card {
@@ -1027,7 +1027,7 @@
   /* HyperTrack's rail workspace uses the same compact control-room geometry
      across KPI tiles, lists, forms and the command board. */
    [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
-    border-radius: 8px;
+     border-radius: var(--radius);
   }
    [data-rail-workspace] .page-header > div {
      background: transparent;
@@ -1039,7 +1039,7 @@
    }
    [data-rail-workspace] .page-header { margin-bottom: 0; }
    [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"], [data-slot="tabs-list"], [data-slot="tabs-trigger"]) {
-     border-radius: 8px;
+      border-radius: var(--radius);
    }
    [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
      border-color: color-mix(in oklab, var(--border) 75%, transparent);
@@ -1053,9 +1053,13 @@
    @media (min-width: 1024px) {
      [data-rail-workspace] { padding-inline: clamp(1.5rem, 2.5vw, 3rem); }
    }
-  [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
-    box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
-  }
+   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
+     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
+   }
+   /* Frost the navigational chrome, not every scrolling data cell. */
+   [data-rail-workspace] :where(.glass, .glass-strong) {
+     background: rgb(var(--surface) / var(--surface-glass-alpha));
+   }
 
   /* Flat pastel tile variants — solid soft fills, no gradient, matching the
      lime / mint / blush cards of the reference dashboard. */
@@ -1621,8 +1625,28 @@ body {
    continuously recomputed blur layer. */
 [data-admin-scroll] :where(.glass, .glass-strong, .glass-dark),
 [data-admin-scroll] [class*="backdrop-blur"]:not(.mobile-glass-surface):not(.mobile-glass-control):not(.mobile-glass-bar) {
-  -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+/* One soft glass layer on chrome; repeated cards stay opaque for readability and scroll speed. */
+[data-app-header], [data-hyper-dock], nav[data-bottom-nav] {
+  backdrop-filter: blur(22px) saturate(145%);
+}
+[data-hyper-dock] {
+  background: color-mix(in oklab, var(--dock) 90%, transparent);
+  border-color: color-mix(in oklab, var(--dock-foreground) 12%, transparent);
+}
+nav[data-bottom-nav] {
+  background: color-mix(in oklab, var(--dock) 90%, transparent) !important;
+  border-radius: var(--radius) !important;
+}
+[data-app-header] {
+  background: color-mix(in oklab, var(--card) 84%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  [data-app-header], [data-hyper-dock], nav[data-bottom-nav] { backdrop-filter: none; }
+  [data-hyper-dock], nav[data-bottom-nav] { background: var(--dock) !important; }
+  [data-app-header] { background: var(--card); }
 }
 
 /* Prevent iOS auto-zoom on input focus (must be ≥16px) */
@@ -2133,7 +2157,7 @@ nav[data-bottom-nav] {
   top: auto !important;
   z-index: 80 !important;
   border: 1px solid color-mix(in oklab, var(--dock-foreground) 14%, transparent);
-  background: var(--dock);
+   background: color-mix(in oklab, var(--dock) 90%, transparent);
   box-shadow: 0 12px 34px -18px color-mix(in oklab, var(--foreground) 45%, transparent);
   padding: 0;
   transform: none !important;

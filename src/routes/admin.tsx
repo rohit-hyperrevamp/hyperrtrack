@@ -452,7 +452,7 @@ function AdminLayout() {
       {/* Desktop rail dock: every accessible destination is a direct link. */}
       <aside
         className={cn(
-          "fixed inset-y-3 left-3 z-30 hidden flex-col rounded-[26px] border border-white/10 bg-black text-white shadow-[0_18px_50px_-20px_rgba(0,0,0,0.65)] transition-[width] duration-300 lg:flex animate-slide-in-left",
+          "fixed inset-y-3 left-3 z-30 hidden flex-col rounded-lg border border-dock-foreground/10 bg-dock text-dock-foreground shadow-lg transition-[width] duration-300 lg:flex animate-slide-in-left",
           nativeShell && "lg:hidden",
           sidebarWidth,
         )}
@@ -525,14 +525,14 @@ function AdminLayout() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className={cn(
-                  "flex w-full items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.06] p-2 text-sm font-semibold text-white transition hover:bg-white/10",
+                 className={cn(
+                   "flex w-full items-center gap-2.5 rounded-lg border border-dock-foreground/10 bg-dock-foreground/[0.06] p-2 text-sm font-semibold text-dock-foreground transition hover:bg-dock-foreground/10",
                   collapsed && "mx-auto h-11 w-11 justify-center rounded-full border-0 bg-transparent p-0 hover:bg-white/10",
                 )}
               >
                 <span className={cn(
                   "relative grid shrink-0 place-items-center overflow-hidden bg-white text-black text-[11px] font-bold",
-                  collapsed ? "h-11 w-11 rounded-full ring-1 ring-white/15" : "h-9 w-9 rounded-xl",
+                   collapsed ? "h-11 w-11 rounded-full ring-1 ring-dock-foreground/15" : "h-9 w-9 rounded-lg",
                 )}>
                   {me.photoUrl ? (
                     <img src={me.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -599,7 +599,7 @@ function AdminLayout() {
 
           <div
             className={cn(
-              "mt-2 flex w-full items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-2 py-1.5",
+               "mt-2 flex w-full items-center gap-2 rounded-lg border border-dock-foreground/10 bg-dock-foreground/[0.06] px-2 py-1.5",
               collapsed && "mt-1.5 justify-center border-0 bg-transparent p-0",
             )}
           >
@@ -616,7 +616,7 @@ function AdminLayout() {
             type="button"
             onClick={() => setCollapsed((v) => !v)}
             className={cn(
-              "mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-[11px] font-semibold text-white/50 hover:bg-white/10 hover:text-white",
+               "mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-dock-foreground/50 hover:bg-dock-foreground/10 hover:text-dock-foreground",
               collapsed && "mx-auto mt-1.5 h-11 w-11 rounded-full p-0",
             )}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -629,8 +629,8 @@ function AdminLayout() {
 
       {/* Mobile top bar — compact native-app chrome */}
       <header data-app-header className={cn(
-        "sticky top-0 z-20 grid min-h-[48px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-1 animate-slide-in-top safe-top safe-x",
-        "border-b border-border/50 bg-card/90 backdrop-blur-2xl",
+         "sticky top-0 z-20 grid min-h-[48px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-1 animate-slide-in-top safe-top safe-x",
+         "border-b border-border/50 bg-card/90",
         !nativeShell && "lg:hidden",
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
@@ -739,20 +739,20 @@ function SidebarGroup({
   }, [groupActive]);
 
   const itemBase =
-    "group relative flex w-full items-center gap-2.5 rounded-2xl px-2.5 py-2 text-[13px] font-medium transition-all";
+     "group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-[background-color,color] duration-200";
   const itemIdle = "text-white/60 hover:bg-white/[0.07] hover:text-white";
   const itemActive =
-    "bg-white text-black shadow-[0_10px_28px_-14px_rgba(0,0,0,0.6)]";
+     "bg-dock-foreground text-dock shadow-sm";
 
   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
-  const iconSpanActive = "bg-black/10 text-black";
+   const iconSpanActive = "bg-dock/10 text-dock";
   const iconSpanIdle = "text-white/55 group-hover:text-white";
   // Collapsed rail: item is a perfect circle, active state is a solid white circle
   const collapsedItem = "h-11 w-11 mx-auto justify-center rounded-full p-0";
   const collapsedIcon =
     "grid h-11 w-11 place-items-center rounded-full transition-all duration-200";
   const collapsedIconActive =
-    "bg-white text-black shadow-[0_10px_28px_-10px_rgba(0,0,0,0.65)]";
+     "bg-dock-foreground text-dock shadow-sm";
   const collapsedIconIdle =
     "text-white/55 hover:bg-white/[0.08] hover:text-white";
 
@@ -835,6 +835,7 @@ function SidebarGroup({
           type="button"
           onClick={() => setOpen((v) => !v)}
           className={cn(itemBase, groupActive ? itemActive : itemIdle)}
+          data-hyper-dock
         >
           <span className={cn(iconSpanBase, groupActive ? iconSpanActive : iconSpanIdle)}>
             <Icon className="h-4 w-4" />
