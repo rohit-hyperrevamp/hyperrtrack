@@ -1,3 +1,4 @@
+import { RailPayStructures } from "@/components/RailPayStructures";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -51,7 +52,9 @@ function Finance() {
             })}</tbody>
           </table>
         </div>)}
+      <RailPayStructures />
       <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline"><Link to="/admin/deduction-type-manager">Deductions</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/payroll">Payroll register</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/invoice">Invoices</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/allowance-manager">Salary parts</Link></Button>

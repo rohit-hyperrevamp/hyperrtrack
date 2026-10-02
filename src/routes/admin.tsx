@@ -439,7 +439,7 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = isSuperAdmin ? [...railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"), ...railPeoplePayChildren] : railChildren.filter((c) => {
+      const links = isSuperAdmin ? (() => { const base = railChildren.filter((c) => c.to !== "/admin/rail/me" && c.to !== "/admin/rail/pay"); const i = base.findIndex((c) => c.to === "/admin/rail/people") + 1; return [...base.slice(0, i), ...railPeoplePayChildren, ...base.slice(i)]; })() : railChildren.filter((c) => {
         const section = c.to.split("/")[3];
         if (section === "pay") return true;
         if (section === "finance") return railPageAccess?.rail_billing === true;
@@ -509,9 +509,7 @@ function AdminLayout() {
         {/* Nav — grouped like the reference portal (Menu / Operations / Finance / Admin) */}
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
           {(() => {
-            const sections: Array<{ label: string; keys: string[] }> = [
-              { label: "Rail operations", keys: visibleGroups.map((g) => g.key) },
-            ];
+            const sections = RAIL_DOCK_SECTIONS;
             const used = new Set<string>();
             return (
               <div className={collapsed ? "space-y-1.5" : "space-y-3"}>
