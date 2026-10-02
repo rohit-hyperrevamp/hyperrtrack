@@ -101,8 +101,10 @@ import { Route as AdminRailSuppliesRouteImport } from './routes/admin.rail.suppl
 import { Route as AdminRailSettingsRouteImport } from './routes/admin.rail.settings'
 import { Route as AdminRailQualityRouteImport } from './routes/admin.rail.quality'
 import { Route as AdminRailPeopleRouteImport } from './routes/admin.rail.people'
+import { Route as AdminRailPayRouteImport } from './routes/admin.rail.pay'
 import { Route as AdminRailMeRouteImport } from './routes/admin.rail.me'
 import { Route as AdminRailLiveRouteImport } from './routes/admin.rail.live'
+import { Route as AdminRailFinanceRouteImport } from './routes/admin.rail.finance'
 import { Route as AdminRailCommandRouteImport } from './routes/admin.rail.command'
 import { Route as AdminRailCheckerRouteImport } from './routes/admin.rail.checker'
 import { Route as AdminRailBillingRouteImport } from './routes/admin.rail.billing'
@@ -628,6 +630,11 @@ const AdminRailPeopleRoute = AdminRailPeopleRouteImport.update({
   path: '/people',
   getParentRoute: () => AdminRailRoute,
 } as any)
+const AdminRailPayRoute = AdminRailPayRouteImport.update({
+  id: '/pay',
+  path: '/pay',
+  getParentRoute: () => AdminRailRoute,
+} as any)
 const AdminRailMeRoute = AdminRailMeRouteImport.update({
   id: '/me',
   path: '/me',
@@ -636,6 +643,11 @@ const AdminRailMeRoute = AdminRailMeRouteImport.update({
 const AdminRailLiveRoute = AdminRailLiveRouteImport.update({
   id: '/live',
   path: '/live',
+  getParentRoute: () => AdminRailRoute,
+} as any)
+const AdminRailFinanceRoute = AdminRailFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => AdminRailRoute,
 } as any)
 const AdminRailCommandRoute = AdminRailCommandRouteImport.update({
@@ -1025,8 +1037,10 @@ export interface FileRoutesByFullPath {
   '/admin/rail/billing': typeof AdminRailBillingRoute
   '/admin/rail/checker': typeof AdminRailCheckerRoute
   '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/finance': typeof AdminRailFinanceRoute
   '/admin/rail/live': typeof AdminRailLiveRoute
   '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/pay': typeof AdminRailPayRoute
   '/admin/rail/people': typeof AdminRailPeopleRoute
   '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
@@ -1167,8 +1181,10 @@ export interface FileRoutesByTo {
   '/admin/rail/billing': typeof AdminRailBillingRoute
   '/admin/rail/checker': typeof AdminRailCheckerRoute
   '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/finance': typeof AdminRailFinanceRoute
   '/admin/rail/live': typeof AdminRailLiveRoute
   '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/pay': typeof AdminRailPayRoute
   '/admin/rail/people': typeof AdminRailPeopleRoute
   '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
@@ -1315,8 +1331,10 @@ export interface FileRoutesById {
   '/admin/rail/billing': typeof AdminRailBillingRoute
   '/admin/rail/checker': typeof AdminRailCheckerRoute
   '/admin/rail/command': typeof AdminRailCommandRoute
+  '/admin/rail/finance': typeof AdminRailFinanceRoute
   '/admin/rail/live': typeof AdminRailLiveRoute
   '/admin/rail/me': typeof AdminRailMeRoute
+  '/admin/rail/pay': typeof AdminRailPayRoute
   '/admin/rail/people': typeof AdminRailPeopleRoute
   '/admin/rail/quality': typeof AdminRailQualityRoute
   '/admin/rail/settings': typeof AdminRailSettingsRoute
@@ -1464,8 +1482,10 @@ export interface FileRouteTypes {
     | '/admin/rail/billing'
     | '/admin/rail/checker'
     | '/admin/rail/command'
+    | '/admin/rail/finance'
     | '/admin/rail/live'
     | '/admin/rail/me'
+    | '/admin/rail/pay'
     | '/admin/rail/people'
     | '/admin/rail/quality'
     | '/admin/rail/settings'
@@ -1606,8 +1626,10 @@ export interface FileRouteTypes {
     | '/admin/rail/billing'
     | '/admin/rail/checker'
     | '/admin/rail/command'
+    | '/admin/rail/finance'
     | '/admin/rail/live'
     | '/admin/rail/me'
+    | '/admin/rail/pay'
     | '/admin/rail/people'
     | '/admin/rail/quality'
     | '/admin/rail/settings'
@@ -1753,8 +1775,10 @@ export interface FileRouteTypes {
     | '/admin/rail/billing'
     | '/admin/rail/checker'
     | '/admin/rail/command'
+    | '/admin/rail/finance'
     | '/admin/rail/live'
     | '/admin/rail/me'
+    | '/admin/rail/pay'
     | '/admin/rail/people'
     | '/admin/rail/quality'
     | '/admin/rail/settings'
@@ -2458,6 +2482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRailPeopleRouteImport
       parentRoute: typeof AdminRailRoute
     }
+    '/admin/rail/pay': {
+      id: '/admin/rail/pay'
+      path: '/pay'
+      fullPath: '/admin/rail/pay'
+      preLoaderRoute: typeof AdminRailPayRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
     '/admin/rail/me': {
       id: '/admin/rail/me'
       path: '/me'
@@ -2470,6 +2501,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/admin/rail/live'
       preLoaderRoute: typeof AdminRailLiveRouteImport
+      parentRoute: typeof AdminRailRoute
+    }
+    '/admin/rail/finance': {
+      id: '/admin/rail/finance'
+      path: '/finance'
+      fullPath: '/admin/rail/finance'
+      preLoaderRoute: typeof AdminRailFinanceRouteImport
       parentRoute: typeof AdminRailRoute
     }
     '/admin/rail/command': {
@@ -2957,8 +2995,10 @@ interface AdminRailRouteChildren {
   AdminRailBillingRoute: typeof AdminRailBillingRoute
   AdminRailCheckerRoute: typeof AdminRailCheckerRoute
   AdminRailCommandRoute: typeof AdminRailCommandRoute
+  AdminRailFinanceRoute: typeof AdminRailFinanceRoute
   AdminRailLiveRoute: typeof AdminRailLiveRoute
   AdminRailMeRoute: typeof AdminRailMeRoute
+  AdminRailPayRoute: typeof AdminRailPayRoute
   AdminRailPeopleRoute: typeof AdminRailPeopleRoute
   AdminRailQualityRoute: typeof AdminRailQualityRoute
   AdminRailSettingsRoute: typeof AdminRailSettingsRoute
@@ -2971,8 +3011,10 @@ const AdminRailRouteChildren: AdminRailRouteChildren = {
   AdminRailBillingRoute: AdminRailBillingRoute,
   AdminRailCheckerRoute: AdminRailCheckerRoute,
   AdminRailCommandRoute: AdminRailCommandRoute,
+  AdminRailFinanceRoute: AdminRailFinanceRoute,
   AdminRailLiveRoute: AdminRailLiveRoute,
   AdminRailMeRoute: AdminRailMeRoute,
+  AdminRailPayRoute: AdminRailPayRoute,
   AdminRailPeopleRoute: AdminRailPeopleRoute,
   AdminRailQualityRoute: AdminRailQualityRoute,
   AdminRailSettingsRoute: AdminRailSettingsRoute,

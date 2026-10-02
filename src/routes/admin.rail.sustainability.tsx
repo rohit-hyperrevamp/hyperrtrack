@@ -54,14 +54,13 @@ function SustainPage() {
   });
   const [reading, setReading] = useState({ meter_id: "", value: "" });
 
-  if (!data) return <div className="h-64 animate-pulse rounded-2xl bg-muted" />;
+  if (!data) return <div className="h-64 animate-pulse rounded-lg bg-muted" />;
   const chemL = data.chem.filter((c) => c.inv_items?.unit === "L").reduce((s, c) => s + Number(c.qty), 0);
   const s = summarize(data.ledger, data.baseline, chemL);
   const depotOf = (id: string | null) => { let l = data.locs.find((x) => x.id === id); while (l && l.type !== "depot") l = data.locs.find((x) => x.id === l!.parent_id); return l; };
   const league = data.locs.filter((l) => l.type === "depot").map((d) => ({ d, ...summarize(data.ledger.filter((x) => depotOf(x.location_id)?.id === d.id), data.baseline, 0) })).sort((a, b) => a.freshPerCoach - b.freshPerCoach);
   const months = [...new Set(data.trend.map((t) => t.ledger_date.slice(0, 7)))].sort();
   const manualCoaches = s.coaches - s.acwpCoaches;
-  const projection = manualCoaches * (data.baseline - 60);
 
   async function addReading() {
     const m = data!.meters.find((x) => x.id === reading.meter_id);
@@ -105,52 +104,42 @@ function SustainPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Sustainability" description="Metered and estimated figures are always kept apart." actions={
+      <PageHeader title="Resources" description="Water, chemicals and carbon per coach." actions={
         <div className="flex gap-2"><Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" /><Button onClick={esgReport}><FileDown className="mr-2 h-4 w-4" />ESG report</Button></div>} />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
-        <Kpi label="Litres saved" value={num(s.saved)} tone="good" />
-        <Kpi label="Recycled" value={`${Math.round(s.recycledPct * 100)}%`} />
-        <Kpi label="Fresh L / coach" value={num(s.freshPerCoach)} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi label="Fresh water L / coach" value={num(s.freshPerCoach)} hint={`Norm ${num(data.baseline)} L`} tone={s.freshPerCoach > data.baseline ? "bad" : "good"} />
         <Kpi label="Chemical L / coach" value={num(s.chemPerCoach, 2)} />
-        <Kpi label="kg CO₂e / coach" value={num(s.co2PerCoach, 2)} />
-        <Kpi label="Auto wash vs manual" value={`${s.acwpCoaches} / ${manualCoaches}`} />
-        <Kpi label="Metered data" value={`${Math.round(s.meteredShare * 100)}%`} tone={s.meteredShare < 0.5 ? "warn" : "good"} />
-        <Kpi label="Coaches" value={num(s.coaches)} />
+        <Kpi label="Water saved L" value={num(s.saved)} hint={`${Math.round(s.recycledPct * 100)}% recycled`} />
+        <Kpi label="kg CO₂e / coach" value={num(s.co2PerCoach, 2)} hint={`${num(s.coaches)} coaches`} />
       </div>
-
-      {manualCoaches > 0 && (
-        <div className="rounded-2xl border border-l-4 border-l-primary bg-card p-4 text-sm">
-          <b>Savings projection:</b> moving this month's {num(manualCoaches)} manual coaches to the auto wash plant would save about <b>{num(projection)} litres</b> of fresh water.
-        </div>
-      )}
       {league.filter((l) => l.coaches && l.freshPerCoach > data.baseline * (1 + data.leakPct / 100)).map((l) => (
-        <div key={l.d.id} className="rounded-2xl border border-l-4 border-l-destructive bg-card p-4 text-sm"><b>Possible leak at {l.d.name}:</b> {num(l.freshPerCoach)} L per coach is over {data.leakPct}% above norm.</div>
+        <div key={l.d.id} className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">Possible leak at <b>{l.d.name}</b>: {num(l.freshPerCoach)} L per coach.</div>
       ))}
 
       <Tabs defaultValue="trend">
-        <TabsList><TabsTrigger value="trend">Trend</TabsTrigger><TabsTrigger value="league">Depot league</TabsTrigger><TabsTrigger value="meters">Meter readings</TabsTrigger><TabsTrigger value="acwp">ACWP import</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="trend">Trend</TabsTrigger><TabsTrigger value="league">Depots</TabsTrigger><TabsTrigger value="meters">Meters</TabsTrigger><TabsTrigger value="acwp">Import</TabsTrigger></TabsList>
         <TabsContent value="trend">
           {!months.length ? <Empty title="No water or energy data yet" hint="Figures are logged automatically when cleaning jobs complete." /> : (
-            <div className="rounded-2xl border bg-card p-4"><div className="flex h-48 items-end gap-3">{months.map((mo) => {
+            <div className="rounded-lg border bg-card p-4"><div className="flex h-48 items-end gap-3">{months.map((mo) => {
               const t = summarize(data.trend.filter((x) => x.ledger_date.startsWith(mo)), data.baseline, 0);
               const max = Math.max(...months.map((m2) => summarize(data.trend.filter((x) => x.ledger_date.startsWith(m2)), data.baseline, 0).saved), 1);
               return <div key={mo} className="flex flex-1 flex-col items-center gap-1"><div className="text-xs tabular-nums">{num(t.saved / 1000, 1)} kL</div><div className="w-full rounded-t bg-primary" style={{ height: `${Math.max(4, (t.saved / max) * 150)}px` }} /><div className="text-xs text-muted-foreground">{mo}</div></div>;
             })}</div><div className="mt-2 text-xs text-muted-foreground">Water saved per month</div></div>)}
         </TabsContent>
         <TabsContent value="league">
-          <div className="divide-y rounded-2xl border bg-card">{league.map((l, i) => <div key={l.d.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {l.d.name}</div><div className="text-xs text-muted-foreground">{l.coaches} coaches · {num(l.saved)} L saved · {num(l.co2PerCoach, 2)} kg CO₂e/coach</div></div><div className="tabular-nums">{num(l.freshPerCoach)} L/coach</div></div>)}</div>
+          <div className="divide-y rounded-lg border bg-card">{league.map((l, i) => <div key={l.d.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {l.d.name}</div><div className="text-xs text-muted-foreground">{l.coaches} coaches · {num(l.saved)} L saved · {num(l.co2PerCoach, 2)} kg CO₂e/coach</div></div><div className="tabular-nums">{num(l.freshPerCoach)} L/coach</div></div>)}</div>
         </TabsContent>
         <TabsContent value="meters" className="space-y-3">
-          <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1fr_auto]">
+          <div className="grid gap-2 rounded-lg border bg-card p-3 md:grid-cols-[2fr_1fr_auto]">
             <select className="h-10 rounded-md border bg-background px-3 text-sm" value={reading.meter_id} onChange={(e) => setReading({ ...reading, meter_id: e.target.value })} aria-label="Meter"><option value="">Choose meter…</option>{data.meters.map((m) => <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>)}</select>
             <Input type="number" placeholder="Reading" value={reading.value} onChange={(e) => setReading({ ...reading, value: e.target.value })} />
             <Button onClick={addReading} disabled={!reading.meter_id || !reading.value}>Save reading</Button>
           </div>
-          {!data.readings.length ? <Empty title="No readings yet" /> : <div className="divide-y rounded-2xl border bg-card">{data.readings.map((r) => <div key={r.id} className="flex justify-between p-3 text-sm"><span>{data.meters.find((m) => m.id === r.meter_id)?.name}</span><span className="tabular-nums">{num(r.reading, 1)} · {new Date(r.read_at).toLocaleString()}</span></div>)}</div>}
+          {!data.readings.length ? <Empty title="No readings yet" /> : <div className="divide-y rounded-lg border bg-card">{data.readings.map((r) => <div key={r.id} className="flex justify-between p-3 text-sm"><span>{data.meters.find((m) => m.id === r.meter_id)?.name}</span><span className="tabular-nums">{num(r.reading, 1)} · {new Date(r.read_at).toLocaleString()}</span></div>)}</div>}
         </TabsContent>
         <TabsContent value="acwp" className="space-y-3">
-          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed bg-card p-6 text-sm"><Upload className="h-4 w-4" />Upload ACWP MIS report (CSV)<input type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && importAcwp(e.target.files[0])} /></label>
-          {!data.acwp.length ? <Empty title="No ACWP runs imported this month" /> : <div className="divide-y rounded-2xl border bg-card">{data.acwp.map((a) => <div key={a.id} className="flex justify-between p-3 text-sm"><span>{a.run_date}</span><span>{a.coaches} coaches · {num(a.kwh)} kWh · {num(a.fresh_litres)} L fresh · {num(a.recycled_litres)} L recycled</span></div>)}</div>}
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed bg-card p-6 text-sm"><Upload className="h-4 w-4" />Upload ACWP MIS report (CSV)<input type="file" accept=".csv" className="hidden" onChange={(e) => e.target.files?.[0] && importAcwp(e.target.files[0])} /></label>
+          {!data.acwp.length ? <Empty title="No ACWP runs imported this month" /> : <div className="divide-y rounded-lg border bg-card">{data.acwp.map((a) => <div key={a.id} className="flex justify-between p-3 text-sm"><span>{a.run_date}</span><span>{a.coaches} coaches · {num(a.kwh)} kWh · {num(a.fresh_litres)} L fresh · {num(a.recycled_litres)} L recycled</span></div>)}</div>}
         </TabsContent>
       </Tabs>
     </div>
