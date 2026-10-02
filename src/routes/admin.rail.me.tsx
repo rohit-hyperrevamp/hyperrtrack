@@ -195,11 +195,11 @@ function MePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Kpi label="Tasks left" value={open.length} />
-        <Kpi label="Tasks (30 days)" value={num(stats?.tasks30)} />
-        <Kpi label="Day wage" value={me?.daily_wage ? `₹${me.daily_wage}` : "—"} />
-      </div>
+      {(open.length > 0 || (stats?.tasks30 ?? 0) > 0 || (me?.daily_wage ?? 0) > 0) && <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {open.length > 0 && <Kpi label="Assigned today" value={open.length} />}
+        {(stats?.tasks30 ?? 0) > 0 && <Kpi label="Completed (30 days)" value={num(stats?.tasks30)} />}
+        {(me?.daily_wage ?? 0) > 0 && <Kpi label="Day wage" value={`₹${me?.daily_wage}`} />}
+      </div>}
 
       <div className="space-y-2">
         <div className="text-sm font-medium">Today's tasks</div>
