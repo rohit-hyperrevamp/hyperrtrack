@@ -705,7 +705,7 @@ function AdminLayout() {
             to: g.to,
             active: isGroupActive(g),
         }));
-        const moreItems: BottomNavMoreItem[] = visibleGroups.flatMap((g) => {
+        const moreItems: BottomNavMoreItem[] = visibleGroups.slice(4).flatMap((g) => {
               const to = g.to ?? g.children?.[0]?.to;
               return to ? [{ key: g.key, to, label: g.label, icon: g.icon, active: isGroupActive(g) }] : [];
             });

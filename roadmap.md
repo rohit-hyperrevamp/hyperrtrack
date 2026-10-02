@@ -1,7 +1,7 @@
 # HyperTrack roadmap
 
-- [ ] Rebuild phone dock and header as circular controls; optimize mobile Photo Check, tables, form spacing, and restore Configuration Hub label
-- [ ] Use the HyperTrack train symbol as favicon, remove visible Lovable branding, move View as User below Activity Log, and remove today's shift dock card
+- [x] Rebuild phone dock and header as circular controls; optimize mobile Photo Check, tables, form spacing, and restore Configuration Hub label (authenticated mobile visual review unavailable)
+- [x] Use the HyperTrack train symbol as favicon, remove visible Lovable branding, move View as User below Activity Log, and remove today's shift dock card (service identifiers retained for integrations)
 - [x] Separate dock brand and account controls; replace text-like HT badge with a recognizable symbol and make search a centered slide-down panel without an overlay (live rail visual verification awaits publication)
 - [x] Align colored dashboard tiles to white text/icons, refresh bright status colors, notifications, dialogs and dark dock; simplify global rail navigation labels (authenticated visual comparison still pending)
 - [x] Surface existing activity logs for super admins and confirm sign-in/out and rail edits are captured in code and migrations; production verification blocked by placeholder database connection

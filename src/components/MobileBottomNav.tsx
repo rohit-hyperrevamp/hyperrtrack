@@ -104,7 +104,7 @@ export function MobileBottomNav({
                       <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-muted text-foreground") }>
                        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
-                    <span className="truncate text-[11px] font-medium">{item.label}</span>
+                    <span className="min-w-0 break-words text-[11px] font-medium leading-tight">{item.label}</span>
                   </Link>
                 );
               })}
