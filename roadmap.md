@@ -4,7 +4,7 @@
 - [x] Direct rail dock destinations, HT circular compact identity, and legacy dashboard redirect for rail accounts
 - [ ] Verify the new dock and dashboard on the live site after publication (blocked until the updated site is published)
 - [x] Unify HyperTrack wordmark, splash, full-width rail workspace, dashboard spacing, and shared Apple-inspired controls
-- [ ] Normalize rail colors, corners, icons, glass surfaces and motion across the workspace
+- [x] Normalize rail colors, corners, icons, glass surfaces and motion across the workspace
 
 - [x] Phase 1: masters, Settings hub, scoped access, audit trail, sample data, AI photo check
 - [x] Phase 2: day planning, rake placement, tasks, offline cleaner app, live board

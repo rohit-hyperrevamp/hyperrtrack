@@ -456,7 +456,7 @@ function AdminLayout() {
           nativeShell && "lg:hidden",
           sidebarWidth,
         )}
-         data-hyper-dock
+        data-hyper-dock
       >
         {/* Brand */}
         <div className={cn("flex items-center px-4 pt-5 pb-4", collapsed && "justify-center px-2")}>

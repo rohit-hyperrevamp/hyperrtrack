@@ -1039,10 +1039,11 @@
    }
    [data-rail-workspace] .page-header { margin-bottom: 0; }
    [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"], [data-slot="tabs-list"], [data-slot="tabs-trigger"]) {
-      border-radius: var(--radius);
+     border-radius: var(--radius);
    }
    [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
      border-color: color-mix(in oklab, var(--border) 75%, transparent);
+     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
    }
    [data-rail-workspace] .command-panel .border-dashed {
      background: transparent;
@@ -1052,13 +1053,6 @@
    }
    @media (min-width: 1024px) {
      [data-rail-workspace] { padding-inline: clamp(1.5rem, 2.5vw, 3rem); }
-   }
-   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
-     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
-   }
-   /* Frost the navigational chrome, not every scrolling data cell. */
-   [data-rail-workspace] :where(.glass, .glass-strong) {
-     background: rgb(var(--surface) / var(--surface-glass-alpha));
    }
 
   /* Flat pastel tile variants — solid soft fills, no gradient, matching the
@@ -1623,7 +1617,7 @@ body {
 /* Portal pages use translucent colours, but live backdrop blur forces a
    full repaint on every scroll frame. Preserve the appearance without the
    continuously recomputed blur layer. */
-  [data-admin-scroll] :where(.glass, .glass-strong, .glass-dark),
+[data-admin-scroll] :where(.glass, .glass-strong, .glass-dark),
 [data-admin-scroll] [class*="backdrop-blur"]:not(.mobile-glass-surface):not(.mobile-glass-control):not(.mobile-glass-bar) {
   backdrop-filter: none !important;
 }
@@ -2177,9 +2171,6 @@ nav[data-bottom-nav] {
     backdrop-filter: none;
     background: var(--card);
   }
-  nav[data-bottom-nav] { background: var(--dock); }
-}
-@media (prefers-reduced-transparency: reduce) {
   nav[data-bottom-nav] { background: var(--dock) !important; }
 }
 nav[data-bottom-nav][data-expanded="true"] {
