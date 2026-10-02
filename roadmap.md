@@ -1,5 +1,6 @@
 # HyperTrack roadmap
 
+- [ ] Refine login input, left-side copy and realistic HD train film; align dock and Command Centre cards; make search a focused drop-down and rail entry forms centered, staged and mobile-friendly
 - [x] Rename Rail Settings to Configuration Hub; redesign its master catalog and add role creation, permission editing, page-aware navigation, circular icons and glass editors (production verification blocked by unavailable production database connection)
 - [x] Redesign splash with percentage loader and login with rail film, frosted white phone/OTP steps, and staggered welcome-to-workspace transition
 - [x] Remove repeated notification, account and theme controls; replace the top-right red unread badge with a blue dot; make collapsed dock icons neutral until selected, selected icons blue with white symbols, and dock icons circular; simplify My Profile and keep its content full-width
