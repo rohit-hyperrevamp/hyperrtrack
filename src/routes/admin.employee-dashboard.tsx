@@ -49,6 +49,9 @@ type Me = {
   full_name: string;
   employee_code: string | null;
   photo_url: string | null;
+  aadhaar_image_url: string | null;
+  pan_image_url: string | null;
+  signature_url: string | null;
   mobile: string | null;
   email: string | null;
   role_key: string | null;
@@ -475,6 +478,11 @@ function EmployeeDashboard() {
               )}
             </div>
           </header>
+
+          <section className="rounded-lg border border-border bg-card p-4" aria-label="My documents">
+            <div className="flex items-center justify-between gap-3"><h2 className="font-semibold">My documents</h2><span className="text-sm text-muted-foreground">{Math.round(([me.photo_url, me.aadhaar_image_url, me.pan_image_url, me.signature_url].filter(Boolean).length / 4) * 100)}% complete</span></div>
+            <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">{([['Photo', me.photo_url], ['Aadhaar card', me.aadhaar_image_url], ['PAN card', me.pan_image_url], ['Signature', me.signature_url]] as const).map(([label, file]) => <li key={label} className="flex justify-between border-b border-border/60 py-2"><span>{label}</span><span className={file ? 'text-success' : 'text-muted-foreground'}>{file ? 'Received' : 'Pending'}</span></li>)}</ul>
+          </section>
 
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
             <HeroStat label="Present" value={attStats.present} icon={ClipboardCheck} tone="mint" />
