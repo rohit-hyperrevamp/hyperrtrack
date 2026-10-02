@@ -53,11 +53,12 @@ export function MobileBottomNav({
   const nav = (
     <>
       {moreActive && (
-        <button
+          <Button
           type="button"
+           variant="ghost"
           aria-label="Close more apps"
           data-more-backdrop
-           className="fixed inset-0 z-[79] bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-200 lg:hidden"
+           className="fixed inset-0 z-[79] h-auto w-auto rounded-none bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200 lg:hidden"
           onClick={onMore}
         />
       )}

@@ -5,6 +5,8 @@
 - [ ] Verify the new dock and dashboard on the live site after publication (blocked until the updated site is published)
 - [x] Unify HyperTrack wordmark, splash, full-width rail workspace, dashboard spacing, and shared Apple-inspired controls
 - [x] Normalize rail colors, corners, icons, glass surfaces and motion across the workspace
+- [x] Apply the HyperTrack blue, white, charcoal and neutral palette to legacy status colors and shared tiles; simplify command-centre exceptions and refine mobile dock and overlays
+- [ ] Review the updated authenticated screens on the live site (blocked until publication)
 
 - [x] Phase 1: masters, Settings hub, scoped access, audit trail, sample data, AI photo check
 - [x] Phase 2: day planning, rake placement, tasks, offline cleaner app, live board
