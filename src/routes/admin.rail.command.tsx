@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowUpRight, FileWarning, MessageSquareWarning, MapPin, TrainFront } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { db, Empty, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
+import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/command")({
@@ -23,12 +23,12 @@ function CommandPage() {
     queryKey: ["rail-depots-status"], refetchInterval: 30_000,
     queryFn: async () => {
       const locs = await rows<{ id: string; code: string; name: string; type: string; parent_id: string | null }>(db.from("rail_locations").select("id,code,name,type,parent_id").is("deleted_at", null));
-      const ev = await rows<{ location_id: string; status: string; planned_end: string }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", today()).is("deleted_at", null));
+      const ev = await rows<{ location_id: string; status: string; planned_end: string | null }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", today()).is("deleted_at", null));
       const locById = new Map(locs.map((l) => [l.id, l]));
       const depotOf = (id: string) => { let l = locById.get(id); const seen = new Set<string>(); while (l && l.type !== "depot" && l.type !== "station" && !seen.has(l.id)) { seen.add(l.id); l = l.parent_id ? locById.get(l.parent_id) : undefined; } return l?.id; };
       return locs.filter((l) => l.type === "depot" || l.type === "station").map((d) => {
         const events = ev.filter((x) => depotOf(x.location_id) === d.id);
-        const late = events.filter((x) => x.status !== "released" && new Date(x.planned_end) < new Date()).length;
+        const late = events.filter((x) => x.status !== "released" && x.planned_end && new Date(x.planned_end) < new Date()).length;
         return { ...d, total: events.length, released: events.filter((x) => x.status === "released").length, late, state: !events.length ? "idle" : late ? "red" : events.some((x) => x.status !== "released") ? "amber" : "green" } as Depot;
       }).sort((a, b) => b.late - a.late || b.total - a.total || a.name.localeCompare(b.name));
     },
@@ -37,7 +37,12 @@ function CommandPage() {
     queryKey: ["rail-seven-day-throughput", today()], refetchInterval: 60_000,
     queryFn: async () => {
       const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toISOString().slice(0, 10); });
-      const events = await rows<{ event_date: string; status: string }>(db.from("rail_events").select("event_date,status").gte("event_date", dates[0]).lte("event_date", dates[6]).is("deleted_at", null));
+      const events: { event_date: string; status: string }[] = [];
+      for (let offset = 0; ; offset += 1000) {
+        const page = await rows<{ event_date: string; status: string }>(db.from("rail_events").select("event_date,status").gte("event_date", dates[0]).lte("event_date", dates[6]).is("deleted_at", null).order("id").range(offset, offset + 999));
+        events.push(...page);
+        if (page.length < 1000) break;
+      }
       return dates.map((date) => ({ date, total: events.filter((e) => e.event_date === date).length, released: events.filter((e) => e.event_date === date && e.status === "released").length }));
     },
   });
