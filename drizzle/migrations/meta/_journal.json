@@ -127,6 +127,13 @@
       "when": 1790968012359,
       "tag": "0017_kit_issue_person_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790973178197,
+      "tag": "0018_rail_checkin_before_work_and_quality_review",
+      "breakpoints": true
     }
   ]
 }

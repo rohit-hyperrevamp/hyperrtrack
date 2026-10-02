@@ -18,3 +18,6 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.rail_accept_task(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.rail_accept_task(uuid) TO authenticated;
+-- Quality reviewers can read task metadata only at their authorized locations.
+CREATE POLICY "rail quality task review" ON public.rail_event_tasks FOR SELECT TO authenticated
+  USING (deleted_at IS NULL AND public.rail_can('rail_quality', 'view', location_id));
