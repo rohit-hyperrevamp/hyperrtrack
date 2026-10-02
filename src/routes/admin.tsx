@@ -434,7 +434,7 @@ function AdminLayout() {
   }
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
-  const isFieldOfficer = !isSuperAdmin && roleKey === "field_officer";
+  const isFieldOfficer = false;
   const isControlCenterRole = roleKey === "control_center_head" || roleKey === "control_center";
 
   const groups: GroupItem[] = useMemo(
@@ -486,7 +486,7 @@ function AdminLayout() {
     [isSuperAdmin, permsLoading, roleKey],
   );
 
-  const isGuard = isGuardRole;
+  const isGuard = false;
   const guardGroups: GroupItem[] = useMemo(() => [
     { key: "dashboard", label: "My Dashboard", icon: LayoutGrid, to: "/admin/employee-dashboard", activePrefixes: ["/admin/employee-dashboard"] },
     { key: "my-inventory", label: "My Uniform", icon: Boxes, to: "/admin/my-inventory", activePrefixes: ["/admin/my-inventory"] },
@@ -744,12 +744,6 @@ function AdminLayout() {
                   <Users className="h-4 w-4" /> My Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/admin/my-attendance" className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" /> My Attendance
-                </Link>
-              </DropdownMenuItem>
-
               <DropdownMenuItem asChild>
                 <Link to="/admin/notifications" className="flex items-center gap-2">
                   <Bell className="h-4 w-4" /> Notifications
