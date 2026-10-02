@@ -14,6 +14,8 @@
   /* HyperTrack brand blue — bright, bold identity blue (white + blue) */
   --color-brand: #1877f2;
   --color-brand-foreground: #ffffff;
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -86,6 +88,8 @@
   --muted-foreground: oklch(0.50 0.014 250);
   /* vivid blue accent — echoes the HyperTrack logo inside the app */
   --accent: oklch(0.585 0.197 259);
+  --success: oklch(0.49 0.12 155);
+  --warning: oklch(0.59 0.14 70);
   --accent-foreground: oklch(0.99 0 0);
   --accent-secondary: oklch(0.21 0.045 252);
   --destructive: oklch(0.62 0.16 20);
@@ -189,6 +193,8 @@
   --muted: oklch(0.29 0.014 168);
   --muted-foreground: oklch(0.8 0.01 168);
   --accent: oklch(0.8 0.09 190);
+  --success: oklch(0.76 0.12 155);
+  --warning: oklch(0.82 0.13 80);
   --accent-foreground: oklch(0.16 0.02 168);
   --accent-secondary: oklch(0.66 0.08 190);
   --destructive: oklch(0.7 0.18 22);
@@ -1019,9 +1025,26 @@
 
   /* HyperTrack's rail workspace uses the same compact control-room geometry
      across KPI tiles, lists, forms and the command board. */
-  [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
+   [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
     border-radius: 8px;
   }
+   [data-rail-workspace] .page-header > div {
+     background: transparent;
+     border: 0;
+     border-radius: 0;
+     padding-inline: 0;
+     padding-block: 0.25rem;
+     backdrop-filter: none;
+   }
+   [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"], [data-slot="tabs-list"], [data-slot="tabs-trigger"]) {
+     border-radius: 8px;
+   }
+   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
+     border-color: color-mix(in oklab, var(--border) 75%, transparent);
+   }
+   @media (min-width: 1024px) {
+     [data-rail-workspace] { padding-inline: clamp(1.5rem, 2.5vw, 3rem); }
+   }
   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
   }
