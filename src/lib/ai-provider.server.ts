@@ -1,37 +1,33 @@
 /**
  * Single source of truth for the AI account that reads attendance sheets.
  *
- * Attendance sheet reading is the ONLY AI document feature. It goes directly to
- * Google Gemini using the company's own GEMINI_API_KEY — nothing is routed
- * through the Lovable AI gateway, so usage is billed only to the company's
- * Google account. Aadhaar / PAN identity checks use SurePass, not AI.
+ * Attendance sheet reading is the ONLY AI document feature. It runs on the
+ * built-in Lovable AI (no external key to manage) — usage is covered by the
+ * project's Lovable plan. Aadhaar / PAN identity checks use SurePass, not AI.
  */
 
 import type { LanguageModel } from "ai";
 
 /**
- * Attendance data feeds invoicing, so accuracy outranks latency here. The
- * lite-tier vision model transcribes acceptably but is unreliable at copying
- * identifiers and following an exact output shape, which silently drops rows.
- * Use the full Flash model, and only fall back when Google itself is
- * overloaded (503) — never as a silent quality downgrade on a good response.
+ * Attendance data feeds invoicing, so accuracy outranks latency here. Uses the
+ * project's default Lovable AI model.
  */
-const ATTENDANCE_VISION_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash"] as const;
+const ATTENDANCE_VISION_MODELS = ["openai/gpt-6-astra"] as const;
 
-export type AiKeySource = "gemini";
+export type AiKeySource = "lovable";
 
-function personalGeminiKey(): string {
-  return process.env["GEMINI_API_KEY"]?.trim() || "";
+function lovableKey(): string {
+  return process.env["LOVABLE_API_KEY"]?.trim() || "";
 }
 
-/** True when the company Gemini account is configured. */
+/** True when the built-in Lovable AI is configured. */
 export function aiKeyConfigured(): boolean {
-  return Boolean(personalGeminiKey());
+  return Boolean(lovableKey());
 }
 
 /** Which account would be used right now. */
 export function activeAiKeySource(): AiKeySource | null {
-  return personalGeminiKey() ? "gemini" : null;
+  return lovableKey() ? "lovable" : null;
 }
 
 function isOverloaded(error: unknown): boolean {
@@ -46,37 +42,25 @@ function isOverloaded(error: unknown): boolean {
   );
 }
 
-function isFreeTierQuota(error: unknown): boolean {
-  const message = [
-    error instanceof Error ? error.message : String(error ?? ""),
-    String((error as { responseBody?: unknown } | null)?.responseBody ?? ""),
-  ].join(" ");
-  return /free_tier_requests|FreeTier|free tier/i.test(message);
-}
-
 /**
- * Run one attendance-sheet read against the company Gemini account, direct to
- * Google. Only retry when Google reports the model as overloaded/rate limited —
- * a genuine failure surfaces instead of being masked by a weaker model.
+ * Run one attendance-sheet read against the built-in Lovable AI. Only retry
+ * when the provider reports the model as overloaded/rate limited — a genuine
+ * failure surfaces instead of being masked by a weaker model.
  */
 export async function runVision<T>(
   run: (model: LanguageModel) => Promise<T>,
   modelIds: readonly string[] = ATTENDANCE_VISION_MODELS,
 ): Promise<T> {
-  const geminiKey = personalGeminiKey();
+  const key = lovableKey();
 
-  if (!geminiKey) {
+  if (!key) {
     throw new Error(
-      "Document reading is not available: the Google Gemini key is not configured.",
+      "Document reading is not available: the built-in AI is not configured for this project.",
     );
   }
 
-  const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
-  const provider = createOpenAICompatible({
-    name: "google",
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
-    apiKey: geminiKey,
-  });
+  const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
+  const provider = createLovableAiGatewayProvider(key);
 
   let lastError: unknown = null;
   for (const modelId of modelIds) {
@@ -85,11 +69,6 @@ export async function runVision<T>(
         return await run(provider(modelId));
       } catch (error) {
         lastError = error;
-        if (isFreeTierQuota(error)) {
-          throw new Error(
-            "The saved Gemini key is attached to a Google project that is still returning Free Tier quota. Replace it with an API key created inside the paid Gemini project, then retry.",
-          );
-        }
         if (!isOverloaded(error)) throw error;
         await new Promise((resolve) => setTimeout(resolve, 1200 * (attempt + 1)));
       }
