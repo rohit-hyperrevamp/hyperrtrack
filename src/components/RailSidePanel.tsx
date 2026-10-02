@@ -6,6 +6,7 @@ import { PanelRightOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { db, inr, monthStart, num, rows, today } from "@/lib/rail-ui";
+import { useCurrentPermissions } from "@/lib/rbac";
 
 const KEY = "rail.place.v1";
 export function useRailPlace() {
@@ -151,6 +152,8 @@ function PanelBody() {
 }
 
 export function RailSidePanel() {
+  const { roleKey } = useCurrentPermissions();
+  if (roleKey === "rail_cleaner") return null;
   return (
     <aside aria-label="Overview" className="hidden w-72 shrink-0 xl:block">
       <div className="sticky top-4 max-h-[calc(100dvh-2rem)] space-y-3 overflow-y-auto pb-4">
@@ -163,6 +166,8 @@ export function RailSidePanel() {
 
 export function RailSidePanelMobile() {
   const [open, setOpen] = useState(false);
+  const { roleKey } = useCurrentPermissions();
+  if (roleKey === "rail_cleaner") return null;
   return (
     <div className="xl:hidden">
       <Button type="button" size="icon" onClick={() => setOpen(true)} aria-label="Open overview" className="rail-overview-trigger fixed right-3 top-[calc(52px+env(safe-area-inset-top))] z-[22] grid h-10 w-10 place-items-center rounded-full bg-brand text-primary-foreground shadow-md sm:right-4">

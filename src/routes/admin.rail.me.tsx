@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, CheckCircle2, CloudOff, Loader2, LogIn, LogOut, RefreshCw, ScanEye } from "lucide-react";
+import { Camera, CheckCircle2, CloudOff, Loader2, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { db, Empty, enqueueTask, flushQueue, Kpi, num, railHead, readQueue, rows, today, useRailRoles } from "@/lib/rail-ui";
 import { capturePhoto } from "@/lib/native-camera";
 import { checkCoachCleanliness } from "@/lib/rail-ai-clean.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/rail/me")({
   head: () => railHead("My Day", "Your cleaning tasks for today, attendance, quality score and pay — works offline."),
@@ -42,6 +43,7 @@ function MePage() {
   const [queued, setQueued] = useState(0);
   const [done, setDone] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
+  const [evidence, setEvidence] = useState<{ task: Task; photo: string; score: number | null; verdict: string; summary: string; issues: string[] } | null>(null);
 
   useEffect(() => {
     setOnline(navigator.onLine); setQueued(readQueue().length);
@@ -110,7 +112,10 @@ function MePage() {
     setBusy(t.id);
     try {
       const photo = await shrink(raw);
-      let aiScore = undefined;
+      let aiScore: number | null = null;
+      let verdict = "offline";
+      let summary = "Photo saved on this phone. Scoring will require a connection.";
+      let issues: string[] = [];
 
       // 2. AI Scoring (only if online, else queue for later)
       if (online) {
@@ -118,38 +123,36 @@ function MePage() {
           const area = t.task_name.toLowerCase().includes("toilet") ? "toilet" : "floor";
           const res = await runAi({ data: { imageDataUrl: photo, area, eventCoachId: t.event_coach_id } });
           aiScore = res.score;
+          verdict = res.verdict;
+          summary = res.summary;
+          issues = res.issues;
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Photo scoring unavailable");
           return;
         }
       }
 
-      // 3. Queue task
-      enqueueTask({ 
-        task_id: t.id, 
-        label, 
-        photo_data: photo,
-        ai_score: aiScore
-      });
-
-      setDone((s) => new Set(s).add(t.id));
-      setQueued(readQueue().length);
-
-      if (online) {
-        const n = await flushQueue();
-        setQueued(readQueue().length);
-        if (n) {
-          toast.success(`Task completed with AI score: ${aiScore ?? "—"}`);
-          qc.invalidateQueries({ queryKey: ["rail-me-tasks"] });
-        } else toast.error("Photo could not be saved. Task is waiting to sync; do not delete it from this device.");
-      } else {
-        toast("Saved on phone — will sync when online");
-      }
+      setEvidence({ task: t, photo, score: aiScore, verdict, summary, issues });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to complete task");
     } finally {
       setBusy(null);
     }
+  }
+
+  async function confirmDone() {
+    if (!evidence || evidence.verdict === "dirty") return;
+    const { task, photo, score } = evidence;
+    const label = `${task.rail_event_coaches?.rail_events?.rail_trains?.number ?? "Train"} coach ${task.rail_event_coaches?.position} · ${task.task_name}`;
+    enqueueTask({ task_id: task.id, label, photo_data: photo, ai_score: score ?? undefined });
+    setEvidence(null);
+    setDone((s) => new Set(s).add(task.id));
+    setQueued(readQueue().length);
+    if (!online) { toast("Saved on this phone — waiting to sync and score when online"); return; }
+    const n = await flushQueue();
+    setQueued(readQueue().length);
+    if (n) { toast.success("Task completed. Supervisor can review it."); void qc.invalidateQueries({ queryKey: ["rail-me-tasks"] }); }
+    else toast.error("Photo could not be stored. Completion is waiting on this phone; keep the app data.");
   }
 
   async function accept(t: Task) {
@@ -198,8 +201,6 @@ function MePage() {
         <Kpi label="Day wage" value={me?.daily_wage ? `₹${me.daily_wage}` : "—"} />
       </div>
 
-      <Link to="/admin/rail/ai-check"><Button variant="outline" className="w-full h-12"><ScanEye className="mr-2 h-5 w-5" />Check cleanliness with camera</Button></Link>
-
       <div className="space-y-2">
         <div className="text-sm font-medium">Today's tasks</div>
         {!open.length ? <Empty title="No tasks waiting" hint="Your supervisor's assignments appear here." /> : open.map((t) => (
@@ -214,12 +215,23 @@ function MePage() {
               onClick={() => t.status === "pending" ? void accept(t) : markDone(t)}
             >
               {busy === t.id ? <Loader2 className="h-5 w-5 animate-spin" /> : 
-               t.status === "pending" ? "Accept" : 
-               <><Camera className="mr-2 h-5 w-5" />Done</>}
+               t.status === "pending" ? "Start task" : 
+               <><Camera className="mr-2 h-5 w-5" />Complete</>}
             </Button>
           </div>
         ))}
       </div>
+      <Dialog open={!!evidence} onOpenChange={(v) => !v && setEvidence(null)}>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
+          <DialogHeader><DialogTitle>Review after-cleaning photo</DialogTitle></DialogHeader>
+          {evidence && <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{evidence.task.task_name} · Coach {evidence.task.rail_event_coaches?.position}</p>
+            <img src={evidence.photo} alt="After-cleaning evidence" className="max-h-56 w-full rounded-lg object-contain" />
+            <div role="status" className="text-sm"><strong>{evidence.score === null ? "Not scored yet" : `${evidence.score}/10 · ${evidence.verdict === "clean" ? "Clean" : evidence.verdict === "dirty" ? "Clean again" : "Needs attention"}`}</strong><p className="mt-1 text-muted-foreground">{evidence.summary}</p>{evidence.issues.length > 0 && <p className="mt-1 text-muted-foreground">{evidence.issues.join(" · ")}</p>}</div>
+            <div className="flex flex-wrap justify-end gap-2"><Button variant="outline" onClick={() => { const t = evidence.task; setEvidence(null); void markDone(t); }}><RotateCcw className="mr-2 h-4 w-4" />Retake photo</Button><Button disabled={evidence.verdict === "dirty" || evidence.verdict === "offline"} onClick={() => void confirmDone()}><CheckCircle2 className="mr-2 h-4 w-4" />Complete task</Button></div>
+          </div>}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

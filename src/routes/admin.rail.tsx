@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin/rail")({
 const PAGES = [
   ["/admin/rail/command", "Overview"], ["/admin/rail/live", "Operations"], ["/admin/rail/checker", "Checks"],
   ["/admin/rail/quality", "Quality"], ["/admin/rail/supplies", "Supplies"], ["/admin/rail/sustainability", "Resources"],
-  ["/admin/rail/billing", "Billing"], ["/admin/rail/people", "Team"], ["/admin/rail/settings", "Configuration Hub"], ["/admin/rail/ai-check", "Photo Check"],
+  ["/admin/rail/billing", "Billing"], ["/admin/rail/people", "Team"], ["/admin/rail/settings", "Configuration Hub"],
   ["/admin/rail/finance", "Profit view"], ["/admin/rail/pay", "My Pay"], ["/admin/payroll", "Payroll"], ["/admin/invoice", "Invoices"],
   ["/admin/employees", "Employees"], ["/admin/attendance", "Attendance"], ["/admin/allowance-manager", "Salary parts"],
   ["/admin/deduction-type-manager", "Deductions"], ["/admin/employer-contributions", "Employer contributions"],

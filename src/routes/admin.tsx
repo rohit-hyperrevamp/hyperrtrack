@@ -128,7 +128,6 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/me", label: "My Shift", icon: Smartphone },
   { to: "/admin/rail/quality", label: "Quality", icon: ClipboardCheck },
   { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
-  { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
   { to: "/admin/hr/recruitment/dashboard", label: "People", icon: UsersRound },
   { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
   { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
@@ -144,7 +143,7 @@ const railPeoplePayChildren: LeafItem[] = [
 ];
 
 const RAIL_DOCK_SECTIONS: Array<{ label: string; keys: string[] }> = [
-  { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker", "/admin/rail/ai-check"] },
+  { label: "Daily work", keys: ["/admin/rail/command", "/admin/rail/live", "/admin/rail/me", "/admin/rail/quality", "/admin/rail/checker"] },
   { label: "People", keys: ["/admin/hr/recruitment/dashboard", "/admin/attendance", "/admin/rail/pay"] },
   { label: "Money", keys: ["/admin/rail/billing", "/admin/rail/finance"] },
   { label: "Stock", keys: ["/admin/rail/supplies", "/admin/rail/sustainability"] },
