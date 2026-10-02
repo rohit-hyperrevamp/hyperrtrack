@@ -6,11 +6,10 @@ import { Camera, CheckCircle2, AlertTriangle, XCircle, Loader2, RotateCcw } from
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { capturePhoto } from "@/lib/native-camera";
-import { checkCoachCleanliness } from "@/lib/rail-ai-clean.functions";
+import { checkCoachCleanliness, getPhotoCheckCoaches } from "@/lib/rail-ai-clean.functions";
 import { logActivity } from "@/lib/activity-log";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/admin/rail/ai-check")({
@@ -51,11 +50,24 @@ async function shrink(dataUrl: string): Promise<string> {
 
 function AiCheckPage() {
   const run = useServerFn(checkCoachCleanliness);
+  const loadCoaches = useServerFn(getPhotoCheckCoaches);
   const [area, setArea] = useState("toilet");
-  const [coach, setCoach] = useState("");
+  const [depot, setDepot] = useState("");
+  const [train, setTrain] = useState("");
+  const [coachId, setCoachId] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+
+  const { data: assignments, isLoading: loadingCoaches, error: coachError } = useQuery({
+    queryKey: ["rail-photo-check-coaches"], queryFn: () => loadCoaches(), refetchInterval: 60_000,
+  });
+  const coaches = assignments?.coaches ?? [];
+  const depots = [...new Map(coaches.map((c) => [c.location_id, c.location_name] as const)).entries()];
+  const scoped = depot ? coaches.filter((c) => c.location_id === depot) : coaches;
+  const trains = [...new Map(scoped.map((c) => [c.event_id, `${c.train_number}${c.train_name ? ` · ${c.train_name}` : ""}`] as const)).entries()];
+  const trainCoaches = train ? scoped.filter((c) => c.event_id === train) : scoped;
+  const selectedCoach = trainCoaches.find((c) => c.id === coachId);
 
   const { data: areas = Object.keys(AREA_LABELS) } = useQuery({
     queryKey: ["rail-ai-areas"],
@@ -74,6 +86,7 @@ function AiCheckPage() {
   });
 
   async function takeAndCheck() {
+    if (!selectedCoach) { toast.error("Choose a coach from your available work."); return; }
     const raw = await capturePhoto({ title: `Photo of ${AREA_LABELS[area] ?? area}` });
     if (!raw) return;
     setBusy(true);
@@ -81,9 +94,9 @@ function AiCheckPage() {
     try {
       const small = await shrink(raw);
       setPhoto(small);
-      const r = await run({ data: { imageDataUrl: small, area, coachNumber: coach || null } });
+      const r = await run({ data: { imageDataUrl: small, area, eventCoachId: selectedCoach.id } });
       setResult(r);
-      await logActivity({ module: "AI Clean Check", action: "create", entityType: "rail_ai_photo_scores", entityId: r.id ?? undefined, details: { area, coach, score: r.score, verdict: r.verdict } });
+      await logActivity({ module: "AI Clean Check", action: "create", entityType: "rail_ai_photo_scores", entityId: r.id ?? undefined, details: { area, coach: selectedCoach.coach_number ?? selectedCoach.position, eventCoachId: selectedCoach.id, score: r.score, verdict: r.verdict } });
       refetch();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Check failed. Please try again.");
@@ -97,10 +110,11 @@ function AiCheckPage() {
       <PageHeader title="Photo Check" description="Take a photo after cleaning. The AI scores it out of 10. Your supervisor still gives the final approval." />
 
       <div className="space-y-3 rounded-xl border border-border bg-card p-4">
-        <div className="space-y-1">
-          <Label htmlFor="coach">Coach number (optional)</Label>
-          <Input id="coach" inputMode="numeric" className="font-mono tabular-nums text-lg" value={coach} onChange={(e) => setCoach(e.target.value)} placeholder="e.g. 200145" />
-        </div>
+        {loadingCoaches ? <p className="text-sm text-muted-foreground">Loading today's coaches…</p> : coachError ? <p role="alert" className="text-sm text-destructive">Could not load coach assignments. Please try again.</p> : !coaches.length ? <p className="text-sm text-muted-foreground">No coaches available for your assignment today.</p> : <div className="grid gap-3 sm:grid-cols-3">
+          {assignments?.manager && <div className="space-y-1"><Label htmlFor="photo-depot">Location</Label><select id="photo-depot" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setTrain(""); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All locations</option>{depots.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>}
+          {assignments?.manager && <div className="space-y-1"><Label htmlFor="photo-train">Train</Label><select id="photo-train" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={train} onChange={(e) => { setTrain(e.target.value); setCoachId(""); setPhoto(null); setResult(null); }}><option value="">All trains</option>{trains.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div>}
+          <div className="space-y-1"><Label htmlFor="photo-coach">Coach</Label><select id="photo-coach" className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground" value={selectedCoach?.id ?? ""} onChange={(e) => { setCoachId(e.target.value); setPhoto(null); setResult(null); }}><option value="">Choose a coach</option>{trainCoaches.map((c) => <option key={c.id} value={c.id}>{c.train_number} · Coach {c.position}{c.coach_number ? ` (${c.coach_number})` : ""}{c.coach_type ? ` · ${c.coach_type}` : ""}</option>)}</select></div>
+        </div>}
         <div className="space-y-1">
           <Label>Area</Label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -118,7 +132,7 @@ function AiCheckPage() {
             ))}
           </div>
         </div>
-        <Button className="h-14 w-full text-base" onClick={takeAndCheck} disabled={busy}>
+        <Button className="h-14 w-full text-base" onClick={takeAndCheck} disabled={busy || !selectedCoach}>
           {busy ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Camera className="mr-2 h-5 w-5" />}
           {busy ? "Checking photo…" : photo ? "Retake photo" : "Open camera"}
         </Button>
