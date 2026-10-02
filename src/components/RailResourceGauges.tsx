@@ -2,23 +2,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { db, monthStart, num, rows } from "@/lib/rail-ui";
+import { RailAnimatedNumber, useRailAnimatedValue } from "@/components/RailAnimatedValue";
 
 function Gauge({ label, value, max, display, hint, good = "low", to }: { label: string; value: number; max: number; display: string; hint: string; good?: "low" | "high"; to: string }) {
   const ratio = Math.max(0, Math.min(1, max ? value / max : 0));
+  const animatedRatio = useRailAnimatedValue(ratio, 1050);
   const okay = good === "high" ? ratio >= 0.66 : ratio <= 0.5;
   const bad = good === "high" ? ratio < 0.33 : ratio > 0.75;
   const tone = bad ? "var(--palette-danger-main)" : okay ? "var(--palette-good-main)" : "var(--brand-blue)";
   const sticks = Array.from({ length: 17 }, (_, i) => {
     const angle = Math.PI - i * Math.PI / 16;
     const point = (radius: number) => ({ x: 60 + radius * Math.cos(angle), y: 60 - radius * Math.sin(angle) });
-    return { inner: point(29), outer: point(51), filled: (i + 0.5) / 17 <= ratio };
+    return { inner: point(29), outer: point(51), filled: (i + 0.5) / 17 <= animatedRatio };
   });
   return (
     <Link to={to as never} className="flex min-w-0 flex-col items-center rounded-lg border border-border/70 bg-card p-4 transition-colors hover:border-brand/40">
       <svg viewBox="0 0 120 70" className="w-full max-w-[180px]" role="img" aria-label={`${label}: ${display}`}>
         {sticks.map((stick, i) => <line key={i} x1={stick.inner.x} y1={stick.inner.y} x2={stick.outer.x} y2={stick.outer.y} stroke={stick.filled ? tone : "var(--muted)"} strokeWidth="4.5" strokeLinecap="round" />)}
       </svg>
-      <div className="-mt-1 text-xl font-bold tabular-nums">{display}</div>
+      <div className="-mt-1 text-xl font-bold tabular-nums"><RailAnimatedNumber value={display} /></div>
       <div className="text-center text-sm font-medium">{label}</div>
       <div className="text-center text-xs text-muted-foreground">{hint}</div>
     </Link>

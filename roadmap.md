@@ -72,3 +72,4 @@
 - [x] Kits: issue to a person at the chosen store, items from that store only, return dialog that puts stock back
 - [ ] Record verified starting quantities and historical chemical consumption for VIOARR products. Blocked: production database connection is a placeholder, and no source quantities, dated receipts or usage records were supplied; do not fabricate inventory or emissions.
 - [x] Show chemical products even before first use, flag low stock, use three solid-color multi-stick D dials without pointers, and stripe filled dashboard bars.
+- [x] Animate Overview tile figures, D-dial stick fills and seven-day graph bars as dashboard data appears, with reduced-motion support.
