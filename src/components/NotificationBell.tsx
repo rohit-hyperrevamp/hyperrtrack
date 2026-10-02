@@ -161,11 +161,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
       style={{ borderRadius: "9999px", flex: "0 0 40px" }}
     >
       <Bell className="h-4 w-4" />
-      {unread > 0 && (
-        <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
-          {unread > 9 ? "9+" : unread}
-        </span>
-      )}
+      {unread > 0 && <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-brand ring-2 ring-card" aria-hidden="true" />}
     </button>
   );
 
