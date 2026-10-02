@@ -387,6 +387,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
   });
   const [busy, setBusy] = useState(false);
   async function send() {
+    if (!o.operational_role_key) return toast.error("Choose a position before submitting for approval");
     if (!Number(f.monthly_ctc)) return toast.error("Enter the offered monthly CTC");
     if (!f.joining_date) return toast.error("Enter the date of joining");
     if (!f.designation_id || !f.department_id) return toast.error("Pick designation and department");

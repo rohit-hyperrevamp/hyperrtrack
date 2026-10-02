@@ -217,7 +217,7 @@ export async function flushQueue(): Promise<number> {
         _photo: photoPath,
         _ai_score: t.ai_score,
       });
-      if (error && !/already_synced|not found|Not allowed/i.test(error.message)) {
+      if (error) {
         left.push(t);
       } else {
         ok++;

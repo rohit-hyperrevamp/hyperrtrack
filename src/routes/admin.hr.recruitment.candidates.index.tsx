@@ -79,12 +79,12 @@ function CandidatesPage() {
             <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">In progress</SelectItem><SelectItem value="pending_onboarding">Awaiting approval</SelectItem><SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
+        <Button variant="outline" className="h-10 shrink-0" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
           code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
           stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
           current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
         })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
-        <Button size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
+        <Button className="h-10 shrink-0" size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
       </RailTopbarSlot>
       <PageHeader
         eyebrow="Recruitment"
