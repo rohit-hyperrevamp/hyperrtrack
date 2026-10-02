@@ -5,6 +5,7 @@ import { Download, Plus, Search, Users } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,6 +71,15 @@ function CandidatesPage() {
 
   return (
     <div className="space-y-4">
+      <RailTopbarSlot>
+        <Input className="w-56" aria-label="Search candidates" placeholder="Search candidates" value={q} onChange={(e) => setSearch({ q: e.target.value })} />
+        <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
+          <SelectTrigger className="w-40" aria-label="Candidate status"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">To review</SelectItem><SelectItem value="pipeline">In progress</SelectItem><SelectItem value="pending_onboarding">Ready to onboard</SelectItem><SelectItem value="onboarded">Onboarded</SelectItem><SelectItem value="lost">Closed</SelectItem>
+          </SelectContent>
+        </Select>
+      </RailTopbarSlot>
       <PageHeader
         eyebrow="Recruitment"
         title="Candidates"
@@ -87,23 +97,6 @@ function CandidatesPage() {
         }
       />
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search name, code, mobile, email" defaultValue={q} onChange={(e) => setSearch({ q: e.target.value })} />
-        </div>
-        <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
-          <SelectTrigger className="sm:w-56"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All candidates</SelectItem>
-            <SelectItem value="open">To review</SelectItem>
-            <SelectItem value="pipeline">In progress</SelectItem>
-            <SelectItem value="pending_onboarding">Ready to onboard</SelectItem>
-            <SelectItem value="onboarded">Onboarded</SelectItem>
-            <SelectItem value="lost">Closed</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">

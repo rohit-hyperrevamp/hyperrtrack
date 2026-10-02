@@ -12,6 +12,7 @@ import { downloadCsv } from "@/lib/csv-export";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
+import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -180,7 +181,7 @@ function SystemLogsPage() {
         description="Sign-ins, sign-outs and recorded changes across the workspace."
       />
 
-      <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card p-4 lg:grid-cols-12">
+      <RailTopbarSlot><div className="flex min-w-max items-end gap-2 [&>div]:w-auto [&>div]:shrink-0 [&_label]:sr-only [&_[data-slot=select-trigger]]:w-36 [&_input]:w-36">
         <div className="lg:col-span-3">
           <Label className="mb-1.5 block text-xs">Date range</Label>
           <Select value={preset} onValueChange={(v) => setPreset(v as RangePreset)}>
@@ -270,14 +271,14 @@ function SystemLogsPage() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Search module, action, entity, user, IP, error…"
-              className="h-10 pl-9"
+              className="h-10 w-52 pl-9"
             />
           </div>
         </div>
         <div className="flex items-end lg:col-span-3">
           <Button
             variant="outline"
-            className="h-10 w-full"
+            className="h-10"
             onClick={() =>
               downloadCsv(
                 "system-logs",
@@ -304,7 +305,7 @@ function SystemLogsPage() {
             Export
           </Button>
         </div>
-      </div>
+      </div></RailTopbarSlot>
 
       <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
         <div className="inline-flex items-center gap-1.5">
