@@ -650,7 +650,7 @@ function AdminLayout() {
           {[railChildren[0], railChildren[1], railChildren[4], railChildren[7]].filter((item) => visibleGroups.some((group) => group.to === item.to)).map((item) => <Link key={item.to} to={item.to} className={cn("rail-topbar-tab", pathname === item.to && "is-active")}>{item.label === "Command Centre" ? "Dashboard" : item.label === "Railway Billing" ? "Billing" : item.label}</Link>)}
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/admin/rail/settings" aria-label="Rail settings" className="rail-topbar-icon"><SlidersHorizontal className="h-4 w-4" /></Link>
+          {visibleGroups.some((group) => group.to === "/admin/rail/settings") && <Link to="/admin/rail/settings" aria-label="Rail settings" className="rail-topbar-icon"><SlidersHorizontal className="h-4 w-4" /></Link>}
           <NotificationBell triggerClassName="rail-topbar-icon" />
           <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
         </div>
