@@ -177,18 +177,6 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const [selected, setSelected] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
-  const { data: workers = [], isLoading: workersLoading, isError: workersError } = useQuery({
-    queryKey: ["rail-assignable-cleaners"], enabled: !!id,
-    queryFn: async () => {
-      const [people, users] = await Promise.all([
-        rows<{ mobile: string; full_name: string; scope_type: string; scope_location_id: string | null; enabled: boolean }>(db.from("rail_people").select("mobile,full_name,scope_type,scope_location_id,enabled").eq("role_key", "cleaner").eq("enabled", true)),
-        rows<{ mobile: string; user_id: string }>(db.rpc("rail_people_users")),
-      ]);
-      const byMobile = new Map(users.map((u) => [u.mobile.replace(/\D/g, "").slice(-10), u.user_id]));
-      return people.flatMap((person) => { const userId = byMobile.get(person.mobile.replace(/\D/g, "").slice(-10)); return userId ? [{ ...person, user_id: userId }] : []; });
-    },
-  });
-
   const { data } = useQuery({
     queryKey: ["rail-event", id],
     enabled: !!id,
@@ -199,6 +187,12 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
       return { ev, coaches, tasks };
     },
   });
+  const selectedTasks = data?.tasks.filter((t) => t.event_coach_id === selected && t.status !== "done" && t.status !== "skipped") ?? [];
+  const { data: suggested = {}, isLoading: workersLoading, isError: workersError } = useQuery({
+    queryKey: ["rail-coach-cleaners", id, selected, selectedTasks.map((t) => t.id).join(",")],
+    enabled: !!id && !!selected && selectedTasks.length > 0,
+    queryFn: async () => Object.fromEntries(await Promise.all(selectedTasks.map(async (t) => [t.id, await rows<{ user_id: string; full_name: string; present: boolean; open_tasks: number }>(db.rpc("rail_suggest_cleaners", { _task: t.id }))] as const))),
+  });
   useEffect(() => { setRemoved(new Set()); setSelected(null); setRejecting(false); setRejectionReason(""); }, [id]);
   const refresh = () => { qc.invalidateQueries({ queryKey: ["rail-event", id] }); qc.invalidateQueries({ queryKey: ["rail-events", date] }); };
   const ev = data?.ev;
@@ -207,7 +201,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   const canAssign = hasRole(roles, "super_admin", "project_head", "depot_manager", "shift_supervisor");
   async function assign(t: Task, uid: string, ask = true) {
     if (!uid) return;
-    const who = workers.find((w) => w.user_id === uid)?.full_name ?? "this cleaner";
+    const who = suggested[t.id]?.find((w) => w.user_id === uid)?.full_name ?? "this cleaner";
     if (ask && !(await confirmAction({ title: `Assign ${t.task_name}?`, description: `${who} will see it in My Shift and must accept it.`, confirmText: "Assign" }))) return;
     const { error } = await db.rpc("rail_assign_task", { _task: t.id, _assignee: uid });
     if (error) { toast.error(error.message); return; }
@@ -251,8 +245,6 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
   }
 
   const coachTasks = (cid: string) => data?.tasks.filter((t) => t.event_coach_id === cid) ?? [];
-  const locationCleaners = workers.filter((w) => w.scope_type === "all" || w.scope_location_id === ev?.location_id || w.user_id === data?.tasks.find((t) => t.assigned_to === w.user_id)?.assigned_to);
-
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
       <SheetContent aria-describedby={undefined} className="rail-event-dialog w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto sm:max-w-2xl">
@@ -309,8 +301,9 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                           <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
                             {canAssign && <div className="relative min-w-0 flex-1 sm:w-48 sm:flex-none">
                               <select aria-label={`Assign ${t.task_name}`} className="rail-assign-select h-10 w-full min-w-0 truncate rounded-lg border border-border bg-card px-3 pr-10 text-sm text-foreground focus-visible:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30" value={t.assigned_to ?? ""} onChange={(e) => void assign(t, e.target.value)} disabled={workersLoading || workersError}>
-                                <option value="">{workersLoading ? "Loading cleaners…" : workersError ? "Unable to load cleaners" : locationCleaners.length ? "Assign cleaner…" : "No eligible cleaners"}</option>
-                                {locationCleaners.map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}</option>)}
+                                <option value="">{workersLoading ? "Loading cleaners…" : workersError ? "Unable to load cleaners" : suggested[t.id]?.length ? "Assign cleaner…" : "No eligible cleaners"}</option>
+                                {t.assigned_to && !suggested[t.id]?.some((w) => w.user_id === t.assigned_to) && <option value={t.assigned_to}>Currently assigned</option>}
+                                {suggested[t.id]?.map((w) => <option key={w.user_id} value={w.user_id}>{w.full_name}{w.present ? " · On duty" : ""}</option>)}
                               </select><ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             </div>}
                             {canAssign && !t.assigned_to && <Button size="sm" variant="outline" onClick={() => void autoAssign(t)}>Best match</Button>}
@@ -318,7 +311,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                       </li>
                     ))}
                   </ul>
-                  {canAssign && !workersLoading && !workersError && !locationCleaners.length && <p className="text-xs text-muted-foreground">No cleaner with an active sign-in and access to this location. Add a cleaner in Team, give them access to this location and connect their phone to a sign-in account.</p>}
+                  {canAssign && !workersLoading && !workersError && selectedTasks.length > 0 && selectedTasks.every((t) => !suggested[t.id]?.length) && <p className="text-xs text-muted-foreground">No eligible cleaner found. Add an enabled cleaner in Team with access to this location and an active phone sign-in.</p>}
                   {canAssign && workersError && <p role="alert" className="text-xs text-destructive">Cleaners could not be loaded. Retry after checking your connection.</p>}
                   {canInspect && c.status === "done" && (
                     <div className="flex flex-wrap gap-2">
