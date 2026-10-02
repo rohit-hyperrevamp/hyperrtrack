@@ -53,7 +53,6 @@ import {
   History,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import { RailDockPulse } from "@/components/RailDockPulse";
 import { RAIL_TOPBAR_SLOT_ID } from "@/components/RailTopbar";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
@@ -425,7 +424,7 @@ function AdminLayout() {
         const section = c.to.split("/")[3];
         return section && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
       });
-      const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }] : links;
+      const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }, { to: "/admin/view-as-user", label: "View as User", icon: Eye }] : links;
       return accessible.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
     return [];
@@ -531,8 +530,6 @@ function AdminLayout() {
           })()}
         </nav>
 
-        {!collapsed && railWorkspace && visibleGroups.some((g) => g.to === "/admin/rail/command") && <RailDockPulse />}
-
         {/* Footer: user + collapse */}
         <div className={cn("rail-dock-account mt-4 p-3 pt-5", collapsed ? "space-y-3" : "space-y-2")}>
           <DropdownMenu>
@@ -608,11 +605,6 @@ function AdminLayout() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {isSuperAdmin && <div className={cn("flex items-center gap-2 px-2 text-xs font-medium text-dock-foreground", collapsed && "justify-center px-0")}>
-            <ViewAsUserButton className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted text-foreground hover:bg-brand hover:text-primary-foreground" />
-            {!collapsed && <span>View as user</span>}
-          </div>}
-
           <Button
             type="button"
             variant="ghost"
@@ -656,7 +648,6 @@ function AdminLayout() {
         </Link>
         <div className="flex shrink-0 items-center">
            {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full bg-muted text-foreground"><Search className="h-5 w-5" /></Button>}
-          {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link
             to="/admin/profile"
