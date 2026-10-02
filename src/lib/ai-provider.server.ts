@@ -9,11 +9,10 @@
 import type { LanguageModel } from "ai";
 
 /**
- * Attendance data feeds invoicing, so accuracy outranks latency here. Use the
- * full Flash model first, and only fall back when the provider itself is
- * overloaded (503) — never as a silent quality downgrade on a good response.
+ * Attendance data feeds invoicing, so accuracy outranks latency here. Uses the
+ * project's default Lovable AI model.
  */
-const ATTENDANCE_VISION_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"] as const;
+const ATTENDANCE_VISION_MODELS = ["openai/gpt-6-astra"] as const;
 
 export type AiKeySource = "lovable";
 
