@@ -26,8 +26,9 @@ async function setField(table: string, id: string, patch: Record<string, unknown
 
 function QualityPage() {
   const qc = useQueryClient();
+  const [depot, setDepot] = useState("");
   const inv = () => qc.invalidateQueries({ queryKey: ["rail-q"] });
-  const { data } = useQuery({
+  const { data: rawData } = useQuery({
     queryKey: ["rail-q"],
     queryFn: async () => {
       const [insp, pen, comp, alerts, coaches, locs, ec] = await Promise.all([
@@ -45,14 +46,22 @@ function QualityPage() {
   const { data: interval = 30 } = useQuery({ queryKey: ["rail-setting-int"], queryFn: async () => (await db.rpc("rail_setting", { _key: "intensive_interval_days" })).data ?? 30 });
   const [newC, setNewC] = useState({ ref_no: "", coach_number: "", description: "" });
 
-  const locName = (id: string | null) => data?.locs.find((l) => l.id === id)?.code ?? "—";
+  const locName = (id: string | null) => rawData?.locs.find((l) => l.id === id)?.code ?? "—";
   const depotOf = (id: string | null): string | null => {
-    let l = data?.locs.find((x) => x.id === id);
-    while (l && l.type !== "depot" && l.type !== "station") l = data?.locs.find((x) => x.id === l!.parent_id);
+    let l = rawData?.locs.find((x) => x.id === id);
+    const seen = new Set<string>();
+    while (l && l.type !== "depot" && l.type !== "station" && !seen.has(l.id)) { seen.add(l.id); l = rawData?.locs.find((x) => x.id === l?.parent_id); }
     return l?.id ?? null;
   };
+  const data = rawData && (!depot ? rawData : {
+    ...rawData,
+    insp: rawData.insp.filter((x) => depotOf(x.location_id) === depot),
+    pen: rawData.pen.filter((x) => depotOf(x.location_id) === depot),
+    comp: rawData.comp.filter((x) => depotOf(x.location_id) === depot),
+    ec: rawData.ec.filter((x) => depotOf(x.location_id) === depot),
+  });
   // Trust score per depot: 60% first-pass rate, 25% complaint-free, 15% penalty-free (last 300 records)
-  const trust = (data?.locs ?? []).filter((l) => l.type === "depot").map((d) => {
+  const trust = (data?.locs ?? []).filter((l) => l.type === "depot" && (!depot || l.id === depot)).map((d) => {
     const ec = data!.ec.filter((x) => depotOf(x.location_id) === d.id);
     const fp = ec.length ? ec.filter((x) => x.first_pass).length / ec.length : 1;
     const comp = data!.comp.filter((c) => depotOf(c.location_id) === d.id && c.status !== "closed").length;
@@ -82,6 +91,7 @@ function QualityPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Quality" description="Inspections, penalties, complaints and alerts in one place." />
+      <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-quality-depot" className="text-sm font-medium">Depot</label><select id="rail-quality-depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Kpi label="Inspections" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} />
         <Kpi label="Penalties" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
