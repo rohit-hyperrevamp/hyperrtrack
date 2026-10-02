@@ -485,7 +485,8 @@ function AdminLayout() {
               <BrandMark compact />
             </Link>
           ) : (
-            <Link to={dashboardHref} aria-label="HyperTrack home" className="flex h-12 w-full min-w-0 items-center justify-center rounded-md border border-border bg-card px-3 text-foreground">
+            <Link to={dashboardHref} aria-label="HyperTrack home" className="rail-brand-link flex h-12 w-full min-w-0 items-center gap-2.5 px-2.5 text-foreground">
+              <BrandMark compact />
               <BrandMark />
             </Link>
           )}
@@ -553,7 +554,7 @@ function AdminLayout() {
               >
                 <span className={cn(
                   "relative grid shrink-0 place-items-center overflow-hidden bg-white text-black text-[11px] font-bold",
-                   collapsed ? "h-11 w-11 rounded-full ring-1 ring-dock-foreground/15" : "h-9 w-9 rounded-lg",
+                   collapsed ? "h-11 w-11 rounded-full ring-1 ring-dock-foreground/15" : "h-9 w-9 rounded-full",
                 )}>
                   {me.photoUrl ? (
                     <img src={me.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -778,7 +779,7 @@ function SidebarGroup({
   const itemActive =
      "bg-dock-foreground text-dock shadow-sm";
 
-   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors";
+   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
    const iconSpanActive = "bg-brand text-primary-foreground";
    const iconSpanIdle = "bg-brand/20 text-brand group-hover:bg-brand/30 group-hover:text-dock-foreground";
   // Collapsed rail: item is a perfect circle, active state is a solid white circle
