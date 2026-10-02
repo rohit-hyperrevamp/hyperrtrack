@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowUpRight, FileWarning, MessageSquareWarning, MapPin, TrainFront } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { useState } from "react";
+import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 
@@ -14,16 +16,17 @@ type K = Record<string, number>;
 type Depot = { id: string; code: string; name: string; type: string; parent_id: string | null; total: number; released: number; late: number; state: string };
 
 function CommandPage() {
-  const { data: k } = useQuery({ queryKey: ["rail-kpis"], refetchInterval: 30_000, queryFn: async () => {
-    const { data, error } = await db.rpc("rail_kpis", { _date: today() });
+  const [date, setDate] = useState(today());
+  const { data: k } = useQuery({ queryKey: ["rail-kpis", date], refetchInterval: 30_000, queryFn: async () => {
+    const { data, error } = await db.rpc("rail_kpis", { _date: date });
     if (error) throw error;
     return (data ?? {}) as K;
   } });
   const { data: depots = [] } = useQuery({
-    queryKey: ["rail-depots-status"], refetchInterval: 30_000,
+    queryKey: ["rail-depots-status", date], refetchInterval: 30_000,
     queryFn: async () => {
       const locs = await rows<{ id: string; code: string; name: string; type: string; parent_id: string | null }>(db.from("rail_locations").select("id,code,name,type,parent_id").is("deleted_at", null));
-      const ev = await rows<{ location_id: string; status: string; planned_end: string | null }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", today()).is("deleted_at", null));
+      const ev = await rows<{ location_id: string; status: string; planned_end: string | null }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", date).is("deleted_at", null));
       const locById = new Map(locs.map((l) => [l.id, l]));
       const depotOf = (id: string) => { let l = locById.get(id); const seen = new Set<string>(); while (l && l.type !== "depot" && l.type !== "station" && !seen.has(l.id)) { seen.add(l.id); l = l.parent_id ? locById.get(l.parent_id) : undefined; } return l?.id; };
       return locs.filter((l) => l.type === "depot" || l.type === "station").map((d) => {
@@ -34,9 +37,9 @@ function CommandPage() {
     },
   });
   const { data: trend = [] } = useQuery({
-    queryKey: ["rail-seven-day-throughput", today()], refetchInterval: 60_000,
+    queryKey: ["rail-seven-day-throughput", date], refetchInterval: 60_000,
     queryFn: async () => {
-      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toISOString().slice(0, 10); });
+      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(`${date}T12:00:00`); d.setDate(d.getDate() - (6 - i)); return d.toISOString().slice(0, 10); });
       const events: { event_date: string; status: string }[] = [];
       for (let offset = 0; ; offset += 1000) {
         const page = await rows<{ event_date: string; status: string }>(db.from("rail_events").select("event_date,status").gte("event_date", dates[0]).lte("event_date", dates[6]).is("deleted_at", null).order("id").range(offset, offset + 999));
@@ -68,7 +71,8 @@ function CommandPage() {
 
   return (
     <div className="rail-command space-y-5 sm:space-y-6">
-      <PageHeader title="Command Centre" description="Overview › Rail operations" />
+      <RailTopbarSlot><RailDateStepper value={date} onChange={setDate} /></RailTopbarSlot>
+      <PageHeader title="Command Centre" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
       <div className="rail-command-kpis grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-4">
         <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
@@ -82,7 +86,7 @@ function CommandPage() {
 
       <div className="rail-command-insights grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Seven-day cleaning activity">
-          <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">Last 7 days</span></div>
+          <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">7 days to {new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span></div>
           {hasTrend ? <>
             <div className="mt-6 grid h-44 grid-cols-7 items-end gap-2 border-b border-border/70 pb-1 sm:gap-4">
               {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.released} released of ${d.total} jobs`}>

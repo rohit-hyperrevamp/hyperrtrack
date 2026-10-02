@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarPlus, CheckCircle2, ChevronLeft, ChevronRight, Send, TrainFront, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
