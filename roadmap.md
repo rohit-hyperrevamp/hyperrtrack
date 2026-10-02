@@ -1,5 +1,7 @@
 # HyperTrack roadmap
 
+- [ ] Align colored dashboard tiles to white text/icons, refresh bright status colors, notifications, dialogs and dark dock; simplify global rail navigation labels
+- [ ] Surface existing activity logs for super admins and confirm sign-in/out and rail edits are captured; production verification blocked by placeholder database connection
 - [x] Center rail search; unify simple centered rail forms and Live Board coach review; switch dock to white and remove footer dividers; replace yellow/dull KPI colors with blue, black, white, red and selective green
 - [x] Refine expanded dock icon visibility and selected state, remove brown accents, rebuild Configuration Hub as rectangular catalog, and add depot-aware filters to rail pages
 - [x] Replace green dashboard/rail KPI accents with blue, red and yellow; redesign Live Board as a color-coded, filterable job list instead of hard-to-read timeline bars
