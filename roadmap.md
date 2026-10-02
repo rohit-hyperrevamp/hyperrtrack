@@ -1,5 +1,6 @@
 # HyperTrack roadmap
 
+- [ ] Soften rail summary tiles across pages, remove colored edge stripes, use solid circular icons with white glyphs; move page search/filters into the shared contextual top bar without duplicating controls.
 - [x] Scope Photo Check choices and submission to the signed-in cleaner's assigned coaches, while allowing authorized managers and super admins to choose a depot, train and coach; make the dashboard's colored tiles restrained and professional. Authenticated live visual verification remains unavailable because the production page returns 404.
 - [ ] Fix mobile Finance & Payroll density, payslip estimate feedback and worker selector; mobile Operations/Quality overlap; overview control; More background; dark overlays; show available staff photos without inventing real employee portraits; deliver an updated illustrated workflow PDF.
 - [ ] Trace Quality penalties from proposal to confirmation, bill and finance; make ledger status and destination explicit without treating railway penalties as automatic employee payroll deductions.

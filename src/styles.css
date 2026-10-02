@@ -1957,28 +1957,17 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis a:hover .rail-kpi { transform: none; border-color: var(--brand-blue); box-shadow: 0 4px 16px color-mix(in oklab, var(--rail-ink) 7%, transparent); }
 [data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); font-size: clamp(1.65rem, 2.5vw, 2.4rem); }
 
-/* Rail section summaries: saturated role colors, with legible ink on yellow. */
+/* Rail section summaries: quiet tinted surfaces and crisp solid icon markers. */
 [data-rail-shell] { --rail-yellow: oklch(0.86 0.18 93); --rail-yellow-deep: oklch(0.78 0.17 87); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="brand"] { background: linear-gradient(145deg, var(--brand-blue), var(--palette-strong)); border-color: var(--palette-strong); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] { background: linear-gradient(145deg, var(--palette-good-main), var(--palette-good-strong)); border-color: var(--palette-good-strong); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] { background: linear-gradient(145deg, var(--palette-danger-main), var(--palette-danger-strong)); border-color: var(--palette-danger-strong); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] { background: linear-gradient(145deg, var(--rail-yellow), var(--rail-yellow-deep)); border-color: var(--rail-yellow-deep); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="brand"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint) { color: var(--primary-foreground); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint) { color: var(--rail-ink); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon,
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="brand"] .rail-kpi-icon,
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); color: var(--primary-foreground); }
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--rail-ink) 12%, transparent); color: var(--rail-ink); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi { background: var(--card); border-color: var(--rail-line); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi :is(.rail-kpi-label,.rail-kpi-hint) { color: var(--muted-foreground); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi .rail-kpi-value { color: var(--foreground); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--brand-blue) 10%, var(--card)); color: var(--brand-blue); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi[data-tone="good"] .rail-kpi-icon { background: color-mix(in oklab, var(--palette-good-main) 12%, var(--card)); color: var(--palette-good-strong); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: color-mix(in oklab, var(--palette-danger-main) 12%, var(--card)); color: var(--palette-danger-main); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--rail-yellow) 24%, var(--card)); color: var(--rail-ink); }
-[data-rail-shell] [data-rail-workspace] .rail-command-kpis .rail-kpi[data-tone="bad"]:has(.rail-kpi-value) { border-left: 3px solid var(--palette-danger-main); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi { --tile-tone: var(--brand-blue); border: 1px solid var(--rail-line); background: color-mix(in oklab, var(--tile-tone) 8%, var(--card)); box-shadow: none; }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="default"] { background: var(--card); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] { --tile-tone: var(--palette-good-strong); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] { --tile-tone: var(--palette-danger-main); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] { --tile-tone: var(--rail-yellow-deep); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi :is(.rail-kpi-label,.rail-kpi-hint) { color: var(--muted-foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi .rail-kpi-value { color: var(--foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi .rail-kpi-icon { background: var(--tile-tone); color: var(--primary-foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--rail-yellow-deep); color: var(--rail-ink); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
