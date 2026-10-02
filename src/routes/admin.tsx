@@ -51,7 +51,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import brandLogo from "@/assets/hypertrack-logo-b.png";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
