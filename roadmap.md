@@ -67,3 +67,6 @@
 - [x] Overview panel on extreme right; dock grouped by category, most-used first, no duplicate links
 - [x] Remove separate Employees link (Team covers it); Rehire/onboard/offboard under People; salary parts/deductions/contributions/payroll/invoices under one Finance page
 - [ ] Attendance on sign-in prompt for workers; fix dropdown arrow alignment
+
+- [x] Command Centre (super admin + leadership only): half-circle gauges for chemical stock vs capacity, chemical and water use per coach vs norm, water saved
+- [x] Kits: issue to a person at the chosen store, items from that store only, return dialog that puts stock back

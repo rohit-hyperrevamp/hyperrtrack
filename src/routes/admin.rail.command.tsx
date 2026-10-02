@@ -7,6 +7,7 @@ import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 import { RailBriefing } from "@/components/RailBriefing";
+import { RailResourceGauges } from "@/components/RailResourceGauges";
 import { useCurrentPermissions } from "@/lib/rbac";
 
 export const Route = createFileRoute("/admin/rail/command")({
@@ -18,12 +19,13 @@ type K = Record<string, number>;
 type Depot = { id: string; code: string; name: string; type: string; parent_id: string | null; total: number; released: number; late: number; state: string };
 
 function CommandPage() {
-  const { roleKey } = useCurrentPermissions();
+  const { roleKey, isSuperAdmin } = useCurrentPermissions();
   if (roleKey === "rail_cleaner") return <Navigate to="/admin/rail/me" replace />;
-  return <ManagementCommand />;
+  // Resource gauges are for the super admin and the leadership level just below.
+  return <ManagementCommand leader={isSuperAdmin || ["project_head", "leadership", "vp_operations"].includes(roleKey ?? "")} />;
 }
 
-function ManagementCommand() {
+function ManagementCommand({ leader }: { leader: boolean }) {
   const [date, setDate] = useState(today());
   const { data: k } = useQuery({ queryKey: ["rail-kpis", date], refetchInterval: 30_000, queryFn: async () => {
     const { data, error } = await db.rpc("rail_kpis", { _date: date });
@@ -98,6 +100,7 @@ function ManagementCommand() {
         <Kpi label="Bill this month" value={inr(k?.bill_mtd)} to="/admin/rail/billing" />
       </div>
 
+      {leader && <RailResourceGauges />}
       <div className="rail-command-insights grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Seven-day cleaning activity">
           <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">7 days to {new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span></div>
