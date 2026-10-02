@@ -27,12 +27,7 @@ import {
   Wallet,
   Building2,
   X,
-  LogOut,
-  Sun,
-  Moon,
 } from "lucide-react";
-import { useTheme } from "@/lib/use-theme";
-import { useNavigate } from "@tanstack/react-router";
 import { computeWages, fmtINR, type ContractResourceLike } from "@/lib/payroll-calc";
 import { PageHeader } from "@/components/PageHeader";
 import { MarkAttendanceCard } from "@/components/MarkAttendanceCard";
@@ -67,10 +62,10 @@ export const Route = createFileRoute("/admin/profile")({
   component: ProfilePage,
   head: () => ({
     meta: [
-      { title: "My Profile | Radiant Guard Services" },
-      { name: "description", content: "View your Radiant employee profile, posting, CTC, and documents." },
-      { property: "og:title", content: "My Profile | Radiant Guard Services" },
-      { property: "og:description", content: "View your Radiant employee profile, posting, CTC, and documents." },
+      { title: "My Profile — HyperTrack" },
+      { name: "description", content: "Your HyperTrack account, work details and documents." },
+      { property: "og:title", content: "My Profile — HyperTrack" },
+      { property: "og:description", content: "Your HyperTrack account, work details and documents." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -244,7 +239,7 @@ type SignedDocRow = {
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border/70 bg-secondary/35 px-3 py-2.5">
+    <div className="min-w-0 border-b border-border/60 py-2.5">
       <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </span>
@@ -267,12 +262,12 @@ function Section({
   className?: string;
 }) {
   return (
-    <section className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm ${className}`}>
+    <section className={`flex min-w-0 flex-col overflow-hidden rounded-lg border border-border/80 bg-card ${className}`}>
       <div className="flex min-h-14 items-center gap-3 border-b border-border/60 px-4 py-3">
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent ring-1 ring-inset ring-accent/15">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground">
           <Icon className="h-4 w-4" />
         </span>
-        <h2 className="text-sm font-medium text-foreground">{title}</h2>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       </div>
       <div className="flex-1 p-4">{children}</div>
     </section>
@@ -280,41 +275,7 @@ function Section({
 }
 
 function ProfilePage() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const { theme, toggle: toggleTheme, mounted: themeMounted } = useTheme();
-  function handleSignOut() {
-    logout();
-    navigate({ to: "/login", replace: true });
-  }
-  const bottomActions = (
-    <div className="rounded-xl border border-border bg-card p-2 shadow-sm">
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={toggleTheme}
-          className="h-11 justify-center gap-2 rounded-lg bg-secondary/50 px-3 text-sm text-foreground hover:bg-secondary"
-        >
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-background text-primary shadow-sm">
-            {themeMounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </span>
-          {themeMounted && theme === "dark" ? "Light mode" : "Dark mode"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={handleSignOut}
-          className="h-11 justify-center gap-2 rounded-lg bg-destructive/5 px-3 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-destructive/10 text-destructive">
-            <LogOut className="h-4 w-4" />
-          </span>
-          Sign out
-        </Button>
-      </div>
-    </div>
-  );
+  const { user } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -831,10 +792,10 @@ function ProfilePage() {
     return (
       <div className="space-y-5">
         <PageHeader title="My Profile" />
-        <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-          No employee record is linked to your phone number ({phone}). Please contact your admin.
+        <div className="flex items-center gap-5 rounded-lg border border-border bg-card p-6">
+          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-brand text-xl font-semibold text-brand-foreground">HT</span>
+          <div className="min-w-0"><h2 className="text-lg font-semibold text-foreground">{user?.role === "super_admin" ? "Super Admin" : "My account"}</h2><p className="mt-1 text-sm text-muted-foreground">+91 {phone} · HyperTrack</p></div>
         </div>
-        {bottomActions}
       </div>
     );
   }
@@ -847,16 +808,16 @@ function ProfilePage() {
   const directReports = postingsQ.data?.directReports ?? [];
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 pb-6 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden lg:pb-0">
+    <div className="flex w-full min-w-0 flex-col gap-5 pb-6">
       <PageHeader
         title="My Profile"
-        description="Work details, records and documents."
+        description="Account and work details"
         icon={Users}
       />
 
-      <div className="grid min-h-0 min-w-0 flex-1 items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="min-w-0 space-y-4 lg:h-full lg:overflow-y-auto lg:pr-1">
-      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
+       <div className="grid min-h-0 min-w-0 flex-1 items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[300px_minmax(0,1fr)]">
+         <aside className="min-w-0 space-y-4">
+       <div className="overflow-hidden rounded-lg border border-border/80 bg-card">
         <div className="flex flex-col items-center gap-4 p-5 text-center">
           <div className="relative shrink-0">
             <div className="block h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-accent/10 shadow-sm ring-1 ring-border">
@@ -962,10 +923,9 @@ function ProfilePage() {
       <div className="shrink-0"><MarkAttendanceCard candidateId={profile.id} proximityThresholdM={300} /></div>
       <div className="shrink-0"><MyLiveStatusCard /></div>
       <LanguagePreferenceCard candidateId={profile.id} />
-      <div className="hidden lg:block">{bottomActions}</div>
       </aside>
 
-      <main className="min-w-0 space-y-4 lg:h-full lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+       <main className="min-w-0 space-y-4">
       <Section title="My Posting & Reporting" icon={Building2}>
         {postingsQ.isLoading ? (
           <div className="text-sm text-muted-foreground">Loading posting details…</div>
@@ -1655,7 +1615,6 @@ function ProfilePage() {
       </div>
       </main>
       </div>
-      <div className="lg:hidden">{bottomActions}</div>
     </div>
   );
 }

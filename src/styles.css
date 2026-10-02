@@ -717,6 +717,39 @@
   }
   .animate-slide-out-up { animation: slide-out-up 720ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 
+  /* Sign-in scene: the rail film remains behind an opaque, legible form surface. */
+  .login-film { filter: saturate(.82); }
+  .login-film-scrim { background: linear-gradient(90deg, color-mix(in oklab, var(--foreground) 48%, transparent), color-mix(in oklab, var(--foreground) 10%, transparent) 65%, color-mix(in oklab, var(--foreground) 22%, transparent)); }
+  .login-panel { background: color-mix(in oklab, var(--card) 94%, transparent); backdrop-filter: blur(28px) saturate(1.15); box-shadow: 0 22px 80px color-mix(in oklab, var(--foreground) 18%, transparent); }
+  .login-input { transition: border-color .2s ease, box-shadow .2s ease; }
+  .login-step { animation: login-stair-up .55s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-step > *:nth-child(2) { animation: login-stair-up .55s .08s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-step > *:nth-child(3) { animation: login-stair-up .55s .15s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-step > *:nth-child(4) { animation: login-stair-up .55s .2s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-step > *:nth-child(5) { animation: login-stair-up .55s .27s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-welcome .login-rise { animation: login-stair-up .6s cubic-bezier(.22, 1, .36, 1) both; }
+  .login-welcome .login-rise:nth-child(2) { animation-delay: .12s; }
+  .login-welcome .login-rise:nth-child(3) { animation-delay: .24s; }
+  .login-welcome .login-rise:nth-child(4) { animation-delay: .36s; }
+  .login-welcome .login-rise:nth-child(5) { animation-delay: .48s; }
+  .login-welcome-progress { animation: login-progress 1.6s ease-in-out forwards; }
+  .login-content.is-revealing { animation: login-reveal .75s cubic-bezier(.32, .72, 0, 1) forwards; }
+  .login-splash.is-leaving { animation: login-splash-away .6s ease forwards; }
+  @keyframes login-stair-up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes login-progress { from { width: 0; } to { width: 100%; } }
+  @keyframes login-reveal { to { transform: translateY(-100%); opacity: 0; } }
+  @keyframes login-splash-away { to { opacity: 0; visibility: hidden; } }
+  @media (max-width: 640px) {
+    .login-layout { align-items: flex-end; }
+    .login-panel { min-height: min(650px, calc(100dvh - 105px)); }
+    .login-caption { display: none; }
+    .login-film-scrim { background: color-mix(in oklab, var(--foreground) 20%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .login-scene video { display: none; }
+    .login-step, .login-step > *, .login-welcome .login-rise, .login-welcome-progress, .login-content.is-revealing, .login-splash.is-leaving { animation-duration: .01ms; animation-delay: 0ms; }
+  }
+
   @keyframes slide-in-left {
     0% { transform: translateX(-120%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
@@ -1959,8 +1992,8 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav .text-dock-foreground\/40 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] nav a { color: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] nav a:hover { background: var(--muted); }
-  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--rail-ink); color: var(--card); border-radius: 999px; }
-  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--rail-ink); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--brand-blue); color: var(--card); border-radius: 999px; }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--brand-blue); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
   [data-rail-shell] [data-hyper-dock] nav a > span:first-child { border-radius: 50%; }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 10px; }

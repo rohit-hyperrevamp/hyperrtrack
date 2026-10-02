@@ -133,10 +133,6 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
 
-// Every dock icon uses the same solid blue disc as the Command Centre.
-const RAIL_ICON = "bg-brand text-primary-foreground";
-const railDockIconTone: Record<string, string> = Object.fromEntries(railChildren.map((c) => [c.to, RAIL_ICON]));
-
 const salesChildren: LeafItem[] = [
   { to: "/admin/sales/dashboard", label: "Sales Dashboard", icon: LayoutDashboard },
   { to: "/admin/sales/prospects", label: "Prospects", icon: Users },
@@ -592,11 +588,6 @@ function AdminLayout() {
                   <Users className="h-4 w-4" /> My Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/admin/notifications" className="flex items-center gap-2">
-                  <Bell className="h-4 w-4" /> Notifications
-                </Link>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleTheme} className="gap-2">
                 {themeMounted && theme === "dark" ? (
                   <Sun className="h-4 w-4" />
@@ -612,20 +603,10 @@ function AdminLayout() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div
-            className={cn(
-               "mt-2 flex w-full items-center gap-2 rounded-lg border border-dock-foreground/10 bg-dock-foreground/[0.06] px-2 py-1.5",
-              collapsed && "mt-1.5 justify-center border-0 bg-transparent p-0",
-            )}
-          >
-            {isSuperAdmin && !collapsed && <ViewAsUserButton className="relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/70 hover:bg-white/[0.08] hover:text-white" />}
-            <NotificationBell triggerClassName="relative inline-flex h-11 w-11 shrink-0 aspect-square items-center justify-center rounded-full text-white/70 outline-none transition-colors focus-visible:outline-none hover:bg-white/[0.08] hover:text-white" />
-            {!collapsed && (
-              <span className="flex-1 truncate text-[12px] font-semibold text-white">
-                Notifications
-              </span>
-            )}
-          </div>
+          {isSuperAdmin && <div className={cn("mt-2 flex items-center gap-2 px-1 text-xs text-dock-foreground/75", collapsed && "justify-center")}>
+            <ViewAsUserButton className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dock-foreground/10 text-dock-foreground hover:bg-brand hover:text-primary-foreground" />
+            {!collapsed && <span>View as user</span>}
+          </div>}
 
           <button
             type="button"
@@ -651,7 +632,6 @@ function AdminLayout() {
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <button type="button" aria-label="Search (Ctrl+K)" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-tab gap-2"><Search className="h-4 w-4" />Search<kbd className="text-[10px] opacity-60">⌘K</kbd></button>
           <NotificationBell triggerClassName="rail-topbar-icon" />
-          <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
         </div>
       </div>}
 
@@ -731,8 +711,6 @@ function AdminLayout() {
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
-        addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav
             items={bottomItems}
@@ -761,7 +739,6 @@ function SidebarGroup({
 }) {
   const [open, setOpen] = useState(groupActive);
   const Icon = group.icon;
-  const railIconTone = (group.to && railDockIconTone[group.to]) || RAIL_ICON;
   const t = useT();
 
   useEffect(() => {
@@ -776,15 +753,15 @@ function SidebarGroup({
 
    const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
    const iconSpanActive = "bg-brand text-primary-foreground";
-   const iconSpanIdle = "bg-brand/20 text-brand group-hover:bg-brand/30 group-hover:text-dock-foreground";
-  // Collapsed rail: item is a perfect circle, active state is a solid white circle
+    const iconSpanIdle = "bg-dock-foreground/10 text-dock-foreground/75 group-hover:bg-dock-foreground/20 group-hover:text-dock-foreground";
+  // Collapsed rail: neutral until selected, when the icon turns solid blue.
   const collapsedItem = "h-11 w-11 mx-auto justify-center rounded-full p-0";
   const collapsedIcon =
     "grid h-11 w-11 place-items-center rounded-full transition-all duration-200";
   const collapsedIconActive =
-     "bg-dock-foreground text-dock shadow-sm";
+      "bg-brand text-primary-foreground shadow-sm";
    const collapsedIconIdle =
-     "text-brand hover:bg-brand/20 hover:text-dock-foreground";
+      "bg-dock-foreground/10 text-dock-foreground/75 hover:bg-dock-foreground/20 hover:text-dock-foreground";
 
   if (!group.children || group.children.length === 0) {
     const link = (
@@ -794,7 +771,7 @@ function SidebarGroup({
         data-no-tip
        className={
           collapsed
-             ? cn(collapsedIcon, "mx-auto", railIconTone ?? (groupActive ? collapsedIconActive : collapsedIconIdle))
+              ? cn(collapsedIcon, "mx-auto", groupActive ? collapsedIconActive : collapsedIconIdle)
             : cn(itemBase, groupActive ? itemActive : itemIdle)
         }
       >
@@ -802,7 +779,7 @@ function SidebarGroup({
           <Icon className="h-[18px] w-[18px]" />
         ) : (
           <>
-             <span className={cn(iconSpanBase, railIconTone ?? (groupActive ? iconSpanActive : iconSpanIdle))}>
+              <span className={cn(iconSpanBase, groupActive ? iconSpanActive : iconSpanIdle)}>
               <Icon className="h-4 w-4" />
             </span>
             <span className="truncate">{t(group.label)}</span>

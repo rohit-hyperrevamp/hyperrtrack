@@ -101,7 +101,7 @@ export function MobileBottomNav({
                         : "bg-dock-foreground/[0.07] text-dock-foreground/75 active:bg-dock-foreground/[0.13]",
                     )}
                   >
-                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", item.active ? "bg-brand text-primary-foreground" : "bg-brand/20 text-brand") }>
+                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-dock-foreground/10 text-dock-foreground") }>
                        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
                     <span className="truncate text-[11px] font-medium">{item.label}</span>
@@ -119,15 +119,15 @@ export function MobileBottomNav({
             <div
               className={cn(
                  "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200",
-                 railStyle ? (it.active ? "bg-brand text-primary-foreground" : "text-muted-foreground") : (it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65"),
+                  railStyle ? (it.active ? "text-primary-foreground" : "text-dock-foreground/65") : (it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65"),
               )}
             >
               <span
                 className={cn(
-                  "grid h-6 w-9 place-items-center rounded-lg transition-colors",
+                  "grid h-8 w-8 place-items-center rounded-full transition-colors",
                      it.active
-                      ? "text-dock-foreground"
-                      : "text-dock-foreground/65",
+                      ? "bg-brand text-primary-foreground"
+                      : "bg-dock-foreground/10 text-dock-foreground/65",
                 )}
               >
                  <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
@@ -135,7 +135,7 @@ export function MobileBottomNav({
               <span
                 className={cn(
                   "block w-full truncate whitespace-nowrap text-center text-[9px] leading-none",
-                   railStyle ? (it.active ? "font-medium text-primary-foreground" : "font-normal text-muted-foreground") : (it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65"),
+                    railStyle ? (it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65") : (it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65"),
                 )}
               >
                 {it.label}
