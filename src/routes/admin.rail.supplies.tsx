@@ -50,12 +50,13 @@ function SuppliesPage() {
         rows<{ id: string; full_name: string; mobile: string; role_key: string }>(db.from("rail_people").select("id,full_name,mobile,role_key").eq("enabled", true)),
         rows<{ id: string; loa_number: string }>(db.from("rail_contracts").select("id,loa_number")),
       ]);
-      return { items, batches, locs, kit, cons, prs, assets, custody, maint, ppe, people, contracts };
+      const contractItems = await rows<{ contract_id: string; item_id: string }>(db.from("rail_contract_items").select("contract_id,item_id").is("deleted_at", null)).catch(() => []);
+      return { items, batches, locs, kit, cons, prs, assets, custody, maint, ppe, people, contracts, contractItems };
     },
   });
   const [loc, setLoc] = useState<string>("");
   const [tab, setTab] = useState("stock");
-  const [kitForm, setKitForm] = useState({ item_id: "", qty: "" });
+  const [kitForm, setKitForm] = useState({ loc: "", item_id: "", qty: "" });
   const [scan, setScan] = useState({ tag: "", person: "", due: "" });
   const flow = useStockFlow().data;
 
@@ -110,14 +111,27 @@ function SuppliesPage() {
         <TabsContent value="suppliers"><SuppliersView /></TabsContent>
 
         <TabsContent value="kit" className="space-y-3">
-          {!loc && <div className="text-sm text-muted-foreground">Choose a store at the top to issue kits.</div>}
-          <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1fr_auto]">
-            <select className="h-10 rounded-md border bg-background px-3 text-sm" value={kitForm.item_id} onChange={(e) => setKitForm({ ...kitForm, item_id: e.target.value })} aria-label="Item">
-              <option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-            </select>
-            <Input type="number" placeholder="Qty" value={kitForm.qty} onChange={(e) => setKitForm({ ...kitForm, qty: e.target.value })} />
-            <Button disabled={!loc || !kitForm.item_id || !kitForm.qty} onClick={async () => (await act(db.from("rail_kit_issues").insert({ item_id: kitForm.item_id, qty_issued: Number(kitForm.qty), location_id: loc, contract_id: contractId }), "Kit issued", { action: "kit_issue", table: "rail_kit_issues" })) && (setKitForm({ item_id: "", qty: "" }), inv())}>Issue to shift</Button>
-          </div>
+          {(() => {
+            const kitLoc = kitForm.loc || loc;
+            const allowed = new Set((data?.contractItems ?? []).filter((c) => c.contract_id === contractId).map((c) => c.item_id));
+            const kitItems = (data?.items ?? []).filter((i) => !contractId || allowed.has(i.id));
+            const qty = Number(kitForm.qty);
+            const missing = !kitLoc ? "Choose a store" : !kitForm.item_id ? "Choose an item" : !(qty > 0) ? "Enter a quantity above 0" : "";
+            return <div className="space-y-1.5">
+              <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[1.2fr_2fr_1fr_auto]">
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={kitLoc} onChange={(e) => setKitForm({ ...kitForm, loc: e.target.value })} aria-label="Store">
+                  <option value="">Choose store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+                <select className="h-10 rounded-md border bg-background px-3 text-sm" value={kitForm.item_id} onChange={(e) => setKitForm({ ...kitForm, item_id: e.target.value })} aria-label="Item">
+                  <option value="">Choose item…</option>{kitItems.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                </select>
+                <Input type="number" min={1} placeholder="Qty" value={kitForm.qty} onChange={(e) => setKitForm({ ...kitForm, qty: e.target.value })} />
+                <Button disabled={!!missing} onClick={async () => (await act(db.from("rail_kit_issues").insert({ item_id: kitForm.item_id, qty_issued: qty, location_id: kitLoc, contract_id: contractId ?? null }), "Kit issued", { action: "kit_issue", table: "rail_kit_issues" })) && (setKitForm({ loc: kitForm.loc, item_id: "", qty: "" }), inv())}>Issue to shift</Button>
+              </div>
+              {missing && <p className="px-1 text-xs text-muted-foreground">{missing} to issue.</p>}
+              {contractId && !kitItems.length && <p className="px-1 text-xs text-destructive">No items are approved for the contract yet — add them in Configuration Hub first.</p>}
+            </div>;
+          })()}
           {!data?.kit.length ? <Empty title="No kits issued in the last 30 days" /> :
             <div className="divide-y rounded-2xl border bg-card">{data.kit.map((k) => (
               <div key={k.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{item(k.item_id)?.name}</div><div className="text-xs text-muted-foreground">{k.issue_date} · issued {k.qty_issued} · returned {k.qty_returned}</div></div>
