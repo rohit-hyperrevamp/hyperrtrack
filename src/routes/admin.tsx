@@ -51,6 +51,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import railCleaningCard from "@/assets/rail-cleaning-card.jpg";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -536,6 +537,8 @@ function AdminLayout() {
             );
           })()}
         </nav>
+
+        {!collapsed && railWorkspace && <Link to="/admin/rail/live" className="rail-dock-photo relative mx-3 mb-3 hidden min-h-32 shrink-0 overflow-hidden rounded-lg lg:block" aria-label="Open live cleaning board"><img src={railCleaningCard} alt="Cleaner working inside a train coach" loading="lazy" width={512} height={768} className="absolute inset-0 h-full w-full object-cover object-center" /><span className="relative z-10 flex h-full min-h-32 flex-col justify-between p-3 text-sm font-semibold text-primary-foreground"><span>Live cleaning<br />operations</span><span className="self-start rounded-full bg-card px-3 py-1 text-[11px] text-brand">Open board ↗</span></span></Link>}
 
         {/* Footer: user + collapse */}
         <div className="border-t border-white/10 p-3">
