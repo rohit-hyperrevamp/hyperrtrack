@@ -1,6 +1,6 @@
 # HyperTrack roadmap
 
-- [ ] Separate dock brand and account controls; replace text-like HT badge with a recognizable symbol and make search a centered slide-down panel without an overlay
+- [x] Separate dock brand and account controls; replace text-like HT badge with a recognizable symbol and make search a centered slide-down panel without an overlay (live rail visual verification awaits publication)
 - [x] Align colored dashboard tiles to white text/icons, refresh bright status colors, notifications, dialogs and dark dock; simplify global rail navigation labels (authenticated visual comparison still pending)
 - [x] Surface existing activity logs for super admins and confirm sign-in/out and rail edits are captured in code and migrations; production verification blocked by placeholder database connection
 - [x] Center rail search; unify simple centered rail forms and Live Board coach review; switch dock to white and remove footer dividers; replace yellow/dull KPI colors with blue, black, white, red and selective green
