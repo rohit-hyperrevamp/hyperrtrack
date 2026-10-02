@@ -1,32 +1,49 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Droplets, FileWarning, MessageSquareWarning, ArrowUpRight, MapPin } from "lucide-react";
-import indiaOutline from "@/assets/india-outline.svg";
+import { AlertCircle, ArrowUpRight, FileWarning, MessageSquareWarning, MapPin, TrainFront } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-import { db, Empty, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
+import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/command")({
-  head: () => railHead("Command Centre", "Live view of every depot: jobs, coaches cleaned, on-time release, quality, staff, penalties, billing and water saved."),
+  head: () => railHead("Command Centre", "Live rail cleaning operations, depot performance, quality and exceptions."),
   component: CommandPage,
 });
 
 type K = Record<string, number>;
+type Depot = { id: string; code: string; name: string; type: string; parent_id: string | null; total: number; released: number; late: number; state: string };
 
 function CommandPage() {
-  const { data: k } = useQuery({ queryKey: ["rail-kpis"], refetchInterval: 30_000, queryFn: async () => ((await db.rpc("rail_kpis", { _date: today() })).data ?? {}) as K });
+  const { data: k } = useQuery({ queryKey: ["rail-kpis"], refetchInterval: 30_000, queryFn: async () => {
+    const { data, error } = await db.rpc("rail_kpis", { _date: today() });
+    if (error) throw error;
+    return (data ?? {}) as K;
+  } });
   const { data: depots = [] } = useQuery({
     queryKey: ["rail-depots-status"], refetchInterval: 30_000,
     queryFn: async () => {
-      const locs = await rows<{ id: string; code: string; name: string; type: string; parent_id: string | null; latitude: number | null; longitude: number | null }>(db.from("rail_locations").select("id,code,name,type,parent_id,latitude,longitude"));
-      const ev = await rows<{ location_id: string; status: string; planned_end: string }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", today()));
-      const depotOf = (id: string) => { let l = locs.find((x) => x.id === id); while (l && l.type !== "depot" && l.type !== "station") l = locs.find((x) => x.id === l!.parent_id); return l?.id; };
+      const locs = await rows<{ id: string; code: string; name: string; type: string; parent_id: string | null }>(db.from("rail_locations").select("id,code,name,type,parent_id").is("deleted_at", null));
+      const ev = await rows<{ location_id: string; status: string; planned_end: string | null }>(db.from("rail_events").select("location_id,status,planned_end").eq("event_date", today()).is("deleted_at", null));
+      const locById = new Map(locs.map((l) => [l.id, l]));
+      const depotOf = (id: string) => { let l = locById.get(id); const seen = new Set<string>(); while (l && l.type !== "depot" && l.type !== "station" && !seen.has(l.id)) { seen.add(l.id); l = l.parent_id ? locById.get(l.parent_id) : undefined; } return l?.id; };
       return locs.filter((l) => l.type === "depot" || l.type === "station").map((d) => {
-        const e = ev.filter((x) => depotOf(x.location_id) === d.id);
-        const late = e.filter((x) => x.status !== "released" && new Date(x.planned_end) < new Date()).length;
-        return { ...d, total: e.length, released: e.filter((x) => x.status === "released").length, late, state: !e.length ? "idle" : late ? "red" : e.some((x) => x.status !== "released") ? "amber" : "green" };
-      });
+        const events = ev.filter((x) => depotOf(x.location_id) === d.id);
+        const late = events.filter((x) => x.status !== "released" && x.planned_end && new Date(x.planned_end) < new Date()).length;
+        return { ...d, total: events.length, released: events.filter((x) => x.status === "released").length, late, state: !events.length ? "idle" : late ? "red" : events.some((x) => x.status !== "released") ? "amber" : "green" } as Depot;
+      }).sort((a, b) => b.late - a.late || b.total - a.total || a.name.localeCompare(b.name));
+    },
+  });
+  const { data: trend = [] } = useQuery({
+    queryKey: ["rail-seven-day-throughput", today()], refetchInterval: 60_000,
+    queryFn: async () => {
+      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d.toISOString().slice(0, 10); });
+      const events: { event_date: string; status: string }[] = [];
+      for (let offset = 0; ; offset += 1000) {
+        const page = await rows<{ event_date: string; status: string }>(db.from("rail_events").select("event_date,status").gte("event_date", dates[0]).lte("event_date", dates[6]).is("deleted_at", null).order("id").range(offset, offset + 999));
+        events.push(...page);
+        if (page.length < 1000) break;
+      }
+      return dates.map((date) => ({ date, total: events.filter((e) => e.event_date === date).length, released: events.filter((e) => e.event_date === date && e.status === "released").length }));
     },
   });
   const { data: feed = [] } = useQuery({
@@ -45,78 +62,60 @@ function CommandPage() {
     },
   });
 
-  // Savings ticker: count up to the month's litres saved
-  const target = Math.max(0, k?.water_saved_mtd_l ?? 0);
-  const [shown, setShown] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setShown(target); return; }
-    let raf = 0; const start = performance.now(); const from = 0;
-    const step = (t: number) => { const p = Math.min(1, (t - start) / 1500); setShown(Math.round(from + (target - from) * p)); if (p < 1) raf = requestAnimationFrame(step); };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [target]);
-
-  const mappedDepots = depots.filter((d) => d.latitude != null && d.longitude != null && d.latitude >= 6 && d.latitude <= 38 && d.longitude >= 67 && d.longitude <= 98);
-  const depotTone = (state: string) => state === "green" ? "bg-good" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-brand";
+  const maximum = Math.max(1, ...trend.map((d) => d.total));
+  const hasTrend = trend.some((d) => d.total > 0);
+  const statusTone = (state: string) => state === "green" ? "bg-good" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-muted-foreground";
 
   return (
-    <div className="space-y-5 sm:space-y-6">
-      <PageHeader title="Command Centre" />
-      <div className="grid gap-3 rounded-lg border border-brand/20 bg-brand/8 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-6">
-        <div className="flex min-w-0 items-center gap-4"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent"><Droplets className="h-5 w-5" /></span><div className="min-w-0"><div className="text-sm text-muted-foreground">Water saved this month</div><div className="mt-1 font-heading text-3xl font-semibold tabular-nums">{num(shown)} <span className="text-base text-muted-foreground">L</span></div></div></div>
-        <div className="text-sm text-muted-foreground sm:text-right">{num(k?.coaches_mtd)} coaches · {num((k?.co2e_mtd_kg ?? 0) / Math.max(1, k?.coaches_mtd ?? 0), 2)} kg CO₂e/coach</div>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <Kpi label="Jobs today" value={k?.events_today ?? 0} to="/admin/rail/live" />
-        <Kpi label="Coaches cleaned" value={k?.coaches_cleaned ?? 0} to="/admin/rail/live" />
-        <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${k?.released ?? 0} released`} to="/admin/rail/live" />
+    <div className="rail-command space-y-5 sm:space-y-6">
+      <PageHeader title="Command Centre" description="Overview › Rail operations" />
+      <div className="rail-command-kpis grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-4">
+        <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
+        <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
+        <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${num(k?.released)} released`} to="/admin/rail/live" tone="good" />
+        <Kpi label="Open alerts" value={num(k?.open_alerts)} to="/admin/rail/quality" tone={k?.open_alerts ? "bad" : "default"} />
         <Kpi label="First-pass approval" value={pct(k?.first_pass ?? 0, k?.reviewed ?? 0)} to="/admin/rail/quality" tone="good" />
-        <Kpi label="Rework" value={k?.rework ?? 0} to="/admin/rail/quality" tone={k?.rework ? "warn" : "default"} />
-        <Kpi label="Staff present / norm" value={`${k?.staff_present ?? 0} / ${k?.staff_norm ?? 0}`} to="/admin/rail/people" tone={(k?.staff_present ?? 0) < (k?.staff_norm ?? 0) ? "bad" : "good"} />
-        <Kpi label="Penalties MTD" value={inr(k?.penalties_mtd)} to="/admin/rail/quality" tone={k?.penalties_mtd ? "bad" : "default"} />
-        <Kpi label="Bill MTD" value={inr(k?.bill_mtd)} to="/admin/rail/billing" />
-        <Kpi label="Open alerts" value={k?.open_alerts ?? 0} to="/admin/rail/quality" />
-        <Kpi label="Open complaints" value={k?.open_complaints ?? 0} to="/admin/rail/quality" />
+        <Kpi label="Staff present / norm" value={`${num(k?.staff_present)} / ${num(k?.staff_norm)}`} to="/admin/rail/people" tone={k?.staff_norm && (k?.staff_present ?? 0) < k.staff_norm ? "warn" : "default"} />
+        <Kpi label="Penalties this month" value={inr(k?.penalties_mtd)} to="/admin/rail/quality" tone={k?.penalties_mtd ? "bad" : "default"} />
+        <Kpi label="Bill this month" value={inr(k?.bill_mtd)} to="/admin/rail/billing" />
       </div>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <section className="command-panel min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
-           <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-base font-semibold">Depots</h2><span className="text-xs text-muted-foreground">{depots.length} sites</span></div>
-          {!depots.length ? <Empty title="No depots set up" /> : (
-            <>
-               <div className="relative mb-4 overflow-hidden rounded-lg border border-brand/10 bg-brand/5 px-3 py-4">
-                 <div className="relative mx-auto aspect-[372/384] w-full max-w-[310px]">
-                   <img src={indiaOutline} alt="Map outline of India" className="h-full w-full object-contain" />
-                   {mappedDepots.map((d) => (
-                     <span key={d.id} title={`${d.name} · ${d.released}/${d.total} released`} aria-label={`${d.name}, ${d.released} of ${d.total} released`} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-card p-0.5 shadow-md ring-1 ring-border" style={{ left: `${((Number(d.longitude) - 67) / 31) * 100}%`, top: `${((38 - Number(d.latitude)) / 32) * 100}%` }}>
-                       <span className={cn("block h-3 w-3 rounded-full ring-2 ring-card", depotTone(d.state))} />
-                     </span>
-                   ))}
-                 </div>
-                 <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground"><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-good" /> Released</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-caution" /> In progress</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger" /> Late</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-brand" /> No jobs</span></div>
-                 {mappedDepots.length === 0 && <p className="mt-2 text-center text-xs text-muted-foreground">Add coordinates in Rail Settings to place depots on the map.</p>}
-               </div>
-               <div className="divide-y">{depots.map((d) => (
-                 <Link key={d.id} to="/admin/rail/live" className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-sm transition-colors hover:text-accent">
-                    <span className="flex min-w-0 items-center gap-2"><MapPin className="h-4 w-4 shrink-0 text-brand" /><span className={cn("h-2 w-2 shrink-0 rounded-full", depotTone(d.state))} /><span className="truncate">{d.name}</span></span>
-                   <span className="shrink-0 text-right text-xs text-muted-foreground">{d.released}/{d.total}{d.late ? ` · ${d.late} late` : ""}</span>
-                </Link>))}</div>
-            </>
-          )}
+
+      <div className="rail-command-insights grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Seven-day cleaning activity">
+          <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">Last 7 days</span></div>
+          {hasTrend ? <>
+            <div className="mt-6 grid h-44 grid-cols-7 items-end gap-2 border-b border-border/70 pb-1 sm:gap-4">
+              {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.released} released of ${d.total} jobs`}>
+                <div className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-brand/15" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
+                  <div className="absolute inset-x-0 bottom-0 bg-brand" style={{ height: `${d.total ? d.released / d.total * 100 : 0}%` }} />
+                </div>
+              </div>)}
+            </div>
+            <div className="mt-2 grid grid-cols-7 gap-2 text-center text-[11px] text-muted-foreground sm:gap-4">{trend.map((d) => <span key={d.date}>{new Date(`${d.date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short" })}</span>)}</div>
+            <div className="mt-4 flex gap-4 text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-sm bg-brand" />Released</span><span className="flex items-center gap-1.5"><i className="h-2 w-2 rounded-sm bg-brand/20" />Other jobs</span></div>
+          </> : <div className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">No cleaning jobs in the last 7 days</div>}
         </section>
-        <section className="command-panel min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
-           <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-base font-semibold">Exceptions</h2>{feed.length > 0 && <span className="rounded-md bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">{feed.length}</span>}</div>
-           {!feed.length ? <Empty title="All clear" /> : (
-             <div className="divide-y">{feed.slice(0, 15).map((f) => {
-               const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
-               return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="group grid min-w-0 grid-cols-[2rem_minmax(0,1fr)_1rem] items-center gap-2.5 py-3 text-sm transition-colors hover:text-brand">
-                  <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-md", f.kind === "Penalty" ? "bg-danger-soft text-danger" : f.kind.startsWith("Complaint") ? "bg-caution-soft text-caution" : "bg-brand/10 text-brand")}><Icon className="h-4 w-4" strokeWidth={1.8} /></span>
-                 <span className="min-w-0"><span className="block truncate font-medium">{f.text}</span><span className="mt-0.5 block text-xs text-muted-foreground">{f.kind} · {new Date(f.at).toLocaleDateString()}</span></span>
-                 <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-               </Link>;
-             })}</div>
-           )}
+        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Depot operations">
+          <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Depot operations</h2><span className="text-xs text-muted-foreground">{depots.length} sites</span></div>
+          {!depots.length ? <div className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">No depots set up</div> : <div className="mt-3 max-h-72 divide-y divide-border/70 overflow-y-auto">{depots.map((d) => <Link key={d.id} to="/admin/rail/live" className="group flex items-center gap-3 py-2.5 text-sm hover:text-brand">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-brand/10 text-brand"><MapPin className="h-4 w-4" /></span>
+            <span className="min-w-0 flex-1"><span className="block truncate font-medium">{d.name}</span><span className="text-xs text-muted-foreground">{d.code}{d.late ? ` · ${d.late} late` : ""}</span></span>
+            <span className="shrink-0 text-right"><span className="block font-semibold tabular-nums">{d.released}/{d.total}</span><span className="flex items-center justify-end gap-1 text-[11px] text-muted-foreground"><i className={cn("h-1.5 w-1.5 rounded-full", statusTone(d.state))} />Released</span></span>
+          </Link>)}</div>}
         </section>
       </div>
+
+      <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Needs attention</h2>{feed.length > 0 && <span className="rounded-md bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">{feed.length}</span>}</div>
+        {!feed.length ? <div className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"><TrainFront className="h-4 w-4 text-good" />All clear</div> : <div className="mt-2 grid gap-x-6 divide-y divide-border/70 lg:grid-cols-2 lg:divide-y-0">{feed.slice(0, 8).map((f) => {
+          const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
+          return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="group flex min-w-0 items-center gap-3 border-b border-border/70 py-2.5 text-sm hover:text-brand">
+            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-md", f.kind === "Penalty" ? "bg-danger-soft text-danger" : f.kind.startsWith("Complaint") ? "bg-caution-soft text-caution" : "bg-brand/10 text-brand")}><Icon className="h-4 w-4" /></span>
+            <span className="min-w-0 flex-1"><span className="block truncate font-medium">{f.text}</span><span className="text-xs text-muted-foreground">{f.kind} · {new Date(f.at).toLocaleDateString("en-IN")}</span></span>
+            <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+          </Link>;
+        })}</div>}
+      </section>
     </div>
   );
 }

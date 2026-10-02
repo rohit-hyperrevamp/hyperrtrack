@@ -64,7 +64,7 @@ function CheckerPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Railway Checker" description="Approve or reject cleaned coaches, and e-sign monthly bill annexures. Everything else is read-only." />
+       <PageHeader title="Railway Checker" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Awaiting sign-off" value={queue.length} tone={queue.length ? "warn" : "default"} />
         <Kpi label="Approved today" value={counts?.pass ?? 0} tone="good" />
@@ -75,9 +75,9 @@ function CheckerPage() {
       <section className="space-y-2">
         <h2 className="font-medium">Coaches awaiting sign-off</h2>
         {!queue.length ? <Empty title="Nothing to inspect right now" hint="Coaches appear here as soon as cleaners finish all tasks." /> : (
-          <div className="divide-y rounded-2xl border bg-card">
+           <div className="divide-y rounded-lg border bg-card">
             {queue.map((c) => (
-              <div key={c.id} className="flex items-center justify-between p-3">
+               <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                   <div className="font-medium">Train {c.rail_events?.rail_trains?.number} · Coach {c.position} {c.rail_coach_types?.code} <span className="text-muted-foreground">{c.rail_coaches?.coach_number}</span></div>
                   <div className="text-xs text-muted-foreground">{c.rail_events?.rail_locations?.code} · {c.rail_events?.event_date}{c.rework_count ? ` · rework ×${c.rework_count}` : ""}</div>
@@ -95,9 +95,9 @@ function CheckerPage() {
       <section className="space-y-2">
         <h2 className="font-medium">Bill annexures awaiting signature</h2>
         {!bills.length ? <Empty title="No bills waiting" hint="Submitted monthly bills appear here for your OTP signature." /> : (
-          <div className="divide-y rounded-2xl border bg-card">
+           <div className="divide-y rounded-lg border bg-card">
             {bills.map((b) => (
-              <div key={b.id} className="flex items-center justify-between p-3">
+               <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                   <div className="font-medium">{b.bill_no}</div>
                   <div className="text-xs text-muted-foreground">{b.rail_contracts?.loa_number} · {b.bill_month.slice(0, 7)} · Gross {inr(b.gross)} − penalties {inr(b.penalty_total)} · Net {inr(b.net_total)}</div>

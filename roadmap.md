@@ -1,5 +1,7 @@
 # HyperTrack roadmap
 
+- [ ] Match the uploaded Fingoals reference across HyperTrack: inset white shell on gray canvas, left navigation, top controls, blue/black/white bento cards, striped chart textures, aligned radii and spacing on all devices; review the result against the reference (live authenticated comparison blocked until publication)
+- [x] Make dock icons identifiable by color, align and strengthen the wordmark, use Apple system typography, and redesign role-relevant rail dashboards
 - [x] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
 - [x] HyperTrack identity, rail-only navigation and Industrial Precision shared styling
 - [x] Direct rail dock destinations, HT circular compact identity, and legacy dashboard redirect for rail accounts

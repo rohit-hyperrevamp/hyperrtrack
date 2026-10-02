@@ -51,6 +51,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import railCleaningCard from "@/assets/rail-cleaning-card.jpg";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -129,6 +130,20 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/settings", label: "Rail Settings", icon: TrainFront },
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
+
+const railDockIconTone: Record<string, string> = {
+  "/admin/rail/command": "bg-brand text-primary-foreground",
+  "/admin/rail/live": "bg-good text-primary-foreground",
+  "/admin/rail/me": "bg-caution text-background",
+  "/admin/rail/checker": "bg-good text-primary-foreground",
+  "/admin/rail/quality": "bg-danger text-primary-foreground",
+  "/admin/rail/supplies": "bg-caution text-background",
+  "/admin/rail/sustainability": "bg-good text-primary-foreground",
+  "/admin/rail/billing": "bg-brand text-primary-foreground",
+  "/admin/rail/people": "bg-good text-primary-foreground",
+  "/admin/rail/settings": "bg-caution text-background",
+  "/admin/rail/ai-check": "bg-danger text-primary-foreground",
+};
 
 const salesChildren: LeafItem[] = [
   { to: "/admin/sales/dashboard", label: "Sales Dashboard", icon: LayoutDashboard },
@@ -434,10 +449,11 @@ function AdminLayout() {
 
   const sidebarWidth = collapsed ? "lg:w-[72px]" : "lg:w-[244px]";
   const mainOffset = nativeShell ? "" : collapsed ? "lg:ml-24" : "lg:ml-[260px]";
+  const railWorkspace = pathname.startsWith("/admin/rail");
 
   return (
     <TooltipProvider delayDuration={150} skipDelayDuration={100}>
-    <div className={cn(
+    <div data-rail-shell={railWorkspace ? "" : undefined} data-rail-collapsed={collapsed ? "" : undefined} className={cn(
       "relative flex min-h-[100dvh] min-w-0 flex-col lg:block lg:min-h-screen",
     )}>
       <AppleNativeSetupCard autoStart nativeOnly className="hidden" />
@@ -459,7 +475,7 @@ function AdminLayout() {
         data-hyper-dock
       >
         {/* Brand */}
-        <div className={cn("flex items-center px-4 pt-5 pb-4", collapsed && "justify-center px-2")}>
+         <div className={cn("flex items-center px-2.5 pt-5 pb-4", collapsed && "justify-center px-2")}>
           {collapsed ? (
             <Link
               to={dashboardHref}
@@ -474,6 +490,8 @@ function AdminLayout() {
             </Link>
           )}
         </div>
+
+        {!collapsed && railWorkspace && <div className="rail-dock-intro px-4 pb-5 pt-2"><div className="font-heading text-2xl font-medium leading-tight">Welcome back,<br />{me.fullName?.split(" ")[0] || "team"}.</div><div className="mt-1 text-xs text-muted-foreground">Rail operations at a glance</div></div>}
 
         {/* Nav — grouped like the reference portal (Menu / Operations / Finance / Admin) */}
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
@@ -519,6 +537,8 @@ function AdminLayout() {
             );
           })()}
         </nav>
+
+        {!collapsed && railWorkspace && <Link to="/admin/rail/live" className="rail-dock-photo relative mx-3 mb-3 hidden min-h-32 shrink-0 overflow-hidden rounded-lg lg:block" aria-label="Open live cleaning board"><img src={railCleaningCard} alt="Cleaner working inside a train coach" loading="lazy" width={512} height={768} className="absolute inset-0 h-full w-full object-cover object-center" /><span className="relative z-10 flex h-full min-h-32 flex-col justify-between p-3 text-sm font-semibold text-primary-foreground"><span>Live cleaning<br />operations</span><span className="self-start rounded-full bg-card px-3 py-1 text-[11px] text-brand">Open board ↗</span></span></Link>}
 
         {/* Footer: user + collapse */}
         <div className="border-t border-white/10 p-3">
@@ -628,6 +648,17 @@ function AdminLayout() {
         </div>
       </aside>
 
+      {railWorkspace && <div className="rail-topbar hidden lg:flex">
+        <nav aria-label="Quick rail navigation" className="rail-topbar-tabs flex items-center gap-1">
+          {[railChildren[0], railChildren[1], railChildren[4], railChildren[7]].filter((item) => visibleGroups.some((group) => group.to === item.to)).map((item) => <Link key={item.to} to={item.to} className={cn("rail-topbar-tab", pathname === item.to && "is-active")}>{item.label === "Command Centre" ? "Dashboard" : item.label === "Railway Billing" ? "Billing" : item.label}</Link>)}
+        </nav>
+        <div className="flex items-center gap-2">
+          {visibleGroups.some((group) => group.to === "/admin/rail/settings") && <Link to="/admin/rail/settings" aria-label="Rail settings" className="rail-topbar-icon"><SlidersHorizontal className="h-4 w-4" /></Link>}
+          <NotificationBell triggerClassName="rail-topbar-icon" />
+          <Link to="/admin/profile" className="rail-topbar-profile"><span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand/15 text-xs font-semibold text-brand">{me.photoUrl ? <img src={me.photoUrl} alt="" className="h-full w-full object-cover" /> : me.initials || "HT"}</span><span className="min-w-0"><span className="block truncate text-xs font-semibold">{me.fullName || "My account"}</span><span className="block truncate text-[10px] text-muted-foreground">{me.designation || "HyperTrack"}</span></span></Link>
+        </div>
+      </div>}
+
       {/* Mobile top bar — compact native-app chrome */}
       <header data-app-header className={cn(
          "sticky top-0 z-20 grid min-h-[48px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-1 animate-slide-in-top safe-top safe-x",
@@ -666,7 +697,7 @@ function AdminLayout() {
 
 
       {/* Main */}
-      <main data-admin-scroll data-rail-workspace={pathname.startsWith("/admin/rail") ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
+      <main data-admin-scroll data-rail-workspace={railWorkspace ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
         <div className={cn("min-w-0", !pathname.startsWith("/admin/rail") && "mx-auto max-w-[1500px]")}>
@@ -712,6 +743,7 @@ function AdminLayout() {
             onMore={() => setMobileOpen((open) => !open)}
             moreActive={mobileOpen}
             moreItems={moreItems}
+            railStyle={railWorkspace}
           />
         );
       })()}
@@ -733,6 +765,7 @@ function SidebarGroup({
 }) {
   const [open, setOpen] = useState(groupActive);
   const Icon = group.icon;
+  const railIconTone = group.to ? railDockIconTone[group.to] : undefined;
   const t = useT();
 
   useEffect(() => {
@@ -745,7 +778,7 @@ function SidebarGroup({
   const itemActive =
      "bg-dock-foreground text-dock shadow-sm";
 
-  const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
+   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors";
    const iconSpanActive = "bg-brand text-primary-foreground";
    const iconSpanIdle = "bg-brand/20 text-brand group-hover:bg-brand/30 group-hover:text-dock-foreground";
   // Collapsed rail: item is a perfect circle, active state is a solid white circle
@@ -763,9 +796,9 @@ function SidebarGroup({
         to={group.to!}
         aria-label={collapsed ? group.label : undefined}
         data-no-tip
-        className={
+       className={
           collapsed
-            ? cn(collapsedIcon, "mx-auto", groupActive ? collapsedIconActive : collapsedIconIdle)
+             ? cn(collapsedIcon, "mx-auto", railIconTone ?? (groupActive ? collapsedIconActive : collapsedIconIdle))
             : cn(itemBase, groupActive ? itemActive : itemIdle)
         }
       >
@@ -773,7 +806,7 @@ function SidebarGroup({
           <Icon className="h-[18px] w-[18px]" />
         ) : (
           <>
-            <span className={cn(iconSpanBase, groupActive ? iconSpanActive : iconSpanIdle)}>
+             <span className={cn(iconSpanBase, railIconTone ?? (groupActive ? iconSpanActive : iconSpanIdle))}>
               <Icon className="h-4 w-4" />
             </span>
             <span className="truncate">{t(group.label)}</span>
