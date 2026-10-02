@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Fingerprint, Loader2, UserRound } from "lucide-react";
+import { ArrowRight, Fingerprint, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -240,10 +240,6 @@ function LoginPage() {
           from { opacity: 0; transform: translateX(48px); }
           to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes login-brand-in {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
         @keyframes login-loader-bar {
           from { width: 0%; }
           to { width: 100%; }
@@ -254,15 +250,13 @@ function LoginPage() {
       {!splashGone && (
         <div
           aria-hidden={splashDone}
-          className={`fixed inset-0 z-50 grid place-items-center bg-primary ${
+          className={`fixed inset-0 z-50 grid place-items-center bg-background ${
             splashDone ? "[animation:login-splash-out_0.6s_ease_forwards]" : ""
           }`}
         >
           <div className="relative flex flex-col items-center gap-6 [animation:login-splash-fade_0.7s_ease-out_both]">
-            <div className="rounded-md bg-card px-4 py-2">
-              <BrandMark />
-            </div>
-            <div className="h-[3px] w-44 overflow-hidden rounded-full bg-primary-foreground/20">
+            <BrandMark className="[&>span]:text-3xl" />
+            <div className="h-0.5 w-36 overflow-hidden rounded-full bg-secondary">
               <div className="h-full rounded-full bg-brand [animation:login-loader-bar_1.6s_ease-in-out_forwards]" />
             </div>
           </div>
@@ -271,41 +265,14 @@ function LoginPage() {
 
       {/* Sign-in keeps the existing phone verification flow. */}
       <div className={revealing ? "animate-slide-out-up" : ""}>
-        <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col justify-center p-4 lg:flex-row lg:items-stretch lg:py-12">
-          {/* Left — brand + tagline */}
+        <div className="relative z-10 flex min-h-dvh w-full items-center justify-center px-4 py-10 sm:px-8">
           <div
-            className="relative hidden flex-col justify-between overflow-hidden rounded-l-md bg-primary p-10 lg:flex lg:w-5/12 lg:p-14"
-            style={{ animation: splashDone ? "login-brand-in 0.7s ease-out both" : "none", opacity: splashDone ? undefined : 0 }}
-          >
-            <div className="inline-flex items-center self-start rounded-md bg-card px-2 py-1">
-              <BrandMark />
-            </div>
-            <div className="flex flex-1 items-center">
-              <div className="w-full max-w-xl">
-                <h1 className="font-display text-3xl font-semibold leading-[1.12] text-primary-foreground sm:text-4xl">
-                  Precision rail cleaning,
-                  <br />
-                  <span className="text-primary-foreground/70">managed.</span>
-                </h1>
-                <p className="mt-4 max-w-md text-[15px] leading-relaxed text-primary-foreground/75 lg:text-base">
-                  Cleaning events, coaches and quality across the railway network.
-                </p>
-                <div className="mt-10 space-y-5 border-t border-primary-foreground/15 pt-8 text-sm text-primary-foreground/70">
-                  <p><span className="mr-3 inline-block h-2 w-2 rounded-full bg-brand" />Network status <span className="block pl-5 text-primary-foreground/50">Depot and train activity</span></p>
-                  <p><span className="mr-3 inline-block h-2 w-2 rounded-full bg-brand" />Rolling stock <span className="block pl-5 text-primary-foreground/50">Coach cleaning and inspections</span></p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right — login panel */}
-          <div
-            className="relative flex w-full flex-col justify-center rounded-md border border-border bg-card px-5 py-10 shadow-sm sm:px-12 lg:w-7/12 lg:rounded-l-none lg:py-14"
+            className="relative flex w-full max-w-md flex-col justify-center rounded-lg border border-border/70 bg-card px-6 py-10 shadow-sm sm:px-10 sm:py-12"
             style={{ animation: splashDone ? "login-panel-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both" : "none", opacity: splashDone ? undefined : 0 }}
           >
             <div className="mx-auto w-full max-w-[380px]">
               <div className="flex flex-col items-center text-center">
-                <BrandMark className="mb-4 lg:hidden" />
+                <BrandMark className="mb-8 [&>span]:text-2xl" />
                 <h2 className="font-display text-[24px] font-semibold leading-[1.1] tracking-tight text-foreground sm:text-[28px]">
                   {step === "phone" ? "Operator sign-in" : "Verify your number"}
                 </h2>
@@ -323,7 +290,7 @@ function LoginPage() {
                       <span className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         Mobile number
                       </span>
-                      <div className="flex h-13 w-full items-center overflow-hidden rounded-xl border border-border bg-white transition-all focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/15">
+                      <div className="flex h-13 w-full items-center overflow-hidden rounded-lg border border-border bg-background transition-all focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/15">
                         <div className="flex items-center gap-3 pl-4 pr-3">
                           <span className="whitespace-nowrap text-[15px] font-semibold text-foreground">
                             +91
@@ -357,7 +324,7 @@ function LoginPage() {
                     <Button
                       type="submit"
                       disabled={!phoneValid || sending}
-                      className="group h-13 w-full rounded-xl bg-brand text-[15px] font-semibold text-white transition-all hover:bg-brand/90 disabled:opacity-50"
+                      className="group h-13 w-full rounded-lg bg-brand text-[15px] font-semibold text-brand-foreground transition-all hover:bg-brand/90 disabled:opacity-50"
                     >
                       {sending ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
@@ -370,11 +337,12 @@ function LoginPage() {
                     </Button>
 
                     {bioAvailable && bioEnabled && (
-                      <button
+                      <Button
                         type="button"
                         onClick={handleBiometricLogin}
                         disabled={bioBusy}
-                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border bg-white text-[14px] font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+                        variant="outline"
+                        className="h-12 w-full rounded-lg"
                       >
                         {bioBusy ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -384,7 +352,7 @@ function LoginPage() {
                             Sign in with Face ID
                           </>
                         )}
-                      </button>
+                      </Button>
                     )}
                   </form>
                 ) : (
@@ -410,7 +378,7 @@ function LoginPage() {
                           setError(null);
                           if (v.length === OTP_LENGTH) handleVerify(v);
                         }}
-                        className="h-14 w-full rounded-xl border border-border bg-background px-4 text-center text-2xl font-semibold tracking-[0.6em] tabular-nums text-foreground outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+                        className="h-14 w-full rounded-lg border border-border bg-background px-4 text-center text-2xl font-semibold tracking-[0.6em] tabular-nums text-foreground outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
                       />
 
                       {error ? (
@@ -427,7 +395,7 @@ function LoginPage() {
                     <Button
                       onClick={() => handleVerify()}
                       disabled={otp.length !== OTP_LENGTH || verifying}
-                      className="h-13 w-full rounded-xl bg-brand text-[15px] font-semibold text-white hover:bg-brand/90 disabled:opacity-50"
+                      className="h-13 w-full rounded-lg bg-brand text-[15px] font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
                     >
                       {verifying ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
@@ -437,25 +405,27 @@ function LoginPage() {
                     </Button>
 
                     <div className="flex items-center justify-between text-sm">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => {
                           setStep("phone");
                           setOtp("");
                           setError(null);
                         }}
-                        className="font-medium text-muted-foreground hover:text-foreground"
+                        className="px-0 font-medium text-muted-foreground hover:text-foreground"
                       >
                         ← Change number
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
                         disabled={resendIn > 0 || sending}
                         onClick={() => sendOtp()}
-                        className="font-semibold text-brand hover:opacity-80 disabled:cursor-not-allowed disabled:text-muted-foreground"
+                        className="px-0 font-semibold text-brand hover:opacity-80 disabled:cursor-not-allowed disabled:text-muted-foreground"
                       >
                         {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend OTP"}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}

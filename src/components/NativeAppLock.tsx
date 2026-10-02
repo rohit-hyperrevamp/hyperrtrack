@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Fingerprint, Loader2, LogOut } from "lucide-react";
+import { BrandMark } from "@/components/BrandMark";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ export function NativeAppLock() {
       }
 
       logNativeEvent("biometric", "app lock required", { reason });
-      setMessage("Face ID is required to unlock Radiant Guard.");
+       setMessage("Face ID is required to unlock HyperTrack.");
       setMode("locked");
       return true;
     },
@@ -80,7 +81,7 @@ export function NativeAppLock() {
         const savedPhone = await signInWithBiometric();
         if (!savedPhone) {
           logNativeEvent("biometric", "app unlock cancelled", { reason });
-          setMessage("Face ID is required to unlock Radiant Guard.");
+           setMessage("Face ID is required to unlock HyperTrack.");
           setMode("locked");
           return;
         }
@@ -108,7 +109,7 @@ export function NativeAppLock() {
           reason,
           error: err instanceof Error ? err.message : String(err),
         });
-        setMessage("Face ID is required to unlock Radiant Guard.");
+         setMessage("Face ID is required to unlock HyperTrack.");
         setMode("locked");
       } finally {
         setBusy(false);
@@ -223,7 +224,8 @@ export function NativeAppLock() {
             <Fingerprint className="h-9 w-9 text-accent" />
           )}
         </div>
-        <h1 className="mt-6 text-xl font-semibold tracking-tight">Radiant Guard locked</h1>
+        <div className="mt-6 flex justify-center"><BrandMark /></div>
+        <h1 className="mt-3 text-xl font-semibold">Workspace locked</h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{message}</p>
         <div className="mt-7 space-y-3">
           <Button

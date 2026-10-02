@@ -465,7 +465,7 @@ function AdminLayout() {
               aria-label="HyperTrack home"
               className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-foreground"
             >
-              <span className="font-heading text-sm font-bold" aria-hidden="true">HT</span>
+              <BrandMark compact />
             </Link>
           ) : (
             <Link to={dashboardHref} aria-label="HyperTrack home" className="flex h-12 w-full min-w-0 items-center justify-center rounded-md border border-border bg-card px-3 text-foreground">
@@ -634,10 +634,10 @@ function AdminLayout() {
         !nativeShell && "lg:hidden",
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
-          <div className="relative shrink-0">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-primary font-heading text-[10px] font-bold text-primary-foreground" aria-hidden="true">HT</span>
+          <div className="relative shrink-0 [&>div>span]:h-7 [&>div>span]:w-7 [&>div>span]:text-[10px]">
+            <BrandMark compact />
           </div>
-          <div className="truncate text-[14px] font-semibold leading-tight text-foreground">HyperTrack</div>
+          <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
           {isSuperAdmin && <ViewAsUserButton />}
@@ -668,7 +668,7 @@ function AdminLayout() {
       <main data-admin-scroll data-rail-workspace={pathname.startsWith("/admin/rail") ? "" : undefined} className={cn("relative z-10 min-h-0 min-w-0 flex-1 overflow-y-visible safe-x py-2 !pb-[calc(82px+env(safe-area-inset-bottom))] transition-[margin] duration-300 sm:px-6 sm:py-6 lg:min-h-[calc(100dvh-3.5rem)] lg:py-8 lg:pr-6 lg:!pb-8", mainOffset)}>
 
 
-        <div className="mx-auto min-w-0 max-w-[1500px]">
+        <div className={cn("min-w-0", !pathname.startsWith("/admin/rail") && "mx-auto max-w-[1500px]")}>
           <div
             key={pathname}
             className={cn(!pathname.startsWith("/admin/payroll/") && "page-enter")}

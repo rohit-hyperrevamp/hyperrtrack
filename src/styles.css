@@ -12,8 +12,10 @@
 
 @theme inline {
   /* HyperTrack brand blue — bright, bold identity blue (white + blue) */
-  --color-brand: #1877f2;
+  --color-brand: var(--brand-blue);
   --color-brand-foreground: #ffffff;
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -68,6 +70,7 @@
 
 :root {
   --radius: 0.5rem;
+  --brand-blue: #1877f2;
   --mobile-edge: 0.5rem;
   --mobile-dock-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /* surfaces — soft neutral canvas, pure white cards (reference design language) */
@@ -85,7 +88,9 @@
   --muted: oklch(0.96 0.005 250);
   --muted-foreground: oklch(0.50 0.014 250);
   /* vivid blue accent — echoes the HyperTrack logo inside the app */
-  --accent: oklch(0.585 0.197 259);
+  --accent: var(--brand-blue);
+  --success: oklch(0.49 0.12 155);
+  --warning: oklch(0.59 0.14 70);
   --accent-foreground: oklch(0.99 0 0);
   --accent-secondary: oklch(0.21 0.045 252);
   --destructive: oklch(0.62 0.16 20);
@@ -93,8 +98,8 @@
   --border: oklch(0.90 0.009 250);
   --input: oklch(0.90 0.009 250);
 
-  --ring: oklch(0.585 0.197 259);
-  --chart-1: oklch(0.585 0.197 259);
+  --ring: var(--brand-blue);
+  --chart-1: var(--brand-blue);
   --chart-2: oklch(0.72 0.15 160);
   --chart-3: oklch(0.75 0.15 85);
   --chart-4: oklch(0.62 0.19 300);
@@ -182,20 +187,22 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.235 0.014 168);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.86 0.06 178);
-  --primary-foreground: oklch(0.18 0.02 168);
+  --primary: var(--brand-blue);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.29 0.014 168);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.29 0.014 168);
   --muted-foreground: oklch(0.8 0.01 168);
-  --accent: oklch(0.8 0.09 190);
-  --accent-foreground: oklch(0.16 0.02 168);
-  --accent-secondary: oklch(0.66 0.08 190);
+  --accent: var(--brand-blue);
+  --success: oklch(0.76 0.12 155);
+  --warning: oklch(0.82 0.13 80);
+  --accent-foreground: oklch(1 0 0);
+  --accent-secondary: var(--brand-blue);
   --destructive: oklch(0.7 0.18 22);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(1 0 0 / 16%);
   --input: oklch(1 0 0 / 20%);
-  --ring: oklch(0.8 0.09 190);
+  --ring: var(--brand-blue);
   --chart-1: oklch(0.82 0.1 168);
   --chart-2: oklch(0.86 0.13 120);
   --chart-3: oklch(0.82 0.09 15);
@@ -203,8 +210,8 @@
   --chart-5: oklch(0.75 0.05 240);
   --sidebar: oklch(0.22 0.014 168);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.86 0.06 178);
-  --sidebar-primary-foreground: oklch(0.18 0.02 168);
+  --sidebar-primary: var(--brand-blue);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.3 0.014 168);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 14%);
@@ -1019,9 +1026,33 @@
 
   /* HyperTrack's rail workspace uses the same compact control-room geometry
      across KPI tiles, lists, forms and the command board. */
-  [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
+   [data-rail-workspace] :where(.rounded-2xl, .rounded-3xl, .rounded-xl) {
     border-radius: 8px;
   }
+   [data-rail-workspace] .page-header > div {
+     background: transparent;
+     border: 0;
+     border-radius: 0;
+     padding-inline: 0;
+     padding-block: 0.25rem;
+     backdrop-filter: none;
+   }
+   [data-rail-workspace] .page-header { margin-bottom: 0; }
+   [data-rail-workspace] :where([data-slot="button"], [data-slot="input"], [data-slot="select-trigger"], [data-slot="tabs-list"], [data-slot="tabs-trigger"]) {
+     border-radius: 8px;
+   }
+   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
+     border-color: color-mix(in oklab, var(--border) 75%, transparent);
+   }
+   [data-rail-workspace] .command-panel .border-dashed {
+     background: transparent;
+     border: 0;
+     box-shadow: none;
+     padding: 1.5rem 0;
+   }
+   @media (min-width: 1024px) {
+     [data-rail-workspace] { padding-inline: clamp(1.5rem, 2.5vw, 3rem); }
+   }
   [data-rail-workspace] :where(.bg-card, .glass, .glass-strong) {
     box-shadow: 0 1px 2px rgb(var(--surface-shadow) / 0.045);
   }

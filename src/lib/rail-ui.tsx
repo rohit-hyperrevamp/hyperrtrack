@@ -63,14 +63,11 @@ export function railHead(title: string, description: string) {
 export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
   const body = (
     <div className={cn(
-      "rounded-md border bg-card p-4 transition-colors h-full",
-      to && "hover:border-primary/50 cursor-pointer",
-      tone === "good" && "border-l-4 border-l-emerald-500",
-      tone === "warn" && "border-l-4 border-l-amber-500",
-      tone === "bad" && "border-l-4 border-l-destructive",
+      "flex h-full min-h-28 flex-col rounded-lg border border-border/70 bg-card p-4 transition-[border-color,box-shadow] sm:p-5",
+      to && "cursor-pointer hover:border-accent/40 hover:shadow-sm",
     )}>
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className={cn("mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground", tone === "bad" && "text-destructive", tone === "warn" && "text-warning", tone === "good" && "text-success")}>{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );
@@ -79,7 +76,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
 
 export function Empty({ title, hint, action }: { title: string; hint?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed bg-card/50 p-8 text-center">
+    <div className="rounded-lg border border-dashed bg-card p-8 text-center">
       <div className="font-medium">{title}</div>
       {hint && <div className="mt-1 text-sm text-muted-foreground">{hint}</div>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}
@@ -89,17 +86,17 @@ export function Empty({ title, hint, action }: { title: string; hint?: string; a
 
 export function StatusPill({ s }: { s: string }) {
   const tone: Record<string, string> = {
-    planned: "bg-muted text-muted-foreground", placed: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    in_progress: "bg-amber-500/15 text-amber-700 dark:text-amber-300", pending: "bg-muted text-muted-foreground",
-    done: "bg-sky-500/15 text-sky-700 dark:text-sky-300", completed: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    approved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300", released: "bg-emerald-600 text-white",
+    planned: "bg-muted text-muted-foreground", placed: "bg-accent/10 text-accent",
+    in_progress: "bg-warning/10 text-warning", pending: "bg-muted text-muted-foreground",
+    done: "bg-accent/10 text-accent", completed: "bg-accent/10 text-accent",
+    approved: "bg-success/10 text-success", released: "bg-success text-card",
     rejected: "bg-destructive/15 text-destructive", removed: "bg-muted text-muted-foreground line-through",
-    draft: "bg-muted text-muted-foreground", submitted: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    checker_verified: "bg-violet-500/15 text-violet-700 dark:text-violet-300", certified: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    paid: "bg-emerald-600 text-white", cancelled: "bg-muted text-muted-foreground line-through",
-    open: "bg-amber-500/15 text-amber-700 dark:text-amber-300", proposed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    requested: "bg-amber-500/15 text-amber-700 dark:text-amber-300", received: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    draft: "bg-muted text-muted-foreground", submitted: "bg-accent/10 text-accent",
+    checker_verified: "bg-accent/10 text-accent", certified: "bg-success/10 text-success",
+    paid: "bg-success text-card", cancelled: "bg-muted text-muted-foreground line-through",
+    open: "bg-warning/10 text-warning", proposed: "bg-warning/10 text-warning",
+    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-success/10 text-success",
+    requested: "bg-warning/10 text-warning", received: "bg-success/10 text-success",
   };
   return <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize", tone[s] ?? "bg-muted")}>{s.replace(/_/g, " ")}</span>;
 }

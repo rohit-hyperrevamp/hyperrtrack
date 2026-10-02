@@ -13,3 +13,4 @@
 - Rail masters are described once in `src/lib/rail-masters.ts` and edited by the generic Settings hub; versioned masters close the old row and insert a new dated one — values are never overwritten.
 - AI photo cleanliness scoring runs server-side in `rail-ai-clean.server.ts` via the Lovable AI Gateway and stores every result in `rail_ai_photo_scores` — scores are advisory; humans approve.
 - HyperTrack is the rail workspace brand; expose rail screens directly in the dock and send legacy dashboard visits to role-appropriate rail pages while keeping legacy routes intact for migration — preserves existing records without presenting irrelevant security-company options.
+- Keep HyperTrack's split-color wordmark in BrandMark and rail presentation rules in the shared workspace styles — one source keeps login, navigation, and operational pages visually aligned.
