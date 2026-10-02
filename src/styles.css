@@ -2654,9 +2654,9 @@ nav[data-bottom-nav] > ul {
   min-height: 56px;
 }
 nav[data-bottom-nav] li > * > div > span:first-child {
-  height: 24px !important;
+  height: 36px !important;
   width: 36px !important;
-  border-radius: 8px !important;
+  border-radius: 50% !important;
 }
 nav[data-bottom-nav] li svg {
   height: 19px !important;
@@ -2666,6 +2666,22 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   font-size: 9px !important;
   letter-spacing: 0 !important;
   margin-top: 0;
+}
+@media (max-width: 639px) {
+  [data-rail-workspace] table:has(thead) { display: block; width: 100%; }
+  [data-rail-workspace] table:has(thead) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  [data-rail-workspace] table:has(thead) tbody { display: grid; gap: 0.5rem; padding: 0.5rem; }
+  [data-rail-workspace] table:has(thead) tbody tr { display: grid; gap: 0; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); overflow: hidden; }
+  [data-rail-workspace] table:has(thead) tbody td { display: grid; grid-template-columns: minmax(6.25rem, 38%) minmax(0, 1fr); align-items: start; gap: 0.5rem; width: 100%; min-width: 0; padding: 0.625rem 0.75rem !important; text-align: left; overflow-wrap: anywhere; border: 0; }
+  [data-rail-workspace] table:has(thead) tbody td + td { border-top: 1px solid var(--border); }
+  [data-rail-workspace] table:has(thead) tbody td::before { content: attr(data-label); min-width: 0; color: var(--muted-foreground); font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
+  [data-rail-workspace] table:has(thead) tbody td:not([data-label]) { display: block; }
+  [data-rail-workspace] table:has(thead) tbody td:not([data-label])::before { content: none; }
+  [data-rail-workspace] table:has(thead) tbody td:first-child { font-weight: 600; }
+  [data-rail-workspace] table:has(thead) tbody td:has([data-slot="button"]) { align-items: center; }
+  [data-rail-workspace] :where([data-slot="sheet-content"], [data-slot="dialog-content"]) :where(input, textarea, select, [role="combobox"]) { width: 100%; min-width: 0; }
+  .rail-photo-check :where(input, [data-slot="button"]) { min-height: 2.75rem; }
+  .rail-photo-check .page-header { margin-bottom: 0.25rem; }
 }
 @media (pointer: coarse) {
   nav[data-bottom-nav] button,

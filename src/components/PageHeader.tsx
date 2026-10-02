@@ -55,7 +55,7 @@ export function PageHeader({
           <div className="flex min-w-0 items-center gap-2.5 sm:items-start sm:gap-3">
             {Icon && (
               <div className="mt-0.5 shrink-0">
-                <div className="grid h-8 w-8 place-items-center rounded-lg bg-accent/10 text-accent sm:h-11 sm:w-11 sm:rounded-xl sm:ring-1 sm:ring-inset sm:ring-accent/20">
+                <div className="grid h-8 w-8 place-items-center rounded-full bg-accent/10 text-accent sm:h-11 sm:w-11 sm:ring-1 sm:ring-inset sm:ring-accent/20">
                   <Icon className="h-4.5 w-4.5 sm:h-[19px] sm:w-[19px]" />
                 </div>
               </div>

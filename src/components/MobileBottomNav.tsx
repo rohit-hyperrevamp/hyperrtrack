@@ -97,14 +97,14 @@ export function MobileBottomNav({
                     className={cn(
                       "grid min-h-14 min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-[background-color,transform] duration-200 active:scale-[0.98]",
                       item.active
-                        ? "bg-dock-foreground text-dock"
-                        : "bg-dock-foreground/[0.07] text-dock-foreground/75 active:bg-dock-foreground/[0.13]",
+                        ? "bg-brand/10 text-foreground"
+                        : "bg-muted/50 text-foreground active:bg-muted",
                     )}
                   >
-                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-dock-foreground/10 text-dock-foreground") }>
+                      <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", item.active ? "bg-brand text-primary-foreground" : "bg-muted text-foreground") }>
                        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                     </span>
-                    <span className="truncate text-[11px] font-medium">{item.label}</span>
+                    <span className="min-w-0 break-words text-[11px] font-medium leading-tight">{item.label}</span>
                   </Link>
                 );
               })}
@@ -112,13 +112,13 @@ export function MobileBottomNav({
           </div>
         </div>
       </div>
-      <ul className="mx-auto grid h-16 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 border-t border-dock-foreground/10 px-1.5 py-1.5">
+      <ul className="mx-auto grid h-16 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 px-1.5 py-1.5">
         {primary.map((it) => {
           const Icon = it.icon;
           const inner = (
             <div
               className={cn(
-                 "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200",
+                 "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200",
                   railStyle ? (it.active ? "text-primary-foreground" : "text-dock-foreground/65") : (it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65"),
               )}
             >
@@ -127,7 +127,7 @@ export function MobileBottomNav({
                   "grid h-8 w-8 place-items-center rounded-full transition-colors",
                      it.active
                       ? "bg-brand text-primary-foreground"
-                      : "bg-dock-foreground/10 text-dock-foreground/65",
+                       : "bg-muted text-muted-foreground",
                 )}
               >
                  <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
@@ -162,11 +162,11 @@ export function MobileBottomNav({
             aria-label="More"
              className="block h-full w-full select-none rounded-lg p-0 outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
           >
-               <div className={cn("relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200", moreActive ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65")}>
+               <div className="relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 px-1 transition-colors duration-200">
               <span
                 className={cn(
-                  "grid h-6 w-9 place-items-center rounded-lg transition-colors",
-                   moreActive ? "text-dock-foreground" : "text-dock-foreground/65",
+                  "grid h-8 w-8 place-items-center rounded-full transition-colors",
+                   moreActive ? "bg-brand text-primary-foreground" : "bg-muted text-muted-foreground",
                 )}
               >
                  <LayoutGrid className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />

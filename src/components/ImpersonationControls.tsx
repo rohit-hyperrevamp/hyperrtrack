@@ -42,8 +42,8 @@ export function ImpersonationBanner() {
   );
 }
 
-export function ViewAsUserButton({ className }: { className?: string }) {
-  const [open, setOpen] = useState(false);
+export function ViewAsUserButton({ className, initialOpen = false }: { className?: string; initialOpen?: boolean }) {
+  const [open, setOpen] = useState(initialOpen);
   return (
     <>
       <button

@@ -158,7 +158,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         event.stopPropagation();
         setMobileOpen(true);
       }}
-      className={triggerClassName ?? "relative inline-flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-full border border-border bg-card text-foreground outline-none transition-colors focus-visible:outline-none hover:border-accent hover:text-accent"}
+      className={cn("!rounded-full", triggerClassName ?? "relative inline-flex h-10 w-10 shrink-0 aspect-square items-center justify-center border-0 bg-muted text-foreground outline-none transition-colors focus-visible:outline-none hover:bg-brand/10 hover:text-brand")}
     >
       <Bell className="h-4 w-4" />
       {unread > 0 && <span className="sr-only">{unread} unread</span>}

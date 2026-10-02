@@ -51,14 +51,14 @@ import {
   TrendingUp,
   Search,
   History,
+  Eye,
 } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
-import { RailDockPulse } from "@/components/RailDockPulse";
 import { RAIL_TOPBAR_SLOT_ID } from "@/components/RailTopbar";
 import { MobileBottomNav, type BottomNavItem, type BottomNavMoreItem } from "@/components/MobileBottomNav";
 import { useT } from "@/lib/i18n";
 import { NotificationBell } from "@/components/NotificationBell";
-import { ImpersonationBanner, ViewAsUserButton } from "@/components/ImpersonationControls";
+import { ImpersonationBanner } from "@/components/ImpersonationControls";
 import { AppleNativeSetupCard } from "@/components/AppleNativeSetupCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -131,7 +131,7 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/sustainability", label: "Resources", icon: Leaf },
   { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
   { to: "/admin/rail/people", label: "Team", icon: UsersRound },
-  { to: "/admin/rail/settings", label: "Setup", icon: SlidersHorizontal },
+  { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
   { to: "/admin/rail/ai-check", label: "Photo Check", icon: ScanEye },
 ];
 
@@ -310,6 +310,7 @@ function AdminLayout() {
     { prefix: "/admin/company-documents", module: "control_center" },
     { prefix: "/admin/policy-manager", module: "control_center" },
     { prefix: "/admin/system-logs", module: "control_center" },
+    { prefix: "/admin/view-as-user", module: "control_center" },
     { prefix: "/admin/asset-manager", module: "control_center" },
     { prefix: "/admin/attendance-code-manager", module: "control_center" },
     { prefix: "/admin/public-holiday-manager", module: "control_center" },
@@ -425,7 +426,7 @@ function AdminLayout() {
         const section = c.to.split("/")[3];
         return section && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
       });
-      const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }] : links;
+      const accessible = isSuperAdmin ? [...links, { to: "/admin/system-logs", label: "Activity Log", icon: History }, { to: "/admin/view-as-user", label: "View as User", icon: Eye }] : links;
       return accessible.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
     return [];
@@ -531,8 +532,6 @@ function AdminLayout() {
           })()}
         </nav>
 
-        {!collapsed && railWorkspace && visibleGroups.some((g) => g.to === "/admin/rail/command") && <RailDockPulse />}
-
         {/* Footer: user + collapse */}
         <div className={cn("rail-dock-account mt-4 p-3 pt-5", collapsed ? "space-y-3" : "space-y-2")}>
           <DropdownMenu>
@@ -608,11 +607,6 @@ function AdminLayout() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {isSuperAdmin && <div className={cn("flex items-center gap-2 px-2 text-xs font-medium text-dock-foreground", collapsed && "justify-center px-0")}>
-            <ViewAsUserButton className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted text-foreground hover:bg-brand hover:text-primary-foreground" />
-            {!collapsed && <span>View as user</span>}
-          </div>}
-
           <Button
             type="button"
             variant="ghost"
@@ -655,8 +649,7 @@ function AdminLayout() {
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
-           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full"><Search className="h-5 w-5" /></Button>}
-          {isSuperAdmin && <ViewAsUserButton />}
+           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full bg-muted text-foreground"><Search className="h-5 w-5" /></Button>}
           <NotificationBell />
           <Link
             to="/admin/profile"
@@ -712,7 +705,7 @@ function AdminLayout() {
             to: g.to,
             active: isGroupActive(g),
         }));
-        const moreItems: BottomNavMoreItem[] = visibleGroups.flatMap((g) => {
+        const moreItems: BottomNavMoreItem[] = visibleGroups.slice(4).flatMap((g) => {
               const to = g.to ?? g.children?.[0]?.to;
               return to ? [{ key: g.key, to, label: g.label, icon: g.icon, active: isGroupActive(g) }] : [];
             });

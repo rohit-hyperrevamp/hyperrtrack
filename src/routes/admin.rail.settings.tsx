@@ -398,7 +398,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
         </div>
       )}
 
-       <div className="overflow-x-auto rounded-lg border border-border bg-card">
+       <div className="rail-master-table overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
@@ -414,9 +414,9 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
             {filtered.slice(0, 500).map((r) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/30">
                 {tableFields.map((f) => (
-                  <td key={f.key} className={`px-3 py-2 ${f.type === "number" || /number|code/.test(f.key) ? "font-mono tabular-nums" : ""}`}>{display(f, r[f.key], refs)}</td>
+                  <td key={f.key} data-label={f.label} className={`px-3 py-2 ${f.type === "number" || /number|code/.test(f.key) ? "font-mono tabular-nums" : ""}`}>{display(f, r[f.key], refs)}</td>
                 ))}
-                <td className="whitespace-nowrap px-3 py-2 text-right">
+                <td data-label="Actions" className="whitespace-nowrap px-3 py-2 text-right">
                    <Button size="icon" variant="ghost" className="rounded-full" aria-label="Edit" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
                    <Button size="icon" variant="ghost" className="rounded-full" aria-label="Remove" onClick={() => remove.mutate(r)}><Trash2 className="h-4 w-4" /></Button>
                 </td>

@@ -43,7 +43,9 @@ async function shrink(dataUrl: string): Promise<string> {
   const c = document.createElement("canvas");
   c.width = Math.round(img.width * scale);
   c.height = Math.round(img.height * scale);
-  c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+  const context = c.getContext("2d");
+  if (!context) throw new Error("Could not prepare the photo. Please try again.");
+  context.drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL("image/jpeg", 0.75);
 }
 
@@ -91,8 +93,8 @@ function AiCheckPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-5">
-      <PageHeader title="AI Clean Check" description="Take a photo after cleaning. The AI scores it out of 10. Your supervisor still gives the final approval." />
+    <div className="rail-photo-check mx-auto max-w-xl space-y-5">
+      <PageHeader title="Photo Check" description="Take a photo after cleaning. The AI scores it out of 10. Your supervisor still gives the final approval." />
 
       <div className="space-y-3 rounded-xl border border-border bg-card p-4">
         <div className="space-y-1">
@@ -103,15 +105,16 @@ function AiCheckPage() {
           <Label>Area</Label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {areas.map((a) => (
-              <button
+              <Button
                 key={a}
                 type="button"
+                variant={area === a ? "default" : "outline"}
                 onClick={() => setArea(a)}
                 aria-pressed={area === a}
-                className={`min-h-14 rounded-xl border px-2 text-sm font-medium ${area === a ? "border-primary bg-primary/10 text-primary" : "border-border"}`}
+                className="min-h-12 h-auto whitespace-normal rounded-lg px-2 py-2 text-center text-sm font-medium"
               >
                 {AREA_LABELS[a] ?? a}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -123,7 +126,7 @@ function AiCheckPage() {
 
       {photo && (
         <div className="overflow-hidden rounded-xl border border-border">
-          <img src={photo} alt={`Photo of ${AREA_LABELS[area] ?? area}`} className="max-h-80 w-full object-cover" />
+          <img src={photo} alt={`Photo of ${AREA_LABELS[area] ?? area}`} className="max-h-80 w-full object-contain bg-muted" />
         </div>
       )}
 
@@ -133,9 +136,9 @@ function AiCheckPage() {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Recent checks</h2>
         {recent.length === 0 && <p className="text-sm text-muted-foreground">No checks yet. Take your first photo above.</p>}
         {recent.map((r) => (
-          <div key={r.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
-            <span>{AREA_LABELS[r.area ?? ""] ?? r.area}{r.coach_number ? <span className="ml-2 font-mono tabular-nums text-muted-foreground">{r.coach_number}</span> : null}</span>
-            <span className="flex items-center gap-2"><VerdictIcon v={r.verdict} /><span className="font-mono tabular-nums">{Number(r.score).toFixed(1)}</span></span>
+          <div key={r.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-border px-3 py-3 text-sm">
+            <span className="min-w-0 truncate">{AREA_LABELS[r.area ?? ""] ?? r.area}{r.coach_number ? <span className="ml-2 font-mono tabular-nums text-muted-foreground">{r.coach_number}</span> : null}</span>
+            <span className="flex shrink-0 items-center gap-2"><VerdictIcon v={r.verdict} /><span className="font-mono tabular-nums">{Number(r.score).toFixed(1)}</span></span>
           </div>
         ))}
       </section>
@@ -144,8 +147,8 @@ function AiCheckPage() {
 }
 
 function VerdictIcon({ v }: { v: string }) {
-  if (v === "clean") return <CheckCircle2 className="h-4 w-4 text-[hsl(var(--success,142_71%_45%))]" aria-label="Clean" />;
-  if (v === "attention") return <AlertTriangle className="h-4 w-4 text-[hsl(var(--warning,38_92%_50%))]" aria-label="Needs attention" />;
+  if (v === "clean") return <CheckCircle2 className="h-4 w-4 text-chart-2" aria-label="Clean" />;
+  if (v === "attention") return <AlertTriangle className="h-4 w-4 text-chart-4" aria-label="Needs attention" />;
   return <XCircle className="h-4 w-4 text-destructive" aria-label="Dirty" />;
 }
 
@@ -153,9 +156,9 @@ function ResultCard({ r, onRetake }: { r: Result; onRetake: () => void }) {
   const label = r.verdict === "clean" ? "Clean" : r.verdict === "attention" ? "Needs attention" : "Dirty";
   return (
     <div className="space-y-3 rounded-xl border border-border bg-card p-4" role="status">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-lg font-semibold"><VerdictIcon v={r.verdict} />{label}</div>
-        <div className="font-mono text-3xl font-bold tabular-nums">{r.score.toFixed(1)}<span className="text-base text-muted-foreground">/10</span></div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 text-lg font-semibold"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted"><VerdictIcon v={r.verdict} /></span><span className="min-w-0">{label}</span></div>
+        <div className="shrink-0 font-mono text-2xl font-bold tabular-nums">{r.score.toFixed(1)}<span className="text-sm text-muted-foreground">/10</span></div>
       </div>
       {r.summary && <p className="text-sm">{r.summary}</p>}
       {r.issues.length > 0 && (
