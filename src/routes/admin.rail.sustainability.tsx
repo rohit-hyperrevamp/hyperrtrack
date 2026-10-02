@@ -138,10 +138,10 @@ function SustainPage() {
       <h2>Summary</h2><table>
       <tr><td>Coaches cleaned</td><td>${num(s.coaches)}</td></tr><tr><td>Water saved vs manual baseline</td><td>${num(s.saved)} L</td></tr>
       <tr><td>Recycled water share</td><td>${Math.round(s.recycledPct * 100)}%</td></tr><tr><td>Fresh water per coach</td><td>${num(s.freshPerCoach)} L</td></tr>
-      <tr><td>Chemical per coach</td><td>${num(s.chemPerCoach, 2)} L</td></tr><tr><td>CO₂e per coach</td><td>${num(s.co2PerCoach, 2)} kg</td></tr><tr><td>Total CO₂e</td><td>${num(s.co2, 1)} kg</td></tr>
+      <tr><td>Chemical per coach</td><td>${num(s.chemPerCoach, 2)} L</td></tr><tr><td>CO₂e from chemicals</td><td>${num(chemCo2, 1)} kg (per-product factors)</td></tr><tr><td>CO₂e per coach</td><td>${num(co2PerCoachTotal, 2)} kg</td></tr><tr><td>Total CO₂e</td><td>${num(co2Total, 1)} kg</td></tr>
       <tr><td>Method mix</td><td>${s.acwpCoaches} auto wash plant · ${manualCoaches} manual</td></tr></table>
       <h2>Depot league</h2><table><tr><th>Depot</th><th>Coaches</th><th>Fresh L/coach</th></tr>${league.map((l) => `<tr><td>${l.d.name}</td><td>${l.coaches}</td><td>${num(l.freshPerCoach)}</td></tr>`).join("")}</table>
-      <h2>Data quality statement</h2><p>${Math.round(s.meteredShare * 100)}% of resource lines are from meter readings; the remaining ${100 - Math.round(s.meteredShare * 100)}% are estimates from approved norms (manual wash ${data!.baseline} L/coach; auto wash 300 L/coach with 80% recycled). Estimated and metered figures are kept separate. Emission factors: grid electricity 0.7 kg/kWh (to be replaced with the client's chosen CEA value), diesel 2.68 kg/L.</p>
+      <h2>Data quality statement</h2><p>${Math.round(s.meteredShare * 100)}% of resource lines are from meter readings; the remaining ${100 - Math.round(s.meteredShare * 100)}% are estimates from approved norms (manual wash ${data!.baseline} L/coach; auto wash 300 L/coach with 80% recycled). Estimated and metered figures are kept separate. Emission factors: grid electricity 0.7 kg/kWh (to be replaced with the client's chosen CEA value), diesel 2.68 kg/L, chemicals per product (Configuration Hub → Item types).</p>
       <br/><br/><table><tr><td>Prepared by: ____________________</td><td>Railway sign-off: ____________________</td></tr></table>
       <script>window.print()</script></body></html>`);
   }
