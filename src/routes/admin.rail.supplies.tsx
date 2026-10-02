@@ -138,7 +138,7 @@ function SuppliesPage() {
                 {!k.returned_at && <Button size="sm" variant="outline" onClick={async () => { const r = window.prompt("Quantity returned at end of shift?", "0"); if (r === null) return; (await act(db.from("rail_kit_issues").update({ qty_returned: Number(r), returned_at: new Date().toISOString() }).eq("id", k.id), "Return recorded")) && inv(); }}>Record return</Button>}</div>))}</div>}
         </TabsContent>
 
-        <TabsContent value="custody" data-merged="variance" className="space-y-2">
+        <TabsContent value="kit" data-merged="variance" className="space-y-2">
           <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => downloadCsv(`consumption-variance-${today()}`, variance)}>Export</Button></div>
           {!variance.length ? <Empty title="No consumption recorded yet" hint="Usage is filled from norms when a cleaning job completes." /> :
             <div className="divide-y rounded-2xl border bg-card">{variance.map((v, i) => (
