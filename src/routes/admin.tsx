@@ -619,6 +619,7 @@ function AdminLayout() {
                "flex h-10 w-full items-center justify-start gap-2.5 rounded-lg px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
               collapsed && "mx-auto h-11 w-11 justify-center rounded-full p-0",
             )}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronsRight className="h-[18px] w-[18px]" /> : <><ChevronsLeft className="h-4 w-4" /> Collapse</>}

@@ -1961,9 +1961,12 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis .rail-kpi-value { color: var(--rail-ink); font-size: clamp(1.65rem, 2.5vw, 2.4rem); }
 [data-rail-shell] .rail-command-kpis > :nth-child(1) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--palette-neutral-ink); border-color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: var(--palette-good-main); border-color: var(--palette-good-main); }
+[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--brand-blue); border-color: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(8) .rail-kpi { background: var(--palette-danger-main); border-color: var(--palette-danger-main); }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--primary-foreground); }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(7), :nth-child(8)) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--primary-foreground); }
+[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi :is(.rail-kpi-label, .rail-kpi-value, .rail-kpi-hint) { color: var(--palette-neutral-ink); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi-icon { background: var(--brand-blue); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi-icon { background: var(--palette-neutral-deep); }
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
@@ -1974,7 +1977,8 @@ nav[data-bottom-nav] {
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon { background: var(--brand-blue); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: var(--palette-danger-main); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon { background: var(--palette-danger-main); }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); }
+[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi .rail-kpi-icon { background: var(--palette-neutral-ink); color: var(--primary-foreground); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--palette-neutral-deep); }
