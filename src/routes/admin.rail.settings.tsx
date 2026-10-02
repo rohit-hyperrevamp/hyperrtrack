@@ -121,6 +121,130 @@ function MasterCard({ def, onOpen }: { def: MasterDef; onOpen: () => void }) {
   );
 }
 
+type RailRoleRow = { id: string; key: string; name: string; description: string | null; is_external: boolean; hide_costs: boolean };
+type RailPermissionRow = { id: string; role_key: string; module_key: string; action: string };
+const railModules = [
+  ["rail_access", "People & access"], ["rail_settings", "Masters & rules"], ["rail_ops", "Live operations"],
+  ["rail_quality", "Quality & inspections"], ["rail_contracts", "Contracts"], ["rail_supplies", "Supplies & equipment"],
+  ["rail_sustainability", "Sustainability"], ["rail_billing", "Railway billing"],
+] as const;
+const railActions = ["view", "create", "edit", "delete", "approve", "export", "configure", "inspect", "sign"] as const;
+
+function RolesAccess() {
+  const qc = useQueryClient();
+  const [selected, setSelected] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Set<string> | null>(null);
+  const [roleForm, setRoleForm] = useState<{ name: string; description: string; is_external: boolean; hide_costs: boolean } | null>(null);
+  const { data: roles = [], isLoading: rolesLoading } = useQuery({
+    queryKey: ["rail-access-roles"],
+    queryFn: async () => {
+      const { data, error } = await db.from("rail_roles").select("id,key,name,description,is_external,hide_costs").is("deleted_at", null).order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as RailRoleRow[];
+    },
+  });
+  const { data: permissions = [], isLoading: permissionsLoading } = useQuery({
+    queryKey: ["rail-access-permissions", selected], enabled: !!selected,
+    queryFn: async () => {
+      const { data, error } = await db.from("rail_permissions").select("id,role_key,module_key,action").eq("role_key", selected).is("deleted_at", null);
+      if (error) throw error;
+      return (data ?? []) as RailPermissionRow[];
+    },
+  });
+  const activeRole = roles.find((r) => r.key === selected);
+  const original = new Set(permissions.map((p) => `${p.module_key}:${p.action}`));
+  const current = draft ?? original;
+  const changed = draft !== null && (draft.size !== original.size || [...draft].some((key) => !original.has(key)));
+  const protectedRole = selected === "super_admin";
+
+  const createRole = useMutation({
+    mutationFn: async (form: NonNullable<typeof roleForm>) => {
+      const name = form.name.trim();
+      if (!name) throw new Error("Enter a role name");
+      const key = `custom_${name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "")}`;
+      if (key === "custom_") throw new Error("Use letters or numbers in the role name");
+      const { data, error } = await db.from("rail_roles").insert({ key, name, description: form.description.trim() || null, is_external: form.is_external, hide_costs: form.hide_costs }).select("id").single();
+      if (error) throw error;
+      await logActivity({ module: "Configuration Hub", action: "create", entityType: "rail_roles", entityId: data.id, entityLabel: name });
+      return key;
+    },
+    onSuccess: (key) => { toast.success("Role created"); setRoleForm(null); qc.invalidateQueries({ queryKey: ["rail-access-roles"] }); qc.invalidateQueries({ queryKey: ["rail-people"] }); setSelected(key); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const savePermissions = useMutation({
+    mutationFn: async () => {
+      if (!selected || !draft || protectedRole) return;
+      const additions = [...draft].filter((key) => !original.has(key));
+      const removals = permissions.filter((p) => !draft.has(`${p.module_key}:${p.action}`));
+      if (additions.length) {
+        const payload = additions.map((key) => { const [module_key, action] = key.split(":"); return { role_key: selected, module_key, action }; });
+        const { error } = await db.from("rail_permissions").upsert(payload, { onConflict: "role_key,module_key,action" });
+        if (error) throw error;
+      }
+      if (removals.length) {
+        const { error } = await db.from("rail_permissions").update({ deleted_at: new Date().toISOString() }).in("id", removals.map((p) => p.id));
+        if (error) throw error;
+      }
+      await logActivity({ module: "Configuration Hub", action: "update", entityType: "rail_permissions", entityLabel: selected, details: { granted: additions, revoked: removals.map((p) => `${p.module_key}:${p.action}`) } });
+    },
+    onSuccess: () => { toast.success("Permissions saved"); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-permissions", selected] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const removeRole = useMutation({
+    mutationFn: async (role: RailRoleRow) => {
+      const { count, error: countError } = await db.from("rail_people").select("id", { count: "exact", head: true }).eq("role_key", role.key).eq("enabled", true).is("deleted_at", null);
+      if (countError) throw countError;
+      if (count) throw new Error("Reassign active people before removing this role");
+      const { error } = await db.from("rail_roles").update({ deleted_at: new Date().toISOString() }).eq("id", role.id);
+      if (error) throw error;
+      await logActivity({ module: "Configuration Hub", action: "delete", entityType: "rail_roles", entityId: role.id, entityLabel: role.name });
+    },
+    onSuccess: () => { toast.success("Role removed"); setSelected(null); setDraft(null); qc.invalidateQueries({ queryKey: ["rail-access-roles"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggle = (module: string, action: string) => {
+    const next = new Set(current);
+    const key = `${module}:${action}`;
+    if (next.has(key)) {
+      next.delete(key);
+      if (action === "view") railActions.forEach((a) => next.delete(`${module}:${a}`));
+    } else {
+      next.add(key);
+      if (action !== "view") next.add(`${module}:view`);
+    }
+    setDraft(next);
+  };
+
+  return <div className="grid min-w-0 gap-5 xl:grid-cols-[270px_minmax(0,1fr)]">
+    <aside className="min-w-0 space-y-3">
+      <div className="flex items-center justify-between gap-2"><h2 className="text-base font-semibold">Roles</h2><Button size="icon" aria-label="Add role" title="Add role" className="rounded-full active:scale-95" onClick={() => setRoleForm({ name: "", description: "", is_external: false, hide_costs: false })}><Plus /></Button></div>
+      <div className="space-y-2">{rolesLoading ? <p className="text-sm text-muted-foreground">Loading roles…</p> : roles.map((role) =>
+        <Button key={role.id} variant="outline" onClick={() => { setSelected(role.key); setDraft(null); }} className={cn("group h-auto min-h-16 w-full justify-start gap-3 rounded-lg p-3 text-left active:scale-[0.98]", selected === role.key && "border-brand bg-brand/5")}>
+          <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", selected === role.key ? "bg-brand text-primary-foreground" : "bg-muted text-foreground")}><UsersRound className="h-4 w-4" /></span>
+          <span className="min-w-0 flex-1"><span className="block truncate font-semibold">{role.name}</span><span className="block truncate text-xs font-normal text-muted-foreground">{role.description || (role.is_external ? "External" : "Team")}</span></span>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
+        </Button>)}
+      </div>
+    </aside>
+    <section className="min-w-0">
+      {!activeRole ? <div className="flex min-h-52 items-center justify-center rounded-lg border border-dashed border-border bg-card text-sm text-muted-foreground">Select a role to manage access</div> : <>
+        <div className="mb-4 flex flex-wrap items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-brand text-primary-foreground"><ShieldCheck className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h2 className="font-semibold">{activeRole.name}</h2><p className="text-xs text-muted-foreground">Access to pages and actions</p></div>
+          {activeRole.key.startsWith("custom_") && <Button size="icon" variant="ghost" className="rounded-full" title="Remove role" aria-label="Remove role" disabled={removeRole.isPending} onClick={() => { if (window.confirm(`Remove ${activeRole.name}?`)) removeRole.mutate(activeRole); }}><Trash2 /></Button>}
+          <Button onClick={() => savePermissions.mutate()} disabled={!changed || savePermissions.isPending || permissionsLoading || protectedRole} className="active:scale-95">{savePermissions.isPending ? "Saving…" : "Save access"}</Button>
+        </div>
+        {protectedRole && <p className="mb-3 text-xs text-muted-foreground">Super Admin access is protected and cannot be changed here.</p>}
+        <div className="overflow-x-auto rounded-lg border border-border bg-card">
+          <table className="w-full min-w-[760px] border-collapse text-sm"><thead><tr className="border-b border-border bg-muted/50 text-left"><th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 font-semibold">Area</th>{railActions.map((action) => <th key={action} className="px-2 py-3 text-center text-xs font-medium capitalize">{action}</th>)}</tr></thead>
+            <tbody>{railModules.map(([key, label]) => <tr key={key} className="border-b border-border/70 last:border-0 hover:bg-muted/30"><th className="sticky left-0 bg-card px-4 py-3 text-left font-medium">{label}</th>{railActions.map((action) => <td key={action} className="px-2 py-2 text-center"><Switch aria-label={`${label}: ${action}`} checked={current.has(`${key}:${action}`)} disabled={permissionsLoading || protectedRole} onCheckedChange={() => toggle(key, action)} /></td>)}</tr>)}</tbody>
+          </table>
+        </div>
+      </>}
+    </section>
+    <Sheet open={roleForm !== null} onOpenChange={(open) => !open && setRoleForm(null)}><SheetContent className="w-full sm:max-w-md"><SheetHeader><SheetTitle>Create role</SheetTitle><SheetDescription>Choose who can access each area after creating the role.</SheetDescription></SheetHeader>{roleForm && <div className="mt-6 space-y-4"><div className="space-y-1.5"><Label htmlFor="rail-role-name">Role name</Label><Input id="rail-role-name" autoFocus value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} /></div><div className="space-y-1.5"><Label htmlFor="rail-role-description">Description</Label><Input id="rail-role-description" value={roleForm.description} onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })} /></div><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-external">External team</Label><Switch id="rail-external" checked={roleForm.is_external} onCheckedChange={(checked) => setRoleForm({ ...roleForm, is_external: checked })} /></div><div className="flex items-center justify-between gap-3"><Label htmlFor="rail-hide-costs">Hide costs</Label><Switch id="rail-hide-costs" checked={roleForm.hide_costs} onCheckedChange={(checked) => setRoleForm({ ...roleForm, hide_costs: checked })} /></div><Button className="w-full active:scale-[0.98]" disabled={createRole.isPending || !roleForm.name.trim()} onClick={() => createRole.mutate(roleForm)}>Create role</Button></div>}</SheetContent></Sheet>
+  </div>;
+}
+
 function useRefOptions(fields: MasterField[]) {
   const refTables = [...new Set(fields.filter((f) => f.ref).map((f) => `${f.ref!.table}|${f.ref!.label}`))];
   return useQuery({
