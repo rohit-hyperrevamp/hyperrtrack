@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ScanEye, UsersRound } from "lucide-react";
+import { AlertCircle, UsersRound } from "lucide-react";
 import { db, num, today } from "@/lib/rail-ui";
 
 type K = Record<string, number>;
@@ -41,7 +41,7 @@ export function RailDockPulse() {
         </div>
         <div className="grid grid-cols-2 gap-1.5">
           <Link to="/admin/rail/live" search={{}} className="rounded-md bg-card px-2 py-1.5 text-center text-[11px] font-medium text-brand">Live board</Link>
-          <Link to="/admin/rail/ai-check" className="flex items-center justify-center gap-1 rounded-md bg-card/20 px-2 py-1.5 text-[11px] font-medium text-primary-foreground ring-1 ring-primary-foreground/40"><ScanEye className="h-3 w-3" />Scan</Link>
+          <Link to="/admin/rail/checker" className="flex items-center justify-center gap-1 rounded-md bg-card/20 px-2 py-1.5 text-[11px] font-medium text-primary-foreground ring-1 ring-primary-foreground/40">Checks</Link>
         </div>
       </div>
     </div>

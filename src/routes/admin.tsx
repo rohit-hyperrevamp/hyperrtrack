@@ -77,7 +77,7 @@ import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
 import { RBAC_MODULES } from "@/lib/rbac-modules";
-import { TrainFront, ScanEye, Rows3, Smartphone, ClipboardCheck, Leaf, UsersRound, FileSignature } from "lucide-react";
+import { TrainFront, Rows3, Smartphone, ClipboardCheck, Leaf, UsersRound, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
