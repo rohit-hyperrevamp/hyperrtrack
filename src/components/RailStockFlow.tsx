@@ -13,8 +13,8 @@ import { db, Empty, num, rows, StatusPill, today } from "@/lib/rail-ui";
 type Item = { id: string; item_code: string; name: string; unit: string; default_reorder_level: number; rail_category: string | null; hazard_class: string | null };
 type Loc = { id: string; code: string; name: string; type: string };
 type Batch = { id: string; item_id: string; location_id: string; batch_no: string | null; qty_on_hand: number; expiry_date: string | null };
-type PR = { id: string; item_id: string; qty: number; status: string; reason: string | null; location_id: string; created_at: string; vendor_id: string | null; po_number: string | null; unit_price: number | null; expected_on: string | null; requested_by: string | null };
-type Trf = { id: string; item_id: string; from_location_id: string; to_location_id: string; qty: number; status: string; note: string | null; created_at: string; requested_by: string | null };
+type PR = { id: string; item_id: string; qty: number; status: string; reason: string | null; location_id: string; created_at: string; vendor_id: string | null; po_number: string | null; unit_price: number | null; expected_on: string | null; requested_by: string | null; decision_note: string | null };
+type Trf = { id: string; item_id: string; from_location_id: string; to_location_id: string; qty: number; status: string; note: string | null; created_at: string; requested_by: string | null; refuse_reason: string | null; request_id: string | null };
 type Vendor = { id: string; name: string; phone: string | null; email: string | null; gstin: string | null; lead_days: number };
 
 const sel = "h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm";
@@ -46,14 +46,16 @@ export function useStockFlow() {
         rows<Item>(db.from("inv_items").select("id,item_code,name,unit,default_reorder_level,rail_category,hazard_class").not("rail_category", "is", null).order("name")),
         rows<Loc>(db.from("rail_locations").select("id,code,name,type").in("type", ["depot", "station", "store"]).is("deleted_at", null).order("name")),
         rows<Batch>(db.from("rail_item_batches").select("id,item_id,location_id,batch_no,qty_on_hand,expiry_date").gt("qty_on_hand", 0)),
-        rows<PR>(db.from("rail_purchase_requests").select("id,item_id,qty,status,reason,location_id,created_at,vendor_id,po_number,unit_price,expected_on,requested_by").order("created_at", { ascending: false })),
-        rows<Trf>(db.from("rail_stock_transfers").select("id,item_id,from_location_id,to_location_id,qty,status,note,created_at,requested_by").order("created_at", { ascending: false })),
+        rows<PR>(db.from("rail_purchase_requests").select("id,item_id,qty,status,reason,location_id,created_at,vendor_id,po_number,unit_price,expected_on,requested_by,decision_note").order("created_at", { ascending: false })),
+        rows<Trf>(db.from("rail_stock_transfers").select("id,item_id,from_location_id,to_location_id,qty,status,note,created_at,requested_by,refuse_reason,request_id").order("created_at", { ascending: false })),
         rows<Vendor>(db.from("rail_vendors").select("id,name,phone,email,gstin,lead_days").order("name")),
       ]);
       // Requests need a second person to approve (database rule), so the UI must know who is signed in.
       const me = (await supabase.auth.getUser()).data.user?.id ?? null;
       const allLocs = locs;
-      return { items, locs: await scopeSupplyLocs(locs), allLocs, batches, prs, trfs, vendors, me };
+      const [{ data: hq }, { data: mainStore }] = await Promise.all([db.rpc("rail_is_hq"), db.rpc("rail_main_store_id")]);
+      const isHq = !!hq; const mainId = (mainStore as string | null) ?? "";
+      return { items, locs: isHq ? locs : await scopeSupplyLocs(locs), allLocs, batches, prs, trfs, vendors, me, isHq, mainId };
     },
   });
 }
@@ -181,104 +183,156 @@ export function StoresView({ onPick, onTransfer }: { onPick: (id: string) => voi
   );
 }
 
+const usable = (batches: Batch[], itemId: string, at: string) => batches.filter((b) => b.item_id === itemId && b.location_id === at && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0);
+const PR_LABEL: Record<string, string> = { requested: "Waiting for head office", approved: "Waiting for head office", ordered: "Ordered from supplier", sending: "On the way", received: "Received", rejected: "Rejected by head office", refused: "Refused by store" };
+
+/** Store requests: any store asks head office; head office sends from the main store or buys from a supplier (delivered straight to the store). */
 export function OrdersView({ locId }: { locId: string }) {
   const { data } = useStockFlow();
   const qc = useQueryClient();
   const inv = () => { void qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }); void qc.invalidateQueries({ queryKey: ["rail-sup"] }); };
   const [f, setF] = useState({ item_id: "", qty: "", reason: "", loc: "" });
   const [status, setStatus] = useState("open");
+  const [mode, setMode] = useState<Record<string, "send" | "buy" | "reject" | "">>({});
   const [po, setPo] = useState<Record<string, { vendor_id: string; unit_price: string; expected_on: string }>>({});
+  const [sendQty, setSendQty] = useState<Record<string, string>>({});
+  const [why, setWhy] = useState<Record<string, string>>({});
   const [grn, setGrn] = useState<Record<string, { qty: string; batch: string; expiry: string }>>({});
   const item = (id: string) => data?.items.find((i) => i.id === id);
   const loc = (id: string) => data?.allLocs.find((l) => l.id === id)?.name ?? "—";
   const vendor = (id: string | null) => data?.vendors.find((v) => v.id === id)?.name;
-  const target = f.loc || locId;
-  const list = (data?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && (status === "all" || (status === "open" ? ["requested", "approved", "ordered"].includes(p.status) : p.status === status)));
+  const isHq = !!data?.isHq; const mainId = data?.mainId ?? "";
+  const myLocs = data?.locs ?? [];
+  const target = f.loc || locId || (myLocs.length === 1 ? myLocs[0].id : "");
+  const canEdit = (at: string) => isHq || myLocs.some((l) => l.id === at);
+  const open = ["requested", "approved", "ordered", "sending"];
+  const list = (data?.prs ?? []).filter((p) => (!locId || p.location_id === locId) && (status === "all" || (status === "open" ? open.includes(p.status) : status === "closed" ? ["rejected", "refused"].includes(p.status) : p.status === status)));
+  const setM = (id: string, m: "send" | "buy" | "reject" | "") => setMode({ ...mode, [id]: mode[id] === m ? "" : m });
 
   return (
     <div className="space-y-3">
       <div className={formRow}>
         <select className={sel} value={f.item_id} onChange={(e) => setF({ ...f, item_id: e.target.value })} aria-label="Item"><option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
-        <select className={sel} value={target} onChange={(e) => setF({ ...f, loc: e.target.value })} aria-label="For store"><option value="">For store…</option>{data?.locs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
+        <select className={sel} value={target} onChange={(e) => setF({ ...f, loc: e.target.value })} aria-label="For store"><option value="">For store…</option>{myLocs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <Input type="number" min={1} placeholder="Qty" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
         <Input placeholder="Reason (optional)" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} />
-        <Button disabled={!f.item_id || !(Number(f.qty) > 0) || !target} onClick={async () => (await act(db.from("rail_purchase_requests").insert({ item_id: f.item_id, qty: Number(f.qty), reason: f.reason || null, location_id: target }), "Request raised", "stock_request", { item: f.item_id })) && (setF({ item_id: "", qty: "", reason: "", loc: "" }), inv())}>Raise request</Button>
+        <Button disabled={!f.item_id || !(Number(f.qty) > 0) || !target} onClick={async () => (await act(db.from("rail_purchase_requests").insert({ item_id: f.item_id, qty: Number(f.qty), reason: f.reason || null, location_id: target }), "Request sent to head office", "stock_request", { item: f.item_id })) && (setF({ item_id: "", qty: "", reason: "", loc: "" }), inv())}>Raise request</Button>
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <select className={sel} value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
-          <option value="open">Open</option><option value="requested">Waiting approval</option><option value="approved">Approved — to order</option><option value="ordered">Ordered</option><option value="received">Received</option><option value="rejected">Rejected</option><option value="all">All</option>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <select className={`${sel} max-w-[220px]`} value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+          <option value="open">Open</option><option value="requested">Waiting for head office</option><option value="ordered">Ordered from supplier</option><option value="sending">On the way</option><option value="received">Received</option><option value="closed">Rejected / refused</option><option value="all">All</option>
         </select>
-        <span className="text-xs text-muted-foreground">Request → Approve → Order from supplier → Receive into stock</span>
+        <span className="text-xs text-muted-foreground">Store asks → head office sends stock or buys from a supplier → store accepts or refuses</span>
       </div>
       {!list.length ? <Empty title="No requests here" /> :
         <div className="divide-y rounded-2xl border bg-card">{list.map((p) => {
-          const i = item(p.item_id); const pf = po[p.id] ?? { vendor_id: p.vendor_id ?? "", unit_price: "", expected_on: "" }; const gf = grn[p.id] ?? { qty: String(p.qty), batch: "", expiry: "" };
+          const i = item(p.item_id); const m = mode[p.id] ?? "";
+          const pf = po[p.id] ?? { vendor_id: p.vendor_id ?? "", unit_price: "", expected_on: "" };
+          const gf = grn[p.id] ?? { qty: String(p.qty), batch: "", expiry: "" };
+          const hqHas = mainId ? usable(data!.batches, p.item_id, mainId) : 0;
+          const sq = sendQty[p.id] ?? String(p.qty);
+          const waiting = p.status === "requested" || p.status === "approved";
           return (
             <div key={p.id} className="space-y-2 p-3 text-sm">
               <div className="flex items-start justify-between gap-2">
                 <div><div className="font-medium">{i?.name} × {num(p.qty)} {i?.unit}</div>
-                  <div className="text-xs text-muted-foreground">{loc(p.location_id)} · {new Date(p.created_at).toLocaleDateString()}{p.reason && ` · ${p.reason}`}{p.po_number && ` · ${p.po_number}`}{vendor(p.vendor_id) && ` · ${vendor(p.vendor_id)}`}{p.expected_on && ` · due ${p.expected_on}`}</div></div>
-                <StatusPill s={p.status} />
+                  <div className="text-xs text-muted-foreground">For {loc(p.location_id)} · {new Date(p.created_at).toLocaleDateString()}{p.reason && ` · ${p.reason}`}{p.po_number && ` · ${p.po_number}`}{vendor(p.vendor_id) && ` · ${vendor(p.vendor_id)}`}{p.expected_on && ` · due ${p.expected_on}`}</div>
+                  {p.decision_note && <div className="mt-1 text-xs text-destructive">Reason: {p.decision_note}</div>}</div>
+                <span className="shrink-0 text-xs font-medium text-muted-foreground">{PR_LABEL[p.status] ?? p.status}</span>
               </div>
-              {p.status === "requested" && p.requested_by === data?.me && <div className="text-right text-xs text-muted-foreground">Raised by you — another manager approves it.</div>}
-              {p.status === "requested" && p.requested_by !== data?.me && <div className="flex justify-end gap-2">
-                <Button size="sm" variant="ghost" onClick={async () => (await confirmAction({ title: "Reject this request?", confirmText: "Reject" })) && (await act(db.from("rail_purchase_requests").update({ status: "rejected" }).eq("id", p.id), "Rejected", "reject_request")) && inv()}>Reject</Button>
-                <Button size="sm" onClick={async () => (await confirmAction({ title: "Approve this request?", description: `${i?.name} × ${p.qty} for ${loc(p.location_id)}`, confirmText: "Approve" })) && (await act(db.from("rail_purchase_requests").update({ status: "approved" }).eq("id", p.id), "Approved", "approve_request")) && inv()}>Approve</Button></div>}
-              {p.status === "approved" && <div className={subRow}>
+              {waiting && isHq && <div className="flex flex-wrap justify-end gap-2">
+                <Button size="sm" variant="ghost" onClick={() => setM(p.id, "reject")}>Reject</Button>
+                <Button size="sm" variant="outline" onClick={() => setM(p.id, "buy")}>Buy from supplier</Button>
+                {mainId && p.location_id !== mainId && <Button size="sm" onClick={() => setM(p.id, "send")}>Send from head office</Button>}
+              </div>}
+              {waiting && !isHq && <div className="text-right text-xs text-muted-foreground">Head office will send it or order it for you.</div>}
+              {waiting && isHq && m === "send" && <div className={subRow}>
+                <div className="flex items-center text-xs text-muted-foreground">Head office has {num(hqHas, 1)} {i?.unit}</div>
+                <Input type="number" min={1} placeholder="Qty to send" value={sq} onChange={(e) => setSendQty({ ...sendQty, [p.id]: e.target.value })} />
+                <Button size="sm" className="h-10" disabled={!(Number(sq) > 0) || Number(sq) > hqHas} onClick={async () => {
+                  if (!(await confirmAction({ title: "Send this stock now?", description: `${i?.name} × ${sq}: ${loc(mainId)} → ${loc(p.location_id)}. Stock leaves head office now; the store accepts or refuses it.`, confirmText: "Send" }))) return;
+                  if (await act(db.rpc("rail_send_stock", { _item: p.item_id, _from: mainId, _to: p.location_id, _qty: Number(sq), _note: p.reason, _request: p.id }), "Sent — waiting for the store to accept", "request_fulfil", { request: p.id })) inv();
+                }}>{Number(sq) > hqHas ? "Not enough at head office" : "Send"}</Button>
+              </div>}
+              {waiting && isHq && m === "buy" && <div className={subRow}>
                 <select className={sel} value={pf.vendor_id} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, vendor_id: e.target.value } })} aria-label="Supplier"><option value="">Choose supplier…</option>{data?.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select>
                 <Input type="number" placeholder="Price / unit ₹" value={pf.unit_price} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, unit_price: e.target.value } })} />
                 <Input type="date" aria-label="Expected on" value={pf.expected_on} onChange={(e) => setPo({ ...po, [p.id]: { ...pf, expected_on: e.target.value } })} />
-                <Button size="sm" className="h-10" disabled={!pf.vendor_id} onClick={async () => (await confirmAction({ title: `Place order with ${vendor(pf.vendor_id)}?`, description: "A purchase order number is created.", confirmText: "Place order" })) && (await act(db.from("rail_purchase_requests").update({ status: "ordered", vendor_id: pf.vendor_id, unit_price: pf.unit_price ? Number(pf.unit_price) : null, expected_on: pf.expected_on || null }).eq("id", p.id), "Order placed", "purchase_order")) && inv()}>Place order</Button>
+                <Button size="sm" className="h-10" disabled={!pf.vendor_id} onClick={async () => (await confirmAction({ title: `Order from ${vendor(pf.vendor_id)}?`, description: `Supplier delivers straight to ${loc(p.location_id)}. A purchase order number is created.`, confirmText: "Place order" })) && (await act(db.from("rail_purchase_requests").update({ status: "ordered", vendor_id: pf.vendor_id, unit_price: pf.unit_price ? Number(pf.unit_price) : null, expected_on: pf.expected_on || null }).eq("id", p.id), "Order placed", "purchase_order")) && inv()}>Place order</Button>
               </div>}
-              {(p.status === "ordered" || p.status === "approved") && <div className={subRow}>
+              {waiting && isHq && m === "reject" && <div className={subRow}>
+                <Input placeholder="Reason for rejecting" value={why[p.id] ?? ""} onChange={(e) => setWhy({ ...why, [p.id]: e.target.value })} />
+                <Button size="sm" variant="destructive" className="h-10" disabled={!(why[p.id] ?? "").trim()} onClick={async () => (await act(db.from("rail_purchase_requests").update({ status: "rejected", decision_note: why[p.id].trim() }).eq("id", p.id), "Request rejected", "reject_request")) && inv()}>Reject request</Button>
+              </div>}
+              {p.status === "ordered" && canEdit(p.location_id) && <div className={subRow}>
                 <Input type="number" placeholder="Qty received" value={gf.qty} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, qty: e.target.value } })} />
                 <Input placeholder="Batch no. (optional)" value={gf.batch} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, batch: e.target.value } })} />
                 <Input type="date" aria-label="Expiry date" value={gf.expiry} onChange={(e) => setGrn({ ...grn, [p.id]: { ...gf, expiry: e.target.value } })} />
-                <Button size="sm" variant="outline" className="h-10" disabled={!(Number(gf.qty) > 0)} onClick={async () => (await confirmAction({ title: "Receive into stock?", description: `${gf.qty} ${i?.unit ?? ""} added to ${loc(p.location_id)}${gf.expiry ? `, expires ${gf.expiry}` : ""}.`, confirmText: "Receive" })) && (await act(db.from("rail_purchase_requests").update({ status: "received", grn_qty: Number(gf.qty), grn_batch: gf.batch || null, grn_expiry: gf.expiry || null, grn_at: new Date().toISOString() }).eq("id", p.id), "Received — stock added", "grn")) && inv()}>Receive</Button>
+                <Button size="sm" variant="outline" className="h-10" disabled={!(Number(gf.qty) > 0)} onClick={async () => (await confirmAction({ title: "Supplier delivery arrived?", description: `${gf.qty} ${i?.unit ?? ""} added to ${loc(p.location_id)}${gf.expiry ? `, expires ${gf.expiry}` : ""}.`, confirmText: "Receive" })) && (await act(db.from("rail_purchase_requests").update({ status: "received", grn_qty: Number(gf.qty), grn_batch: gf.batch || null, grn_expiry: gf.expiry || null, grn_at: new Date().toISOString() }).eq("id", p.id), "Received — stock added", "grn")) && inv()}>Receive delivery</Button>
               </div>}
+              {p.status === "sending" && <div className="text-right text-xs text-muted-foreground">On the way — the store accepts it under Transfers.</div>}
             </div>);
         })}</div>}
     </div>
   );
 }
 
+/** Transfers: send stock now from a store you manage; the receiving store accepts or refuses with a reason (stock goes back). */
 export function TransfersView({ locId }: { locId: string }) {
   const { data } = useStockFlow();
   const qc = useQueryClient();
   const inv = () => { void qc.invalidateQueries({ queryKey: ["rail-stock-flow"] }); void qc.invalidateQueries({ queryKey: ["rail-sup"] }); };
   const [f, setF] = useState({ item_id: "", from: "", to: "", qty: "", note: "" });
+  const [why, setWhy] = useState<Record<string, string>>({});
+  const [refusing, setRefusing] = useState("");
   const item = (id: string) => data?.items.find((i) => i.id === id);
   const loc = (id: string) => data?.allLocs.find((l) => l.id === id)?.name ?? "—";
-  const to = f.to || locId;
-  const avail = f.item_id && f.from ? (data?.batches ?? []).filter((b) => b.item_id === f.item_id && b.location_id === f.from && expiryState(b.expiry_date) !== "expired").reduce((s, b) => s + Number(b.qty_on_hand), 0) : null;
-  const step = async (t: Trf, action: string, label: string) => {
-    if (!(await confirmAction({ title: `${label}?`, description: `${item(t.item_id)?.name} × ${t.qty}: ${loc(t.from_location_id)} → ${loc(t.to_location_id)}`, confirmText: label }))) return;
-    const { error } = await db.rpc("rail_transfer_step", { _id: t.id, _action: action });
+  const myLocs = data?.locs ?? [];
+  const mainId = data?.mainId ?? "";
+  const from = f.from || (myLocs.some((l) => l.id === mainId) ? mainId : myLocs[0]?.id ?? "");
+  const to = f.to || (locId && locId !== from ? locId : "");
+  const avail = f.item_id && from ? usable(data?.batches ?? [], f.item_id, from) : null;
+  const canReceive = (at: string) => !!data?.isHq || myLocs.some((l) => l.id === at);
+  const step = async (t: Trf, action: "receive" | "refuse") => {
+    const reason = action === "refuse" ? (why[t.id] ?? "").trim() : null;
+    if (action === "receive" && !(await confirmAction({ title: "Accept this delivery?", description: `${item(t.item_id)?.name} × ${t.qty} added to ${loc(t.to_location_id)}.`, confirmText: "Accept" }))) return;
+    const { error } = await db.rpc("rail_transfer_step", { _id: t.id, _action: action, _reason: reason });
     if (error) return toast.error(error.message);
-    toast.success(`${label} done`); void logActivity({ module: "Rail Supplies", action: `transfer_${action}`, entityType: "rail_stock_transfers", entityId: t.id }); inv();
+    toast.success(action === "receive" ? "Accepted — stock added" : "Refused — stock returned to sender");
+    void logActivity({ module: "Rail Supplies", action: `transfer_${action}`, entityType: "rail_stock_transfers", entityId: t.id, details: reason ? { reason } : {} });
+    setRefusing(""); inv();
   };
   const list = (data?.trfs ?? []).filter((t) => !locId || t.from_location_id === locId || t.to_location_id === locId);
+  const TRF_LABEL: Record<string, string> = { dispatched: "On the way", received: "Accepted", refused: "Refused", requested: "Old request", approved: "Old request", rejected: "Rejected" };
   return (
     <div className="space-y-3">
       <div className={formRow}>
         <select className={sel} value={f.item_id} onChange={(e) => setF({ ...f, item_id: e.target.value })} aria-label="Item"><option value="">Choose item…</option>{data?.items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
-        <select className={sel} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} aria-label="From store"><option value="">From store…</option>{data?.allLocs.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
-        <select className={sel} value={to} onChange={(e) => setF({ ...f, to: e.target.value })} aria-label="To store"><option value="">To store…</option>{data?.locs.filter((l) => l.id !== f.from).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
+        <select className={sel} value={from} onChange={(e) => setF({ ...f, from: e.target.value })} aria-label="From store"><option value="">From store…</option>{myLocs.map((l) => <option key={l.id} value={l.id}>{l.name}{l.id === mainId ? " (main)" : ""}</option>)}</select>
+        <select className={sel} value={to} onChange={(e) => setF({ ...f, to: e.target.value })} aria-label="To store"><option value="">To store…</option>{data?.allLocs.filter((l) => l.id !== from).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
         <Input type="number" min={1} placeholder={avail !== null ? `Max ${num(avail, 1)}` : "Qty"} value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
-        <Button disabled={!f.item_id || !f.from || !to || f.from === to || !(Number(f.qty) > 0)} onClick={async () => (await act(db.from("rail_stock_transfers").insert({ item_id: f.item_id, from_location_id: f.from, to_location_id: to, qty: Number(f.qty), note: f.note || null }), "Transfer requested", "transfer_request")) && (setF({ item_id: "", from: "", to: "", qty: "", note: "" }), inv())}>Request transfer</Button>
+        <Input placeholder="Note (optional)" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
+        <Button disabled={!f.item_id || !from || !to || from === to || !(Number(f.qty) > 0) || (avail !== null && Number(f.qty) > avail)} onClick={async () => {
+          if (!(await confirmAction({ title: "Send this stock now?", description: `${item(f.item_id)?.name} × ${f.qty}: ${loc(from)} → ${loc(to)}. The receiving store accepts or refuses it.`, confirmText: "Send" }))) return;
+          if (await act(db.rpc("rail_send_stock", { _item: f.item_id, _from: from, _to: to, _qty: Number(f.qty), _note: f.note || null }), "Sent — waiting for the store to accept", "transfer_send")) { setF({ item_id: "", from: "", to: "", qty: "", note: "" }); inv(); }
+        }}>{avail !== null && Number(f.qty) > avail ? "Not enough stock" : "Send stock"}</Button>
       </div>
-      <div className="text-xs text-muted-foreground">Request → sending store approves → dispatch (oldest expiry leaves first) → receiving store confirms</div>
+      <div className="text-xs text-muted-foreground">Stock leaves the sending store at once (oldest expiry first). The receiving store accepts it, or refuses with a reason and it goes back.</div>
       {!list.length ? <Empty title="No transfers yet" /> :
         <div className="divide-y rounded-2xl border bg-card">{list.map((t) => (
-          <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm">
-            <div><div className="font-medium">{item(t.item_id)?.name} × {num(t.qty)} {item(t.item_id)?.unit}</div>
-              <div className="text-xs text-muted-foreground">{loc(t.from_location_id)} → {loc(t.to_location_id)} · {new Date(t.created_at).toLocaleDateString()}</div></div>
-            <div className="flex items-center gap-2"><StatusPill s={t.status} />
-              {t.status === "requested" && t.requested_by === data?.me && <span className="text-xs text-muted-foreground">Raised by you — the sending store approves it.</span>}
-            {t.status === "requested" && t.requested_by !== data?.me && <><Button size="sm" variant="ghost" onClick={() => step(t, "reject", "Reject")}>Reject</Button><Button size="sm" onClick={() => step(t, "approve", "Approve")}>Approve</Button></>}
-              {t.status === "approved" && <Button size="sm" onClick={() => step(t, "dispatch", "Dispatch")}>Dispatch</Button>}
-              {t.status === "dispatched" && <Button size="sm" onClick={() => step(t, "receive", "Receive")}>Receive</Button>}
+          <div key={t.id} className="space-y-2 p-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div><div className="font-medium">{item(t.item_id)?.name} × {num(t.qty)} {item(t.item_id)?.unit}</div>
+                <div className="text-xs text-muted-foreground">{loc(t.from_location_id)} → {loc(t.to_location_id)} · {new Date(t.created_at).toLocaleDateString()}{t.request_id ? " · for a store request" : ""}{t.note ? ` · ${t.note}` : ""}</div>
+                {t.refuse_reason && <div className="mt-1 text-xs text-destructive">Refused: {t.refuse_reason}</div>}</div>
+              <div className="flex items-center gap-2"><span className="text-xs font-medium text-muted-foreground">{TRF_LABEL[t.status] ?? t.status}</span>
+                {t.status === "dispatched" && canReceive(t.to_location_id) && <><Button size="sm" variant="ghost" onClick={() => setRefusing(refusing === t.id ? "" : t.id)}>Refuse</Button><Button size="sm" onClick={() => step(t, "receive")}>Accept</Button></>}
+              </div>
             </div>
+            {refusing === t.id && <div className={subRow}>
+              <Input placeholder="Why are you refusing? (e.g. damaged, wrong item)" value={why[t.id] ?? ""} onChange={(e) => setWhy({ ...why, [t.id]: e.target.value })} />
+              <Button size="sm" variant="destructive" className="h-10" disabled={!(why[t.id] ?? "").trim()} onClick={() => step(t, "refuse")}>Refuse delivery</Button>
+            </div>}
           </div>))}</div>}
     </div>
   );
