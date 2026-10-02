@@ -85,6 +85,13 @@
       "when": 1790954022730,
       "tag": "0011_rail_pay_finance_link",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790954737241,
+      "tag": "0012_rail_pay_structures_guards_smart",
+      "breakpoints": true
     }
   ]
 }

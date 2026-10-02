@@ -62,8 +62,8 @@ function RailLayout() {
   return (
     <>
       <div className="flex gap-5">
-        <RailSidePanel />
         <div className="min-w-0 flex-1"><Outlet /></div>
+        <RailSidePanel />
       </div>
       <RailSidePanelMobile />
        {open && <div ref={searchRef} role="search" aria-label="Search HyperTrack" className="rail-search-panel">

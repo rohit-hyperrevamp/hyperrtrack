@@ -1,3 +1,4 @@
+import { RailPayStructures } from "@/components/RailPayStructures";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { db, Empty, inr, Kpi, monthStart, num, railHead, rows } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/finance")({
-  head: () => railHead("Profit view", "Billed value against wage cost and penalties, by depot and month."),
+  head: () => railHead("Finance & Payroll", "Profit by depot, role pay structures, payslip estimates and links to payroll and invoices."),
   component: Finance,
 });
 
@@ -34,7 +35,7 @@ function Finance() {
   const manDays = data.depots.reduce((s, d) => s + Number(d.man_days), 0);
   return (
     <div className="space-y-5">
-      <PageHeader title="Profit view" description="Billed (before GST) minus wages. Penalties are already taken off the bill." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
+      <PageHeader title="Finance & Payroll" description="Billed (before GST) minus wages. Penalties are already taken off the bill." actions={<Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" aria-label="Month" />} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Billed" value={inr(billed)} to="/admin/rail/billing" />
         <Kpi label="Wage cost" value={inr(wages)} />
@@ -51,7 +52,9 @@ function Finance() {
             })}</tbody>
           </table>
         </div>)}
+      <RailPayStructures />
       <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline"><Link to="/admin/deduction-type-manager">Deductions</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/payroll">Payroll register</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/invoice">Invoices</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/allowance-manager">Salary parts</Link></Button>

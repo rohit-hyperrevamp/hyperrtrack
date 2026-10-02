@@ -6,6 +6,7 @@ import { useState } from "react";
 import { RailDateStepper, RailTopbarSlot } from "@/components/RailTopbar";
 import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
+import { RailBriefing } from "@/components/RailBriefing";
 
 export const Route = createFileRoute("/admin/rail/command")({
   head: () => railHead("Overview", "Live rail cleaning operations, depot performance, quality and exceptions."),
@@ -73,6 +74,7 @@ function CommandPage() {
     <div className="rail-command space-y-5 sm:space-y-6">
       <RailTopbarSlot><RailDateStepper value={date} onChange={setDate} /></RailTopbarSlot>
       <PageHeader title="Overview" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
+      <RailBriefing date={date} />
       <div className="rail-command-kpis grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
