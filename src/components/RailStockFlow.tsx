@@ -45,11 +45,13 @@ export function useStockFlow() {
         rows<Item>(db.from("inv_items").select("id,item_code,name,unit,default_reorder_level,rail_category,hazard_class").not("rail_category", "is", null).order("name")),
         rows<Loc>(db.from("rail_locations").select("id,code,name,type").in("type", ["depot", "station", "store"]).is("deleted_at", null).order("name")),
         rows<Batch>(db.from("rail_item_batches").select("id,item_id,location_id,batch_no,qty_on_hand,expiry_date").gt("qty_on_hand", 0)),
-        rows<PR>(db.from("rail_purchase_requests").select("id,item_id,qty,status,reason,location_id,created_at,vendor_id,po_number,unit_price,expected_on").order("created_at", { ascending: false })),
-        rows<Trf>(db.from("rail_stock_transfers").select("id,item_id,from_location_id,to_location_id,qty,status,note,created_at").order("created_at", { ascending: false })),
+        rows<PR>(db.from("rail_purchase_requests").select("id,item_id,qty,status,reason,location_id,created_at,vendor_id,po_number,unit_price,expected_on,requested_by").order("created_at", { ascending: false })),
+        rows<Trf>(db.from("rail_stock_transfers").select("id,item_id,from_location_id,to_location_id,qty,status,note,created_at,requested_by").order("created_at", { ascending: false })),
         rows<Vendor>(db.from("rail_vendors").select("id,name,phone,email,gstin,lead_days").order("name")),
       ]);
-      return { items, locs, batches, prs, trfs, vendors };
+      // Requests need a second person to approve (database rule), so the UI must know who is signed in.
+      const me = (await supabase.auth.getUser()).data.user?.id ?? null;
+      return { items, locs, batches, prs, trfs, vendors, me };
     },
   });
 }
@@ -208,7 +210,8 @@ export function OrdersView({ locId }: { locId: string }) {
                   <div className="text-xs text-muted-foreground">{loc(p.location_id)} · {new Date(p.created_at).toLocaleDateString()}{p.reason && ` · ${p.reason}`}{p.po_number && ` · ${p.po_number}`}{vendor(p.vendor_id) && ` · ${vendor(p.vendor_id)}`}{p.expected_on && ` · due ${p.expected_on}`}</div></div>
                 <StatusPill s={p.status} />
               </div>
-              {p.status === "requested" && <div className="flex justify-end gap-2">
+              {p.status === "requested" && p.requested_by === data?.me && <div className="text-right text-xs text-muted-foreground">Raised by you — another manager approves it.</div>}
+              {p.status === "requested" && p.requested_by !== data?.me && <div className="flex justify-end gap-2">
                 <Button size="sm" variant="ghost" onClick={async () => (await confirmAction({ title: "Reject this request?", confirmText: "Reject" })) && (await act(db.from("rail_purchase_requests").update({ status: "rejected" }).eq("id", p.id), "Rejected", "reject_request")) && inv()}>Reject</Button>
                 <Button size="sm" onClick={async () => (await confirmAction({ title: "Approve this request?", description: `${i?.name} × ${p.qty} for ${loc(p.location_id)}`, confirmText: "Approve" })) && (await act(db.from("rail_purchase_requests").update({ status: "approved" }).eq("id", p.id), "Approved", "approve_request")) && inv()}>Approve</Button></div>}
               {p.status === "approved" && <div className={subRow}>
@@ -261,7 +264,8 @@ export function TransfersView({ locId }: { locId: string }) {
             <div><div className="font-medium">{item(t.item_id)?.name} × {num(t.qty)} {item(t.item_id)?.unit}</div>
               <div className="text-xs text-muted-foreground">{loc(t.from_location_id)} → {loc(t.to_location_id)} · {new Date(t.created_at).toLocaleDateString()}</div></div>
             <div className="flex items-center gap-2"><StatusPill s={t.status} />
-              {t.status === "requested" && <><Button size="sm" variant="ghost" onClick={() => step(t, "reject", "Reject")}>Reject</Button><Button size="sm" onClick={() => step(t, "approve", "Approve")}>Approve</Button></>}
+              {t.status === "requested" && t.requested_by === data?.me && <span className="text-xs text-muted-foreground">Raised by you — the sending store approves it.</span>}
+            {t.status === "requested" && t.requested_by !== data?.me && <><Button size="sm" variant="ghost" onClick={() => step(t, "reject", "Reject")}>Reject</Button><Button size="sm" onClick={() => step(t, "approve", "Approve")}>Approve</Button></>}
               {t.status === "approved" && <Button size="sm" onClick={() => step(t, "dispatch", "Dispatch")}>Dispatch</Button>}
               {t.status === "dispatched" && <Button size="sm" onClick={() => step(t, "receive", "Receive")}>Receive</Button>}
             </div>
