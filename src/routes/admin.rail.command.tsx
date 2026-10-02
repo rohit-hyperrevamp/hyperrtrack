@@ -67,9 +67,9 @@ function CommandPage() {
   const statusTone = (state: string) => state === "green" ? "bg-good" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-muted-foreground";
 
   return (
-    <div className="space-y-5 sm:space-y-6">
-      <PageHeader title="Command Centre" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-4">
+    <div className="rail-command space-y-5 sm:space-y-6">
+      <PageHeader title="Command Centre" description="Overview › Rail operations" />
+      <div className="rail-command-kpis grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-4">
         <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
         <Kpi label="On-time release" value={pct(k?.on_time_release ?? 0, k?.released ?? 0)} hint={`${num(k?.released)} released`} to="/admin/rail/live" tone="good" />
@@ -80,13 +80,13 @@ function CommandPage() {
         <Kpi label="Bill this month" value={inr(k?.bill_mtd)} to="/admin/rail/billing" />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+      <div className="rail-command-insights grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <section className="min-w-0 rounded-lg border border-border/70 bg-card p-4 sm:p-5" aria-label="Seven-day cleaning activity">
           <div className="flex items-center justify-between gap-2"><h2 className="font-heading text-base font-semibold">Cleaning activity</h2><span className="text-xs text-muted-foreground">Last 7 days</span></div>
           {hasTrend ? <>
             <div className="mt-6 grid h-44 grid-cols-7 items-end gap-2 border-b border-border/70 pb-1 sm:gap-4">
               {trend.map((d) => <div key={d.date} className="flex h-full flex-col justify-end gap-0.5" title={`${d.date}: ${d.released} released of ${d.total} jobs`}>
-                <div className="relative w-full overflow-hidden rounded-t-md bg-brand/15" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
+                <div className="rail-chart-bar relative w-full overflow-hidden rounded-t-md bg-brand/15" style={{ height: `${Math.max(4, d.total / maximum * 100)}%` }}>
                   <div className="absolute inset-x-0 bottom-0 bg-brand" style={{ height: `${d.total ? d.released / d.total * 100 : 0}%` }} />
                 </div>
               </div>)}

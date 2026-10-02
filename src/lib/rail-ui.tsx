@@ -76,12 +76,12 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
   const iconTone = tone === "good" ? "bg-good text-primary-foreground" : tone === "warn" ? "bg-caution text-background" : tone === "bad" ? "bg-danger text-primary-foreground" : "bg-brand text-primary-foreground";
   const body = (
     <div className={cn(
-      "group flex h-full min-h-32 min-w-0 flex-col justify-between rounded-lg border border-border/70 p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
+      "rail-kpi group flex h-full min-h-32 min-w-0 flex-col justify-between rounded-lg border border-border/70 p-4 transition-[border-color,box-shadow,transform] duration-200 sm:p-5",
       tint,
       to && "cursor-pointer hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
     )}>
       <div className="flex items-start justify-between gap-2"><div className="min-w-0 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">{label}</div><span aria-hidden="true" className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-lg", iconTone)}><Icon className="h-4 w-4" strokeWidth={2} /></span></div>
-      <div className="mt-4 min-w-0 font-heading text-2xl font-semibold leading-none tabular-nums text-foreground sm:text-3xl" title={typeof value === "string" || typeof value === "number" ? String(value) : undefined}>{value}</div>
+      <div className="rail-kpi-value mt-4 min-w-0 font-heading text-2xl font-semibold leading-none tabular-nums text-foreground sm:text-3xl" title={typeof value === "string" || typeof value === "number" ? String(value) : undefined}>{value}</div>
       {hint && <div className="mt-2 text-xs leading-snug text-muted-foreground">{hint}</div>}
     </div>
   );
