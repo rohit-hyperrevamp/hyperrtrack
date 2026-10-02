@@ -68,7 +68,7 @@
 - [x] Remove separate Employees link (Team covers it); Rehire/onboard/offboard under People; salary parts/deductions/contributions/payroll/invoices under one Finance page
 - [ ] Attendance on sign-in prompt for workers; fix dropdown arrow alignment
 
-- [x] Command Centre (super admin + leadership only): half-circle gauges for chemical stock vs capacity, chemical and water use per coach vs norm, water saved
+- [x] Command Centre (super admin + leadership only): three solid-color stick dials for chemical stock health, measured chemical consumption and carbon emissions
 - [x] Kits: issue to a person at the chosen store, items from that store only, return dialog that puts stock back
 - [ ] Record verified starting quantities and historical chemical consumption for VIOARR products. Blocked: production database connection is a placeholder, and no source quantities, dated receipts or usage records were supplied; do not fabricate inventory or emissions.
-- [x] Show chemical products even before first use, flag low stock, add leadership chemical/CO₂e gauges and segmented gradient D gauges without pointers, and stripe filled dashboard bars.
+- [x] Show chemical products even before first use, flag low stock, use three solid-color multi-stick D dials without pointers, and stripe filled dashboard bars.
