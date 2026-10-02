@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { readStoredAuthUser, useAuth } from "@/lib/auth";
 import { useCurrentPermissions } from "@/lib/rbac";
+import { railHomeForAccess, useRailPageAccess } from "@/lib/rail-page-access";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -24,6 +25,8 @@ function Index() {
     isSuperAdmin,
     roleKey,
   } = useCurrentPermissions();
+  const isRailRole = !!roleKey?.startsWith("rail_");
+  const { data: railAccess, isLoading: railLoading } = useRailPageAccess(isRailRole && !isSuperAdmin);
 
   useEffect(() => {
     if (!isReady) return;
@@ -47,7 +50,8 @@ function Index() {
       return;
     }
     if (roleKey?.startsWith("rail_")) {
-      navigate({ to: roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command", replace: true });
+      if (railLoading) return;
+      navigate({ to: railHomeForAccess(railAccess, roleKey), replace: true });
       return;
     }
     if (can("rail_ops")) {
@@ -55,7 +59,7 @@ function Index() {
       return;
     }
     navigate({ to: "/admin/dashboard", replace: true });
-  }, [user, isReady, isLoading, isSuperAdmin, roleKey, can, navigate]);
+  }, [user, isReady, isLoading, isSuperAdmin, roleKey, can, navigate, railLoading, railAccess]);
 
   return <div className="min-h-screen bg-background" />;
 }

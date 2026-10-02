@@ -84,6 +84,7 @@ import { useTheme } from "@/lib/use-theme";
 import { isNativePlatform } from "@/lib/native";
 import { toast } from "sonner";
 import { isAdminConsoleRole, isFieldOfficerRole, OPERATIONS_ROLES } from "@/lib/role-keys";
+import { RAIL_PAGE_MODULES, railHomeForAccess, useRailPageAccess } from "@/lib/rail-page-access";
 
 
 
@@ -129,7 +130,7 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/sustainability", label: "Sustainability", icon: Leaf },
   { to: "/admin/rail/billing", label: "Railway Billing", icon: Receipt },
   { to: "/admin/rail/people", label: "People & Logins", icon: UsersRound },
-  { to: "/admin/rail/settings", label: "Rail Settings", icon: TrainFront },
+  { to: "/admin/rail/settings", label: "Configuration Hub", icon: SlidersHorizontal },
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
 
@@ -232,11 +233,12 @@ function AdminLayout() {
   // Rail staff sign in with a candidates row whose role_key is "rail_<role>".
   // Their access is decided by rail roles in the database, not the legacy RBAC matrix.
   const isRailRole = !!roleKey && roleKey.startsWith("rail_");
+  const { data: railPageAccess } = useRailPageAccess(isRailRole && !isSuperAdmin);
   const isGuardRole = !isSuperAdmin && !isRailRole && !can("rail_ops");
 
   const dashboardHref =
     isRailRole && !isSuperAdmin
-      ? roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command"
+      ? railHomeForAccess(railPageAccess, roleKey)
       : isGuardRole || (!isSuperAdmin && !can("rail_ops"))
         ? "/admin/dashboard"
         : "/admin/rail/command";
@@ -418,11 +420,10 @@ function AdminLayout() {
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const visibleGroups: GroupItem[] = (() => {
     if (isRailRole || isSuperAdmin || can("rail_ops")) {
-      const links = roleKey === "rail_cleaner"
-        ? railChildren.filter((c) => c.to === "/admin/rail/me" || c.to === "/admin/rail/ai-check")
-        : roleKey === "rail_railway_checker"
-          ? railChildren.filter((c) => c.to === "/admin/rail/checker" || c.to === "/admin/rail/quality")
-          : railChildren;
+      const links = isSuperAdmin ? railChildren : railChildren.filter((c) => {
+        const section = c.to.split("/")[3];
+        return section && railPageAccess?.[RAIL_PAGE_MODULES[section]] === true;
+      });
       return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
     return [];

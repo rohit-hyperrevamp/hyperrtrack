@@ -17,3 +17,4 @@
 - Resolve legacy named status and tile colors through shared semantic palette tokens rather than rewriting business-state labels — good, caution, danger and brand cues must remain distinguishable without changing workflows.
 - Use the Apple system font stack for the interface, with SF Pro on Apple devices and a system fallback elsewhere — Apple's font is not bundled for redistribution.
 - Keep the login film as a project asset pointer and the sign-in motion in shared styles while retaining the existing server-verified phone flow — branding can evolve without weakening authentication.
+- Map HyperTrack page visibility through rail_can-backed module checks and keep role grants in rail_roles/rail_permissions — navigation reflects the same database-enforced decisions as operations.
