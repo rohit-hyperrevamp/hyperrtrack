@@ -78,6 +78,27 @@ function SustainPage() {
   const s = summarize(data.ledger, data.baseline, chemL);
   const normPerCoach = s.coaches ? normChemL / s.coaches : 0;
   const days = new Set(kitChem.map((k) => k.issue_date)).size;
+  // Per-product chemical view: real use = issued − returned; CO₂e from each product's own factor.
+  type Prod = { id: string; name: string; unit: string; issued: number; returned: number; consumed: number; prev: number; stock: number; factor: number };
+  const prodMap = new Map<string, Prod>();
+  const blank = (k: K): Prod => ({ id: k.item_id, name: k.inv_items?.name ?? "Unknown product", unit: k.inv_items?.unit ?? "", issued: 0, returned: 0, consumed: 0, prev: 0, stock: 0, factor: k.inv_items?.co2e_kg_per_unit ?? data.chemFactor ?? 0 });
+  for (const k of data.kits) {
+    if (!k.inv_items || k.inv_items.rail_category !== "chemical") continue;
+    const p = prodMap.get(k.item_id) ?? blank(k);
+    p.issued += Number(k.qty_issued); p.returned += Number(k.qty_returned); p.consumed = p.issued - p.returned;
+    prodMap.set(k.item_id, p);
+  }
+  for (const k of data.kitsPrev) {
+    if (!k.inv_items || k.inv_items.rail_category !== "chemical") continue;
+    const p = prodMap.get(k.item_id) ?? blank(k);
+    p.prev += Number(k.qty_issued) - Number(k.qty_returned);
+    prodMap.set(k.item_id, p);
+  }
+  for (const p of prodMap.values()) p.stock = data.chemStock.filter((b) => b.item_id === p.id).reduce((t, b) => t + Number(b.qty_on_hand), 0);
+  const products = [...prodMap.values()].sort((a, b) => b.consumed - a.consumed || b.stock - a.stock);
+  const chemCo2 = products.reduce((t, p) => t + p.consumed * p.factor, 0);
+  const co2Total = s.co2 + chemCo2;
+  const co2PerCoachTotal = s.coaches ? co2Total / s.coaches : 0;
   const depotOf = (id: string | null) => { let l = data.locs.find((x) => x.id === id); while (l && l.type !== "depot") l = data.locs.find((x) => x.id === l!.parent_id); return l; };
   const league = data.locs.filter((l) => l.type === "depot").map((d) => ({ d, ...summarize(data.ledger.filter((x) => depotOf(x.location_id)?.id === d.id), data.baseline, 0) })).sort((a, b) => a.freshPerCoach - b.freshPerCoach);
   const months = [...new Set(data.trend.map((t) => t.ledger_date.slice(0, 7)))].sort();
