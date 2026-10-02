@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, CloudOff, LogIn, LogOut, RefreshCw, ScanEye } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Camera, CheckCircle2, CloudOff, Loader2, LogIn, LogOut, RefreshCw, ScanEye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { db, Empty, enqueueTask, flushQueue, Kpi, num, railHead, readQueue, rows, today, useRailRoles } from "@/lib/rail-ui";
+import { capturePhoto } from "@/lib/native-camera";
+import { checkCoachCleanliness } from "@/lib/rail-ai-clean.functions";
 
 export const Route = createFileRoute("/admin/rail/me")({
   head: () => railHead("My Day", "Your cleaning tasks for today, attendance, quality score and pay — works offline."),
@@ -16,12 +19,29 @@ type Task = { id: string; task_name: string; status: string; event_coach_id: str
 type Person = { id: string; full_name: string; home_location_id: string | null; daily_wage: number | null; skill: string };
 const CACHE = (uid: string) => `rail.me.tasks.v2.${uid}`;
 
+// Shrink camera photos to ~1024px JPEG before sending (keeps upload ~150-250 KB).
+async function shrink(dataUrl: string): Promise<string> {
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+  const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width * scale);
+  c.height = Math.round(img.height * scale);
+  const context = c.getContext("2d");
+  if (!context) throw new Error("Could not prepare the photo. Please try again.");
+  context.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.75);
+}
+
 function MePage() {
   const qc = useQueryClient();
   const { data: roles, isLoading: rolesLoading } = useRailRoles();
+  const runAi = useServerFn(checkCoachCleanliness);
   const [online, setOnline] = useState(true);
   const [queued, setQueued] = useState(0);
   const [done, setDone] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState<string | null>(null);
 
   useEffect(() => {
     setOnline(navigator.onLine); setQueued(readQueue().length);
@@ -80,13 +100,55 @@ function MePage() {
     },
   });
 
-  function markDone(t: Task) {
+  async function markDone(t: Task) {
     const label = `${t.rail_event_coaches?.rail_events?.rail_trains?.number} coach ${t.rail_event_coaches?.position} · ${t.task_name}`;
-    enqueueTask({ task_id: t.id, label });
-    setDone((s) => new Set(s).add(t.id));
-    setQueued(readQueue().length);
-    if (navigator.onLine) void flushQueue().then((n) => { setQueued(readQueue().length); if (n) qc.invalidateQueries({ queryKey: ["rail-me-tasks"] }); });
-    else toast("Saved on phone — will sync when online");
+    
+    // 1. Capture photo
+    const raw = await capturePhoto({ title: `After photo: ${t.task_name}` });
+    if (!raw) return;
+
+    setBusy(t.id);
+    try {
+      const photo = await shrink(raw);
+      let aiScore = undefined;
+
+      // 2. AI Scoring (only if online, else queue for later)
+      if (online) {
+        try {
+          const area = t.task_name.toLowerCase().includes("toilet") ? "toilet" : "floor";
+          const res = await runAi({ data: { imageDataUrl: photo, area, eventCoachId: t.event_coach_id } });
+          aiScore = res.score;
+        } catch (err) {
+          console.warn("AI scoring failed, proceeding anyway", err);
+        }
+      }
+
+      // 3. Queue task
+      enqueueTask({ 
+        task_id: t.id, 
+        label, 
+        photo_data: photo,
+        ai_score: aiScore
+      });
+
+      setDone((s) => new Set(s).add(t.id));
+      setQueued(readQueue().length);
+
+      if (online) {
+        const n = await flushQueue();
+        setQueued(readQueue().length);
+        if (n) {
+          toast.success(`Task completed with AI score: ${aiScore ?? "—"}`);
+          qc.invalidateQueries({ queryKey: ["rail-me-tasks"] });
+        }
+      } else {
+        toast("Saved on phone — will sync when online");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to complete task");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function accept(t: Task) {
@@ -145,7 +207,15 @@ function MePage() {
               <div className="font-medium">{t.task_name}</div>
               <div className="text-xs text-muted-foreground">Train {t.rail_event_coaches?.rail_events?.rail_trains?.number} · Coach {t.rail_event_coaches?.position} {t.rail_event_coaches?.rail_coach_types?.code} {t.rail_event_coaches?.rail_coaches?.coach_number}</div>
             </div>
-            <Button size="lg" onClick={() => t.status === "pending" ? void accept(t) : markDone(t)}>{t.status === "pending" ? "Accept" : <><CheckCircle2 className="mr-2 h-5 w-5" />Done</>}</Button>
+            <Button 
+              size="lg" 
+              disabled={busy === t.id}
+              onClick={() => t.status === "pending" ? void accept(t) : markDone(t)}
+            >
+              {busy === t.id ? <Loader2 className="h-5 w-5 animate-spin" /> : 
+               t.status === "pending" ? "Accept" : 
+               <><Camera className="mr-2 h-5 w-5" />Done</>}
+            </Button>
           </div>
         ))}
       </div>
