@@ -17,6 +17,8 @@ import {
   stageLabel, stageTone, uploadResume, type RecCandidate,
 } from "@/lib/recruitment";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchMasters } from "@/lib/recruitment";
 
 type Search = { stage?: string; q?: string };
 
@@ -51,6 +53,8 @@ function CandidatesPage() {
   const navigate = useNavigate({ from: "/admin/hr/recruitment/candidates/" });
   const cq = useQuery({ queryKey: QK.candidates, queryFn: fetchCandidates });
   const oq = useQuery({ queryKey: QK.openings, queryFn: fetchOpenings });
+  const rolesQ = useQuery({ queryKey: ["rail", "recruitment-roles"], queryFn: async () => { const { data, error } = await supabase.from("rail_roles").select("key,name").order("name"); if (error) throw error; return data ?? []; } });
+  const mastersQ = useQuery({ queryKey: QK.masters, queryFn: fetchMasters });
   const [page, setPage] = useState(0);
   const [adding, setAdding] = useState(false);
   const openingTitle = new Map((oq.data ?? []).map((o) => [o.id, o.title]));
@@ -74,8 +78,8 @@ function CandidatesPage() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
-              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, opening: c.opening_id ? openingTitle.get(c.opening_id) ?? "" : "",
-              stage: stageLabel(c.stage), rounds: `${c.rounds_cleared}/${c.total_rounds}`, source: c.source, experience: c.experience_years,
+              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
+              stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
               current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
             })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
             <Button size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
@@ -91,11 +95,12 @@ function CandidatesPage() {
         <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
           <SelectTrigger className="sm:w-56"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All stages</SelectItem>
-            <SelectItem value="open">Open (new + screening)</SelectItem>
-            <SelectItem value="pipeline">In pipeline</SelectItem>
-            <SelectItem value="lost">Lost</SelectItem>
-            {STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
+            <SelectItem value="all">All candidates</SelectItem>
+            <SelectItem value="open">To review</SelectItem>
+            <SelectItem value="pipeline">In progress</SelectItem>
+            <SelectItem value="pending_onboarding">Ready to onboard</SelectItem>
+            <SelectItem value="onboarded">Onboarded</SelectItem>
+            <SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -103,20 +108,19 @@ function CandidatesPage() {
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-            <tr><th className="p-3">Candidate</th><th className="p-3">Opening</th><th className="p-3">Stage</th><th className="p-3">Rounds</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
+            <tr><th className="p-3">Candidate</th><th className="p-3">Position</th><th className="p-3">Progress</th><th className="p-3">Location</th><th className="p-3">Added</th><th className="p-3 text-right">Action</th></tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {cq.isLoading && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
-            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
+            {cq.isLoading && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">Loading…</td></tr>}
+            {!cq.isLoading && pageRows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted-foreground">No candidates.</td></tr>}
             {pageRows.map((c) => (
               <tr key={c.id} role="link" tabIndex={0} className="cursor-pointer hover:bg-muted/30" onClick={() => navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } })} onKeyDown={(e) => { if (e.key === "Enter") navigate({ to: "/admin/hr/recruitment/candidates/$recId", params: { recId: c.id } }); }}>
                 <td className="p-3">
                   <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }} className="font-medium hover:text-accent">{c.full_name}</Link>
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
                 </td>
-                <td className="p-3">{c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—"}</td>
-                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{stageLabel(c.stage)}</span></td>
-                <td className="p-3 tabular-nums">{c.rounds_cleared}/{c.total_rounds}</td>
+                <td className="p-3 capitalize">{c.offer?.operational_role_key?.replaceAll("_", " ") ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—")}</td>
+                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{["new", "screening", "on_hold"].includes(c.stage) ? "To review" : ["round_1", "round_2", "round_3", "hr_approved"].includes(c.stage) ? "Offer pending" : stageLabel(c.stage)}</span></td>
                 <td className="p-3">{c.current_location || "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
                 <td className="p-3 text-right"><Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}><Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }}>View</Link></Button></td>
@@ -131,7 +135,7 @@ function CandidatesPage() {
         <Button variant="outline" size="sm" disabled={page + 1 >= pages} onClick={() => setPage(page + 1)}>Next</Button>
       </div>
 
-      <AddCandidateDialog open={adding} onOpenChange={setAdding} openings={oq.data ?? []} />
+      <AddCandidateDialog open={adding} onOpenChange={setAdding} roles={rolesQ.data ?? []} designations={mastersQ.data?.designations ?? []} />
     </div>
   );
 }
@@ -142,13 +146,15 @@ const candidateSchema = z.object({
   mobile: z.string().regex(/^[0-9]{10}$/, "Enter a 10-digit mobile number"),
   email: z.union([z.literal(""), z.string().email("Enter a valid email").max(255)]),
   current_location: z.string().trim().max(120),
-  opening_id: z.string(),
+  role_key: z.string().min(1, "Select a position"),
+  designation_id: z.string().min(1, "Select a designation"),
+  joining_date: z.string(),
 });
 
-function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; onOpenChange: (v: boolean) => void; openings: { id: string; title: string; status: string; rec_opening_rounds?: unknown[] }[] }) {
+function AddCandidateDialog({ open, onOpenChange, roles, designations }: { open: boolean; onOpenChange: (v: boolean) => void; roles: { key: string; name: string }[]; designations: { id: string; name: string }[] }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", opening_id: "" };
+  const blank = { first_name: "", last_name: "", mobile: "", email: "", current_location: "", role_key: "", designation_id: "", joining_date: "" };
   const [f, setF] = useState(blank);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -160,11 +166,10 @@ function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; o
     if (file && (file.size > 10 * 1024 * 1024 || !/\.(pdf|doc|docx|jpg|jpeg|png)$/i.test(file.name))) return toast.error("Upload a PDF, document or image under 10 MB");
     setBusy(true);
     try {
-      const op = openings.find((o) => o.id === f.opening_id);
-      const total = Math.max(1, Math.min(3, op?.rec_opening_rounds?.length || 1));
       const { data, error } = await recDb.from("rec_candidates").insert({
         full_name: `${checked.data.first_name} ${checked.data.last_name}`, mobile: checked.data.mobile, email: checked.data.email,
-        current_location: checked.data.current_location, opening_id: checked.data.opening_id || null, total_rounds: total,
+        current_location: checked.data.current_location, total_rounds: 1,
+        offer: { operational_role_key: checked.data.role_key, designation_id: checked.data.designation_id, joining_date: checked.data.joining_date },
       }).select("id,code").single();
       if (error) throw error;
       if (file) await uploadResume(data.id, file);
@@ -188,12 +193,10 @@ function AddCandidateDialog({ open, onOpenChange, openings }: { open: boolean; o
           <F label="Mobile *"><Input autoComplete="tel" inputMode="numeric" maxLength={10} value={f.mobile} onChange={(e) => setF({ ...f, mobile: e.target.value.replace(/\D/g, "") })} /></F>
           <F label="Email"><Input autoComplete="email" type="email" maxLength={255} value={f.email} onChange={set("email")} /></F>
           <F label="City / current location"><Input maxLength={120} value={f.current_location} onChange={set("current_location")} /></F>
-          <F label="Post / opening">
-            <Select value={f.opening_id || "later"} onValueChange={(v) => setF({ ...f, opening_id: v === "later" ? "" : v })}>
-              <SelectTrigger><SelectValue placeholder="Assign later" /></SelectTrigger>
-              <SelectContent><SelectItem value="later">Assign later</SelectItem>{openings.filter((o) => o.status === "open").map((o) => <SelectItem key={o.id} value={o.id}>{o.title}</SelectItem>)}</SelectContent>
-            </Select>
-          </F>
+          <F label="Position *"><Select value={f.role_key} onValueChange={(v) => setF({ ...f, role_key: v })}><SelectTrigger><SelectValue placeholder="Cleaner, supervisor…" /></SelectTrigger><SelectContent>{roles.map((r) => <SelectItem key={r.key} value={r.key}>{r.name}</SelectItem>)}</SelectContent></Select></F>
+          <F label="Designation *"><Select value={f.designation_id} onValueChange={(v) => setF({ ...f, designation_id: v })}><SelectTrigger><SelectValue placeholder="Choose designation" /></SelectTrigger><SelectContent>{designations.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent></Select></F>
+          <F label="Expected joining date"><Input type="date" value={f.joining_date} onChange={set("joining_date")} /></F>
+          <p className="sm:col-span-2 text-xs text-muted-foreground">Aadhaar, PAN and photo are completed in the private employee record. Never enter identity numbers in notes or a resume.</p>
           <div className="sm:col-span-2"><F label="Resume (optional)"><Input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></F></div>
         </div>
         <DialogFooter>

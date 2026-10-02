@@ -86,9 +86,9 @@ function OnboardingQueue() {
                 <D k="Monthly CTC" v={inr(o.monthly_ctc)} /><D k="Monthly gross" v={inr(o.monthly_gross)} />
                 <D k="Date of joining" v={o.joining_date ?? "—"} /><D k="Designation" v={nm(mq.data?.designations, o.designation_id)} />
                 <D k="Department" v={nm(mq.data?.departments, o.department_id)} /><D k="Branch" v={nm(mq.data?.branches, o.branch_id)} />
-                <D k="Reports to" v={o.reports_to ? namesQ.data?.get(o.reports_to) ?? "—" : "—"} /><D k="App role" v={(o.role_key && mq.data?.roles.find((x) => x.key === o.role_key)?.name) || "—"} />
+                <D k="Reports to" v={o.reports_to ? namesQ.data?.get(o.reports_to) ?? "—" : "—"} /><D k="Position" v={o.operational_role_key?.replaceAll("_", " ") ?? "—"} />
                 <D k="Experience" v={`${c?.experience_years ?? 0} yrs`} /><D k="Current CTC" v={inr(c?.current_ctc)} />
-                <D k="Expected CTC" v={inr(c?.expected_ctc)} /><D k="Rounds cleared" v={`${c?.rounds_cleared ?? 0}/${c?.total_rounds ?? 0}`} />
+                <D k="Expected CTC" v={inr(c?.expected_ctc)} />
               </dl>
               {o.notes && <p className="mt-2 rounded-lg bg-muted/40 p-2 text-sm">{o.notes}</p>}
             </div>

@@ -70,7 +70,7 @@ const kpiIcons: [RegExp, LucideIcon][] = [
   [/job|event/i, ClipboardList], [/cover|norm/i, Gauge], [/carbon|co₂|energy/i, Activity],
 ];
 
-export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "good" | "warn" | "bad" }) {
+export function Kpi({ label, value, hint, to, tone = "default" }: { label: string; value: ReactNode; hint?: string; to?: string; tone?: "default" | "brand" | "good" | "warn" | "bad" }) {
   const Icon = kpiIcons.find(([pattern]) => pattern.test(label))?.[1] ?? FileText;
   const iconTone = "bg-brand text-primary-foreground";
   const body = (

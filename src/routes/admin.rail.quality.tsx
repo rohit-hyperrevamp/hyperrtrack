@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { confirmAction } from "@/components/ConfirmProvider";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -83,7 +85,7 @@ function QualityPage() {
   }
 
   const totals = {
-    pen: (data?.pen ?? []).filter((p) => p.status !== "waived").reduce((s, p) => s + Number(p.amount), 0),
+    pen: (data?.pen ?? []).filter((p) => p.status === "confirmed").reduce((s, p) => s + Number(p.amount), 0),
     open: (data?.comp ?? []).filter((c) => c.status === "open" || c.status === "assigned").length,
     breached: (data?.comp ?? []).filter((c) => (c.status === "open" || c.status === "assigned") && c.sla_due && new Date(c.sla_due) < new Date()).length,
   };
@@ -93,15 +95,15 @@ function QualityPage() {
       <PageHeader title="Quality" description="Inspections, penalties, complaints and alerts in one place." />
       <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-quality-depot" className="text-sm font-medium">Depot</label><select id="rail-quality-depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Kpi label="Inspections" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} />
-        <Kpi label="Penalties" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
+        <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} tone="brand" />
+        <Kpi label="Fines" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
         <Kpi label="Open complaints" value={totals.open} hint={`${totals.breached} past time limit`} tone={totals.breached ? "bad" : "default"} />
         <Kpi label="Open alerts" value={data?.alerts.filter((a) => a.status === "open").length ?? 0} tone="warn" />
-        <Kpi label="Deep clean due" value={due.length} />
+        <Kpi label="Deep clean due" value={due.length} tone={due.length ? "warn" : "good"} />
       </div>
 
       <Tabs defaultValue="penalties">
-        <TabsList className="flex-wrap h-auto">
+        <TabsList className="w-full min-w-0 flex-nowrap justify-start overflow-x-auto whitespace-nowrap [&>button]:shrink-0 [&>button]:whitespace-nowrap">
           <TabsTrigger value="penalties">Penalties</TabsTrigger>
           <TabsTrigger value="inspections">Inspections</TabsTrigger>
           <TabsTrigger value="complaints">Complaints</TabsTrigger>
@@ -111,14 +113,14 @@ function QualityPage() {
         </TabsList>
 
         <TabsContent value="penalties" className="space-y-2">
-          <div className="flex justify-end"><Button variant="outline" size="sm" onClick={() => downloadCsv(`penalty-statement-${today()}`, data?.pen ?? [])}>Export penalty statement</Button></div>
+          <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted-foreground">Proposed → review → confirm or waive. Confirmed amounts reduce the railway bill, not a worker's salary. <Link to="/admin/rail/billing" className="text-brand underline">Open billing</Link></p><Button variant="outline" size="sm" onClick={() => downloadCsv(`penalty-statement-${today()}`, data?.pen ?? [])}>Export penalty statement</Button></div>
           {!data?.pen.length ? <Empty title="No penalties" hint="Penalties are raised automatically on rejected coaches, late releases and staff shortfalls." /> :
             <div className="divide-y rounded-2xl border bg-card">{data.pen.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-3 p-3 text-sm">
-                <div><div className="font-medium">{p.rule_code.replace(/_/g, " ")} · {inr(p.amount)}</div><div className="text-xs text-muted-foreground">{p.penalty_date} · {locName(p.location_id)} · {p.reason}</div></div>
-                <div className="flex items-center gap-2"><StatusPill s={p.status} />
-                  {p.status === "proposed" && <><Button size="sm" variant="outline" onClick={async () => (await setField("rail_penalties", p.id, { status: "confirmed" }, "Confirmed")) && inv()}>Confirm</Button>
-                  <Button size="sm" variant="ghost" onClick={async () => (await setField("rail_penalties", p.id, { status: "waived" }, "Waived")) && inv()}>Waive</Button></>}
+              <div key={p.id} className="flex flex-wrap items-start justify-between gap-3 p-3 text-sm">
+                <div className="min-w-0"><div className="font-medium">{p.rule_code.replace(/_/g, " ")} · {inr(p.amount)}</div><div className="text-xs text-muted-foreground">{p.penalty_date} · {locName(p.location_id)} · {p.reason}</div><div className="mt-1 text-xs text-muted-foreground">{p.status === "confirmed" ? "Railway bill deduction · visible in Finance" : p.status === "proposed" ? "Awaiting review · do not issue bill yet" : p.status === "waived" ? "No deduction" : "Under review"}</div></div>
+                <div className="flex flex-wrap items-center gap-2"><StatusPill s={p.status} />
+                  {p.status === "proposed" && <><Button size="sm" variant="outline" onClick={async () => { if (await confirmAction({ title: "Confirm railway fine?", description: `${inr(p.amount)} will reduce the railway bill for this month. This does not change worker pay.`, confirmText: "Confirm fine" })) { if (await setField("rail_penalties", p.id, { status: "confirmed" }, "Fine confirmed")) { inv(); qc.invalidateQueries({ queryKey: ["rail-finance"] }); } } }}>Confirm</Button>
+                  <Button size="sm" variant="ghost" onClick={async () => { if (await confirmAction({ title: "Waive this fine?", description: "This fine will no longer count towards the railway bill.", confirmText: "Waive fine" })) { if (await setField("rail_penalties", p.id, { status: "waived" }, "Fine waived")) { inv(); qc.invalidateQueries({ queryKey: ["rail-finance"] }); } } }}>Waive</Button></>}
                 </div>
               </div>))}</div>}
         </TabsContent>

@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
 import { PanelRightOpen, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { db, inr, monthStart, num, rows, today } from "@/lib/rail-ui";
 
@@ -164,9 +165,9 @@ export function RailSidePanelMobile() {
   const [open, setOpen] = useState(false);
   return (
     <div className="xl:hidden">
-      <button type="button" onClick={() => setOpen(true)} aria-label="Open overview" className="fixed bottom-24 right-4 z-30 grid h-12 w-12 place-items-center rounded-full bg-brand text-primary-foreground shadow-lg">
+      <Button type="button" size="icon" onClick={() => setOpen(true)} aria-label="Open overview" className="rail-overview-trigger fixed right-3 top-[calc(52px+env(safe-area-inset-top))] z-[22] grid h-10 w-10 place-items-center rounded-full bg-brand text-primary-foreground shadow-md sm:right-4">
         <PanelRightOpen className="h-5 w-5" />
-      </button>
+      </Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto rounded-t-2xl">
           <SheetHeader><SheetTitle>Overview</SheetTitle></SheetHeader>

@@ -23,14 +23,15 @@ import {
   type RecCandidate, type RecInterview, type RecOffer,
 } from "@/lib/recruitment";
 import { cn } from "@/lib/utils";
+import { confirmAction } from "@/components/ConfirmProvider";
 
 export const Route = createFileRoute("/admin/hr/recruitment/candidates/$recId")({
   head: () => ({
     meta: [
-      { title: "Recruitment Candidate — Radiant" },
-      { name: "description", content: "Candidate profile, interview rounds, offer and onboarding." },
-      { property: "og:title", content: "Recruitment Candidate — Radiant" },
-      { property: "og:description", content: "Candidate profile, interview rounds, offer and onboarding." },
+      { title: "Recruitment Candidate — HyperTrack" },
+      { name: "description", content: "Candidate details, pending information and onboarding." },
+      { property: "og:title", content: "Recruitment Candidate — HyperTrack" },
+      { property: "og:description", content: "Candidate details, pending information and onboarding." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -50,6 +51,8 @@ function CandidatePage() {
   const isRecruiter = can("recruitment");
   const meQ = useQuery({ queryKey: ["auth", "my-candidate-id"], queryFn: async () => (await supabase.rpc("current_user_candidate_id")).data as string | null, staleTime: 300_000 });
   const c = q.data?.candidate;
+  const docsQ = useQuery({ queryKey: ["rec", "employee-docs", c?.employee_candidate_id], enabled: !!c?.employee_candidate_id, queryFn: async () => { const { data, error } = await supabase.from("candidates").select("aadhaar_number,pan_number,aadhaar_image_url,pan_image_url,photo_url").eq("id", c?.employee_candidate_id ?? "").maybeSingle(); if (error) throw error; return data; } });
+  const payQ = useQuery({ queryKey: ["rail", "role-pay", c?.offer?.operational_role_key], enabled: !!c?.offer?.operational_role_key, queryFn: async () => { const { data, error } = await supabase.from("rail_pay_structures").select("label,skill,is_placeholder,effective_from").eq("role_key", c?.offer?.operational_role_key ?? "").is("deleted_at", null).lte("effective_from", new Date().toISOString().slice(0, 10)).order("effective_from", { ascending: false }).limit(1).maybeSingle(); if (error) throw error; return data; } });
   const interviews = q.data?.interviews ?? [];
   const namesQ = useQuery({
     queryKey: ["rec", "cand-names", recId, interviews.map((i) => i.interviewer_id).join(","), c?.offer?.reports_to ?? ""],
@@ -87,12 +90,18 @@ function CandidatePage() {
     catch (e) { toast.error((e as Error).message); }
   }
 
+  async function approveForOnboarding() {
+    if (!c?.offer?.operational_role_key || !c.offer.designation_id) return toast.error("Assign a position and designation before sending this candidate to HR.");
+    if (!(await confirmAction({ title: "Send candidate to HR?", description: "Review their details and offer next. Missing documents can be completed later.", confirmText: "Continue" }))) return;
+    await setStage("hr_approved");
+  }
+
   return (
     <div className="space-y-4">
       <PageHeader
         eyebrow={`Recruitment · ${c.code}`}
         title={c.full_name}
-        description={[opening?.title, c.mobile, c.email].filter(Boolean).join(" · ")}
+        description={[c.offer?.operational_role_key?.replaceAll("_", " ") ?? opening?.title, c.mobile, c.email].filter(Boolean).join(" · ")}
         icon={UserCheck}
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -104,7 +113,7 @@ function CandidatePage() {
                 <Button variant="outline" onClick={() => setResched(current)}><CalendarClock />Reschedule</Button>
               </>
             )}
-            {isRecruiter && c.stage === "new" && <Button variant="outline" onClick={() => setStage("screening")}><UserCheck />Move to screening</Button>}
+            {isRecruiter && ["new", "screening", "on_hold"].includes(c.stage) && <Button onClick={approveForOnboarding}><UserCheck />Continue to offer</Button>}
             {isRecruiter && c.stage === "on_hold" && <Button variant="outline" onClick={() => setStage(c.rounds_cleared ? `round_${Math.min(3, c.rounds_cleared + 1)}` : "screening")}><UserCheck />Resume hiring</Button>}
             {isRecruiter && !closed && (
               <DropdownMenu>
@@ -121,40 +130,25 @@ function CandidatePage() {
         }
       />
 
-      {/* Round progress strip */}
-      <section className="rounded-xl border border-border bg-card p-4">
-        <div className="mb-2 text-xs text-muted-foreground">Round {Math.min(c.rounds_cleared, c.total_rounds)} of {c.total_rounds} approved</div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: c.total_rounds }, (_, k) => k + 1).map((n) => {
-            const last = interviews.filter((i) => i.round_no === n).at(-1);
-            const st = last?.status ?? (n <= c.rounds_cleared ? "approved" : "pending");
-            return (
-              <div key={n} className={cn("flex min-w-0 items-center gap-2 rounded-xl border p-3", st === "scheduled" ? "border-accent/40 bg-accent/5" : "border-border/60 bg-muted/20")}>
-                <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full border text-xs font-semibold",
-                  st === "approved" && "border-primary bg-primary text-primary-foreground",
-                  st === "rejected" && "border-destructive bg-destructive text-destructive-foreground",
-                  st === "scheduled" && "border-accent text-accent")}>
-                  {st === "approved" ? <Check className="h-4 w-4" /> : st === "rejected" ? <X className="h-4 w-4" /> : n}
-                </div>
-                <div className="min-w-0 text-xs">
-                  <div className="truncate font-medium">{rounds.find((r) => r.round_no === n)?.name ?? `Round ${n}`}</div>
-                  <div className="text-muted-foreground">{st === "pending" ? "Not scheduled" : st === "scheduled" ? fmtDateTime(last?.scheduled_at) : st}</div>
-                </div>
-              </div>
-            );
-          })}
-          <div className="flex items-center gap-2">
-            <div className={cn("grid h-8 w-8 place-items-center rounded-full border text-xs", ["hr_approved", "pending_onboarding", "onboarded"].includes(c.stage) && "border-primary bg-primary text-primary-foreground")}><UserCheck className="h-4 w-4" /></div>
-            <span className="text-xs font-medium">HR Head</span>
-          </div>
-        </div>
+      <section className="border-b border-border pb-4">
+        <h2 className="text-sm font-semibold">Candidate overview</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{c.full_name} · {c.mobile} · {c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"} · {c.current_location || "Location pending"}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Next: review details, agree an offer and send to HR for onboarding. Private identity details and documents are completed in the employee record after onboarding."}</p>
+        {c.offer?.operational_role_key && <p className="mt-2 text-xs text-muted-foreground">Pay structure: {payQ.isPending ? "Checking…" : payQ.isError ? "Could not check" : payQ.data ? `${payQ.data.label} · ${payQ.data.skill.replaceAll("_", " ")}${payQ.data.is_placeholder ? " · Placeholder—verify before payroll" : ""}` : "Not configured—set up in Finance & Payroll before assigning pay"}. Final wages depend on location and attendance.</p>}
+      </section>
+
+      <section className="border-b border-border pb-4" aria-label="Onboarding checklist">
+        <h2 className="text-sm font-semibold">Onboarding checklist</h2>
+        <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
+          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.operational_role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', !!(docsQ.data?.aadhaar_image_url && docsQ.data?.aadhaar_number)], ['PAN card and number', !!(docsQ.data?.pan_image_url && docsQ.data?.pan_number)], ['Photograph', !!docsQ.data?.photo_url]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : c.stage !== 'onboarded' && ['Aadhaar card and number','PAN card and number','Photograph'].includes(label) ? 'After onboarding' : c.stage === 'onboarded' && docsQ.isLoading ? 'Checking…' : 'Pending'}</span></li>)}
+        </ul>
+        {c.stage === "onboarded" && c.employee_candidate_id && <Link to="/admin/candidates/$id/details" params={{ id: c.employee_candidate_id }} className="mt-3 inline-block text-sm font-medium text-brand underline">Complete identity documents in employee record</Link>}
       </section>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-1">
           <h2 className="font-display text-sm font-semibold">Details</h2>
-          <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Post</span><span className="truncate font-medium">{opening?.title ?? "Not assigned"}</span></div>
-          {isRecruiter && ["new", "screening"].includes(c.stage) && <Button variant="outline" size="sm" onClick={() => setAssignOpening(true)}>{opening ? "Change post" : "Assign post"}</Button>}
+          <div className="flex items-center justify-between gap-2 text-sm"><span className="text-muted-foreground">Position</span><span className="truncate font-medium">{c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Not assigned"}</span></div>
           <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Item k="Location" v={c.current_location} />
             <Item k="Experience" v={`${c.experience_years} yrs`} />
@@ -178,10 +172,10 @@ function CandidatePage() {
           </div>
         </section>
 
-        <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-2">
+        {interviews.length > 0 && <section className="space-y-3 rounded-xl border border-border bg-card p-4 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold">Interviews</h2>
-            {isRecruiter && canSchedule && <Button size="sm" onClick={() => setSchedule(true)}><CalendarPlus className="mr-1 h-4 w-4" />Schedule round {nextRound}</Button>}
+            {isRecruiter && canSchedule && interviews.length > 0 && <Button size="sm" onClick={() => setSchedule(true)}><CalendarPlus className="mr-1 h-4 w-4" />Schedule interview</Button>}
           </div>
           {interviews.length === 0 ? <p className="text-sm text-muted-foreground">No interviews yet.</p> : (
             <ul className="divide-y divide-border">
@@ -202,7 +196,7 @@ function CandidatePage() {
               ))}
             </ul>
           )}
-        </section>
+        </section>}
       </div>
 
       {(c.stage === "hr_approved" || c.stage === "pending_onboarding" || c.stage === "onboarded") && (
@@ -211,7 +205,7 @@ function CandidatePage() {
             <h2 className="font-display text-sm font-semibold">Offer &amp; onboarding</h2>
             {isRecruiter && c.stage === "hr_approved" && <Button size="sm" onClick={() => setOfferOpen(true)}><Send className="mr-1 h-4 w-4" />Send to HR Head</Button>}
           </div>
-          {isRecruiter && c.stage === "hr_approved" && <p className="text-sm text-muted-foreground">All rounds approved. Fill in the offer and send it to the HR Head to onboard.</p>}
+          {isRecruiter && c.stage === "hr_approved" && <p className="text-sm text-muted-foreground">Agree the offer, then send to HR to onboard. Missing documents can be completed in the employee record.</p>}
           {c.offer?.monthly_ctc ? (
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm sm:grid-cols-4">
               <Item k="Monthly CTC" v={inr(c.offer.monthly_ctc)} />
@@ -257,7 +251,7 @@ function AssignOpeningDialog({ candidate, openings, onClose }: { candidate: RecC
   const [openingId, setOpeningId] = useState(candidate.opening_id ?? "none");
   const [busy, setBusy] = useState(false);
   async function save() {
-    if (candidate.stage !== "new" && candidate.stage !== "screening") return toast.error("The candidate is already in the interview process. Contact HR before changing the post.");
+    if (!["new", "screening", "hr_approved"].includes(candidate.stage)) return toast.error("This candidate is already being onboarded.");
     setBusy(true);
     const selected = openings.find((o) => o.id === openingId);
     const { error } = await recDb.from("rec_candidates").update({ opening_id: selected?.id ?? null, total_rounds: Math.max(1, Math.min(3, selected?.rec_opening_rounds?.length || 1)) }).eq("id", candidate.id);
@@ -399,7 +393,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
     if (!f.designation_id || !f.department_id) return toast.error("Pick designation and department");
     setBusy(true);
     try {
-      const offer: RecOffer = { ...f, monthly_ctc: Number(f.monthly_ctc), monthly_gross: Number(f.monthly_gross || 0), unit_id: PUNE_HOME_UNIT };
+      const offer: RecOffer = { ...f, operational_role_key: o.operational_role_key, monthly_ctc: Number(f.monthly_ctc), monthly_gross: Number(f.monthly_gross || 0), unit_id: PUNE_HOME_UNIT };
       const { error: e1 } = await recDb.from("rec_candidates").update({ offer, stage: "pending_onboarding" }).eq("id", candidate.id);
       if (e1) throw e1;
       const { error: e2 } = await recDb.from("rec_onboarding_requests").insert({ candidate_id: candidate.id, offer });

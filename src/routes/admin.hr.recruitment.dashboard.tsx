@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, UserPlus, Users, ArrowRight, Briefcase } from "lucide-react";
+import { CalendarClock, UserPlus, Users, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Kpi } from "@/lib/rail-ui";
@@ -9,7 +9,6 @@ import {
   employeeNames, fetchAllInterviews, fetchCandidates, fetchMasters, fetchOpenings, fmtDateTime,
   LOST, monthStartIso, PIPELINE, QK, STAGES,
 } from "@/lib/recruitment";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/hr/recruitment/dashboard")({
   head: () => ({
@@ -73,8 +72,6 @@ function RecruitmentDashboard() {
   const candName = new Map(cands.map((c) => [c.id, c.full_name]));
   const go = (stage?: string) => navigate({ to: "/admin/hr/recruitment/candidates", search: { stage: stage ?? "" } as never });
 
-  const funnelMax = Math.max(1, ...PIPELINE.map((k) => s.byStage.get(k) ?? 0), s.byStage.get("onboarded") ?? 0);
-
   return (
     <div className="space-y-4">
       <PageHeader
@@ -86,7 +83,6 @@ function RecruitmentDashboard() {
       />
 
       <div className="flex flex-wrap gap-2">
-        <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/openings"><Briefcase className="h-4 w-4" />Openings</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/interviews"><CalendarClock className="h-4 w-4" />Interviews</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/admin/hr/recruitment/onboarding"><ArrowRight className="h-4 w-4" />Onboarding</Link></Button>
       </div>
@@ -99,31 +95,18 @@ function RecruitmentDashboard() {
         <Kpi label="Hire rate" value={`${s.pct}%`} />
       </div>
 
-      <section className="rounded-xl border border-border bg-card p-4">
-        <h2 className="mb-3 font-display text-sm font-semibold">Stages</h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {STAGES.map((st) => (
-            <Button key={st.key} variant="outline" onClick={() => go(st.key)} className="h-auto min-w-0 flex-col items-start gap-1 rounded-lg p-3 text-left transition-colors hover:border-accent/40">
-              <span className={cn("max-w-full truncate rounded-full px-2 py-0.5 text-[11px] font-medium", st.tone)} title={st.label}>{st.label}</span>
-              <div className="mt-2 text-2xl font-semibold tabular-nums">{s.byStage.get(st.key) ?? 0}</div>
-            </Button>
-          ))}
-        </div>
-      </section>
-
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 font-display text-sm font-semibold">Funnel</h2>
+          <h2 className="mb-3 font-display text-sm font-semibold">Candidate progress</h2>
           <div className="space-y-2">
-            {[...PIPELINE, "onboarded" as const].map((k) => {
-              const n = s.byStage.get(k) ?? 0;
+            {([{"key":"open","label":"To review","count":s.open},{"key":"hr_approved","label":"Offer","count":s.byStage.get("hr_approved") ?? 0},{"key":"pending_onboarding","label":"Ready to onboard","count":s.byStage.get("pending_onboarding") ?? 0},{"key":"onboarded","label":"Onboarded","count":s.byStage.get("onboarded") ?? 0}]).map(({key,label,count}) => {
               return (
-                <Button key={k} variant="ghost" onClick={() => go(k)} className="flex h-8 w-full min-w-0 items-center justify-start gap-3 p-0 text-left">
-                  <span className="w-28 shrink-0 truncate text-xs text-muted-foreground sm:w-36">{STAGES.find((x) => x.key === k)?.label}</span>
+                <Button key={key} variant="ghost" onClick={() => go(key)} className="flex h-8 w-full min-w-0 items-center justify-start gap-3 p-0 text-left">
+                  <span className="w-28 shrink-0 truncate text-xs text-muted-foreground sm:w-36">{label}</span>
                   <span className="h-6 flex-1 overflow-hidden rounded bg-muted">
-                    <span className="block h-full rounded bg-accent/70" style={{ width: `${(n / funnelMax) * 100}%` }} />
+                    <span className="block h-full rounded bg-accent/70" style={{ width: `${(count / Math.max(1, s.pipeline, s.byStage.get("onboarded") ?? 0)) * 100}%` }} />
                   </span>
-                  <span className="w-8 text-right text-sm tabular-nums">{n}</span>
+                  <span className="w-8 text-right text-sm tabular-nums">{count}</span>
                 </Button>
               );
             })}
@@ -137,7 +120,7 @@ function RecruitmentDashboard() {
               {s.upcoming.slice(0, 10).map((i) => (
                 <li key={i.id} className="flex items-center justify-between gap-2 py-2 text-sm">
                   <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: i.candidate_id }} className="min-w-0 truncate font-medium hover:text-accent">
-                    {candName.get(i.candidate_id) ?? "Candidate"} · Round {i.round_no}
+                    {candName.get(i.candidate_id) ?? "Candidate"} · Interview
                   </Link>
                   <span className="shrink-0 text-xs text-muted-foreground">{fmtDateTime(i.scheduled_at)} · {namesQ.data?.get(i.interviewer_id) ?? ""}</span>
                 </li>
@@ -151,7 +134,7 @@ function RecruitmentDashboard() {
                 {s.overdue.slice(0, 8).map((i) => (
                   <li key={i.id} className="flex items-center justify-between gap-2 py-2 text-sm">
                     <Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: i.candidate_id }} className="min-w-0 truncate hover:text-accent">
-                      {candName.get(i.candidate_id) ?? "Candidate"} · Round {i.round_no}
+                      {candName.get(i.candidate_id) ?? "Candidate"} · Interview
                     </Link>
                     <span className="shrink-0 text-xs text-muted-foreground">{fmtDateTime(i.scheduled_at)} · {namesQ.data?.get(i.interviewer_id) ?? ""}</span>
                   </li>
@@ -163,7 +146,7 @@ function RecruitmentDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Breakdown title="By opening" data={s.byOpening} />
+        <Breakdown title="By position" data={new Map(cands.filter((c) => PIPELINE.includes(c.stage)).reduce((acc, c) => { const name = c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"; acc.set(name, (acc.get(name) ?? 0) + 1); return acc; }, new Map<string, number>()))} />
         <Breakdown title="By department" data={s.byDept} />
         <Breakdown title="By source" data={s.bySource} />
       </div>

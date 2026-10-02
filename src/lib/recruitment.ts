@@ -44,7 +44,7 @@ export type RecOpening = {
 export type RecRound = { id: string; opening_id: string; round_no: number; name: string; default_interviewer_id: string | null };
 export type RecOffer = {
   monthly_ctc?: number; monthly_gross?: number; joining_date?: string; designation_id?: string; department_id?: string;
-  branch_id?: string; reports_to?: string; unit_id?: string; role_key?: string; notes?: string;
+  branch_id?: string; reports_to?: string; unit_id?: string; role_key?: string; operational_role_key?: string; notes?: string;
 };
 export type RecCandidate = {
   id: string; code: string; full_name: string; mobile: string; email: string; current_location: string;
