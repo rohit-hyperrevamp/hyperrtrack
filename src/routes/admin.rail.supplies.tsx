@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
@@ -57,7 +56,6 @@ function SuppliesPage() {
   const [loc, setLoc] = useState<string>("");
   const [tab, setTab] = useState("stores");
   const [kitForm, setKitForm] = useState({ loc: "", item_id: "", qty: "" });
-  const [scan, setScan] = useState({ tag: "", person: "", due: "" });
   const flow = useStockFlow().data;
 
   const item = (id: string) => data?.items.find((i) => i.id === id);

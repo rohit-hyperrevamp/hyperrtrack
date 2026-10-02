@@ -2,7 +2,7 @@ import { confirmAction } from "@/components/ConfirmProvider";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Bell, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, ShieldCheck, TrainFront, Trash2, Upload, UsersRound, Wallet, Warehouse, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bell, Building2, ClipboardCheck, Download, FileText, History, MapPin, Pencil, Plus, Search, Settings2, ShieldCheck, TrainFront, Trash2, Upload, UsersRound, Wallet, Warehouse, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity-log";
