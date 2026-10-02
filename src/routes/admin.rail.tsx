@@ -43,7 +43,7 @@ function RailLayout() {
     <>
       <Outlet />
        <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQ(""); }}>
-         <DialogContent aria-describedby={undefined} className="rail-search-dialog !left-1/2 !top-[max(5.5rem,env(safe-area-inset-top))] !bottom-auto !w-[calc(100vw-1.5rem)] !max-w-xl !-translate-x-1/2 !translate-y-0 overflow-hidden rounded-lg border border-border/60 bg-card/95 p-2 shadow-2xl backdrop-blur-xl data-[state=open]:animate-search-drop data-[state=closed]:animate-search-lift sm:!top-24">
+         <DialogContent aria-describedby={undefined} className="rail-search-dialog !left-1/2 !top-[max(5.5rem,env(safe-area-inset-top))] !bottom-auto !w-[calc(100vw-1.5rem)] !max-w-xl !-translate-x-1/2 !translate-y-0 overflow-hidden rounded-lg border border-border/60 bg-card/95 p-2 shadow-2xl backdrop-blur-xl sm:!top-24">
            <DialogTitle className="sr-only">Search HyperTrack</DialogTitle>
            <Command className="rounded-lg bg-transparent">
              <CommandInput autoFocus placeholder="Search pages, trains, coaches, people…" value={q} onValueChange={setQ} className="!h-14 !text-base" />

@@ -2692,6 +2692,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 @keyframes search-lift { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -10px); } }
 .rail-search-dialog[data-state="open"] { animation: search-drop .28s cubic-bezier(.22, 1, .36, 1) both; }
 .rail-search-dialog[data-state="closed"] { animation: search-lift .2s ease both; }
+.rail-search-dialog { transform: translate(-50%, 0); }
 .rail-attention-item { min-height: 66px; }
 @media (prefers-reduced-motion: reduce) { .rail-search-dialog[data-state] { animation-duration: .01ms; } }
 
