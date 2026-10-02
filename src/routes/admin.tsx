@@ -329,7 +329,7 @@ function AdminLayout() {
     // queued by the pre-RBAC render must not redirect a restored administrator
     // to the employee dashboard after the correct dashboard navigation.
     if (readStoredAuthUser()?.role === "super_admin") return;
-    if (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname)) return;
+    if (!isRailRole && (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname))) return;
     // Guards have no module-based permissions; restrict them to their personal pages.
     if (isGuardRole) {
       if (pathname === "/admin/dashboard" || pathname === "/admin/profile" || pathname === "/admin/notifications") return;

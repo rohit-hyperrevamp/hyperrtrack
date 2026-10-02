@@ -12,4 +12,4 @@
 - Rail Clean OS lives in `rail_*` tables; every policy goes through `rail_can(module, action, location)` and every table has a `rail_audit` trigger feeding append-only `rail_audit_trail` — access and history are enforced in the database, not the UI.
 - Rail masters are described once in `src/lib/rail-masters.ts` and edited by the generic Settings hub; versioned masters close the old row and insert a new dated one — values are never overwritten.
 - AI photo cleanliness scoring runs server-side in `rail-ai-clean.server.ts` via the Lovable AI Gateway and stores every result in `rail_ai_photo_scores` — scores are advisory; humans approve.
-- HyperTrack is the rail workspace brand; show rail-only navigation while keeping legacy routes intact for migration — preserves existing records and workflows without presenting irrelevant security-company options.
+- HyperTrack is the rail workspace brand; expose rail screens directly in the dock and send legacy dashboard visits to role-appropriate rail pages while keeping legacy routes intact for migration — preserves existing records without presenting irrelevant security-company options.
