@@ -274,12 +274,12 @@ function LoginPage() {
           <BrandMark variant="inverse" className="[&>span]:text-xl" />
         </header>
 
-        <div className="login-layout flex flex-1 items-center justify-between gap-10 px-4 pb-4 sm:px-8 sm:pb-8 lg:px-14">
-          <div className="login-story hidden max-w-[560px] self-end pb-12 text-primary-foreground lg:block xl:pb-20">
-            <div className="mb-7 h-1 w-10 rounded-full bg-brand" />
-            <p className="text-xs font-semibold uppercase text-primary-foreground/75">HyperTrack · Rail operations</p>
-            <h2 className="mt-5 font-heading text-5xl font-semibold leading-[1.08] xl:text-6xl">Every arrival.<br />Every coach.<br />Under control.</h2>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-primary-foreground/80">One clear view of cleaning, quality and readiness across your network.</p>
+        <div className="login-layout flex flex-1 flex-col justify-end gap-5 px-4 pb-4 sm:px-8 sm:pb-8 md:flex-row md:items-center md:justify-between md:gap-8 lg:px-14">
+          <div className="login-story w-full min-w-0 max-w-[490px] text-primary-foreground md:flex-1">
+            <div className="mb-4 h-1 w-10 rounded-full bg-brand md:mb-7" />
+            <p className="text-xs font-semibold uppercase text-primary-foreground/80">HyperTrack · Rail operations</p>
+            <h2 className="mt-3 font-heading text-[clamp(1.7rem,3vw,3.6rem)] font-semibold leading-[1.1] md:mt-5">Every arrival.<br />Every coach.<br />Under control.</h2>
+            <p className="mt-4 hidden max-w-md text-base leading-relaxed text-primary-foreground/90 md:block">One clear view of cleaning, quality and readiness across your network.</p>
           </div>
           <section className="login-panel relative flex w-full max-w-[480px] flex-col justify-center overflow-hidden rounded-lg border border-border/70 bg-card px-7 py-9 shadow-xl sm:px-12 sm:py-12 lg:min-h-[590px]" aria-label="Sign in">
             {step === "welcome" ? (
@@ -349,7 +349,6 @@ function LoginPage() {
             <div className="mt-10 text-xs text-muted-foreground">Designed &amp; developed by <a href="https://hyperrevamp.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:text-brand">HyperRevamp</a></div>
           </section>
         </div>
-        <div className="login-caption px-10 pb-8 text-sm font-medium text-primary-foreground/90 lg:px-14">Rail operations, in motion.</div>
       </div>
     </main>
   );
