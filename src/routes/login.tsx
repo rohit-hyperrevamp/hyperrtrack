@@ -60,6 +60,7 @@ function LoginPage() {
   const requestOtpAgain = useServerFn(resendLoginOtp);
   const checkOtp = useServerFn(verifyLoginOtp);
   const verifyInFlightRef = useRef(false);
+  const completingLoginRef = useRef(false);
 
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
@@ -93,7 +94,7 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (user && !revealing) navigate({ to: "/", replace: true });
+    if (user && !completingLoginRef.current && !revealing) navigate({ to: "/", replace: true });
   }, [user, navigate, revealing]);
 
   useEffect(() => {
@@ -112,6 +113,7 @@ function LoginPage() {
   const phoneValid = /^\d{10}$/.test(phone);
 
   function revealWorkspace() {
+    completingLoginRef.current = true;
     setStep("welcome");
     setError(null);
     setTimeout(() => setRevealing(true), 1250);
@@ -175,6 +177,7 @@ function LoginPage() {
           requestId: otpMode === "sms" ? otpRequestId ?? undefined : undefined,
         },
       });
+      completingLoginRef.current = true;
       await login(`+91${phone}`);
       markNativeAppSessionUnlocked();
       toast.success("Signed in");
@@ -197,6 +200,7 @@ function LoginPage() {
       }
       revealWorkspace();
     } catch (err) {
+      completingLoginRef.current = false;
       setError(
         err instanceof Error ? err.message : "Could not start session. Try again.",
       );
@@ -218,10 +222,12 @@ function LoginPage() {
         return;
       }
       markNativeAppSessionUnlocked();
+      completingLoginRef.current = true;
       await login(savedPhone);
       toast.success("Signed in with Face ID");
       revealWorkspace();
     } catch (err) {
+      completingLoginRef.current = false;
       setError(
         err instanceof Error ? err.message : "Face ID sign-in failed. Use OTP instead.",
       );

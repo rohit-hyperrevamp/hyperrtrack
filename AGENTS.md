@@ -16,3 +16,4 @@
 - Keep HyperTrack's split-color wordmark in BrandMark and the full-screen rail shell, navigation, and card presentation rules in shared workspace styles — one source keeps navigation and operational pages visually aligned without altering legacy screens.
 - Resolve legacy named status and tile colors through shared semantic palette tokens rather than rewriting business-state labels — good, caution, danger and brand cues must remain distinguishable without changing workflows.
 - Use the Apple system font stack for the interface, with SF Pro on Apple devices and a system fallback elsewhere — Apple's font is not bundled for redistribution.
+- Keep the login film as a project asset pointer and the sign-in motion in shared styles while retaining the existing server-verified phone flow — branding can evolve without weakening authentication.
