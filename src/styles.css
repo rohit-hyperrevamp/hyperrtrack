@@ -1925,9 +1925,9 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi {
   background: var(--rail-ink); border-color: var(--rail-ink);
 }
-[data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--good-soft); border-color: color-mix(in oklab, var(--good) 20%, var(--card)); }
-[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: var(--caution-soft); border-color: color-mix(in oklab, var(--caution) 20%, var(--card)); }
-[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--danger-soft); border-color: color-mix(in oklab, var(--danger) 20%, var(--card)); }
+[data-rail-shell] .rail-command-kpis > :nth-child(3) .rail-kpi { background: var(--palette-good-soft); border-color: var(--palette-good-soft-strong); }
+[data-rail-shell] .rail-command-kpis > :nth-child(5) .rail-kpi { background: var(--palette-caution-soft); border-color: var(--palette-caution-soft-strong); }
+[data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--palette-danger-soft); border-color: var(--palette-danger-soft-strong); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi :where(.rail-kpi-value, .text-muted-foreground) { color: var(--card); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi .text-muted-foreground { opacity: .78; }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { background: color-mix(in oklab, var(--card) 20%, transparent); color: var(--card); }
@@ -1951,6 +1951,8 @@ nav[data-bottom-nav] {
   }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link { border: 0; background: transparent; border-radius: 0; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:first-child > span { width: 34px; height: 34px; font-size: 11px; }
+  [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child { min-width: 0; }
+  [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child > span { white-space: nowrap; }
   [data-rail-shell][data-rail-collapsed] [data-hyper-dock] { width: 72px; }
   [data-rail-shell] [data-hyper-dock] .rail-dock-intro { color: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] .rail-dock-intro .text-muted-foreground { color: var(--muted-foreground); }
@@ -1961,7 +1963,7 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--rail-ink); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
   [data-rail-shell] [data-hyper-dock] nav a > span:first-child { border-radius: 50%; }
-  [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 14px; }
+  [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 10px; }
   [data-rail-shell] [data-hyper-dock] .hypertrack-wordmark { font-size: 20px; font-weight: 750; }
   [data-rail-shell] [data-hyper-dock] > div:first-child a.rounded-full { padding: 0; overflow: hidden; background: var(--brand-blue); border-radius: 50%; }
   [data-rail-shell] [data-hyper-dock] .rail-dock-photo { isolation: isolate; }
