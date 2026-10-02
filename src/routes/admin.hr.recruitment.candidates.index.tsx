@@ -79,22 +79,18 @@ function CandidatesPage() {
             <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">To review</SelectItem><SelectItem value="pipeline">In progress</SelectItem><SelectItem value="pending_onboarding">Ready to onboard</SelectItem><SelectItem value="onboarded">Onboarded</SelectItem><SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
+          code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
+          stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
+          current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
+        })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
+        <Button size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
       </RailTopbarSlot>
       <PageHeader
         eyebrow="Recruitment"
         title="Candidates"
         description={`${rows.length} candidate${rows.length === 1 ? "" : "s"}`}
         icon={Users}
-        actions={undefined}
-      />
-      <div className="hidden">{/* Actions render in the shared top bar. */}</div>
-              code: c.code, name: c.full_name, mobile: c.mobile, email: c.email, position: c.offer?.operational_role_key ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "" : ""),
-              stage: stageLabel(c.stage), source: c.source, experience: c.experience_years,
-              current_ctc: c.current_ctc, expected_ctc: c.expected_ctc, notice_days: c.notice_days, added: c.created_at.slice(0, 10),
-            })))}><Download className="mr-1 h-4 w-4" />CSV</Button>
-            <Button size="sm" onClick={() => setAdding(true)}><Plus className="mr-1 h-4 w-4" />Add candidate</Button>
-          </div>
-        }
       />
 
 
