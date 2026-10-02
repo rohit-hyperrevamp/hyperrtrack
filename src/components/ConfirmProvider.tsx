@@ -121,14 +121,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={confirm}>
       {children}
       <AlertDialog open={open} onOpenChange={(o) => !o && settle("cancel")}>
-        <AlertDialogContent overlayClassName="z-[300]" className="z-[300] rounded-2xl sm:max-w-md">
+        <AlertDialogContent overlayClassName="z-[300]" className="z-[300] rounded-lg sm:max-w-md">
           <AlertDialogHeader>
             {tone !== "default" && (
               <span
                 className={
                   tone === "success"
-                    ? "mb-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
-                    : "mb-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600"
+                     ? "mb-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-brand"
+                     : "mb-1 inline-flex h-10 w-10 items-center justify-center rounded-full bg-foreground/10 text-foreground"
                 }
               >
                 {tone === "success" ? (
@@ -145,7 +145,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-2">
             {!opts.hideCancel && (
-              <AlertDialogCancel className="mt-0 rounded-xl" onClick={() => settle("cancel")}>
+               <AlertDialogCancel className="mt-0 rounded-lg" onClick={() => settle("cancel")}>
                 {opts.cancelText ?? "Cancel"}
               </AlertDialogCancel>
             )}
@@ -153,7 +153,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-xl"
+                 className="rounded-lg"
                 onClick={() => settle("extra")}
               >
                 {opts.extraText}
@@ -162,8 +162,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             <AlertDialogAction
               className={
                 opts.destructive
-                  ? "rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  : "rounded-xl"
+                   ? "rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                   : "rounded-lg"
               }
               onClick={() => settle("confirm")}
             >

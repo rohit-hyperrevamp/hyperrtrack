@@ -53,11 +53,12 @@ export function MobileBottomNav({
   const nav = (
     <>
       {moreActive && (
-        <button
+          <Button
           type="button"
+           variant="ghost"
           aria-label="Close more apps"
           data-more-backdrop
-           className="fixed inset-0 z-[79] bg-foreground/30 backdrop-blur-sm animate-in fade-in-0 duration-200 lg:hidden"
+           className="fixed inset-0 z-[79] h-auto w-auto rounded-none bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200 lg:hidden"
           onClick={onMore}
         />
       )}
@@ -77,7 +78,7 @@ export function MobileBottomNav({
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="max-h-[min(62dvh,32rem)] overflow-y-auto overscroll-contain px-2.5 pb-1 pt-2.5">
+          <div className="max-h-[min(62dvh,32rem)] overflow-y-auto overscroll-contain px-3 pb-1 pt-3">
             <div className="mb-2.5 flex flex-col items-center gap-2 border-b border-dock-foreground/10 pb-2.5">
               <span className="h-1 w-10 rounded-full bg-dock-foreground/25" aria-hidden="true" />
               <span className="self-start px-1.5 text-[15px] font-medium text-dock-foreground">More</span>
@@ -91,7 +92,7 @@ export function MobileBottomNav({
                     to={item.to}
                     onClick={onMore}
                     className={cn(
-                       "grid min-h-14 min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors duration-200",
+                      "grid min-h-14 min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-[background-color,transform] duration-200 active:scale-[0.98]",
                       item.active
                         ? "bg-dock-foreground text-dock"
                         : "bg-dock-foreground/[0.07] text-dock-foreground/75 active:bg-dock-foreground/[0.13]",
@@ -108,22 +109,22 @@ export function MobileBottomNav({
           </div>
         </div>
       </div>
-      <ul className="mx-auto grid h-14 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 px-1.5 py-1">
+      <ul className="mx-auto grid h-16 w-full max-w-xl grid-flow-col auto-cols-fr items-stretch gap-1 border-t border-dock-foreground/10 px-1.5 py-1.5">
         {primary.map((it) => {
           const Icon = it.icon;
           const inner = (
             <div
               className={cn(
                  "relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200",
-                it.active ? "text-accent" : "text-dock-foreground/60",
+                 it.active ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65",
               )}
             >
               <span
                 className={cn(
                   "grid h-6 w-9 place-items-center rounded-lg transition-colors",
-                    it.active
-                     ? "text-accent"
-                     : "text-dock-foreground/60",
+                     it.active
+                      ? "text-dock-foreground"
+                      : "text-dock-foreground/65",
                 )}
               >
                  <Icon className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
@@ -131,12 +132,11 @@ export function MobileBottomNav({
               <span
                 className={cn(
                   "block w-full truncate whitespace-nowrap text-center text-[9px] leading-none",
-                  it.active ? "font-medium text-accent" : "font-normal text-dock-foreground/60",
+                   it.active ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65",
                 )}
               >
                 {it.label}
               </span>
-              {it.active && <span aria-hidden className="absolute -bottom-0.5 h-0.5 w-4 rounded-full bg-accent" />}
             </div>
           );
            const tapClass = "block h-full w-full select-none rounded-lg outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80";
@@ -159,19 +159,18 @@ export function MobileBottomNav({
             aria-label="More"
              className="block h-full w-full select-none rounded-lg p-0 outline-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
           >
-              <div className={cn("relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200", moreActive ? "text-accent" : "text-dock-foreground/60")}>
+               <div className={cn("relative mx-auto flex h-full min-w-0 max-w-[76px] flex-col items-center justify-center gap-0.5 rounded-lg px-1 transition-colors duration-200", moreActive ? "bg-brand/25 text-dock-foreground" : "text-dock-foreground/65")}>
               <span
                 className={cn(
                   "grid h-6 w-9 place-items-center rounded-lg transition-colors",
-                  moreActive ? "text-accent" : "text-dock-foreground/60",
+                   moreActive ? "text-dock-foreground" : "text-dock-foreground/65",
                 )}
               >
                  <LayoutGrid className="h-[19px] w-[19px] shrink-0" strokeWidth={2} />
               </span>
-                <span className={cn("block w-full truncate whitespace-nowrap text-center text-[9px] leading-none", moreActive ? "font-medium text-accent" : "font-normal text-dock-foreground/60")}>
+                 <span className={cn("block w-full truncate whitespace-nowrap text-center text-[9px] leading-none", moreActive ? "font-medium text-dock-foreground" : "font-normal text-dock-foreground/65")}>
                 More
               </span>
-                {moreActive && <span aria-hidden className="absolute -bottom-0.5 h-0.5 w-4 rounded-full bg-accent" />}
             </div>
           </Button>
         </li>

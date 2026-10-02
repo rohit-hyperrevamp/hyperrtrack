@@ -121,10 +121,10 @@ export function PageStat({
   const ResolvedIcon = Icon ?? iconForStatLabel(label);
   const trendCls =
     trend?.direction === "down"
-      ? "text-rose-700 bg-rose-500/15 ring-rose-500/25"
+      ? "text-foreground bg-foreground/10 ring-foreground/15"
       : trend?.direction === "flat"
         ? "text-muted-foreground bg-card/70 ring-border"
-        : "text-emerald-700 bg-emerald-500/15 ring-emerald-500/25";
+        : "text-brand bg-brand/10 ring-brand/20";
   const Wrapper: React.ElementType = onClick ? "button" : "div";
   return (
     <Wrapper
