@@ -43,7 +43,7 @@ export const Route = createFileRoute("/admin/hr/recruitment/candidates/")({
 
 function matchStage(c: RecCandidate, f: string) {
   if (!f) return c.stage !== "onboarded";
-  if (f === "open") return c.stage === "new" || c.stage === "screening" || c.stage === "on_hold";
+  if (f === "open") return ["new", "screening", "on_hold", "round_1", "round_2", "round_3", "hr_approved"].includes(c.stage);
   if (f === "pipeline") return PIPELINE.includes(c.stage);
   if (f === "lost") return LOST.includes(c.stage);
   return c.stage === f;

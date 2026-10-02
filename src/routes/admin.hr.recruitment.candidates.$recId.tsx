@@ -105,7 +105,7 @@ function CandidatePage() {
         icon={UserCheck}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{stageLabel(c.stage)}</span>
+            <span className={cn("inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold", stageTone(c.stage))}>{c.stage === "pending_onboarding" ? "Awaiting approval" : c.stage === "onboarded" ? "Onboarded" : closed ? stageLabel(c.stage) : "In progress"}</span>
             {false && current && (
               <>
                 <Button onClick={() => setResult({ i: current, d: "approved" })}><Check />Approve round {current.round_no}</Button>
@@ -414,7 +414,7 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader><DialogTitle>Offer for {candidate.full_name}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Submit {candidate.full_name} for approval</DialogTitle></DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5"><Label className="text-xs">Monthly CTC (₹) *</Label><Input type="number" min={0} value={f.monthly_ctc} onChange={(e) => setF({ ...f, monthly_ctc: e.target.value })} /></div>
           <div className="space-y-1.5"><Label className="text-xs">Monthly gross (₹)</Label><Input type="number" min={0} value={f.monthly_gross} onChange={(e) => setF({ ...f, monthly_gross: e.target.value })} /></div>
@@ -429,10 +429,10 @@ function OfferDialog({ candidate, openingDefaults, masters, onClose }: { candida
           <div className="space-y-1.5"><Label className="text-xs">Department *</Label>{sel("department_id", masters?.departments ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Branch</Label>{sel("branch_id", masters?.branches ?? [])}</div>
           <div className="space-y-1.5"><Label className="text-xs">Reporting manager</Label><EmployeePicker value={f.reports_to} onChange={(id) => setF({ ...f, reports_to: id })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Radiant Guards - Pune Office" /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Payroll home unit</Label><Input disabled value="Assigned on approval" /></div>
           <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs">Notes for HR Head</Label><Textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
         </div>
-        <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Sending…" : "Send to HR Head"}</Button></DialogFooter>
+        <DialogFooter><Button variant="outline" onClick={onClose}>Cancel</Button><Button disabled={busy} onClick={send}>{busy ? "Submitting…" : "Submit for approval"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
