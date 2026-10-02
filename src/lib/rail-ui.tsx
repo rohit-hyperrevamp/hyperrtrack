@@ -86,17 +86,17 @@ export function Empty({ title, hint, action }: { title: string; hint?: string; a
 
 export function StatusPill({ s }: { s: string }) {
   const tone: Record<string, string> = {
-    planned: "bg-muted text-muted-foreground", placed: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    in_progress: "bg-amber-500/15 text-amber-700 dark:text-amber-300", pending: "bg-muted text-muted-foreground",
-    done: "bg-sky-500/15 text-sky-700 dark:text-sky-300", completed: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    approved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300", released: "bg-emerald-600 text-white",
+    planned: "bg-muted text-muted-foreground", placed: "bg-accent/10 text-accent",
+    in_progress: "bg-warning/10 text-warning", pending: "bg-muted text-muted-foreground",
+    done: "bg-accent/10 text-accent", completed: "bg-accent/10 text-accent",
+    approved: "bg-success/10 text-success", released: "bg-success text-card",
     rejected: "bg-destructive/15 text-destructive", removed: "bg-muted text-muted-foreground line-through",
-    draft: "bg-muted text-muted-foreground", submitted: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
-    checker_verified: "bg-violet-500/15 text-violet-700 dark:text-violet-300", certified: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    paid: "bg-emerald-600 text-white", cancelled: "bg-muted text-muted-foreground line-through",
-    open: "bg-amber-500/15 text-amber-700 dark:text-amber-300", proposed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-    requested: "bg-amber-500/15 text-amber-700 dark:text-amber-300", received: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+    draft: "bg-muted text-muted-foreground", submitted: "bg-accent/10 text-accent",
+    checker_verified: "bg-accent/10 text-accent", certified: "bg-success/10 text-success",
+    paid: "bg-success text-card", cancelled: "bg-muted text-muted-foreground line-through",
+    open: "bg-warning/10 text-warning", proposed: "bg-warning/10 text-warning",
+    confirmed: "bg-destructive/15 text-destructive", waived: "bg-muted text-muted-foreground", resolved: "bg-success/10 text-success",
+    requested: "bg-warning/10 text-warning", received: "bg-success/10 text-success",
   };
   return <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize", tone[s] ?? "bg-muted")}>{s.replace(/_/g, " ")}</span>;
 }

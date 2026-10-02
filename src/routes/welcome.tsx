@@ -72,7 +72,7 @@ function WelcomePage() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs uppercase tracking-[0.25em] text-muted-foreground">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           HyperTrack rail operations
         </p>
       </div>

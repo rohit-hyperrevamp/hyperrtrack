@@ -77,7 +77,7 @@ function CommandPage() {
         <Kpi label="Open complaints" value={k?.open_complaints ?? 0} to="/admin/rail/quality" />
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
+        <section className="command-panel min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
           <h2 className="mb-4 text-base font-semibold">Depots</h2>
           {!depots.length ? <Empty title="No depots set up" /> : (
             <>
@@ -99,7 +99,7 @@ function CommandPage() {
             </>
           )}
         </section>
-        <section className="min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
+        <section className="command-panel min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
           <h2 className="mb-4 text-base font-semibold">Exceptions</h2>
           {!feed.length ? <Empty title="All clear" hint="Late jobs, penalties, complaints and alerts show here." /> : (
             <div className="divide-y">{feed.slice(0, 15).map((f) => (
