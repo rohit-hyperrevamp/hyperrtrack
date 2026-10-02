@@ -1928,6 +1928,11 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi :where(.rail-kpi-value, .text-muted-foreground) { color: var(--card); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi .text-muted-foreground { opacity: .78; }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { background: color-mix(in oklab, var(--card) 20%, transparent); color: var(--card); }
+@media (min-width: 768px) {
+  [data-rail-shell] .rail-command-kpis > :first-child { grid-column: span 2; }
+  [data-rail-shell] .rail-command-kpis > :first-child .rail-kpi { min-height: 170px; }
+  [data-rail-shell] .rail-command-kpis > :first-child .rail-kpi-value { font-size: 2.6rem; }
+}
 [data-rail-shell] .rail-chart-bar > div {
   background-image: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in oklab, var(--card) 20%, transparent) 3px 6px);
 }
