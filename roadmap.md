@@ -1,6 +1,7 @@
 # HyperTrack roadmap
 
 - [x] Redesign splash with percentage loader and login with rail film, frosted white phone/OTP steps, and staggered welcome-to-workspace transition
+- [ ] Remove repeated notification, account and theme controls; remove the top-right red indicator; make collapsed dock icons neutral until selected, selected icons blue with white symbols, and all dock controls circular; simplify My Profile and review full-screen layouts
 - [ ] (in review) Match the uploaded Fingoals reference across HyperTrack, updated to the requested full-screen canvas: circular blue sidebar brand and icons, consistent rounded bento cards with blue/green/red/yellow accents, top controls and chart textures on all devices; review against the reference (live authenticated comparison blocked until publication)
 - [x] Make dock icons identifiable by color, align and strengthen the wordmark, use Apple system typography, and redesign role-relevant rail dashboards
 - [x] Refresh solid-black navigation, semantic colored tiles/icons, Depot map, Rail Settings categories, and shared rail screens across devices
