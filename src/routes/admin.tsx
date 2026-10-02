@@ -467,7 +467,7 @@ function AdminLayout() {
         data-hyper-dock
       >
         {/* Brand */}
-         <div className={cn("flex items-center px-2.5 pt-5 pb-4", collapsed && "justify-center px-2")}>
+          <div className={cn("flex items-center px-2.5 pt-5 pb-5", collapsed && "justify-center px-2")}>
           {collapsed ? (
             <Link
               to={dashboardHref}
@@ -534,7 +534,7 @@ function AdminLayout() {
         {!collapsed && railWorkspace && visibleGroups.some((g) => g.to === "/admin/rail/command") && <RailDockPulse />}
 
         {/* Footer: user + collapse */}
-        <div className={cn("p-3", collapsed ? "space-y-2" : "space-y-1")}>
+        <div className={cn("rail-dock-account mt-4 p-3 pt-5", collapsed ? "space-y-3" : "space-y-2")}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -637,7 +637,7 @@ function AdminLayout() {
         </div>
         <div id={RAIL_TOPBAR_SLOT_ID} className="rail-topbar-slot scrollbar-hide flex min-w-0 flex-1 items-center gap-2 overflow-x-auto" />
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
-           <Button type="button" variant="ghost" size="icon" title="Search (Ctrl+K)" aria-label="Search" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="rail-topbar-icon"><Search className="h-4 w-4" /></Button>
+            <Button type="button" variant="ghost" size="icon" title="Search (Ctrl+K)" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="rail-topbar-icon"><Search className="h-4 w-4" /></Button>
           <NotificationBell triggerClassName="rail-topbar-icon" />
         </div>
       </div>}
@@ -655,7 +655,7 @@ function AdminLayout() {
           <BrandMark className="min-w-0 [&>span]:text-[14px]" />
         </Link>
         <div className="flex shrink-0 items-center">
-           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} className="h-10 w-10 rounded-full"><Search className="h-5 w-5" /></Button>}
+           {pathname.startsWith("/admin/rail/") && <Button type="button" variant="ghost" size="icon" title="Search" aria-label="Search" onClick={() => window.dispatchEvent(new Event("rail-search-toggle"))} className="h-10 w-10 rounded-full"><Search className="h-5 w-5" /></Button>}
           {isSuperAdmin && <ViewAsUserButton />}
           <NotificationBell />
           <Link

@@ -2013,6 +2013,8 @@ nav[data-bottom-nav] {
     box-shadow: none; z-index: 30;
   }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link { border: 0; background: transparent; border-radius: 0; }
+  [data-rail-shell] [data-hyper-dock] .rail-brand-link .rail-dock-mark { background: var(--brand-blue); color: var(--primary-foreground); }
+  [data-rail-shell] [data-hyper-dock] .rail-dock-account { background: color-mix(in oklab, var(--muted) 45%, var(--dock)); }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:first-child > span { width: 34px; height: 34px; font-size: 11px; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child { min-width: 0; }
   [data-rail-shell] [data-hyper-dock] .rail-brand-link > div:last-child > span { white-space: nowrap; }
@@ -2725,12 +2727,11 @@ nav[data-bottom-nav] li > * > div > span:last-child {
   max-width: 100%;
 }
 
-/* Search remains centered on desktop and mobile. */
-.rail-search-dialog { left: 50% !important; top: 50% !important; width: min(36rem, calc(100vw - 1.5rem)) !important; height: auto !important; max-width: min(36rem, calc(100vw - 1.5rem)) !important; max-height: calc(100dvh - 1.5rem) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; transform: translate(-50%, -50%) !important; }
-.rail-search-dialog[data-state="open"] { animation: rail-search-center-in .24s ease both; }
-.rail-search-dialog[data-state="closed"] { animation: rail-search-center-out .18s ease both; }
-@keyframes rail-search-center-in { from { opacity: 0; transform: translate(-50%, -47%); } to { opacity: 1; transform: translate(-50%, -50%); } }
-@keyframes rail-search-center-out { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, -47%); } }
+/* Search drops into the page without a modal overlay or background blur. */
+.rail-search-panel { position: fixed; z-index: 100; top: clamp(72px, 12dvh, 120px); left: 50%; transform: translateX(-50%); width: min(38rem, calc(100vw - 1.5rem)); max-height: calc(100dvh - 100px); overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--foreground); padding: 6px; box-shadow: 0 16px 50px color-mix(in oklab, var(--foreground) 18%, transparent); animation: rail-search-drop .24s ease-out both; }
+.rail-search-panel [cmdk-input-wrapper] { flex: 1; min-width: 0; border: 0; }
+.rail-search-panel [cmdk-input] { min-width: 0; }
+@keyframes rail-search-drop { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .rail-event-dialog .rail-coach-option { border-color: var(--border); background: var(--card); color: var(--foreground); }
 .rail-event-dialog .rail-coach-option[data-status="approved"] { border-color: var(--brand-blue); }
 .rail-event-dialog .rail-coach-option[data-status="rejected"], .rail-event-dialog .rail-coach-option[data-status="removed"] { border-color: var(--destructive); }
@@ -2743,7 +2744,7 @@ nav[data-bottom-nav] li > * > div > span:last-child {
 [data-slot="sheet-content"] [data-slot="sheet-footer"] [data-variant="outline"] { border-color: transparent; background: var(--muted); color: var(--foreground); }
 [data-slot="dialog-content"] [data-slot="dialog-footer"] [data-variant="outline"]:hover,
 [data-slot="sheet-content"] [data-slot="sheet-footer"] [data-variant="outline"]:hover { background: var(--secondary); }
-@media (prefers-reduced-motion: reduce) { .rail-search-dialog[data-state] { animation-duration: .01ms; } }
+@media (prefers-reduced-motion: reduce) { .rail-search-panel { animation-duration: .01ms; } }
 
 /* Mobile contextual bar: a sticky, thumb-friendly strip under the app header,
    shown only when the current page provides controls. */
