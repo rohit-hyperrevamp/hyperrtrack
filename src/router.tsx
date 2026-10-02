@@ -4,6 +4,24 @@ import { routeTree } from "./routeTree.gen";
 
 const STALE_BUILD_RELOAD_KEY = "radiant.stale-build-reload";
 
+// Saved sign-ins and cached screens (dashboard counts, employee lists, units…)
+// belong to one backend. When the backend changes (e.g. after a remix), wipe
+// them so nothing from the previous database is shown.
+const BACKEND_MARKER_KEY = "radiant.backend-project";
+if (typeof window !== "undefined") {
+  try {
+    const current = String(import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "");
+    if (current && window.localStorage.getItem(BACKEND_MARKER_KEY) !== current) {
+      const keep = new Set(["radiant-theme", "theme"]);
+      for (const k of Object.keys(window.localStorage)) {
+        if (!keep.has(k)) window.localStorage.removeItem(k);
+      }
+      window.sessionStorage.clear();
+      window.localStorage.setItem(BACKEND_MARKER_KEY, current);
+    }
+  } catch { /* storage unavailable */ }
+}
+
 if (typeof window !== "undefined") {
   window.addEventListener("vite:preloadError", (event) => {
     event.preventDefault();
