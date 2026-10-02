@@ -1930,7 +1930,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis > :nth-child(7) .rail-kpi { background: var(--palette-danger-soft); border-color: var(--palette-danger-soft-strong); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi :where(.rail-kpi-value, .text-muted-foreground) { color: var(--card); }
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi .text-muted-foreground { opacity: .78; }
-[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { background: color-mix(in oklab, var(--card) 20%, transparent); color: var(--card); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { box-shadow: 0 0 0 2px var(--card); }
 @media (min-width: 768px) {
   [data-rail-shell] .rail-command-kpis > :first-child { grid-column: span 2; }
   [data-rail-shell] .rail-command-kpis > :first-child .rail-kpi { min-height: 170px; }
