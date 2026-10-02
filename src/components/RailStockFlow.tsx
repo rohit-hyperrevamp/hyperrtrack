@@ -113,12 +113,12 @@ export function StockView({ locId }: { locId: string }) {
 }
 
 type Kv = { id: string; key: string; text_value: string | null };
-const useStoreSettings = () => useQuery({
+export const useStoreSettings = () => useQuery({
   queryKey: ["rail-store-settings"],
   queryFn: () => rows<Kv>(db.from("rail_settings_kv").select("id,key,text_value").in("key", ["org_name", "main_store_id"]).is("deleted_at", null).is("effective_to", null)),
 });
 
-async function saveSetting(existing: Kv | undefined, key: string, text: string) {
+export async function saveStoreSetting(existing: Kv | undefined, key: string, text: string) {
   const r = existing
     ? await db.from("rail_settings_kv").update({ text_value: text }).eq("id", existing.id)
     : await db.from("rail_settings_kv").insert({ key, text_value: text, description: key === "org_name" ? "Your company name" : "Main store / godown that supplies other stores" });
@@ -147,46 +147,15 @@ export function StoresView({ onPick, onTransfer }: { onPick: (id: string) => voi
     return { ...l, low, units, pending, main: l.id === mainId };
   }).sort((a, b) => Number(b.main) - Number(a.main) || b.pending - a.pending || b.low - a.low);
 
-  async function addStore() {
-    const name = nf.name.trim();
-    const code = (nf.code.trim() || name.replace(/[^A-Za-z0-9]+/g, "-").toUpperCase().slice(0, 16)).toUpperCase();
-    if (!name) return toast.error("Enter a store name");
-    const { data: row, error } = await db.from("rail_locations").insert({ name, code, type: nf.type }).select("id").single();
-    if (error) return toast.error(error.message.includes("duplicate") ? "That store code is already used" : error.message);
-    void logActivity({ module: "Rail Supplies", action: "create", entityType: "rail_locations", entityId: row?.id, entityLabel: name });
-    if (!mainId && row?.id) await saveSetting(mainRow, "main_store_id", row.id);
-    toast.success("Store added"); setAdding(false); setNf({ name: "", code: "", type: "store" }); refresh();
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4">
-        <div className="min-w-0 flex-1">
-          <div className="text-xs text-muted-foreground">Your company</div>
-          {orgEdit === null
-            ? <div className="truncate text-lg font-semibold">{orgRow?.text_value || "Add your company name"}</div>
-            : <Input autoFocus className="mt-1 max-w-sm" value={orgEdit} onChange={(e) => setOrgEdit(e.target.value)} placeholder="e.g. Hyper EWeb Pvt Ltd" />}
-        </div>
-        {orgEdit === null
-          ? <Button variant="outline" size="sm" onClick={() => setOrgEdit(orgRow?.text_value ?? "")}>Edit</Button>
-          : <><Button variant="outline" size="sm" onClick={() => setOrgEdit(null)}>Cancel</Button><Button size="sm" onClick={async () => { if (await saveSetting(orgRow, "org_name", orgEdit.trim())) { toast.success("Saved"); setOrgEdit(null); refresh(); } }}>Save</Button></>}
-        <Button size="sm" onClick={() => setAdding((v) => !v)}>{adding ? "Close" : "Add store"}</Button>
-        {onTransfer && <Button size="sm" variant="outline" onClick={onTransfer}>Send stock</Button>}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">Add stores and item types in Configuration Hub → Organization.</p>
+        {onTransfer && <Button size="sm" onClick={onTransfer}>Send stock</Button>}
       </div>
 
-      {adding && (
-        <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[2fr_1fr_1fr_auto]">
-          <Input placeholder="Store or godown name" value={nf.name} onChange={(e) => setNf({ ...nf, name: e.target.value })} />
-          <Input placeholder="Code (optional)" value={nf.code} onChange={(e) => setNf({ ...nf, code: e.target.value })} />
-          <select className={sel} value={nf.type} onChange={(e) => setNf({ ...nf, type: e.target.value })} aria-label="Store type">
-            <option value="store">Store / godown</option><option value="depot">Depot</option><option value="station">Station</option>
-          </select>
-          <Button onClick={addStore}>Save store</Button>
-        </div>
-      )}
-
       <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-9" placeholder="Search store" value={q} onChange={(e) => setQ(e.target.value)} /></div>
-      {!stores.length ? <Empty title="No stores yet" hint="Click Add store to create your main godown first, then each site store." /> :
+      {!stores.length ? <Empty title="No stores yet" hint="Add your main godown in Configuration Hub → Organization." /> :
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{stores.map((s) => (
           <div key={s.id} className={`rounded-2xl border bg-card p-4 ${s.main ? "border-brand" : ""}`}>
             <button type="button" onClick={() => onPick(s.id)} className="block w-full text-left">
@@ -198,7 +167,6 @@ export function StoresView({ onPick, onTransfer }: { onPick: (id: string) => voi
                 <div><div className={`text-lg font-bold ${s.pending ? "text-brand" : ""}`}>{s.pending}</div>Requests</div>
               </div>
             </button>
-            {!s.main && <button type="button" className="mt-3 text-xs text-muted-foreground hover:text-brand" onClick={async () => { if (await saveSetting(mainRow, "main_store_id", s.id)) { toast.success(`${s.name} is now the main store`); refresh(); } }}>Make main store</button>}
           </div>))}</div>}
     </div>
   );
