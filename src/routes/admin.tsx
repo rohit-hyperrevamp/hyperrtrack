@@ -69,7 +69,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { readStoredAuthUser, useAuth } from "@/lib/auth";
 import { useMe } from "@/lib/use-me";
-import { useLiveLocationBeacon } from "@/lib/use-live-location-beacon";
 import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
@@ -222,23 +221,13 @@ function AdminLayout() {
   const { user, logout, isReady } = useAuth();
   const me = useMe();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // Live location beacon: streams an on-duty field officer's position from every
-  // screen, so Radar viewers see them move in real time.
-  // Field patrol tracking is not part of the rail workspace.
   const { can, canSub, isLoading: permsLoading, isSuperAdmin: isRbacSuperAdmin, roleKey } = useCurrentPermissions();
   // useAuth and RBAC hydrate in separate hook instances. Preserve the explicit
   // authenticated role during that hand-off so the route guard cannot issue a
   // one-way frontline redirect before RBAC catches up.
   const isSuperAdmin = user?.role === "super_admin" || isRbacSuperAdmin;
-  // Frontline / FO-onboarded employees (guards, VMS/BMS operators, housekeeping,
-  // drivers, etc.) — anyone who is not super admin, not a field officer, and
-  // not on an admin-console role. They see only the employee dashboard,
-  // their uniform, notifications and their own profile.
-  // Users with NO role_key at all (freshly onboarded frontline staff) are
-  // treated as frontline too — otherwise they'd land on the admin dashboard
-  // with an empty sidebar.
   // Rail staff sign in with a candidates row whose role_key is "rail_<role>".
-  // Their access is decided by rail roles in the database, not the RBAC matrix.
+  // Their access is decided by rail roles in the database, not the legacy RBAC matrix.
   const isRailRole = !!roleKey && roleKey.startsWith("rail_");
   const isGuardRole = !isSuperAdmin && !isRailRole && !can("rail_ops");
 
@@ -330,7 +319,7 @@ function AdminLayout() {
     // to the employee dashboard after the correct dashboard navigation.
     if (readStoredAuthUser()?.role === "super_admin") return;
     if (!isRailRole && (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname))) return;
-    // Guards have no module-based permissions; restrict them to their personal pages.
+    // Accounts without rail access see an access message, not legacy security tools.
     if (isGuardRole) {
       if (pathname === "/admin/dashboard" || pathname === "/admin/profile" || pathname === "/admin/notifications") return;
       navigate({ to: "/admin/dashboard", replace: true });
@@ -342,16 +331,6 @@ function AdminLayout() {
     }
     const hit = pathToModule.find((p) => pathname === p.prefix || pathname.startsWith(p.prefix + "/"));
     if (!hit) return;
-    if (hit.module === "inventory" && roleKey === "field_officer" && (
-      pathname === "/admin/inventory" ||
-      pathname === "/admin/inventory/" ||
-      pathname.startsWith("/admin/inventory/demands") ||
-      pathname.startsWith("/admin/inventory/goods-receipts") ||
-      pathname.startsWith("/admin/inventory/collections") ||
-      pathname.startsWith("/admin/inventory/issuances")
-    )) {
-      return;
-    }
     if (hit.module === "rail_ops" && isRailRole) return;
     if (isRailRole && !isSuperAdmin) {
       navigate({ to: dashboardHref, replace: true });
@@ -435,7 +414,6 @@ function AdminLayout() {
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
   const isFieldOfficer = false;
-  const isControlCenterRole = roleKey === "control_center_head" || roleKey === "control_center";
 
   const groups: GroupItem[] = useMemo(
     () => [
@@ -503,8 +481,8 @@ function AdminLayout() {
           : railChildren;
       return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
-    // Legacy pages remain accessible by their existing links while the rail
-    // workspace shows only relevant navigation to accounts without rail access.
+    // Legacy security-company destinations remain as routes for migration,
+    // but never appear in the HyperTrack navigation.
     if (!isGuard) return [];
     if (isGuard) return [];
     if (isControlCenterRole) {

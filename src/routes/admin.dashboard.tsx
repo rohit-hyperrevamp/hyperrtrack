@@ -178,9 +178,9 @@ export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard | HyperTrack" },
-      { name: "description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
+      { name: "description", content: "HyperTrack rail cleaning operations dashboard." },
       { property: "og:title", content: "Dashboard | HyperTrack" },
-      { property: "og:description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
+      { property: "og:description", content: "HyperTrack rail cleaning operations dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
