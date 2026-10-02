@@ -1986,6 +1986,7 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] { border-color: var(--live-color); box-shadow: 0 0 0 2px var(--live-color); }
 [data-rail-shell] .rail-live-summary-icon { background: var(--live-color); color: var(--primary-foreground); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] { background: var(--live-color); color: var(--primary-foreground); }
+[data-rail-shell] .rail-live-summary[aria-pressed="true"]:hover { background: var(--live-color); color: var(--primary-foreground); }
 [data-rail-shell] .rail-live-summary[aria-pressed="true"] .rail-live-summary-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); }
 [data-rail-shell] .rail-live-row { --live-color: var(--brand-blue); border-bottom: 1px solid var(--rail-line); transition: background .2s ease; }
 [data-rail-shell] .rail-live-row[data-status="placed"], [data-rail-shell] .rail-live-row[data-status="approved"] { --live-color: var(--brand-blue); }
