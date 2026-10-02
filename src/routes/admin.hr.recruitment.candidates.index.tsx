@@ -43,7 +43,7 @@ export const Route = createFileRoute("/admin/hr/recruitment/candidates/")({
 
 function matchStage(c: RecCandidate, f: string) {
   if (!f) return true;
-  if (f === "open") return c.stage === "new" || c.stage === "screening";
+  if (f === "open") return c.stage === "new" || c.stage === "screening" || c.stage === "on_hold";
   if (f === "pipeline") return PIPELINE.includes(c.stage);
   if (f === "lost") return LOST.includes(c.stage);
   return c.stage === f;
@@ -76,7 +76,7 @@ function CandidatesPage() {
         <Select value={stage || "all"} onValueChange={(v) => setSearch({ stage: v === "all" ? "" : v })}>
           <SelectTrigger className="w-40" aria-label="Candidate status"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">To review</SelectItem><SelectItem value="pipeline">In progress</SelectItem><SelectItem value="pending_onboarding">Ready to onboard</SelectItem><SelectItem value="onboarded">Onboarded</SelectItem><SelectItem value="lost">Closed</SelectItem>
+            <SelectItem value="all">All candidates</SelectItem><SelectItem value="open">In progress</SelectItem><SelectItem value="pending_onboarding">Awaiting approval</SelectItem><SelectItem value="lost">Closed</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="outline" size="sm" onClick={() => downloadCsv("recruitment-candidates", rows.map((c) => ({
@@ -109,7 +109,7 @@ function CandidatesPage() {
                   <div className="text-xs text-muted-foreground">{c.code} · {c.mobile}</div>
                 </td>
                 <td className="p-3 capitalize">{c.offer?.operational_role_key?.replaceAll("_", " ") ?? (c.opening_id ? openingTitle.get(c.opening_id) ?? "—" : "—")}</td>
-                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{["new", "screening", "on_hold"].includes(c.stage) ? "To review" : ["round_1", "round_2", "round_3", "hr_approved"].includes(c.stage) ? "Offer pending" : stageLabel(c.stage)}</span></td>
+                <td className="p-3"><span className={cn("rounded-full px-2 py-0.5 text-xs", stageTone(c.stage))}>{c.stage === "pending_onboarding" ? "Awaiting approval" : c.stage === "onboarded" ? "Onboarded" : ["rejected", "withdrawn"].includes(c.stage) ? stageLabel(c.stage) : "In progress"}</span></td>
                 <td className="p-3">{c.current_location || "—"}</td>
                 <td className="p-3 text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString("en-IN")}</td>
                 <td className="p-3 text-right"><Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}><Link to="/admin/hr/recruitment/candidates/$recId" params={{ recId: c.id }}>View</Link></Button></td>
