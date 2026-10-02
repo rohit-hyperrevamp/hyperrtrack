@@ -61,7 +61,7 @@ function RailLayout() {
   const go = (to: string) => { setOpen(false); setQ(""); navigate({ to: to as never }); };
   return (
     <>
-      <div className="flex gap-5">
+       <div className="flex items-start gap-5">
         <div className="min-w-0 flex-1"><Outlet /></div>
         <RailSidePanel />
       </div>
