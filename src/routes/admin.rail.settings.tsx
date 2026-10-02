@@ -93,7 +93,9 @@ function useRefOptions(fields: MasterField[]) {
       const out: Record<string, { id: string; label: string }[]> = {};
       for (const key of refTables) {
         const [table, label] = key.split("|") as [string, string];
-        const { data, error } = await db.from(table).select(`id,${label}`).is("deleted_at", null).order(label).limit(1000);
+        let q = db.from(table).select(`id,${label}`);
+        if (table.startsWith("rail_")) q = q.is("deleted_at", null);
+        const { data, error } = await q.order(label).limit(1000);
         if (error) throw error;
         out[key] = (data ?? []).map((r: Record<string, unknown>) => ({ id: String(r.id), label: String(r[label] ?? "") }));
       }
