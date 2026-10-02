@@ -130,6 +130,20 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/ai-check", label: "AI Clean Check", icon: ScanEye },
 ];
 
+const railDockIconTone: Record<string, string> = {
+  "/admin/rail/command": "bg-brand text-primary-foreground",
+  "/admin/rail/live": "bg-good text-primary-foreground",
+  "/admin/rail/me": "bg-caution text-background",
+  "/admin/rail/checker": "bg-good text-primary-foreground",
+  "/admin/rail/quality": "bg-danger text-primary-foreground",
+  "/admin/rail/supplies": "bg-caution text-background",
+  "/admin/rail/sustainability": "bg-good text-primary-foreground",
+  "/admin/rail/billing": "bg-brand text-primary-foreground",
+  "/admin/rail/people": "bg-good text-primary-foreground",
+  "/admin/rail/settings": "bg-caution text-background",
+  "/admin/rail/ai-check": "bg-danger text-primary-foreground",
+};
+
 const salesChildren: LeafItem[] = [
   { to: "/admin/sales/dashboard", label: "Sales Dashboard", icon: LayoutDashboard },
   { to: "/admin/sales/prospects", label: "Prospects", icon: Users },
@@ -459,7 +473,7 @@ function AdminLayout() {
         data-hyper-dock
       >
         {/* Brand */}
-        <div className={cn("flex items-center px-4 pt-5 pb-4", collapsed && "justify-center px-2")}>
+         <div className={cn("flex items-center px-2.5 pt-5 pb-4", collapsed && "justify-center px-2")}>
           {collapsed ? (
             <Link
               to={dashboardHref}
@@ -733,6 +747,7 @@ function SidebarGroup({
 }) {
   const [open, setOpen] = useState(groupActive);
   const Icon = group.icon;
+  const railIconTone = group.to ? railDockIconTone[group.to] : undefined;
   const t = useT();
 
   useEffect(() => {
@@ -745,7 +760,7 @@ function SidebarGroup({
   const itemActive =
      "bg-dock-foreground text-dock shadow-sm";
 
-  const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
+   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors";
    const iconSpanActive = "bg-brand text-primary-foreground";
    const iconSpanIdle = "bg-brand/20 text-brand group-hover:bg-brand/30 group-hover:text-dock-foreground";
   // Collapsed rail: item is a perfect circle, active state is a solid white circle
@@ -763,9 +778,9 @@ function SidebarGroup({
         to={group.to!}
         aria-label={collapsed ? group.label : undefined}
         data-no-tip
-        className={
+       className={
           collapsed
-            ? cn(collapsedIcon, "mx-auto", groupActive ? collapsedIconActive : collapsedIconIdle)
+             ? cn(collapsedIcon, "mx-auto", railIconTone ?? (groupActive ? collapsedIconActive : collapsedIconIdle))
             : cn(itemBase, groupActive ? itemActive : itemIdle)
         }
       >
@@ -773,7 +788,7 @@ function SidebarGroup({
           <Icon className="h-[18px] w-[18px]" />
         ) : (
           <>
-            <span className={cn(iconSpanBase, groupActive ? iconSpanActive : iconSpanIdle)}>
+             <span className={cn(iconSpanBase, railIconTone ?? (groupActive ? iconSpanActive : iconSpanIdle))}>
               <Icon className="h-4 w-4" />
             </span>
             <span className="truncate">{t(group.label)}</span>
