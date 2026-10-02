@@ -81,20 +81,44 @@ Security-only items are hidden: guard posting orders, ex-servicemen, security-sp
 
 Each phase is finished and tested before the next one starts.
 
+## Build rules (your brief, applied to every phase)
+1. **Cleaning Event at the centre:** one train, at one place, in one time window, needing one service. The services are pit-line full clean, platform return, Clean Train Station halt, OBHS trip, intensive clean, premises, water filling, or a custom one. Tasks, photos, checks, penalties, supplies used, sustainability figures and billing all attach to an event.
+2. **Nothing fixed in the code:** coach types, checklists, rates, penalties, wages, shifts, norms, emission factors, labels, alert rules, reason codes and roles are all editable in Settings. Rates, penalties, wages, norms and factors have start and end dates, and old values are never overwritten.
+3. **Full history:** every new record can be traced to who created or changed it and when. Deleting only hides a record. Every change is written to the activity log and to a separate history that can never be edited.
+4. **Access control:** a permission is a role, a module and an action (view, create, edit, delete, approve, export, configure). Each person also has a data scope: all, zone, division, contract, depot, line or shift, or only their own records. The database enforces this, not just the screens.
+5. **Existing data stays:** organisations, sites, employees, attendance, payroll, invoices, inventory and vehicles stay as they are. Only the names users see change, through a label list. Security-company features (guard posting orders, ex-servicemen forms) are hidden by an on/off switch.
+6. **Design: a calm, dark "control room".**
+   - Colours: background #0B0F14, panels #121821, borders #1F2833, text #E6EDF3, teal #2DD4BF for actions.
+   - Status colours: green #22C55E done, sky #38BDF8 active, amber #F59E0B waiting, red #EF4444 problem, lime #84CC16 for sustainability only. Status is always shown with an icon or word too, never colour alone.
+   - Light theme to match. Inter for text; JetBrains Mono with even-width digits for train numbers, coach numbers and figures.
+   - Layout: 8px spacing grid, 12px rounded corners, thin borders, no heavy shadows. Left icon menu, a top bar for contract / depot / date / shift, and a Ctrl+K quick search.
+7. **Cleaner phone app:**
+   - Installs from the browser and keeps working offline; changes sync when the signal returns.
+   - Light theme by default, large 56px buttons, mostly icons.
+   - Hindi, Marathi and English.
+8. **Dashboards:** every number can be clicked to open the records behind it.
+9. **Lists and masters:**
+   - Every list has search, filters, saved views, and CSV/Excel export.
+   - Every master list can be imported from CSV/Excel, with a preview and checks before saving.
+
 ## Questions to confirm before Phase 1
 - Which contract types the client runs: depot pit line, platform return, Clean Train Station, OBHS, or all of them.
 - How they are paid: per coach, per day, or a lump sum. Also a sample rate schedule and penalty schedule from their Letter of Acceptance.
 - Whether the railway checker should get a login.
-- Whether security-company features (guard posting, ex-servicemen) should be hidden or removed completely.
 
 ## Technical notes
-- New tables (all with permission rules and RBAC module `rail_ops`):
-  - Trains and coaches: `rail_trains`, `rail_coaches`, `rail_rake_compositions`
-  - Depot layout: `rail_pit_lines`, `rail_platforms`
-  - Daily work: `rail_cleaning_jobs`, `rail_coach_tasks`, `rail_task_photos` (private storage, compressed)
-  - Checking and schedules: `rail_inspections`, `rail_penalty_rules`, `rail_intensive_schedules`
-  - Station and on-board logs: `rail_cts_logs`, `rail_obhs_complaints`
-- Rate lines are reused and get a new `billing_unit` field (per coach / per day / lump sum).
-- The renaming is done with a single label setting, so the existing database tables stay unchanged.
-- Daily job creation runs as a scheduled database job; the Board refreshes live.
-- Each step's change is logged with `logActivity`.
+- **Event model:** `rail_cleaning_events` (train, location, time window, `service_type_id`) is the parent of `rail_event_tasks`, `rail_task_photos`, `rail_inspections`, `rail_penalties`, `rail_consumption`, `rail_sustainability` and `rail_bill_lines`.
+- **Masters:**
+  - Trains and coaches: `rail_trains`, `rail_coaches`, `rail_coach_types`
+  - Locations: `rail_locations` (pit line / platform / station)
+  - Service setup: `rail_service_types`, `rail_checklists`
+  - Dated values: `rail_rates`, `rail_penalty_rules`, `rail_norms`, `rail_emission_factors`
+  - Operations setup: `rail_shifts`, `rail_alert_rules`, `rail_reason_codes`
+  - Display and switches: `rail_labels`, `rail_feature_flags`
+- **Columns on every table:** `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`. Every table has row-level security.
+- **History:** `rail_audit_trail` is filled by database triggers and is append-only.
+- **Access:**
+  - A new `rail_permissions` table (role × module × action) uses the full action set; the existing `role_permissions` table stays for the older modules.
+  - `rail_user_scopes` stores each person's data scope. A single helper `rail_can(module, action, scope_id)` is used in every policy.
+- **Offline app:** the browser-installed app is the cleaner's offline mode. It never runs inside the editor preview.
+- **Change log:** `logActivity` is called on every save.
