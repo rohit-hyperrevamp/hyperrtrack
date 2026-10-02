@@ -38,7 +38,7 @@ export function MiniStat({
   return (
     <div
       className={cn(
-        "group relative flex h-[124px] min-w-0 flex-col overflow-hidden rounded-2xl border border-border/40 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:h-[172px] sm:rounded-[26px] sm:p-5",
+        "group relative flex h-[124px] min-w-0 flex-col overflow-hidden rounded-lg border border-border/40 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:h-[172px] sm:p-5",
         ACCENT_TILE_BG[resolvedAccent],
       )}
     >
@@ -71,7 +71,7 @@ export function MiniStat({
         {Icon && (
           <span
             className={cn(
-              "grid h-7 w-7 shrink-0 place-items-center rounded-full bg-card/80 ring-1 ring-inset sm:h-9 sm:w-9",
+              "grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-1 ring-inset sm:h-9 sm:w-9",
               ACCENT_CHIP[resolvedAccent],
             )}
           >

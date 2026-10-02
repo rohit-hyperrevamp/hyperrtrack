@@ -741,21 +741,21 @@ function SidebarGroup({
 
   const itemBase =
      "group relative flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-[background-color,color] duration-200";
-  const itemIdle = "text-white/60 hover:bg-white/[0.07] hover:text-white";
+   const itemIdle = "text-dock-foreground/75 hover:bg-dock-foreground/[0.08] hover:text-dock-foreground";
   const itemActive =
      "bg-dock-foreground text-dock shadow-sm";
 
   const iconSpanBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors";
-   const iconSpanActive = "bg-dock/10 text-dock";
-  const iconSpanIdle = "text-white/55 group-hover:text-white";
+   const iconSpanActive = "bg-brand text-primary-foreground";
+   const iconSpanIdle = "bg-brand/20 text-brand group-hover:bg-brand/30 group-hover:text-dock-foreground";
   // Collapsed rail: item is a perfect circle, active state is a solid white circle
   const collapsedItem = "h-11 w-11 mx-auto justify-center rounded-full p-0";
   const collapsedIcon =
     "grid h-11 w-11 place-items-center rounded-full transition-all duration-200";
   const collapsedIconActive =
      "bg-dock-foreground text-dock shadow-sm";
-  const collapsedIconIdle =
-    "text-white/55 hover:bg-white/[0.08] hover:text-white";
+   const collapsedIconIdle =
+     "text-brand hover:bg-brand/20 hover:text-dock-foreground";
 
   if (!group.children || group.children.length === 0) {
     const link = (
@@ -860,7 +860,7 @@ function SidebarGroup({
                     : "text-white/55 hover:bg-white/[0.06] hover:text-white",
                 )}
               >
-                <c.icon className="h-3.5 w-3.5 opacity-70" />
+               <span className={cn("grid h-6 w-6 shrink-0 place-items-center rounded-md", a ? "bg-brand text-primary-foreground" : "bg-brand/20 text-brand")}><c.icon className="h-3.5 w-3.5" /></span>
                 <span className="truncate">{t(c.label)}</span>
               </Link>
             );

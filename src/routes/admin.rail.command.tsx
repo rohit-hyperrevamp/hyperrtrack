@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Droplets, FileWarning, MessageSquareWarning, ArrowUpRight } from "lucide-react";
+import { AlertCircle, Droplets, FileWarning, MessageSquareWarning, ArrowUpRight, MapPin } from "lucide-react";
+import indiaOutline from "@/assets/india-outline.svg";
 import { PageHeader } from "@/components/PageHeader";
 import { db, Empty, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
@@ -55,8 +56,8 @@ function CommandPage() {
     return () => cancelAnimationFrame(raf);
   }, [target]);
 
-  const lat = depots.filter((d) => d.latitude && d.longitude);
-  const [minLat, maxLat, minLng, maxLng] = lat.length ? [Math.min(...lat.map((d) => d.latitude!)), Math.max(...lat.map((d) => d.latitude!)), Math.min(...lat.map((d) => d.longitude!)), Math.max(...lat.map((d) => d.longitude!))] : [0, 1, 0, 1];
+  const mappedDepots = depots.filter((d) => d.latitude != null && d.longitude != null && d.latitude >= 6 && d.latitude <= 38 && d.longitude >= 67 && d.longitude <= 98);
+  const depotTone = (state: string) => state === "green" ? "bg-good" : state === "amber" ? "bg-caution" : state === "red" ? "bg-danger" : "bg-brand";
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -79,22 +80,24 @@ function CommandPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <section className="command-panel min-w-0 rounded-lg border border-border/70 bg-card p-5 sm:p-6">
-          <h2 className="mb-4 text-base font-semibold">Depots</h2>
+           <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-base font-semibold">Depots</h2><span className="text-xs text-muted-foreground">{depots.length} sites</span></div>
           {!depots.length ? <Empty title="No depots set up" /> : (
             <>
-              {lat.length > 1 && (
-                <div className="relative mb-4 h-56 rounded-lg bg-muted/40">
-                  {lat.map((d) => (
-                    <div key={d.id} className="absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${10 + ((d.longitude! - minLng) / Math.max(0.01, maxLng - minLng)) * 80}%`, top: `${90 - ((d.latitude! - minLat) / Math.max(0.01, maxLat - minLat)) * 80}%` }}>
-                       <div className={cn("mx-auto h-4 w-4 rounded-full ring-4", d.state === "green" ? "bg-brand ring-brand/20" : d.state === "amber" ? "bg-foreground/65 ring-foreground/10" : d.state === "red" ? "bg-foreground ring-foreground/20" : "bg-muted-foreground ring-muted")} />
-                      <div className="mt-1 whitespace-nowrap text-xs">{d.code}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="divide-y">{depots.map((d) => (
+               <div className="relative mb-4 overflow-hidden rounded-lg border border-brand/10 bg-brand/5 px-3 py-4">
+                 <div className="relative mx-auto aspect-[372/384] w-full max-w-[310px]">
+                   <img src={indiaOutline} alt="Map outline of India" className="h-full w-full object-contain" />
+                   {mappedDepots.map((d) => (
+                     <span key={d.id} title={`${d.name} · ${d.released}/${d.total} released`} aria-label={`${d.name}, ${d.released} of ${d.total} released`} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-card p-0.5 shadow-md ring-1 ring-border" style={{ left: `${((Number(d.longitude) - 67) / 31) * 100}%`, top: `${((38 - Number(d.latitude)) / 32) * 100}%` }}>
+                       <span className={cn("block h-3 w-3 rounded-full ring-2 ring-card", depotTone(d.state))} />
+                     </span>
+                   ))}
+                 </div>
+                 <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground"><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-good" /> Released</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-caution" /> In progress</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-danger" /> Late</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-brand" /> No jobs</span></div>
+                 {mappedDepots.length === 0 && <p className="mt-2 text-center text-xs text-muted-foreground">Add coordinates in Rail Settings to place depots on the map.</p>}
+               </div>
+               <div className="divide-y">{depots.map((d) => (
                  <Link key={d.id} to="/admin/rail/live" className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-sm transition-colors hover:text-accent">
-                   <span className="flex min-w-0 items-center gap-2"><span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", d.state === "green" ? "bg-brand" : d.state === "amber" ? "bg-foreground/65" : d.state === "red" ? "bg-foreground" : "bg-muted-foreground")} /><span className="truncate">{d.name}</span></span>
+                    <span className="flex min-w-0 items-center gap-2"><MapPin className="h-4 w-4 shrink-0 text-brand" /><span className={cn("h-2 w-2 shrink-0 rounded-full", depotTone(d.state))} /><span className="truncate">{d.name}</span></span>
                    <span className="shrink-0 text-right text-xs text-muted-foreground">{d.released}/{d.total}{d.late ? ` · ${d.late} late` : ""}</span>
                 </Link>))}</div>
             </>
@@ -106,7 +109,7 @@ function CommandPage() {
              <div className="divide-y">{feed.slice(0, 15).map((f) => {
                const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
                return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="group grid min-w-0 grid-cols-[2rem_minmax(0,1fr)_1rem] items-center gap-2.5 py-3 text-sm transition-colors hover:text-brand">
-                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-brand/10 text-brand"><Icon className="h-4 w-4" strokeWidth={1.8} /></span>
+                  <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-md", f.kind === "Penalty" ? "bg-danger-soft text-danger" : f.kind.startsWith("Complaint") ? "bg-caution-soft text-caution" : "bg-brand/10 text-brand")}><Icon className="h-4 w-4" strokeWidth={1.8} /></span>
                  <span className="min-w-0"><span className="block truncate font-medium">{f.text}</span><span className="mt-0.5 block text-xs text-muted-foreground">{f.kind} · {new Date(f.at).toLocaleDateString()}</span></span>
                  <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                </Link>;
