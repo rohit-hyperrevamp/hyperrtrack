@@ -246,7 +246,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
                 {data.coaches.map((c) => (
                   <Button key={c.id} type="button" variant="outline"
                     aria-pressed={ev.status === "planned" ? removed.has(c.id) : selected === c.id}
-                    onClick={() => ev.status === "planned" ? setRemoved((s) => { const n = new Set(s); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; }) : (setSelected(c.id), setRejecting(false), setRejectionReason(""))}
+                    onClick={() => { if (ev.status === "planned") { setRemoved((s) => { const n = new Set(s); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; }); } else { setSelected(c.id); setRejecting(false); setRejectionReason(""); } }}
                     data-status={removed.has(c.id) ? "removed" : c.status}
                     className="rail-coach-option h-auto min-h-16 w-full flex-col items-start justify-center gap-0.5 rounded-lg border px-3 py-2 text-left text-xs">
                     <span className="w-full truncate font-semibold">{c.position}. {c.rail_coach_types?.code} · {c.rail_coaches?.coach_number ?? "—"}</span>

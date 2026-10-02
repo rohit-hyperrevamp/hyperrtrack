@@ -856,7 +856,7 @@ function SidebarGroup({
         </button>
       )}
       {open && (
-        <div className="mt-0.5 ml-[22px] space-y-0.5 border-l border-white/10 pl-3">
+        <div className="mt-0.5 ml-[22px] space-y-0.5 border-l border-border pl-3">
           {group.children.map((c) => {
             const a = isActive(c.to);
             return (
@@ -867,8 +867,8 @@ function SidebarGroup({
                 className={cn(
                   "relative flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium transition-colors",
                   a
-                    ? "bg-white text-black font-semibold"
-                    : "text-white/55 hover:bg-white/[0.06] hover:text-white",
+                    ? "bg-brand text-primary-foreground font-semibold"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                <span className={cn("grid h-6 w-6 shrink-0 place-items-center rounded-md", a ? "bg-brand text-primary-foreground" : "bg-brand/20 text-brand")}><c.icon className="h-3.5 w-3.5" /></span>
@@ -1035,8 +1035,8 @@ function CollapsedGroupPopover({
           className={cn(
             "mx-auto grid h-11 w-11 place-items-center rounded-full transition-all duration-200",
             groupActive
-              ? "bg-white text-black shadow-[0_10px_28px_-10px_rgba(0,0,0,0.65)]"
-              : "text-white/55 hover:bg-white/[0.08] hover:text-white",
+              ? "bg-brand text-primary-foreground shadow-sm"
+              : "bg-muted text-foreground hover:bg-brand/10 hover:text-brand",
           )}
         >
           <Icon className="h-[18px] w-[18px]" />
