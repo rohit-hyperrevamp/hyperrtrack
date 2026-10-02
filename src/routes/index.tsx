@@ -15,21 +15,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const ORDER = ["organizations","contracts","employees","vehicles","assets","inventory","attendance","payroll","control_center","notification_center","rbac"] as const;
-const PATH_FOR: Record<string,string> = {
-  organizations: "/admin/customers/customer-manager",
-  contracts: "/admin/contracts/client-contracts",
-  employees: "/admin/employees",
-  vehicles: "/admin/vehicles",
-  assets: "/admin/assets",
-  inventory: "/admin/inventory",
-  attendance: "/admin/attendance",
-  payroll: "/admin/payroll",
-  control_center: "/admin/control-center",
-  notification_center: "/admin/notifications",
-  rbac: "/admin/rbac",
-};
-
 function Index() {
   const navigate = useNavigate();
   const { user, isReady } = useAuth();
@@ -37,8 +22,6 @@ function Index() {
     can,
     isLoading,
     isSuperAdmin,
-    isAdminConsole,
-    isFieldOfficer,
     roleKey,
   } = useCurrentPermissions();
 
@@ -71,26 +54,8 @@ function Index() {
       navigate({ to: "/admin/rail/command", replace: true });
       return;
     }
-    if (isFieldOfficer) {
-      navigate({ to: "/admin/field-dashboard", replace: true });
-      return;
-    }
-    if (!isAdminConsole) {
-      navigate({ to: "/admin/employee-dashboard", replace: true });
-      return;
-    }
-    if (can("dashboard") || can("organizations") || can("employees")) {
-      navigate({ to: "/admin/dashboard", replace: true });
-      return;
-    }
-    for (const m of ORDER) {
-      if (can(m)) {
-        navigate({ to: PATH_FOR[m], replace: true });
-        return;
-      }
-    }
-    navigate({ to: "/admin/employee-dashboard", replace: true });
-  }, [user, isReady, isLoading, isSuperAdmin, isAdminConsole, isFieldOfficer, roleKey, can, navigate]);
+    navigate({ to: "/admin/dashboard", replace: true });
+  }, [user, isReady, isLoading, isSuperAdmin, roleKey, can, navigate]);
 
   return <div className="min-h-screen bg-background" />;
 }

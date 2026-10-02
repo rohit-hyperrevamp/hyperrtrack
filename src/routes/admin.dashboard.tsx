@@ -1,7 +1,7 @@
 import { AdminFieldOfficerUnitsCard } from "@/components/AdminFieldOfficerUnitsCard";
 import { AdminEscalationRequestsCard } from "@/components/AdminEscalationRequestsCard";
 import { FieldSenseLeaderboards } from "@/components/FieldSenseLeaderboards";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -178,16 +178,37 @@ export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard | HyperTrack" },
-      { name: "description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
+      { name: "description", content: "HyperTrack rail cleaning operations dashboard." },
       { property: "og:title", content: "Dashboard | HyperTrack" },
-      { property: "og:description", content: "Dashboard overview across operations, attendance, payroll, and invoicing." },
+      { property: "og:description", content: "HyperTrack rail cleaning operations dashboard." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: DashboardPage,
+  component: DashboardEntry,
   errorComponent: DashboardErrorState,
 });
+
+function DashboardEntry() {
+  const navigate = useNavigate();
+  const { roleKey, isSuperAdmin, can, isLoading } = useCurrentPermissions();
+  const railHome = roleKey === "rail_cleaner" ? "/admin/rail/me"
+    : roleKey === "rail_railway_checker" ? "/admin/rail/checker"
+    : "/admin/rail/command";
+  const showRail = isSuperAdmin || !!roleKey?.startsWith("rail_") || can("rail_ops");
+
+  React.useEffect(() => {
+    if (!isLoading && showRail) navigate({ to: railHome, replace: true });
+  }, [isLoading, showRail, railHome, navigate]);
+
+  if (isLoading || showRail) return null;
+  return (
+    <div className="mx-auto max-w-xl py-16 text-center">
+      <h1 className="font-heading text-2xl font-semibold text-foreground">HyperTrack access not set up</h1>
+      <p className="mt-3 text-muted-foreground">Ask your administrator to assign you a rail operations role to see your dashboard.</p>
+    </div>
+  );
+}
 
 const MONTH_NAMES = [
   "January",

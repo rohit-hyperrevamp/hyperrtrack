@@ -69,7 +69,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { readStoredAuthUser, useAuth } from "@/lib/auth";
 import { useMe } from "@/lib/use-me";
-import { useLiveLocationBeacon } from "@/lib/use-live-location-beacon";
 import { SaveConfirmGuard } from "@/components/SaveConfirmGuard";
 import { useCurrentPermissions } from "@/lib/rbac";
 import { RoutePermissionGuard } from "@/components/RoutePermissionGuard";
@@ -222,42 +221,26 @@ function AdminLayout() {
   const { user, logout, isReady } = useAuth();
   const me = useMe();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // Live location beacon: streams an on-duty field officer's position from every
-  // screen, so Radar viewers see them move in real time.
-  useLiveLocationBeacon();
   const { can, canSub, isLoading: permsLoading, isSuperAdmin: isRbacSuperAdmin, roleKey } = useCurrentPermissions();
   // useAuth and RBAC hydrate in separate hook instances. Preserve the explicit
   // authenticated role during that hand-off so the route guard cannot issue a
   // one-way frontline redirect before RBAC catches up.
   const isSuperAdmin = user?.role === "super_admin" || isRbacSuperAdmin;
-  // Frontline / FO-onboarded employees (guards, VMS/BMS operators, housekeeping,
-  // drivers, etc.) — anyone who is not super admin, not a field officer, and
-  // not on an admin-console role. They see only the employee dashboard,
-  // their uniform, notifications and their own profile.
-  // Users with NO role_key at all (freshly onboarded frontline staff) are
-  // treated as frontline too — otherwise they'd land on the admin dashboard
-  // with an empty sidebar.
-  // Rail Clean staff sign in with a candidates row whose role_key is "rail_<role>".
-  // Their access is decided by rail roles in the database, not the RBAC matrix.
+  // Rail staff sign in with a candidates row whose role_key is "rail_<role>".
+  // Their access is decided by rail roles in the database, not the legacy RBAC matrix.
   const isRailRole = !!roleKey && roleKey.startsWith("rail_");
-  const isGuardRole =
-    !isSuperAdmin &&
-    !isRailRole &&
-    !permsLoading &&
-    (!roleKey || !(isAdminConsoleRole(roleKey) || isFieldOfficerRole(roleKey)));
+  const isGuardRole = !isSuperAdmin && !isRailRole && !can("rail_ops");
 
   const dashboardHref =
     isRailRole && !isSuperAdmin
       ? roleKey === "rail_cleaner" ? "/admin/rail/me" : roleKey === "rail_railway_checker" ? "/admin/rail/checker" : "/admin/rail/command"
-      : isGuardRole
-      ? "/admin/employee-dashboard"
-      : roleKey === "field_officer" && !isSuperAdmin
-        ? "/admin/field-dashboard"
+      : isGuardRole || (!isSuperAdmin && !can("rail_ops"))
+        ? "/admin/dashboard"
         : "/admin/rail/command";
 
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const [nativeShell, setNativeShell] = useState(false);
   const { theme, toggle: toggleTheme, mounted: themeMounted } = useTheme();
 
@@ -335,21 +318,12 @@ function AdminLayout() {
     // queued by the pre-RBAC render must not redirect a restored administrator
     // to the employee dashboard after the correct dashboard navigation.
     if (readStoredAuthUser()?.role === "super_admin") return;
-    if (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname)) return;
-    // Guards have no module-based permissions; restrict them to their personal pages.
+    if (!isRailRole && (pathname === "/admin/hr/recruitment/interviews" || /^\/admin\/hr\/recruitment\/candidates\/[^/]+$/.test(pathname))) return;
+    // Accounts without rail access see an access message, not legacy security tools.
     if (isGuardRole) {
-      const allowed =
-        pathname === "/admin/employee-dashboard" ||
-        pathname === "/admin/my-inventory" ||
-        pathname === "/admin/profile" ||
-        pathname === "/admin/my-attendance" ||
-        pathname === "/admin/my-training" ||
-        pathname === "/admin/notifications" ||
-        pathname.startsWith("/admin/my-inventory/") ||
-        pathname.startsWith("/admin/notifications/");
-      if (!allowed) navigate({ to: "/admin/employee-dashboard", replace: true });
+      if (pathname === "/admin/dashboard" || pathname === "/admin/profile" || pathname === "/admin/notifications") return;
+      navigate({ to: "/admin/dashboard", replace: true });
       return;
-
     }
     if (isRailRole && !isSuperAdmin && !pathname.startsWith("/admin/rail") && pathname !== "/admin/profile" && !pathname.startsWith("/admin/notifications")) {
       navigate({ to: dashboardHref, replace: true });
@@ -357,16 +331,6 @@ function AdminLayout() {
     }
     const hit = pathToModule.find((p) => pathname === p.prefix || pathname.startsWith(p.prefix + "/"));
     if (!hit) return;
-    if (hit.module === "inventory" && roleKey === "field_officer" && (
-      pathname === "/admin/inventory" ||
-      pathname === "/admin/inventory/" ||
-      pathname.startsWith("/admin/inventory/demands") ||
-      pathname.startsWith("/admin/inventory/goods-receipts") ||
-      pathname.startsWith("/admin/inventory/collections") ||
-      pathname.startsWith("/admin/inventory/issuances")
-    )) {
-      return;
-    }
     if (hit.module === "rail_ops" && isRailRole) return;
     if (isRailRole && !isSuperAdmin) {
       navigate({ to: dashboardHref, replace: true });
@@ -449,154 +413,16 @@ function AdminLayout() {
   }
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
-  const isFieldOfficer = !isSuperAdmin && roleKey === "field_officer";
-  const isControlCenterRole = roleKey === "control_center_head" || roleKey === "control_center";
-
-  const groups: GroupItem[] = useMemo(
-    () => [
-      { key: "rail", label: "Rail Operations", module: "rail_ops", icon: TrainFront, children: railChildren, activePrefixes: ["/admin/rail"] },
-    ],
-    [],
-  );
-
-  const isInventoryOnly =
-    !isSuperAdmin &&
-    can("inventory") &&
-    !can("organizations") &&
-    !can("contracts") &&
-    !can("employees") &&
-    !can("vehicles") &&
-    !can("assets") &&
-    !can("attendance") &&
-    !can("payroll") &&
-    !can("invoice");
-  const filteredInventoryChildren = useMemo(
-    () => {
-      const isFO = roleKey === "field_officer";
-      const isInvAdmin = isSuperAdmin || roleKey === "inventory_manager" || roleKey === "inventory";
-      const visibleInventoryChildren = inventoryChildren.filter((c) => c.to !== "/admin/inventory/collections" || isFO);
-      if (isSuperAdmin) return visibleInventoryChildren.filter((c) => !c.adminOnly || isInvAdmin);
-      const list = inventoryChildren.filter((c) => {
-        if (c.adminOnly) return isInvAdmin;
-        // These are field-officer workflows — bypass sub-permission gating for FOs.
-        if (isFO && [
-          "/admin/inventory",
-          "/admin/inventory/demands",
-          "/admin/inventory/goods-receipts",
-          "/admin/inventory/collections",
-          "/admin/inventory/issuances",
-        ].includes(c.to)) return true;
-        return !c.sub || canSub("inventory", c.sub);
-      });
-      if (isFO) return list.filter((c) => [
-        "/admin/inventory",
-        "/admin/inventory/demands",
-        "/admin/inventory/goods-receipts",
-        "/admin/inventory/issuances",
-        "/admin/inventory/collections",
-      ].includes(c.to));
-      return list;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isSuperAdmin, permsLoading, roleKey],
-  );
-
-  const isGuard = isGuardRole;
-  const guardGroups: GroupItem[] = useMemo(() => [
-    { key: "dashboard", label: "My Dashboard", icon: LayoutGrid, to: "/admin/employee-dashboard", activePrefixes: ["/admin/employee-dashboard"] },
-    { key: "my-inventory", label: "My Uniform", icon: Boxes, to: "/admin/my-inventory", activePrefixes: ["/admin/my-inventory"] },
-    { key: "my-attendance", label: "My Attendance", icon: Clock, to: "/admin/my-attendance", activePrefixes: ["/admin/my-attendance"] },
-    { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
-  ], []);
-
   const visibleGroups: GroupItem[] = (() => {
-    if (isRailRole || isSuperAdmin || can("rail_ops")) return groups.filter((g) => g.key === "rail");
-    // Legacy pages remain accessible by their existing links while the rail
-    // workspace shows only relevant navigation to accounts without rail access.
-    if (!isGuard) return [];
-    if (isGuard) return guardGroups;
-    if (isControlCenterRole) {
-      const children = controlCenterRadarChildren.filter(
-        (item) => !item.sub || canSub("field_sense", item.sub),
-      );
-      return [
-        {
-          key: "field-sense",
-          label: "Radar",
-          icon: Radio,
-          children,
-          activePrefixes: ["/admin/dashboard", "/admin/field-sense"],
-          module: "field_sense",
-        } satisfies GroupItem,
-        { key: "training", label: "Training", icon: BookOpen, to: "/admin/my-training", activePrefixes: ["/admin/my-training"] },
-      ];
+    if (isRailRole || isSuperAdmin || can("rail_ops")) {
+      const links = roleKey === "rail_cleaner"
+        ? railChildren.filter((c) => c.to === "/admin/rail/me" || c.to === "/admin/rail/ai-check")
+        : roleKey === "rail_railway_checker"
+          ? railChildren.filter((c) => c.to === "/admin/rail/checker" || c.to === "/admin/rail/quality")
+          : railChildren;
+      return links.map((c) => ({ key: c.to, label: c.label, icon: c.icon, to: c.to, activePrefixes: [c.to], exact: true }));
     }
-    if (isInventoryOnly) {
-      return filteredInventoryChildren.map<GroupItem>((c, idx) => ({
-        key: c.to,
-        label: c.label,
-        icon: c.icon,
-        to: c.to,
-        activePrefixes: [c.to],
-        exact: idx === 0,
-      }));
-    }
-    const base = groups
-      .filter((g) => {
-        if (g.key === "field-sense") {
-          // Field officers use the site visit workflow without the Radar map.
-          // Other roles need RBAC access to the field_sense module and map.
-          return isFieldOfficer || isSuperAdmin || can("field_sense");
-        }
-        // Leadership-only analytics surfaces — hidden from field officers and
-        // the operations team (their scope is sites, visits and deployments).
-        if (g.key === "compliance") {
-          if (roleKey === "hr_executive") return false;
-          if (isFieldOfficer || (roleKey && OPERATIONS_ROLES.has(roleKey))) return false;
-          return isSuperAdmin || can("contracts") || can("employees");
-        }
-        // Client/organization masters are leadership surfaces — never for field officers.
-        if (g.key === "org-manager" || g.key === "unit-manager") {
-          if (isFieldOfficer) return false;
-          if (roleKey === "hr_executive" && g.key === "org-manager") return false;
-        }
-        // Sales & Marketing CRM: Super Admin only until a role is granted sales_marketing.
-        if (g.key === "sales") return isSuperAdmin || can("sales_marketing");
-        if (g.key === "rail") return isSuperAdmin || isRailRole || can("rail_ops");
-        // Recruitment: Super Admin only until a role is granted the recruitment module.
-        if (g.key === "recruitment") return isSuperAdmin || can("recruitment");
-        if (g.key === "inventory" && isFieldOfficer) return true;
-        if (!g.module) return true;
-        if (!can(g.module)) return false;
-        if (g.sub && !canSub(g.module, g.sub)) return false;
-        return true;
-      })
-      .map((g) => {
-        if (g.key === "inventory") return { ...g, children: filteredInventoryChildren };
-        if (g.key === "field-sense" && g.children) {
-          let kids = g.children;
-          if (isFieldOfficer) {
-            // FOs only see the Day Patrol dashboard — no Team/Expenses/Reports.
-            kids = kids
-              .filter((c) => c.to === "/admin/field-sense")
-              .map((c) => ({ ...c, label: "Site Visits" }));
-          } else if (!isSuperAdmin) {
-            kids = kids.filter((c) => !c.sub || canSub("field_sense", c.sub));
-          }
-          return { ...g, children: kids };
-        }
-        if (!g.module || !g.children) return g;
-        // Control Center hosts the State/Branch managers — their subs live under the organizations module.
-        const subModule = g.key === "control" ? "organizations" : g.module!;
-        const filtered = g.children.filter((c) => !c.sub || canSub(subModule, c.sub));
-        return { ...g, children: filtered };
-      });
-
-    if (isFieldOfficer) {
-      // FO gets a single dashboard entry that already shows their units and team.
-      return base;
-    }
-    return base;
+    return [];
   })();
 
 
@@ -613,18 +439,17 @@ function AdminLayout() {
     <TooltipProvider delayDuration={150} skipDelayDuration={100}>
     <div className={cn(
       "relative flex min-h-[100dvh] min-w-0 flex-col lg:block lg:min-h-screen",
-      (isFieldOfficer || isGuard) && "bg-white dark:bg-neutral-950",
     )}>
       <AppleNativeSetupCard autoStart nativeOnly className="hidden" />
       <ImpersonationBanner />
       {/* Soft tinted canvas — clean glass backdrop, no grid */}
-      {!isFieldOfficer && !isGuard && <div className="pointer-events-none fixed inset-0 z-0 app-canvas" />}
+      <div className="pointer-events-none fixed inset-0 z-0 app-canvas" />
 
 
 
 
 
-      {/* Desktop vertical sidebar — glass / iPadOS */}
+      {/* Desktop rail dock: every accessible destination is a direct link. */}
       <aside
         className={cn(
           "fixed inset-y-3 left-3 z-30 hidden flex-col rounded-[26px] border border-white/10 bg-black text-white shadow-[0_18px_50px_-20px_rgba(0,0,0,0.65)] transition-[width] duration-300 lg:flex animate-slide-in-left",
@@ -638,12 +463,12 @@ function AdminLayout() {
             <Link
               to={dashboardHref}
               aria-label="HyperTrack home"
-              className="mx-auto grid h-11 w-11 place-items-center rounded-md bg-card p-1"
+              className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-foreground"
             >
-              <img src="/favicon.png" alt="HyperTrack" className="h-8 w-8 object-contain" width={64} height={64} />
+              <span className="font-heading text-sm font-bold" aria-hidden="true">HT</span>
             </Link>
           ) : (
-            <Link to={dashboardHref} className="flex min-w-0 items-center rounded-md bg-card px-2 py-1">
+            <Link to={dashboardHref} aria-label="HyperTrack home" className="flex h-12 w-full min-w-0 items-center justify-center rounded-md border border-border bg-card px-3 text-foreground">
               <BrandMark />
             </Link>
           )}
@@ -653,7 +478,7 @@ function AdminLayout() {
         <nav className={cn("scrollbar-hide flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-2.5")}>
           {(() => {
             const sections: Array<{ label: string; keys: string[] }> = [
-              { label: "Operations", keys: ["rail"] },
+              { label: "Rail operations", keys: visibleGroups.map((g) => g.key) },
             ];
             const used = new Set<string>();
             return (
@@ -753,12 +578,6 @@ function AdminLayout() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/admin/my-attendance" className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" /> My Attendance
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
                 <Link to="/admin/notifications" className="flex items-center gap-2">
                   <Bell className="h-4 w-4" /> Notifications
                 </Link>
@@ -816,7 +635,7 @@ function AdminLayout() {
       )}>
         <Link to={dashboardHref} className="flex min-w-0 items-center gap-2">
           <div className="relative shrink-0">
-            <img src="/favicon.png" alt="HyperTrack" className="h-7 w-7 object-contain" width={64} height={64} />
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-primary font-heading text-[10px] font-bold text-primary-foreground" aria-hidden="true">HT</span>
           </div>
           <div className="truncate text-[14px] font-semibold leading-tight text-foreground">HyperTrack</div>
         </Link>
@@ -870,78 +689,27 @@ function AdminLayout() {
 
       {/* Mobile bottom tab bar — primary destinations + More opens full drawer */}
       {(() => {
-        const bottomItems: BottomNavItem[] = (() => {
-          if (isGuard) {
-            const guardBottomKeys = ["dashboard", "my-inventory", "my-attendance", "training"];
-            return guardGroups
-              .filter((g) => guardBottomKeys.includes(g.key))
-              .sort((a, b) => guardBottomKeys.indexOf(a.key) - guardBottomKeys.indexOf(b.key))
-              .map((g) => ({
-                key: g.key,
-                label: g.label.replace(/^My\s+/i, ""),
-                icon: g.icon,
-                to: g.to,
-                active: isGroupActive(g),
-              }));
-          }
-          // Build primary destinations in priority order, filtered by permissions.
-          // FO gets exactly 3 tiles (Dashboard, Site Visits, Candidates) + More.
-          const priorityKeys = isRailRole || isSuperAdmin || can("rail_ops")
-            ? ["rail"]
-            : isFieldOfficer
-            ? ["dashboard", "field-sense", "employees"]
-            : ["dashboard", "employees", "attendance", "payroll", "invoice", "inventory", "organizations"];
-          const cap = isFieldOfficer ? 3 : 4;
-          const byKey = new Map(visibleGroups.map((g) => [g.key, g]));
-          const picked: GroupItem[] = [];
-          for (const k of priorityKeys) {
-            const g = byKey.get(k);
-            if (g && picked.length < cap) picked.push(g);
-          }
-          // Fallback: fill from remaining visibleGroups (skipped for FO to keep exactly 3)
-          if (!isFieldOfficer) {
-            for (const g of visibleGroups) {
-              if (picked.length >= cap) break;
-              if (!picked.find((p) => p.key === g.key)) picked.push(g);
-            }
-          }
-
-          return picked.map((g) => ({
+        const bottomItems: BottomNavItem[] = visibleGroups.slice(0, 4).map((g) => ({
             key: g.key,
             label: g.label,
             icon: g.icon,
-            to: g.to ?? g.children?.[0]?.to,
+            to: g.to,
             active: isGroupActive(g),
-          }));
-        })();
-        const moreItems: BottomNavMoreItem[] = isFieldOfficer
-          ? [
-              { key: "fo-dashboard", to: "/admin/field-dashboard", label: "Dashboard", icon: LayoutDashboard, active: isActive("/admin/field-dashboard") },
-              { key: "fo-candidates", to: "/admin/employees", label: "Candidates", icon: UserPlus, active: isActive("/admin/employees") },
-              { key: "fo-attendance", to: "/admin/attendance", label: "Attendance", icon: ClipboardList, active: isActive("/admin/attendance") },
-               { key: "fo-radar", to: "/admin/field-sense", label: "Site Visits", icon: MapPin, active: isActive("/admin/field-sense") },
-              { key: "fo-uniform", to: "/admin/inventory", label: "Uniform", icon: Boxes, active: isActive("/admin/inventory") },
-              { key: "fo-my-attendance", to: "/admin/my-attendance", label: "My Attendance", icon: Clock, active: isActive("/admin/my-attendance") },
-              { key: "fo-training", to: "/admin/my-training", label: "Training", icon: BookOpen, active: isActive("/admin/my-training") },
-            ]
-          : visibleGroups.flatMap((g) => {
+        }));
+        const moreItems: BottomNavMoreItem[] = visibleGroups.flatMap((g) => {
               const to = g.to ?? g.children?.[0]?.to;
               return to ? [{ key: g.key, to, label: g.label, icon: g.icon, active: isGroupActive(g) }] : [];
             });
         const addMoreItem = (item: BottomNavMoreItem) => {
           if (!moreItems.some((entry) => entry.to === item.to)) moreItems.push(item);
         };
-        if (isRailRole || isSuperAdmin || can("rail_ops")) {
-          for (const child of railChildren) addMoreItem({ key: child.to, to: child.to, label: child.label, icon: child.icon, active: isActive(child.to) });
-        }
-        if (!isGuard) addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
-        if (!isGuard) addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
+        addMoreItem({ key: "profile", to: "/admin/profile", label: "My Profile", icon: Users, active: isActive("/admin/profile") });
+        addMoreItem({ key: "notifications", to: "/admin/notifications", label: "Notifications", icon: Bell, active: isActive("/admin/notifications") });
         return (
           <MobileBottomNav
             items={bottomItems}
             onMore={() => setMobileOpen((open) => !open)}
             moreActive={mobileOpen}
-            hideMore={isGuard}
             moreItems={moreItems}
           />
         );
