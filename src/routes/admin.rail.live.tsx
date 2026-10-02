@@ -277,7 +277,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
 
             <div className="space-y-3">
               <div><h3 className="text-sm font-semibold">Coaches <span className="font-normal text-muted-foreground">· {data.coaches.length}</span></h3><p className="text-xs text-muted-foreground">{ev.status === "planned" ? "Select coaches missing from the rake before placing it." : "Select a coach to see its tasks and review."}</p></div>
-              <div className="rail-coach-grid grid max-h-52 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
+              <div className="rail-coach-grid grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {data.coaches.map((c) => (
                   <Button key={c.id} type="button" variant="outline"
                     aria-pressed={ev.status === "planned" ? removed.has(c.id) : selected === c.id}
