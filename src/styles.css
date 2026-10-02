@@ -1974,16 +1974,17 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-kpis > :is(:nth-child(1), :nth-child(3), :nth-child(5), :nth-child(7), :nth-child(8)) .rail-kpi .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 17%, transparent); color: var(--primary-foreground); }
 [data-rail-shell] .rail-command-kpis > :not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(5)):not(:nth-child(7)):not(:nth-child(8)) .rail-kpi .rail-kpi-icon { color: var(--primary-foreground); }
 
-/* Rail section summaries: saturated role colors, with legible white text and circular icons. */
-[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="good"] { background: linear-gradient(145deg, var(--palette-good-main), var(--palette-good-strong)); border-color: var(--palette-good-strong); }
-[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="bad"] { background: linear-gradient(145deg, var(--palette-danger-main), var(--palette-danger-strong)); border-color: var(--palette-danger-strong); }
-[data-rail-shell] [data-rail-workspace] :not(.rail-command-kpis) > .rail-kpi[data-tone="warn"] { background: linear-gradient(145deg, var(--palette-caution-main), var(--palette-caution-strong)); border-color: var(--palette-caution-strong); }
+/* Rail section summaries: saturated role colors, with legible ink on yellow. */
+[data-rail-shell] { --rail-yellow: oklch(0.86 0.18 93); --rail-yellow-deep: oklch(0.78 0.17 87); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] { background: linear-gradient(145deg, var(--palette-good-main), var(--palette-good-strong)); border-color: var(--palette-good-strong); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] { background: linear-gradient(145deg, var(--palette-danger-main), var(--palette-danger-strong)); border-color: var(--palette-danger-strong); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] { background: linear-gradient(145deg, var(--rail-yellow), var(--rail-yellow-deep)); border-color: var(--rail-yellow-deep); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint),
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint) { color: var(--primary-foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] :is(.rail-kpi-label,.rail-kpi-value,.rail-kpi-hint) { color: var(--rail-ink); }
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="good"] .rail-kpi-icon,
 [data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="bad"] .rail-kpi-icon,
-[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--primary-foreground) 18%, transparent); color: var(--primary-foreground); }
+[data-rail-shell] [data-rail-workspace] .rail-kpi[data-tone="warn"] .rail-kpi-icon { background: color-mix(in oklab, var(--rail-ink) 12%, transparent); color: var(--rail-ink); }
 
 /* Live Board: status is readable by name and color, never by a timeline bar alone. */
 [data-rail-shell] .rail-live-summary[data-status="planned"] { --live-color: var(--brand-blue); }
