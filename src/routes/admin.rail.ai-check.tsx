@@ -93,7 +93,7 @@ function AiCheckPage() {
   }
 
   return (
-    <div className="rail-photo-check mx-auto max-w-xl space-y-5">
+    <div className="rail-photo-check mx-auto w-full space-y-5">
       <PageHeader title="Photo Check" description="Take a photo after cleaning. The AI scores it out of 10. Your supervisor still gives the final approval." />
 
       <div className="space-y-3 rounded-xl border border-border bg-card p-4">

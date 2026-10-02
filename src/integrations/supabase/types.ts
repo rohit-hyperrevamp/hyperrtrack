@@ -7683,6 +7683,8 @@ export type Database = {
       }
       rail_event_tasks: {
         Row: {
+          accepted_at: string | null
+          accepted_by: string | null
           ai_score: number | null
           assigned_to: string | null
           completed_at: string | null
@@ -7706,6 +7708,8 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           ai_score?: number | null
           assigned_to?: string | null
           completed_at?: string | null
@@ -7729,6 +7733,8 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           ai_score?: number | null
           assigned_to?: string | null
           completed_at?: string | null
@@ -11614,6 +11620,11 @@ export type Database = {
           p_unit_ids?: string[]
         }
         Returns: Json
+      }
+      rail_accept_task: { Args: { _task: string }; Returns: undefined }
+      rail_assign_task: {
+        Args: { _assignee: string; _task: string }
+        Returns: undefined
       }
       rail_bill_advance: {
         Args: {

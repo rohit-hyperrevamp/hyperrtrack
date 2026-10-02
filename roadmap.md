@@ -1,5 +1,9 @@
 # HyperTrack roadmap
 
+- [x] Scope task assignment to authorized managers and cleaner acceptance to the assignee, hide My Shift from super admins, and use full-width layout (authenticated UI test pending)
+- [x] Insert labelled 30-day synthetic cleaning history into the connected production database: 90 jobs, 360 coaches, 1,440 tasks, 360 inspections, 600 resource readings, 1,800 supply entries and 90 attendance records
+- [ ] Verify every graph and form with authenticated manager, checker and cleaner accounts; local authenticated routes redirect to login and the limited database role cannot call rail_kpis
+- [x] Deliver a concise PDF guide to every rail section and a truthful test report
 - [x] Rebuild phone dock and header as circular controls; optimize mobile Photo Check, tables, form spacing, and restore Configuration Hub label (authenticated mobile visual review unavailable)
 - [x] Use the HyperTrack train symbol as favicon, remove visible Lovable branding, move View as User below Activity Log, and remove today's shift dock card (service identifiers retained for integrations)
 - [x] Separate dock brand and account controls; replace text-like HT badge with a recognizable symbol and make search a centered slide-down panel without an overlay (live rail visual verification awaits publication)
