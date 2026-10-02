@@ -1,6 +1,6 @@
 # HyperTrack roadmap
 
-- [ ] Rename Rail Settings to Configuration Hub; redesign its master catalog and add server-enforced role, page and action permissions with circular controls and glass editors
+- [x] Rename Rail Settings to Configuration Hub; redesign its master catalog and add role creation, permission editing, page-aware navigation, circular icons and glass editors (production verification blocked by unavailable production database connection)
 - [x] Redesign splash with percentage loader and login with rail film, frosted white phone/OTP steps, and staggered welcome-to-workspace transition
 - [x] Remove repeated notification, account and theme controls; replace the top-right red unread badge with a blue dot; make collapsed dock icons neutral until selected, selected icons blue with white symbols, and dock icons circular; simplify My Profile and keep its content full-width
 - [ ] (in review) Match the uploaded Fingoals reference across HyperTrack, updated to the requested full-screen canvas: circular blue sidebar brand and icons, consistent rounded bento cards with blue/green/red/yellow accents, top controls and chart textures on all devices; review against the reference (live authenticated comparison blocked until publication)

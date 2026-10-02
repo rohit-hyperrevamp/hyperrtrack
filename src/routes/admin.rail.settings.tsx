@@ -379,7 +379,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
       </div>
 
       {importRows && (
-        <div className="space-y-2 rounded-xl border border-border bg-card p-4">
+       <div className="space-y-2 rounded-lg border border-border bg-card p-4">
           <p className="font-medium">Import preview: {importRows.length} rows</p>
           <p className="text-sm text-muted-foreground">Column headers must match: {def.fields.map((f) => f.key).join(", ")}</p>
           {importErrors.length > 0 ? (
@@ -394,7 +394,7 @@ function MasterTable({ def, onBack }: { def: MasterDef; onBack: () => void }) {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-border">
+       <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
