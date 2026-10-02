@@ -2124,7 +2124,7 @@ input, textarea, [contenteditable], p, span, td, li, h1, h2, h3, h4 {
 
   /* Data cards use the same visual radius and outer width throughout the app. */
   [data-admin-scroll] :where(.rounded-3xl) {
-    border-radius: 0.75rem;
+    border-radius: var(--radius);
   }
 }
 
@@ -2178,6 +2178,9 @@ nav[data-bottom-nav] {
     background: var(--card);
   }
   nav[data-bottom-nav] { background: var(--dock); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  nav[data-bottom-nav] { background: var(--dock) !important; }
 }
 nav[data-bottom-nav][data-expanded="true"] {
   border-color: color-mix(in oklab, var(--dock-foreground) 22%, transparent);

@@ -66,7 +66,7 @@ export function Kpi({ label, value, hint, to, tone = "default" }: { label: strin
       "flex h-full min-h-28 flex-col rounded-lg border border-border/70 bg-card p-4 transition-[border-color,box-shadow] sm:p-5",
       to && "cursor-pointer hover:border-accent/40 hover:shadow-sm",
     )}>
-      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="flex items-center justify-between gap-2 text-xs font-medium text-muted-foreground">{label}{tone !== "default" && <span aria-hidden="true" className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone === "good" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-destructive")} />}</div>
       <div className="mt-auto pt-3 font-heading text-2xl font-semibold tabular-nums text-foreground">{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
