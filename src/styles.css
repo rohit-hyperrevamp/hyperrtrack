@@ -1919,6 +1919,15 @@ nav[data-bottom-nav] {
 [data-rail-shell] .rail-command-insights > section,
 [data-rail-shell] .rail-command > section { border-radius: 19px; background: var(--card); padding: 23px; border-color: var(--rail-line); }
 [data-rail-shell] .rail-command-insights > section:first-child { min-height: 280px; }
+[data-rail-shell] .rail-command-kpis > :nth-child(2) .rail-kpi {
+  background: var(--brand-blue); border-color: var(--brand-blue);
+}
+[data-rail-shell] .rail-command-kpis > :nth-child(4) .rail-kpi {
+  background: var(--rail-ink); border-color: var(--rail-ink);
+}
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi :where(.rail-kpi-value, .text-muted-foreground) { color: var(--card); }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi .text-muted-foreground { opacity: .78; }
+[data-rail-shell] .rail-command-kpis > :is(:nth-child(2), :nth-child(4)) .rail-kpi span[aria-hidden] { background: color-mix(in oklab, var(--card) 20%, transparent); color: var(--card); }
 [data-rail-shell] .rail-chart-bar > div {
   background-image: repeating-linear-gradient(135deg, transparent 0 3px, color-mix(in oklab, var(--card) 20%, transparent) 3px 6px);
 }
@@ -1940,11 +1949,13 @@ nav[data-bottom-nav] {
   [data-rail-shell] [data-hyper-dock] nav a:hover { background: var(--muted); }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground { background: var(--rail-ink); color: var(--card); border-radius: 999px; }
   [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground:hover { background: var(--rail-ink); }
+  [data-rail-shell] [data-hyper-dock] nav a.bg-dock-foreground > span:last-child { color: var(--card); }
   [data-rail-shell] [data-hyper-dock] > div:first-child a:not(.rounded-full) { border: 0; background: transparent; justify-content: flex-start; padding-left: 14px; }
   [data-rail-shell] [data-hyper-dock] .hypertrack-wordmark { font-size: 20px; font-weight: 750; }
   [data-rail-shell] [data-hyper-dock] > div:last-child { border-color: var(--rail-line); }
   [data-rail-shell] [data-hyper-dock] > div:last-child button,
   [data-rail-shell] [data-hyper-dock] > div:last-child .text-white { color: var(--rail-ink); }
+  [data-rail-shell] [data-hyper-dock] > div:last-child .text-white\/50 { color: var(--muted-foreground); }
   [data-rail-shell] [data-hyper-dock] > div:last-child button { background: var(--muted); border-color: var(--rail-line); }
   [data-rail-shell] .rail-topbar { height: 72px; margin-left: 244px; padding: 0 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--rail-line); background: var(--card); }
   [data-rail-shell][data-rail-collapsed] .rail-topbar { margin-left: 72px; }
