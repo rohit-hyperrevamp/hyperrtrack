@@ -62,7 +62,7 @@ const SheetContent = React.forwardRef<
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content data-slot="sheet-content" ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
-       <SheetPrimitive.Close className="absolute right-2.5 top-2.5 z-10 grid h-10 w-10 place-items-center rounded-full bg-foreground text-background ring-offset-background transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ring disabled:pointer-events-none sm:right-4 sm:top-4">
+       <SheetPrimitive.Close className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-muted text-muted-foreground transition hover:bg-brand hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
@@ -73,14 +73,14 @@ const SheetContent = React.forwardRef<
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div data-slot="sheet-header" className={cn("flex flex-col space-y-1 border-b border-border/60 pb-2.5 pr-10 text-left sm:border-0 sm:pb-0", className)} {...props} />
+  <div data-slot="sheet-header" className={cn("flex flex-col space-y-1 pr-12 pb-2 text-left", className)} {...props} />
 );
 SheetHeader.displayName = "SheetHeader";
 
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     data-slot="sheet-footer"
-    className={cn("sticky bottom-0 z-10 -mx-3 mt-auto flex flex-row gap-1.5 border-t border-border/60 bg-card/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-xl [&>*]:flex-1 sm:static sm:mx-0 sm:justify-end sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0 sm:backdrop-blur-none sm:[&>*]:flex-none", className)}
+    className={cn("flex flex-row justify-end gap-2 pt-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]", className)}
     {...props}
   />
 );

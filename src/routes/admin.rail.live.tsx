@@ -14,7 +14,7 @@ import { logActivity } from "@/lib/activity-log";
 import { db, Empty, railHead, rows, rpc, StatusPill, today, useRailRoles, hasRole } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/live")({
-  head: () => railHead("Live Board", "Today's cleaning jobs by pit line: place rakes, track coaches and tasks, approve and release."),
+  head: () => railHead("Operations", "Today's cleaning jobs by pit line: place rakes, track coaches and tasks, approve and release."),
   validateSearch: (search: Record<string, unknown>): { depot?: string; date?: string } => ({
     depot: typeof search.depot === "string" ? search.depot : undefined,
     date: typeof search.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(search.date) ? search.date : undefined,
@@ -121,7 +121,7 @@ function LiveBoard() {
         <RailDateStepper value={date} onChange={setDate} />
         {canPlan && <Button type="button" onClick={plan} disabled={planning} className="rail-topbar-tab is-active shrink-0 gap-1.5"><CalendarPlus className="h-4 w-4" />Plan day</Button>}
       </RailTopbarSlot>
-       <PageHeader title="Live Board" description={selectedDepot ? `${selectedDepot.name} · cleaning jobs` : "Every cleaning job for the day, by pit line."} />
+       <PageHeader title="Operations" description={selectedDepot ? `${selectedDepot.name} · cleaning jobs` : "Every cleaning job for the day, by pit line."} />
        <div className="flex flex-wrap items-center gap-3"><label htmlFor="rail-live-depot" className="text-sm font-medium">Depot</label><select id="rail-live-depot" className="h-10 min-w-48 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground" value={depot} onChange={(e) => { setDepot(e.target.value); setStatusFilter(null); }}><option value="">All depots</option>{depots.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
 
        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Filter cleaning jobs by status">
@@ -129,7 +129,7 @@ function LiveBoard() {
            <Button key={key} type="button" variant="ghost" aria-pressed={statusFilter === key} onClick={() => setStatusFilter((current) => current === key ? null : key)}
              className="rail-live-summary flex h-auto min-h-24 min-w-0 items-center justify-start gap-3 whitespace-normal px-3 py-3 text-left shadow-none sm:min-h-28 sm:px-4" data-status={key}>
              <span className="rail-live-summary-icon grid h-10 w-10 shrink-0 place-items-center rounded-full"><Icon className="h-5 w-5" /></span>
-             <span className="min-w-0"><span className="block text-xl font-semibold tabular-nums text-foreground sm:text-2xl">{counts[key] ?? 0}</span><span className="block text-xs font-medium text-foreground sm:text-sm">{label}</span></span>
+             <span className="min-w-0"><span className="block text-xl font-semibold tabular-nums sm:text-2xl">{counts[key] ?? 0}</span><span className="block text-xs font-medium sm:text-sm">{label}</span></span>
            </Button>
          ))}
       </div>
@@ -154,7 +154,7 @@ function LiveBoard() {
                        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-foreground sm:text-base">{e.rail_trains?.number ?? "Train"} <span className="font-normal text-muted-foreground">{e.rail_trains?.name}</span></span><span className="block truncate text-xs text-muted-foreground">{e.rail_service_types?.name ?? e.rail_service_types?.code ?? "Cleaning"}</span></span>
                        <span className="hidden shrink-0 text-sm tabular-nums text-foreground sm:block">{time(e.planned_start)} – {time(e.planned_end)}</span>
                         <span className="rail-live-row-status shrink-0 rounded-md px-2 py-1 text-xs font-semibold capitalize sm:min-w-24 sm:text-center">{e.status.replace("_", " ")}</span>
-                       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                       <ChevronRight className="h-4 w-4 shrink-0 text-brand" />
                      </Button>;
                    })}
                 </div>
@@ -220,7 +220,7 @@ function EventSheet({ id, onClose, date }: { id: string | null; onClose: () => v
 
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="rail-event-dialog w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto sm:max-w-2xl">
+      <SheetContent aria-describedby={undefined} className="rail-event-dialog w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto sm:max-w-2xl">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><TrainFront className="h-4 w-4" /></span><span className="truncate">{ev?.rail_trains?.number} {ev?.rail_trains?.name}</span></SheetTitle>
         </SheetHeader>

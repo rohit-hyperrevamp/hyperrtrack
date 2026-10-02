@@ -65,7 +65,7 @@ function notificationVisual(type: string) {
   if (value.includes("alert") || value.includes("warning") || value.includes("expiry")) {
     return { Icon: ShieldAlert, tone: "bg-destructive/10 text-destructive ring-destructive/20" };
   }
-  return { Icon: BellRing, tone: "bg-accent/12 text-accent ring-accent/20" };
+  return { Icon: BellRing, tone: "bg-brand/10 text-brand ring-brand/20" };
 }
 
 export function NotificationBell({ triggerClassName }: { triggerClassName?: string } = {}) {
@@ -143,8 +143,9 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
   };
 
   const trigger = (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       aria-label="Notifications"
       data-no-tip
       onClick={(event) => {
@@ -158,18 +159,17 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         setMobileOpen(true);
       }}
       className={triggerClassName ?? "relative inline-flex h-10 w-10 shrink-0 aspect-square items-center justify-center rounded-full border border-border bg-card text-foreground outline-none transition-colors focus-visible:outline-none hover:border-accent hover:text-accent"}
-      style={{ borderRadius: "9999px", flex: "0 0 40px" }}
     >
       <Bell className="h-4 w-4" />
-      {unread > 0 && <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-brand ring-2 ring-card" aria-hidden="true" />}
-    </button>
+      {unread > 0 && <span className="sr-only">{unread} unread</span>}
+    </Button>
   );
 
   const notificationList = (
     <>
       <div className="flex items-center justify-between border-b border-border/60 px-4 pb-3 pt-2 sm:py-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/12 text-accent ring-1 ring-inset ring-accent/20">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground">
             <BellRing className="h-[18px] w-[18px]" />
           </span>
           <div className="min-w-0">
@@ -180,8 +180,9 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => {
               const next = !muted;
               setNotificationSoundMuted(next);
@@ -193,25 +194,26 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
             className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground [-webkit-tap-highlight-color:transparent]"
           >
             {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
             disabled={unread === 0}
             onClick={async () => {
               await markAllRead();
               qc.invalidateQueries({ queryKey: NQK });
             }}
-            className="inline-flex h-8 items-center gap-1 rounded-full bg-primary/10 px-2.5 text-[11px] font-medium text-primary hover:bg-primary/15 disabled:opacity-40 [-webkit-tap-highlight-color:transparent]"
+            className="inline-flex h-8 items-center gap-1 rounded-lg bg-brand/10 px-2.5 text-[11px] font-medium text-brand hover:bg-brand/15 disabled:opacity-40 [-webkit-tap-highlight-color:transparent]"
           >
             <CheckCheck className="h-3.5 w-3.5" />
             Mark all
-          </button>
+          </Button>
         </div>
       </div>
       <div className="max-h-[min(62dvh,28rem)] overflow-y-auto overscroll-contain px-2 py-2">
         {top.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
-            <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-accent/10 text-accent ring-1 ring-inset ring-accent/15">
+            <div className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-brand/10 text-brand">
               <BellRing className="h-6 w-6" />
             </div>
             <div className="text-sm font-semibold text-foreground">No notifications</div>
@@ -222,18 +224,19 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
             {top.map((n) => {
               const { Icon, tone } = notificationVisual(n.type);
               return (
-              <li key={n.id} className="overflow-hidden rounded-xl">
-                <button
+              <li key={n.id} className="overflow-hidden rounded-lg">
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => void handleOpenNotification(n)}
                   className={cn(
-                    "flex w-full items-center gap-3 px-2.5 py-2.5 text-left transition-colors hover:bg-secondary/60 [-webkit-tap-highlight-color:transparent] sm:px-3",
-                    !n.readAt ? "bg-accent/[0.06]" : "bg-card/40",
+                    "flex h-auto min-h-16 w-full items-center justify-start gap-3 whitespace-normal px-2.5 py-2.5 text-left transition-colors hover:bg-secondary/60 sm:px-3",
+                    !n.readAt ? "bg-brand/5" : "bg-card/40",
                   )}
                 >
                   <span
                     className={cn(
-                      "grid h-10 w-10 shrink-0 place-items-center rounded-xl ring-1 ring-inset",
+                      "grid h-10 w-10 shrink-0 place-items-center rounded-full ring-1 ring-inset",
                       tone,
                     )}
                   >
@@ -244,9 +247,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                       <div className="line-clamp-1 text-[13px] font-medium leading-snug text-foreground sm:text-[13.5px]">
                         {n.title}
                       </div>
-                      {!n.readAt && (
-                        <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-primary" />
-                      )}
+                      {!n.readAt && <span className="shrink-0 text-[10px] font-semibold text-brand">New</span>}
                     </div>
                     {n.message && (
                       <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground line-clamp-2">
@@ -258,14 +259,14 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
-                </button>
+                </Button>
               </li>
             );})}
           </ul>
         )}
       </div>
       <div className="border-t border-border/60 bg-card/80 px-3 pb-2 pt-2 backdrop-blur-xl">
-        <Button asChild variant="secondary" size="sm" className="h-10 w-full justify-center rounded-xl text-xs font-medium" onClick={() => setMobileOpen(false)}>
+        <Button asChild variant="secondary" size="sm" className="h-10 w-full justify-center rounded-lg text-xs font-medium" onClick={() => setMobileOpen(false)}>
           <Link to="/admin/notifications">View all notifications</Link>
         </Button>
       </div>
@@ -280,11 +281,11 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
               type="button"
               aria-label="Close notifications"
               data-no-tip
-               className="absolute inset-0 bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200"
+              className="absolute inset-0 bg-foreground/40 backdrop-blur-md animate-in fade-in-0 duration-200"
               onClick={() => setMobileOpen(false)}
             />
             <div
-               className="absolute inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] flex max-h-[78dvh] flex-col overflow-hidden rounded-[24px] border border-border/60 bg-card/95 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom duration-300 ease-out"
+              className="absolute inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] flex max-h-[78dvh] flex-col overflow-hidden rounded-lg border border-border/60 bg-card/95 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom duration-300 ease-out"
               style={{
                  paddingBottom: "4px",
               }}
@@ -292,15 +293,16 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
                <div className="flex items-center justify-between px-3 pb-1 pt-2.5">
                 <div className="w-8" aria-hidden="true" />
                 <span className="h-1 w-10 rounded-full bg-muted-foreground/30" />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   aria-label="Close notifications"
                   data-no-tip
                   onClick={() => setMobileOpen(false)}
                   className="grid h-8 w-8 place-items-center rounded-full bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground [-webkit-tap-highlight-color:transparent]"
                 >
                   <X className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
               {notificationList}
             </div>
@@ -330,15 +332,15 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         {trigger}
       </PopoverTrigger>
       <PopoverContent
-        side="right"
-        align="start"
+        side="bottom"
+        align="end"
         sideOffset={12}
         collisionPadding={12}
         avoidCollisions
         className={cn(
           "z-50 p-0 shadow-2xl",
           // Desktop / tablet: compact popover next to the sidebar
-          "w-[min(22rem,calc(100vw-1.5rem))] rounded-xl",
+          "w-[min(24rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-popover/95 backdrop-blur-xl",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0",
         )}
       >

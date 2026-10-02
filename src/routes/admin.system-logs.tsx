@@ -33,6 +33,11 @@ import {
 import { DataPagination, usePagination } from "@/components/DataPagination";
 
 export const Route = createFileRoute("/admin/system-logs")({
+  head: () => ({ meta: [
+    { title: "Activity Log — HyperTrack" }, { name: "description", content: "Review sign-ins, sign-outs and changes across HyperTrack." },
+    { property: "og:title", content: "Activity Log — HyperTrack" }, { property: "og:description", content: "Review sign-ins, sign-outs and changes across HyperTrack." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: SystemLogsPage,
 });
 
@@ -97,7 +102,7 @@ const ACTION_COLORS: Record<string, string> = {
   delete: "bg-red-500/15 text-red-700 dark:text-red-300",
   enable: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
   disable: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  login: "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  login: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
   logout: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
 };
 
@@ -171,15 +176,11 @@ function SystemLogsPage() {
   return (
     <div>
       <PageHeader
-        title="System Logs"
-        description="Audit trail of every action across the platform — auth, edits, toggles, deletes."
-        crumbs={[
-          { label: "Control Center", to: "/admin/control-center" },
-          { label: "System Logs" },
-        ]}
+        title="Activity Log"
+        description="Sign-ins, sign-outs and recorded changes across the workspace."
       />
 
-      <div className="mb-4 grid gap-3 rounded-2xl border border-border bg-card p-4 lg:grid-cols-12">
+      <div className="mb-4 grid gap-3 rounded-lg border border-border bg-card p-4 lg:grid-cols-12">
         <div className="lg:col-span-3">
           <Label className="mb-1.5 block text-xs">Date range</Label>
           <Select value={preset} onValueChange={(v) => setPreset(v as RangePreset)}>
@@ -312,7 +313,7 @@ function SystemLogsPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="overflow-x-clip">
           <table className="ios-table w-full text-sm">
             <thead className="bg-secondary/60 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">

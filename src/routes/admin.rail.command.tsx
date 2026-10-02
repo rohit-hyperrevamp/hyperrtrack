@@ -8,7 +8,7 @@ import { db, inr, Kpi, num, pct, railHead, rows, today } from "@/lib/rail-ui";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/rail/command")({
-  head: () => railHead("Command Centre", "Live rail cleaning operations, depot performance, quality and exceptions."),
+  head: () => railHead("Overview", "Live rail cleaning operations, depot performance, quality and exceptions."),
   component: CommandPage,
 });
 
@@ -53,14 +53,14 @@ function CommandPage() {
     queryKey: ["rail-exceptions"], refetchInterval: 30_000,
     queryFn: async () => {
       const [a, p, c] = await Promise.all([
-        rows<{ id: string; message: string; created_at: string; link: string | null }>(db.from("rail_alerts").select("id,message,created_at,link").eq("status", "open").order("created_at", { ascending: false }).limit(10)),
+        rows<{ id: string; message: string; severity: string; created_at: string; link: string | null }>(db.from("rail_alerts").select("id,message,severity,created_at,link").eq("status", "open").order("created_at", { ascending: false }).limit(10)),
         rows<{ id: string; rule_code: string; amount: number; reason: string | null; created_at: string }>(db.from("rail_penalties").select("id,rule_code,amount,reason,created_at").eq("status", "proposed").order("created_at", { ascending: false }).limit(10)),
         rows<{ id: string; description: string | null; created_at: string; sla_due: string | null }>(db.from("rail_complaints").select("id,description,created_at,sla_due").in("status", ["open", "assigned"]).order("created_at", { ascending: false }).limit(10)),
       ]);
       return [
-        ...a.map((x) => ({ id: x.id, at: x.created_at, text: x.message, to: x.link ?? "/admin/rail/quality", kind: "Alert" })),
-        ...p.map((x) => ({ id: x.id, at: x.created_at, text: `${x.rule_code.replace(/_/g, " ")} ${inr(x.amount)} — ${x.reason ?? ""}`, to: "/admin/rail/quality", kind: "Penalty" })),
-        ...c.map((x) => ({ id: x.id, at: x.created_at, text: x.description ?? "Complaint", to: "/admin/rail/quality", kind: x.sla_due && new Date(x.sla_due) < new Date() ? "Complaint (late)" : "Complaint" })),
+        ...a.map((x) => ({ id: x.id, at: x.created_at, text: x.message, to: x.link ?? "/admin/rail/quality", kind: "Alert", urgency: /critical|high|urgent/i.test(x.severity) ? "urgent" : "normal" })),
+        ...p.map((x) => ({ id: x.id, at: x.created_at, text: `${x.rule_code.replace(/_/g, " ")} ${inr(x.amount)} — ${x.reason ?? ""}`, to: "/admin/rail/quality", kind: "Penalty", urgency: "urgent" })),
+        ...c.map((x) => ({ id: x.id, at: x.created_at, text: x.description ?? "Complaint", to: "/admin/rail/quality", kind: x.sla_due && new Date(x.sla_due) < new Date() ? "Complaint (late)" : "Complaint", urgency: x.sla_due && new Date(x.sla_due) < new Date() ? "urgent" : "normal" })),
       ].sort((x, y) => y.at.localeCompare(x.at));
     },
   });
@@ -72,7 +72,7 @@ function CommandPage() {
   return (
     <div className="rail-command space-y-5 sm:space-y-6">
       <RailTopbarSlot><RailDateStepper value={date} onChange={setDate} /></RailTopbarSlot>
-      <PageHeader title="Command Centre" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
+      <PageHeader title="Overview" description={date === today() ? "Today › Rail operations" : `${new Date(`${date}T12:00:00`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} › Rail operations`} />
       <div className="rail-command-kpis grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="Jobs today" value={num(k?.events_today)} to="/admin/rail/live" />
         <Kpi label="Coaches cleaned" value={num(k?.coaches_cleaned)} to="/admin/rail/live" tone="good" />
@@ -114,8 +114,8 @@ function CommandPage() {
          {!feed.length ? <div className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"><TrainFront className="h-4 w-4 text-brand" />All clear</div> : <div className="mt-3 grid gap-2 lg:grid-cols-2">{feed.slice(0, 8).map((f) => {
           const Icon = f.kind === "Penalty" ? FileWarning : f.kind.startsWith("Complaint") ? MessageSquareWarning : AlertCircle;
            return <Link key={f.kind + f.id} to={f.to as never} aria-label={`${f.kind}: ${f.text}`} className="rail-attention-item group grid min-w-0 grid-cols-[36px_minmax(0,1fr)_16px] items-center gap-3 rounded-lg border border-border/70 bg-muted/30 px-3 py-3 text-sm transition-colors hover:border-brand/40 hover:bg-brand/5 hover:text-brand">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-primary-foreground"><Icon className="h-4 w-4" /></span>
-            <span className="min-w-0 flex-1"><span className="block truncate font-medium">{f.text}</span><span className="text-xs text-muted-foreground">{f.kind} · {new Date(f.at).toLocaleDateString("en-IN")}</span></span>
+            <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full text-primary-foreground", f.urgency === "urgent" ? "bg-danger" : "bg-brand")}><Icon className="h-4 w-4" /></span>
+            <span className="min-w-0 flex-1"><span className="block truncate font-medium">{f.text}</span><span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><span className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold", f.urgency === "urgent" ? "bg-danger-soft text-danger" : "bg-brand/10 text-brand")}>{f.urgency === "urgent" ? "Urgent" : "Review"}</span>{f.kind} · {new Date(f.at).toLocaleDateString("en-IN")}</span></span>
             <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
           </Link>;
         })}</div>}
