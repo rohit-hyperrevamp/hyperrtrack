@@ -52,6 +52,7 @@ function CandidatePage() {
   const meQ = useQuery({ queryKey: ["auth", "my-candidate-id"], queryFn: async () => (await supabase.rpc("current_user_candidate_id")).data as string | null, staleTime: 300_000 });
   const c = q.data?.candidate;
   const docsQ = useQuery({ queryKey: ["rec", "employee-docs", c?.employee_candidate_id], enabled: !!c?.employee_candidate_id, queryFn: async () => { const { data, error } = await supabase.from("candidates").select("aadhaar_number,pan_number,aadhaar_image_url,pan_image_url,photo_url").eq("id", c?.employee_candidate_id ?? "").maybeSingle(); if (error) throw error; return data; } });
+  const payQ = useQuery({ queryKey: ["rail", "role-pay", c?.offer?.operational_role_key], enabled: !!c?.offer?.operational_role_key, queryFn: async () => { const { data, error } = await supabase.from("rail_pay_structures").select("label,skill,is_placeholder,effective_from").eq("role_key", c?.offer?.operational_role_key ?? "").is("deleted_at", null).lte("effective_from", new Date().toISOString().slice(0, 10)).order("effective_from", { ascending: false }).limit(1).maybeSingle(); if (error) throw error; return data; } });
   const interviews = q.data?.interviews ?? [];
   const namesQ = useQuery({
     queryKey: ["rec", "cand-names", recId, interviews.map((i) => i.interviewer_id).join(","), c?.offer?.reports_to ?? ""],
@@ -133,12 +134,13 @@ function CandidatePage() {
         <h2 className="text-sm font-semibold">Candidate overview</h2>
         <p className="mt-1 text-sm text-muted-foreground">{c.full_name} · {c.mobile} · {c.offer?.operational_role_key?.replaceAll("_", " ") ?? "Position pending"} · {c.current_location || "Location pending"}</p>
         <p className="mt-2 text-xs text-muted-foreground">{c.stage === "onboarded" ? "Onboarded. Complete remaining identity and document details in the employee record." : "Next: review details, agree an offer and send to HR for onboarding. Documents may be added later."}</p>
+        {c.offer?.operational_role_key && <p className="mt-2 text-xs text-muted-foreground">Pay structure: {payQ.isPending ? "Checking…" : payQ.isError ? "Could not check" : payQ.data ? `${payQ.data.label} · ${payQ.data.skill.replaceAll("_", " ")}${payQ.data.is_placeholder ? " · Placeholder—verify before payroll" : ""}` : "Not configured—set up in Finance & Payroll before assigning pay"}. Final wages depend on location and attendance.</p>}
       </section>
 
       <section className="border-b border-border pb-4" aria-label="Onboarding checklist">
         <h2 className="text-sm font-semibold">Onboarding checklist</h2>
         <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
-          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.operational_role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', !!(docsQ.data?.aadhaar_image_url && docsQ.data?.aadhaar_number)], ['PAN card and number', !!(docsQ.data?.pan_image_url && docsQ.data?.pan_number)], ['Photograph', !!docsQ.data?.photo_url]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : 'Needs review'}</span></li>)}
+          {([['Name and mobile', !!(c.full_name && c.mobile)], ['Position and designation', !!(c.offer?.operational_role_key && c.offer.designation_id)], ['Location', !!c.current_location], ['Joining date and salary offer', !!(c.offer?.joining_date && c.offer.monthly_ctc)], ['Aadhaar card and number', !!(docsQ.data?.aadhaar_image_url && docsQ.data?.aadhaar_number)], ['PAN card and number', !!(docsQ.data?.pan_image_url && docsQ.data?.pan_number)], ['Photograph', !!docsQ.data?.photo_url]] as const).map(([label, done]) => <li key={label} className="flex justify-between gap-2 border-b border-border/60 py-1"><span>{label}</span><span className={done ? 'text-foreground' : 'text-muted-foreground'}>{done ? 'Added' : c.stage === 'onboarded' && docsQ.isLoading ? 'Checking…' : 'Pending'}</span></li>)}
         </ul>
         {c.stage === "onboarded" && c.employee_candidate_id && <Link to="/admin/candidates/$id/details" params={{ id: c.employee_candidate_id }} className="mt-3 inline-block text-sm font-medium text-brand underline">Complete identity documents in employee record</Link>}
       </section>
