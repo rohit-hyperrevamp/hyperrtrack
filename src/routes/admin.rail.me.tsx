@@ -127,7 +127,7 @@ function MePage() {
           summary = res.summary;
           issues = res.issues;
         } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Photo scoring unavailable");
+          toast.error(err instanceof Error ? err.message : "Photo scoring unavailable; please retry when connected");
           return;
         }
       }
@@ -141,7 +141,7 @@ function MePage() {
   }
 
   async function confirmDone() {
-    if (!evidence || evidence.verdict === "dirty") return;
+    if (!evidence || evidence.verdict === "dirty" || evidence.verdict === "offline") return;
     const { task, photo, score } = evidence;
     const label = `${task.rail_event_coaches?.rail_events?.rail_trains?.number ?? "Train"} coach ${task.rail_event_coaches?.position} · ${task.task_name}`;
     enqueueTask({ task_id: task.id, label, photo_data: photo, ai_score: score ?? undefined });
