@@ -244,7 +244,7 @@ function LoginPage() {
     <main className="login-scene relative min-h-dvh overflow-hidden bg-foreground text-foreground">
       <video
         className="login-film absolute inset-0 h-full w-full object-cover"
-        src={`https://hyperrtrack.lovable.app${railVideo.url}`}
+        src={railVideo.url}
         autoPlay
         muted
         loop

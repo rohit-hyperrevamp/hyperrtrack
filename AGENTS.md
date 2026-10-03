@@ -23,3 +23,4 @@
 - Shared Input forwards onChange to its number/date variants and sonner <Toaster /> stays mounted once in __root — otherwise typed values are ignored and save/error messages vanish.
 - Overview animations use a shared numeric RAF helper and chart-only CSS, respecting reduced motion — dashboard values track fetched data without changing other screens.
 - Rail pay: per-role formula lines in `rail_salary_components` (dated, optional area override) evaluated by `src/lib/rail-salary.ts` over `rail_pay_inputs`; DB triggers guard duty/attendance — formulas editable without code, workers see own data only.
+- Non-Lovable hosts (Git→Vercel) relay `/_serverFn/`, `/api/`, `/__l5e/` to the Lovable deployment from `src/server.ts` when the service key is absent — the private backend key only exists in Lovable Cloud.
