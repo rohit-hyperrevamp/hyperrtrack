@@ -138,9 +138,9 @@ function QualityPage() {
 
         <TabsContent value="trust">
           <div className="divide-y rounded-2xl border bg-card">{trust.map((t, i) => (
-            <div key={t.depot} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {t.depot}</div><div className="text-xs text-muted-foreground">First-pass {t.firstPass}% of {t.reviewed} reviewed · {t.complaints} open complaints · {t.penalties} penalties</div></div>
+            <div key={t.depot} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{i + 1}. {t.depot}</div><div className="text-xs text-muted-foreground">First-pass {t.firstPass}% of {t.reviewed} reviewed · {t.penalties} penalties</div></div>
               <div className="text-2xl font-semibold tabular-nums">{t.score}</div></div>))}</div>
-          <p className="mt-2 text-xs text-muted-foreground">Trust score = 60 × first-pass rate + up to 25 for no open complaints + up to 15 for no penalties.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Trust score = 60 × first-pass rate + up to 40 for no penalties.</p>
         </TabsContent>
       </Tabs>
     </div>
