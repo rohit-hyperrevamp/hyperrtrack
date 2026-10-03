@@ -75,4 +75,4 @@
 - [x] Animate Overview tile figures, D-dial stick fills and seven-day graph bars as dashboard data appears, with reduced-motion support.
 - [x] Constrain page scrolling to the workspace and repair the right-side Overview; redesign rail Attendance and employee lookup with top-bar filters and no legacy organization/unit charter; gate cleaner task acceptance on active check-in in the UI and migration. Live verification and migration application await the production connection.
 - [x] Add a Cleaning photos tab under Quality for authorized supervisors/admins, task-linked review status, scoped task-read policy and short-lived private photo links; live verification and migration application await the production connection.
-- [ ] Settings (Masters & Rules): give Inventory/Items its own tab group like Places & Trains (rename category if needed); leave Company details alone
+- [x] Settings: Inventory items moved into renamed "Supplies & inventory" group
