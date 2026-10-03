@@ -23,3 +23,4 @@
 - The rail dock is ordered by daily use and grouped by RAIL_DOCK_SECTIONS in admin.tsx, each page once — short, duplicate-free navigation.
 - Shared Input forwards onChange to its number/date variants and sonner <Toaster /> stays mounted once in __root — otherwise typed values are ignored and save/error messages vanish.
 - Overview animations use a shared numeric RAF helper and chart-only CSS, respecting reduced motion — dashboard values track fetched data without changing other screens.
+- Rail salaries are per-role formula lines in `rail_salary_components` (earning/deduction/employer, optional area override, dated versions) evaluated by `src/lib/rail-salary.ts` over `rail_pay_inputs` (days, rate, ED hours) — formulas stay editable without code changes.
