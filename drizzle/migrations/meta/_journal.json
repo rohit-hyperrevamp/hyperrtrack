@@ -141,6 +141,13 @@
       "when": 1790997469127,
       "tag": "0019_rail_salary_structure_breakdown",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790997958856,
+      "tag": "0020_rail_salary_components",
+      "breakpoints": true
     }
   ]
 }

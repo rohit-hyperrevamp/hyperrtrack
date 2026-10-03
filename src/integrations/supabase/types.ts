@@ -9196,6 +9196,71 @@ export type Database = {
         }
         Relationships: []
       }
+      rail_salary_components: {
+        Row: {
+          area_class: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          effective_to: string | null
+          enabled: boolean
+          formula: string
+          id: string
+          kind: string
+          label: string
+          sort_order: number
+          structure_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          area_class?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          enabled?: boolean
+          formula: string
+          id?: string
+          kind: string
+          label: string
+          sort_order?: number
+          structure_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          area_class?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          enabled?: boolean
+          formula?: string
+          id?: string
+          kind?: string
+          label?: string
+          sort_order?: number
+          structure_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rail_salary_components_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "rail_pay_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rail_service_types: {
         Row: {
           code: string
@@ -11982,6 +12047,10 @@ export type Database = {
           scope_location_id: string
           scope_type: string
         }[]
+      }
+      rail_pay_inputs: {
+        Args: { _month: string; _person: string }
+        Returns: Json
       }
       rail_payslip_preview: {
         Args: { _month?: string; _person: string }

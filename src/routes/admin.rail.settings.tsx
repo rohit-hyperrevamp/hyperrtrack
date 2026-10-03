@@ -10,6 +10,7 @@ import { downloadCsv } from "@/lib/csv-export";
 import { RAIL_MASTERS, type MasterDef, type MasterField } from "@/lib/rail-masters";
 import { PageHeader } from "@/components/PageHeader";
 import { RailItemTypes, RailOrgSetup } from "@/components/RailOrgSetup";
+import { RailSalaryBuilder } from "@/components/RailSalaryBuilder";
 import { RailTopbarSlot } from "@/components/RailTopbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,9 @@ function RailSettingsPage() {
     return [...m.entries()];
   }, []);
 
+  const [itemsOpen, setItemsOpen] = useState(false);
+  if (itemsOpen) return <div className="space-y-4"><Button variant="ghost" onClick={() => setItemsOpen(false)}><ArrowLeft className="h-4 w-4" /> Back to Masters & rules</Button><RailItemTypes /></div>;
+  if (active?.table === "rail_pay_structures") return <RailSalaryBuilder onBack={() => setActive(null)} />;
   if (active) return <MasterTable def={active} onBack={() => setActive(null)} />;
 
   return (
@@ -91,8 +95,8 @@ function RailSettingsPage() {
             <h2 className="text-base font-semibold text-foreground">{group}</h2>
             <span className="ml-auto text-xs tabular-nums text-muted-foreground">{defs.length}</span>
           </div>
-          {group === "Supplies & inventory" && <RailItemTypes />}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {group === "Supplies & inventory" && <Button type="button" variant="outline" onClick={() => setItemsOpen(true)} className="rail-config-card group h-auto min-h-32 w-full items-start justify-start whitespace-normal rounded-lg border-border bg-card p-5 text-left shadow-none transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-brand/50 hover:bg-card hover:shadow-md"><span className="flex w-full min-w-0 items-start gap-3"><span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full", groupTones[group])}><Warehouse className="h-5 w-5" /></span><span className="min-w-0 flex-1 pt-0.5"><span className="block text-sm font-semibold text-foreground">Inventory items</span><span className="mt-1 block line-clamp-2 text-xs font-normal text-muted-foreground">Chemicals, consumables and equipment — add or remove items.</span></span><ArrowRight className="h-3.5 w-3.5 text-brand" /></span></Button>}
             {defs.map((d) => <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />)}
           </div>
         </section>

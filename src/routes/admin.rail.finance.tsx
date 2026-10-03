@@ -65,11 +65,9 @@ function Finance() {
       </div>
       <div className={section === "pay" ? "block" : "hidden sm:block"}><RailPayStructures /></div>
       <div className={section === "links" ? "flex flex-wrap gap-2" : "hidden sm:flex sm:flex-wrap sm:gap-2"}>
-        <Button asChild variant="outline"><Link to="/admin/deduction-type-manager">Deductions</Link></Button>
         <Button asChild variant="outline"><Link to="/admin/payroll">Payroll register</Link></Button>
-        <Button asChild variant="outline"><Link to="/admin/invoice">Invoices</Link></Button>
-        <Button asChild variant="outline"><Link to="/admin/allowance-manager">Salary parts</Link></Button>
-        <Button asChild variant="outline"><Link to="/admin/employer-contributions">Employer contributions</Link></Button>
+        <Button asChild variant="outline"><Link to="/admin/rail/billing">Invoices</Link></Button>
+        <Button asChild variant="outline"><Link to="/admin/rail/settings">Salary structures</Link></Button>
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ const railChildren: LeafItem[] = [
   { to: "/admin/rail/checker", label: "Checks", icon: FileSignature },
   { to: "/admin/hr/recruitment/dashboard", label: "People", icon: UsersRound },
   { to: "/admin/rail/pay", label: "My Pay", icon: Banknote },
-  { to: "/admin/rail/billing", label: "Billing", icon: Receipt },
+  { to: "/admin/rail/billing", label: "Invoices", icon: Receipt },
   { to: "/admin/rail/finance", label: "Finance & Payroll", icon: Banknote },
   { to: "/admin/rail/supplies", label: "Supplies", icon: Boxes },
   { to: "/admin/rail/sustainability", label: "Resources", icon: Leaf },
