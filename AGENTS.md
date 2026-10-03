@@ -13,14 +13,13 @@
 - Rail masters are described once in `src/lib/rail-masters.ts` and edited by the generic Settings hub; versioned masters close the old row and insert a new dated one — values are never overwritten.
 - Score task photos in My Day after assignment checks; save advisory results in `rail_ai_photo_scores` and private task evidence before completing — no separate camera page or unlinked photo.
 - HyperTrack is the rail brand: BrandMark holds the split-color wordmark and compact train symbol (also the favicon); rail screens sit directly in the dock, legacy dashboards redirect to role-appropriate rail pages, and legacy routes stay for migration — one visual source, no irrelevant security-company options.
-- View as User sits in super-admin navigation after Activity Log; rail shell, navigation and card styles live in shared workspace styles — privileged navigation and pages stay consistent.
+- View as User sits in super-admin nav after Activity Log; rail shell/nav/card styles live in shared workspace styles — consistent privileged pages.
 - Resolve legacy named status and tile colors through shared semantic palette tokens rather than rewriting business-state labels — good, caution, danger and brand cues must remain distinguishable without changing workflows.
 - Use the Apple system font stack for the interface, with SF Pro on Apple devices and a system fallback elsewhere — Apple's font is not bundled for redistribution.
 - Keep the login film as a project asset pointer and the sign-in motion in shared styles while retaining the existing server-verified phone flow — branding can evolve without weakening authentication.
 - Map HyperTrack page visibility through rail_can-backed module checks and keep role grants in rail_roles/rail_permissions — navigation reflects the same database-enforced decisions as operations.
-- Use centered Sheet dialogs for entry and review while retaining explicit side sheets for navigation, and keep shared search in the rail layout — forms and search stay consistent across screens without altering access logic.
-- Rail pay uses existing payroll/invoice screens and security-definer RPCs over rail pay structures and wage rules; DB triggers guard duty/attendance — one enforced pay engine, own-data-only for workers.
+- Use centered Sheet dialogs for entry/review, side sheets only for navigation, shared search in the rail layout — consistent forms and search.
 - The rail dock is ordered by daily use and grouped by RAIL_DOCK_SECTIONS in admin.tsx, each page once — short, duplicate-free navigation.
 - Shared Input forwards onChange to its number/date variants and sonner <Toaster /> stays mounted once in __root — otherwise typed values are ignored and save/error messages vanish.
 - Overview animations use a shared numeric RAF helper and chart-only CSS, respecting reduced motion — dashboard values track fetched data without changing other screens.
-- Rail salaries are per-role formula lines in `rail_salary_components` (earning/deduction/employer, optional area override, dated versions) evaluated by `src/lib/rail-salary.ts` over `rail_pay_inputs` (days, rate, ED hours) — formulas stay editable without code changes.
+- Rail pay: per-role formula lines in `rail_salary_components` (dated, optional area override) evaluated by `src/lib/rail-salary.ts` over `rail_pay_inputs`; DB triggers guard duty/attendance — formulas editable without code, workers see own data only.
