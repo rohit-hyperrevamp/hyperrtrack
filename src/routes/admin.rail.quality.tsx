@@ -152,7 +152,7 @@ function QualityPage() {
         </TabsContent>
 
         <TabsContent value="alerts">
-          {!data?.alerts.length ? <Empty title="No alerts" hint="Alerts appear for chemical over-use, leaks, late releases and SLA breaches." /> :
+          {!data?.alerts.length ? <Empty title="No alerts" hint="Alerts appear automatically when chemical use on a coach goes above the allowed limit. Rules are editable in Settings." /> :
             <div className="divide-y rounded-2xl border bg-card">{data.alerts.map((a) => (
               <div key={a.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium">{a.message}</div><div className="text-xs text-muted-foreground">{a.rule_code} · {new Date(a.created_at).toLocaleString()}</div></div>
                 <div className="flex items-center gap-2"><StatusPill s={a.status} />{a.status === "open" && <Button size="sm" variant="outline" onClick={async () => (await setField("rail_alerts", a.id, { status: "acknowledged", ack_at: new Date().toISOString() }, "Acknowledged")) && inv()}>Acknowledge</Button>}</div></div>))}</div>}
