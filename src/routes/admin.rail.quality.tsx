@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { confirmAction } from "@/components/ConfirmProvider";
 import { toast } from "sonner";
@@ -16,7 +15,7 @@ import { downloadCsv } from "@/lib/csv-export";
 import { db, Empty, inr, Kpi, railHead, rows, StatusPill, today } from "@/lib/rail-ui";
 
 export const Route = createFileRoute("/admin/rail/quality")({
-  head: () => railHead("Quality", "Review cleaning task photos, inspections, penalties, complaints and depot quality."),
+  head: () => railHead("Quality", "Review cleaning task photos, inspections, penalties and depot quality."),
   component: QualityPage,
 });
 
@@ -35,20 +34,18 @@ function QualityPage() {
   const { data: rawData } = useQuery({
     queryKey: ["rail-q"],
     queryFn: async () => {
-      const [insp, pen, comp, alerts, coaches, locs, ec] = await Promise.all([
+      const [insp, pen, alerts, coaches, locs, ec] = await Promise.all([
         rows<{ id: string; result: string; remarks: string | null; created_at: string; inspector_role: string | null; location_id: string | null }>(db.from("rail_inspections").select("id,result,remarks,created_at,inspector_role,location_id").order("created_at", { ascending: false }).limit(300)),
         rows<{ id: string; rule_code: string; amount: number; qty: number; reason: string | null; status: string; penalty_date: string; location_id: string | null }>(db.from("rail_penalties").select("id,rule_code,amount,qty,reason,status,penalty_date,location_id").order("penalty_date", { ascending: false }).limit(300)),
-        rows<{ id: string; ref_no: string | null; coach_number: string | null; category: string; description: string | null; status: string; sla_due: string | null; created_at: string; location_id: string | null }>(db.from("rail_complaints").select("id,ref_no,coach_number,category,description,status,sla_due,created_at,location_id").order("created_at", { ascending: false }).limit(300)),
         rows<{ id: string; rule_code: string; severity: string; message: string; status: string; created_at: string }>(db.from("rail_alerts").select("id,rule_code,severity,message,status,created_at").order("created_at", { ascending: false }).limit(200)),
         rows<{ id: string; coach_number: string; last_intensive_on: string | null; rail_coach_types: { code: string } | null }>(db.from("rail_coaches").select("id,coach_number,last_intensive_on,rail_coach_types(code)").eq("status", "active").order("last_intensive_on", { nullsFirst: true }).limit(500)),
         rows<{ id: string; code: string; name: string; type: string; parent_id: string | null }>(db.from("rail_locations").select("id,code,name,type,parent_id")),
         rows<{ location_id: string; first_pass: boolean | null; rework_count: number }>(db.from("rail_event_coaches").select("location_id,first_pass,rework_count").not("first_pass", "is", null).limit(5000)),
       ]);
-      return { insp, pen, comp, alerts, coaches, locs, ec };
+      return { insp, pen, alerts, coaches, locs, ec };
     },
   });
   const { data: interval = 30 } = useQuery({ queryKey: ["rail-setting-int"], queryFn: async () => (await db.rpc("rail_setting", { _key: "intensive_interval_days" })).data ?? 30 });
-  const [newC, setNewC] = useState({ ref_no: "", coach_number: "", description: "" });
 
   const locName = (id: string | null) => rawData?.locs.find((l) => l.id === id)?.code ?? "—";
   const depotOf = (id: string | null): string | null => {
@@ -61,7 +58,6 @@ function QualityPage() {
     ...rawData,
     insp: rawData.insp.filter((x) => depotOf(x.location_id) === depot),
     pen: rawData.pen.filter((x) => depotOf(x.location_id) === depot),
-    comp: rawData.comp.filter((x) => depotOf(x.location_id) === depot),
     ec: rawData.ec.filter((x) => depotOf(x.location_id) === depot),
   });
   // Trust score per depot: 60% first-pass rate, 25% complaint-free, 15% penalty-free (last 300 records)
