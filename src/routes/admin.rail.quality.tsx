@@ -60,14 +60,13 @@ function QualityPage() {
     pen: rawData.pen.filter((x) => depotOf(x.location_id) === depot),
     ec: rawData.ec.filter((x) => depotOf(x.location_id) === depot),
   });
-  // Trust score per depot: 60% first-pass rate, 25% complaint-free, 15% penalty-free (last 300 records)
+  // Trust score per depot: 60% first-pass rate, 40% penalty-free (last 300 records)
   const trust = (data?.locs ?? []).filter((l) => l.type === "depot" && (!depot || l.id === depot)).map((d) => {
     const ec = data!.ec.filter((x) => depotOf(x.location_id) === d.id);
     const fp = ec.length ? ec.filter((x) => x.first_pass).length / ec.length : 1;
-    const comp = data!.comp.filter((c) => depotOf(c.location_id) === d.id && c.status !== "closed").length;
     const pen = data!.pen.filter((p) => depotOf(p.location_id) === d.id && p.status !== "waived").length;
-    const score = Math.round(fp * 60 + Math.max(0, 25 - comp * 5) + Math.max(0, 15 - pen * 1.5));
-    return { depot: d.name, score, firstPass: Math.round(fp * 100), complaints: comp, penalties: pen, reviewed: ec.length };
+    const score = Math.round(fp * 60 + Math.max(0, 40 - pen * 4));
+    return { depot: d.name, score, firstPass: Math.round(fp * 100), penalties: pen, reviewed: ec.length };
   }).sort((a, b) => b.score - a.score);
 
   const due = (data?.coaches ?? []).map((c) => {
@@ -75,17 +74,8 @@ function QualityPage() {
     return { ...c, days };
   }).filter((c) => c.days >= interval - 3);
 
-  async function addComplaint() {
-    const sla = new Date(Date.now() + 4 * 3600e3).toISOString();
-    const { error } = await db.from("rail_complaints").insert({ ...newC, sla_due: sla });
-    if (error) return toast.error(error.message);
-    toast.success("Complaint logged"); setNewC({ ref_no: "", coach_number: "", description: "" }); inv();
-  }
-
   const totals = {
     pen: (data?.pen ?? []).filter((p) => p.status === "confirmed").reduce((s, p) => s + Number(p.amount), 0),
-    open: (data?.comp ?? []).filter((c) => c.status === "open" || c.status === "assigned").length,
-    breached: (data?.comp ?? []).filter((c) => (c.status === "open" || c.status === "assigned") && c.sla_due && new Date(c.sla_due) < new Date()).length,
   };
 
   return (
