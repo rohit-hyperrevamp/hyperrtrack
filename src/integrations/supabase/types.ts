@@ -8425,10 +8425,15 @@ export type Database = {
       }
       rail_pay_structures: {
         Row: {
+          admin_er_pct: number
           bonus_pct: number
+          conveyance_pct: number
           created_at: string
           created_by: string | null
           deleted_at: string | null
+          ed_multiplier: number
+          ed_shift_hours: number
+          edli_er_pct: number
           effective_from: string
           effective_to: string | null
           esic_emp_pct: number
@@ -8443,18 +8448,25 @@ export type Database = {
           pf_emp_pct: number
           pf_er_pct: number
           pf_wage_cap: number
+          pt_gross_threshold: number
           pt_monthly: number
           role_key: string
           skill: string
+          special_pct: number
           uniform_pct: number
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          admin_er_pct?: number
           bonus_pct?: number
+          conveyance_pct?: number
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          ed_multiplier?: number
+          ed_shift_hours?: number
+          edli_er_pct?: number
           effective_from?: string
           effective_to?: string | null
           esic_emp_pct?: number
@@ -8469,18 +8481,25 @@ export type Database = {
           pf_emp_pct?: number
           pf_er_pct?: number
           pf_wage_cap?: number
+          pt_gross_threshold?: number
           pt_monthly?: number
           role_key: string
           skill?: string
+          special_pct?: number
           uniform_pct?: number
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          admin_er_pct?: number
           bonus_pct?: number
+          conveyance_pct?: number
           created_at?: string
           created_by?: string | null
           deleted_at?: string | null
+          ed_multiplier?: number
+          ed_shift_hours?: number
+          edli_er_pct?: number
           effective_from?: string
           effective_to?: string | null
           esic_emp_pct?: number
@@ -8495,9 +8514,11 @@ export type Database = {
           pf_emp_pct?: number
           pf_er_pct?: number
           pf_wage_cap?: number
+          pt_gross_threshold?: number
           pt_monthly?: number
           role_key?: string
           skill?: string
+          special_pct?: number
           uniform_pct?: number
           updated_at?: string
           updated_by?: string | null
