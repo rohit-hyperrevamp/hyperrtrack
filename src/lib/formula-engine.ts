@@ -258,6 +258,9 @@ function evalNode(n: Node, ctx: FormulaContext): number {
       if (n.name === "round") return Math.round(args[0] ?? 0);
       if (n.name === "floor") return Math.floor(args[0] ?? 0);
       if (n.name === "ceil") return Math.ceil(args[0] ?? 0);
+      if (n.name === "if") return (args[0] ?? 0) > 0 ? (args[1] ?? 0) : (args[2] ?? 0);
+      if (n.name === "lte") return (args[0] ?? 0) <= (args[1] ?? 0) ? 1 : 0;
+      if (n.name === "gte") return (args[0] ?? 0) >= (args[1] ?? 0) ? 1 : 0;
       return 0;
     }
   }
