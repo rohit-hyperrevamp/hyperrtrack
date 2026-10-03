@@ -40,7 +40,7 @@ const groupIcons: Record<MasterDef["group"], LucideIcon> = {
   "Places & trains": TrainFront,
   Cleaning: ClipboardCheck,
   Contracts: FileText,
-  "Supplies & resources": Warehouse,
+  "Supplies & inventory": Warehouse,
   "Billing & wages": Wallet,
   System: Settings2,
 };
@@ -52,7 +52,7 @@ const groupTones: Record<MasterDef["group"], string> = {
   "Places & trains": "bg-brand text-primary-foreground",
   Cleaning: "bg-brand text-primary-foreground",
   Contracts: "bg-foreground text-background",
-  "Supplies & resources": "bg-destructive text-destructive-foreground",
+  "Supplies & inventory": "bg-destructive text-destructive-foreground",
   "Billing & wages": "bg-brand text-primary-foreground",
   System: "bg-foreground text-background",
 };

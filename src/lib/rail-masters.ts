@@ -15,7 +15,7 @@ export type MasterDef = {
   table: string;
   label: string;
   description: string;
-  group: "Places & trains" | "Cleaning" | "Contracts" | "Supplies & resources" | "Billing & wages" | "System";
+  group: "Places & trains" | "Cleaning" | "Contracts" | "Supplies & inventory" | "Billing & wages" | "System";
   orderBy: string;
   versioned?: boolean;
   fields: MasterField[];
@@ -240,7 +240,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_consumption_norms", label: "Chemical norms", group: "Supplies & resources", orderBy: "effective_from", versioned: true,
+    table: "rail_consumption_norms", label: "Chemical norms", group: "Supplies & inventory", orderBy: "effective_from", versioned: true,
     description: "Expected quantity per coach for each item, service and coach type.",
     fields: [
       { key: "item_id", label: "Item", type: "ref", required: true, ref: { table: "inv_items", label: "name" } },
@@ -251,7 +251,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_contract_items", label: "Approved items", group: "Supplies & resources", orderBy: "created_at",
+    table: "rail_contract_items", label: "Approved items", group: "Supplies & inventory", orderBy: "created_at",
     description: "Items allowed on each contract. Anything else is blocked at kit issue.",
     fields: [
       { key: "contract_id", label: "Contract", type: "ref", required: true, ref: { table: "rail_contracts", label: "loa_number" } },
@@ -259,7 +259,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_assets", label: "Equipment", group: "Supplies & resources", orderBy: "qr_tag",
+    table: "rail_assets", label: "Equipment", group: "Supplies & inventory", orderBy: "qr_tag",
     description: "Machines, ladders, PPE and devices with QR tag, warranty and service interval.",
     fields: [
       { key: "qr_tag", label: "QR tag", type: "text", required: true },
@@ -274,7 +274,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_meters", label: "Meters", group: "Supplies & resources", orderBy: "code",
+    table: "rail_meters", label: "Meters", group: "Supplies & inventory", orderBy: "code",
     description: "Water, recycled water, electricity and fuel meters by location.",
     fields: [
       { key: "code", label: "Code", type: "text", required: true },
@@ -285,7 +285,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_resource_norms", label: "Water & energy norms", group: "Supplies & resources", orderBy: "method", versioned: true,
+    table: "rail_resource_norms", label: "Water & energy norms", group: "Supplies & inventory", orderBy: "method", versioned: true,
     description: "Estimated litres and kWh per coach for manual wash and the auto wash plant.",
     fields: [
       { key: "method", label: "Method", type: "select", required: true, options: ["manual", "acwp"] },
@@ -296,7 +296,7 @@ export const RAIL_MASTERS: MasterDef[] = [
     ],
   },
   {
-    table: "rail_emission_factors", label: "Emission factors", group: "Supplies & resources", orderBy: "resource", versioned: true,
+    table: "rail_emission_factors", label: "Emission factors", group: "Supplies & inventory", orderBy: "resource", versioned: true,
     description: "kg CO2e per unit of each resource, with source note.",
     fields: [
       { key: "resource", label: "Resource", type: "text", required: true },
