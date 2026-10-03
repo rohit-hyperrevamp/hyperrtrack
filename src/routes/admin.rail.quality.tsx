@@ -8,7 +8,6 @@ import { PageHeader } from "@/components/PageHeader";
 import { RailTopbarSlot } from "@/components/RailTopbar";
 import { RailEvidenceReview } from "@/components/RailEvidenceReview";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { logActivity } from "@/lib/activity-log";
 import { downloadCsv } from "@/lib/csv-export";
@@ -82,7 +81,7 @@ function QualityPage() {
     <div className="space-y-5">
       <RailTopbarSlot><select aria-label="Depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-44 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></RailTopbarSlot>
       <PageHeader title="Quality" description="Cleaning photos, inspections, penalties and depot quality." />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} tone="brand" />
         <Kpi label="Fines" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
         <Kpi label="Open alerts" value={data?.alerts.filter((a) => a.status === "open").length ?? 0} tone="warn" />
