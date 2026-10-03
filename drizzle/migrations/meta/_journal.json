@@ -134,6 +134,13 @@
       "when": 1790973178197,
       "tag": "0018_rail_checkin_before_work_and_quality_review",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790997469127,
+      "tag": "0019_rail_salary_structure_breakdown",
+      "breakpoints": true
     }
   ]
 }
