@@ -81,11 +81,10 @@ function QualityPage() {
   return (
     <div className="space-y-5">
       <RailTopbarSlot><select aria-label="Depot" value={depot} onChange={(e) => setDepot(e.target.value)} className="h-10 min-w-44 max-w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground"><option value="">All depots</option>{rawData?.locs.filter((l) => l.type === "depot" || l.type === "station").map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></RailTopbarSlot>
-      <PageHeader title="Quality" description="Cleaning photos, inspections, penalties and complaints." />
+      <PageHeader title="Quality" description="Cleaning photos, inspections, penalties and depot quality." />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Kpi label="Checks" value={data?.insp.length ?? 0} hint={`${data?.insp.filter((i) => i.result === "fail").length ?? 0} failed`} tone="brand" />
         <Kpi label="Fines" value={inr(totals.pen)} tone={totals.pen ? "bad" : "default"} />
-        <Kpi label="Open complaints" value={totals.open} hint={`${totals.breached} past time limit`} tone={totals.breached ? "bad" : "default"} />
         <Kpi label="Open alerts" value={data?.alerts.filter((a) => a.status === "open").length ?? 0} tone="warn" />
         <Kpi label="Deep clean due" value={due.length} tone={due.length ? "warn" : "good"} />
       </div>
@@ -95,7 +94,6 @@ function QualityPage() {
           <TabsTrigger value="photos">Cleaning photos</TabsTrigger>
           <TabsTrigger value="penalties">Penalties</TabsTrigger>
           <TabsTrigger value="inspections">Inspections</TabsTrigger>
-          <TabsTrigger value="complaints">Complaints</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
           <TabsTrigger value="intensive">Deep clean due</TabsTrigger>
           <TabsTrigger value="trust">Trust score</TabsTrigger>
@@ -122,20 +120,6 @@ function QualityPage() {
               <div key={i.id} className="flex items-center justify-between p-3 text-sm"><div><div className="font-medium capitalize">{i.result}</div><div className="text-xs text-muted-foreground">{new Date(i.created_at).toLocaleString()} · {locName(i.location_id)} · {i.inspector_role} {i.remarks && `· ${i.remarks}`}</div></div><StatusPill s={i.result === "pass" ? "approved" : "rejected"} /></div>))}</div>}
         </TabsContent>
 
-        <TabsContent value="complaints" className="space-y-3">
-          <div className="grid gap-2 rounded-2xl border bg-card p-3 md:grid-cols-[1fr_1fr_2fr_auto]">
-            <Input placeholder="Rail Madad ref." value={newC.ref_no} onChange={(e) => setNewC({ ...newC, ref_no: e.target.value })} />
-            <Input placeholder="Coach no." value={newC.coach_number} onChange={(e) => setNewC({ ...newC, coach_number: e.target.value })} />
-            <Input placeholder="What was reported" value={newC.description} onChange={(e) => setNewC({ ...newC, description: e.target.value })} />
-            <Button onClick={addComplaint} disabled={!newC.description}><Plus className="mr-1 h-4 w-4" />Log</Button>
-          </div>
-          {!data?.comp.length ? <Empty title="No complaints" /> :
-            <div className="divide-y rounded-2xl border bg-card">{data.comp.map((c) => (
-              <div key={c.id} className="flex items-center justify-between p-3 text-sm">
-                <div><div className="font-medium">{c.ref_no || "Complaint"} · coach {c.coach_number || "—"}</div><div className="text-xs text-muted-foreground">{c.description} {c.sla_due && `· due ${new Date(c.sla_due).toLocaleString()}`}</div></div>
-                <div className="flex items-center gap-2"><StatusPill s={c.status} />{c.status !== "resolved" && c.status !== "closed" && <Button size="sm" variant="outline" onClick={async () => (await setField("rail_complaints", c.id, { status: "resolved", resolved_at: new Date().toISOString() }, "Resolved")) && inv()}>Resolve</Button>}</div>
-              </div>))}</div>}
-        </TabsContent>
 
         <TabsContent value="alerts">
           {!data?.alerts.length ? <Empty title="No alerts" hint="Alerts appear automatically when chemical use on a coach goes above the allowed limit. Rules are editable in Settings." /> :
