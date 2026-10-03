@@ -40,7 +40,7 @@ const groupIcons: Record<MasterDef["group"], LucideIcon> = {
   "Places & trains": TrainFront,
   Cleaning: ClipboardCheck,
   Contracts: FileText,
-  "Supplies & resources": Warehouse,
+  "Supplies & inventory": Warehouse,
   "Billing & wages": Wallet,
   System: Settings2,
 };
@@ -52,7 +52,7 @@ const groupTones: Record<MasterDef["group"], string> = {
   "Places & trains": "bg-brand text-primary-foreground",
   Cleaning: "bg-brand text-primary-foreground",
   Contracts: "bg-foreground text-background",
-  "Supplies & resources": "bg-destructive text-destructive-foreground",
+  "Supplies & inventory": "bg-destructive text-destructive-foreground",
   "Billing & wages": "bg-brand text-primary-foreground",
   System: "bg-foreground text-background",
 };
@@ -82,7 +82,7 @@ function RailSettingsPage() {
         {isSuperAdmin && <Button variant="ghost" aria-pressed={section === "roles"} className={cn("rounded-md", section === "roles" && "bg-brand text-primary-foreground hover:bg-brand hover:text-primary-foreground")} onClick={() => setSection("roles")}><ShieldCheck className="h-4 w-4" /> Roles & access</Button>}
         {section === "catalog" && <span className="ml-auto text-xs tabular-nums text-muted-foreground">{RAIL_MASTERS.length} collections</span>}
       </div>
-      {section === "org" ? <RailOrgSetup /> : section === "roles" && isSuperAdmin ? <RolesAccess /> : <><RailItemTypes />{groups.map(([group, entries]) => {
+      {section === "org" ? <RailOrgSetup /> : section === "roles" && isSuperAdmin ? <RolesAccess /> : <>{groups.map(([group, entries]) => {
         const defs = entries.filter((d) => `${d.label} ${d.description}`.toLowerCase().includes(catalogQuery.toLowerCase()));
         return defs.length ? (
         <section key={group} className="space-y-3" aria-label={group}>
@@ -91,6 +91,7 @@ function RailSettingsPage() {
             <h2 className="text-base font-semibold text-foreground">{group}</h2>
             <span className="ml-auto text-xs tabular-nums text-muted-foreground">{defs.length}</span>
           </div>
+          {group === "Supplies & inventory" && <RailItemTypes />}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {defs.map((d) => <MasterCard key={d.table} def={d} onOpen={() => setActive(d)} />)}
           </div>
